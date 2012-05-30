@@ -30,7 +30,7 @@
   (let ((user (make-instance 
                   'system-user
                   :key '(client email 'system-user) 
-                  :type 'system-user
+                  :doc-type 'system-user
                   :client client                
                   :email email
                   :name name
@@ -72,7 +72,7 @@
            (setf user
                  (make-instance 
                   'service-user
-                  :type 'service-user
+                  :doc-type 'service-user
                   :client client
                   :key '(client email 'service-user)
                   :identifier (get-twit-user-id nick)

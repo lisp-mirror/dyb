@@ -28,7 +28,7 @@
                                             :serial t
                                             :components 
                                             ((:file "classes")
-                                            
+                                             (:file "users")
                                              ))
                                    (:module "widgets"
                                             :serial t
@@ -42,6 +42,7 @@
                                             (
                                              (:file "home")
                                              (:file "index")
+                                             (:file "dashboard")
                                              (:file "user")))))
                          (:module "twitter"
                                   :serial t

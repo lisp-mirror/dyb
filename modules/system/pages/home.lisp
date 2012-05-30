@@ -2,9 +2,10 @@
 
 (define-easy-handler (home-page :uri "/ems/home") ()
 
-  (let ((page (make-widget 'ems-page :name "home" :title "Home")))
+  (let ((page (make-widget 'ems-page :name "home" )))
     (with-html-output-to-string (*standard-output*)
       (render page
+
               :body 
               (with-html-output-to-string (*standard-output*)
                 (:form :name "user-form" :id  "user-form" :method "post" :action ""
