@@ -1,0 +1,474 @@
+/*
+ * Peach - Clean & Smooth Admin Template
+ * by Stammi <http://themeforest.net/user/Stammi>
+ *
+ * =================
+ *   Lists Styling
+ * =================
+ *
+ * -----------------
+ * TABLE OF CONTENTS
+ * -----------------
+ *
+ * 1) Stats List
+ * 2) Shortcuts
+ * 3) Block List
+ * 4) Contact List
+ * 5) Activity Stream
+ * 6) Steps List
+ */
+
+/* ==================================================
+ * 1) Stats List
+ * ================================================== */
+.stats-list {
+	list-style: none;
+	padding: 0;
+	width: 100%;
+}
+
+.stats-list li {
+	height: 41px;
+	line-height: 34px;
+	border: 1px solid #e0e0e0;
+	border-radius: 3px;
+	margin-bottom: 5px;
+	background: url(../img/sprites/stats-list/bg.png) repeat-x #f4f4f4;
+}
+
+.stats-list li:hover {
+	background: url(../img/sprites/stats-list/bg-hover.png) repeat-x #fff;
+}
+
+.stats-list span {
+	display: inline-block;
+	float: right;
+	background: url(../img/sprites/stats-list/divider.png) bottom left no-repeat;
+	padding-left: 10px;
+	width: 45px;
+	text-align: right;
+}
+
+.stats-list a {
+	display: block;
+	padding: 5px 20px;
+}
+
+/* ==================================================
+ * 2) Shortcuts
+ * ================================================== */
+
+.shortcuts {
+	list-style: none;
+	margin: 10px 0;
+	margin-bottom: 0;
+	padding: 0;
+}
+
+.shortcuts li {
+	height: 66px;
+	display: inline-table;
+	border-radius: 3px;
+	border: 1px solid #c1c1c1;
+	background: url(../img/sprites/shortcuts/bg.png);
+	margin-bottom: 10px;
+	margin-right: 8px;
+	overflow: hidden;
+}
+
+.shortcuts li:hover {
+	background: url(../img/sprites/shortcuts/bg-hover.png);
+}
+
+.shortcut-icon {
+	float: left;
+	height: 25px;
+	padding: 20.5px 15px;
+	border-right: 1px solid #c1c1c1;
+	background: url(../img/sprites/shortcuts/bg-icon.png);
+	position: relative;
+}
+
+.shortcut-icon img {
+	margin: 0;
+	-moz-user-select: none;
+}
+
+.shortcut-icon .divider {
+	position: absolute;
+	right: 0;
+	top: 0;
+	right: 0;
+	width: 17px;
+	height: 66px;
+	background: url(../img/sprites/shortcuts/shadow-divider.png);
+}
+
+.shortcut-description {
+	padding-left: 10px;
+	margin-left: 35px;
+	padding-right: 10px;
+	display: table-cell;
+	vertical-align: middle;
+	text-decoration: none;
+}
+
+.shortcut-description, .shortcut-description:active, .shortcut-description:focus {
+	outline: none;
+}
+
+.shortcuts strong, .shortcuts span {
+	display: block;
+}
+
+/* ==================================================
+ * 3) Block List
+ * ================================================== */
+
+ul.block-list {
+	list-style: none;
+	list-style-image: none;
+	padding: 0;
+	margin: 15px 0;
+}
+
+ul.block-list li {
+	background-color: #e9e9e9;
+	padding: 5px 10px;
+	margin-bottom: 4px;
+	border-radius: 3px 3px 3px 3px;
+	cursor: pointer;
+}
+
+ul.block-list li:hover {
+	background-color: #dfdfdf;
+}
+
+ul.block-list.with-icon li {
+	background-repeat: no-repeat;
+	background-position: 10px 5px;
+	padding-left: 35px;
+}
+
+/* ==================================================
+ * 4) Contact List
+ * ================================================== */
+
+.slider {
+	margin-left: -10px;
+	margin-right: -10px;
+	width: auto;
+	min-height: 150px;
+	display: block;
+	position: relative;
+	background: #fafafa;
+	overflow: hidden;
+}
+
+.slider a:hover {
+	text-decoration: underline;
+}
+
+.slider ul {
+	list-style: none;
+}
+
+.slider-content {
+	float: left;
+	width: auto;
+	display: block;
+	overflow: auto;
+	min-height: 150px;
+}
+
+.slider-content ul {
+	margin-top: 0;
+	margin-left: -40px;
+	float: left;
+	width: 100%;
+	display: block;
+	position: relative;
+}
+
+.slider-content ul li {
+	float: left;
+	width: 100%;
+}
+
+.slider-content ul ul li a {
+	padding: 5px 10px;
+	display: block;
+	border-bottom: 1px solid #f3f3f3;
+	text-transform: capitalize;
+}
+
+.slider-content ul ul li a:hover {
+	background: #f3faff;
+	border-color: #d5ebf9;
+}
+
+.slider-content .title {
+	padding: 5px 0;
+	text-indent: 10px;
+	background: url("../img/sprites/contact-list/contactlist-bg.png") repeat-x scroll top left #d9d9d9;
+	border-top: 1px solid #bbbbbb;
+	border-bottom: 1px solid #bbbbbb;
+	color: #585858;
+	width: 100%;
+	float: left;
+	font-weight: bold;
+	text-transform: uppercase;
+}
+
+.slider-content .selected .title {
+	background: url("../img/sprites/contact-list/contactlist-selected-bg.png") repeat-x scroll top left #d9d9d9;
+	color: #fff;
+	border-top: 1px solid #2d4259;
+	border-bottom: 1px solid #2d4259;
+}
+
+.slider .slider-nav {
+	position: absolute;
+	right: 0;
+	top: 0;
+	margin-top: 2px;
+	background: url("../img/sprites/contact-list/contactlist-nav-bg.png") repeat-x scroll top left #e1e1e1;
+	min-height: 150px;
+	border-left: 1px solid #bbbbbb;
+}
+
+.slider .slider-nav ul {
+	padding: 5px 0;
+}
+
+.slider .slider-nav li a {
+	padding: 3px 15px;
+	line-height: 13px;
+	text-align: center;
+	color: #585858;
+	font-weight: bold;
+	display: block;
+	text-transform: uppercase;
+	cursor: pointer;
+}
+
+.slider #debug {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	padding: 5px;
+	background: #000;
+	color: #fff;
+}
+
+/*.slider .arrow { font-size: 0px; line-height: 0%; width: 0px; border-bottom:
+ * 8px solid #fff; border-left: 5px solid #333; border-right: 5px solid #333;
+ * position: relative; top: 5px; }*/
+.slider .down {
+	border-bottom: none;
+	border-top: 8px solid #fff;
+	top: 15px;
+}
+
+.slider .slide-up, .slider .slide-down {
+	height: 20px;
+	background: url("../img/sprites/contact-list/contactlist-bg.png") repeat-x scroll top left #d9d9d9;
+	text-align: center;
+	cursor: pointer;
+	float: right;
+	width: 100%;
+	position: relative;
+	border-top: 1px solid #bbbbbb;
+	border-bottom: 1px solid #bbbbbb;
+}
+
+.slider .slide-down {
+	border-bottom: none;
+}
+
+/* ==================================================
+ * 5) Activity Stream
+ * ================================================== */
+
+.activity {
+	margin: 10px;
+	position: relative;
+}
+
+.activity.max-width.small .description {
+	max-width: 150px;
+}
+
+.activity.max-width.medium .description {
+	max-width: 300px;
+}
+
+.activity.max-width.large  .description {
+	max-width: 600px;
+}
+
+.activity.fixed.small .description {
+	width: 150px;
+}
+
+.activity.fixed.medium .description {
+	width: 300px;
+}
+
+.activity.fixed.large .description {
+	width: 600px;
+}
+
+.activity.fixed.equal {
+}
+
+.activity .avatar {
+	display: inline-block;
+	height: 52px;
+	width: 52px;
+	border: 1px solid #b7b7b7;
+	border-radius: 3px;
+	padding: 5px;
+	
+	position: absolute;
+	top: 50%;
+	margin-top: -32px;
+
+	-webkit-box-shadow: 1px 2px 5px rgba(0,0,0,0.33), inset 1px 1px 0px rgba(255,255,255,0.75);
+	-moz-box-shadow: 1px 2px 5px rgba(0,0,0,0.33), inset 1px 1px 0px rgba(255,255,255,0.75);
+	box-shadow: 1px 2px 5px rgba(0,0,0,0.33), inset 1px 1px 0px rgba(255,255,255,0.75);
+}
+
+.activity .description {
+	position: relative;
+	left: 72px;
+	display: inline-block;
+	border-radius: 3px;
+	background: url(../img/sprites/activity-stream/bg-description.png) repeat-x #f3f3f3;
+	border: 1px solid #b7b7b7;
+	padding: 15px;
+	padding-right: 30px;
+}
+
+.activity .description small {
+	display: block;
+}
+
+.activity .description span {
+	position: absolute;
+	width: 8px;
+	height: 13px;
+	background: url(../img/sprites/activity-stream/arrow.png);
+	display: block;
+	left: -8px;
+	margin-top: -6.5px;
+	top: 50%;
+}
+
+.activity .toolbar {
+	float: right;
+	border-left: 1px solid #b7b7b7;
+	background: url(../img/sprites/activity-stream/bg-toolbar.png) repeat-x #d7d7d7;
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	
+	padding: 2px;
+
+	-webkit-box-shadow: inset 1px 1px 0px #fff;
+	-moz-box-shadow: inset 1px 1px 0px #fff;
+	box-shadow: inset 1px 1px 0px #fff;
+}
+
+.activity .toolbar ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: table;
+	height: 100%;
+}
+
+.activity .toolbar li {
+	margin: 2px 0;
+	display: table-row;
+}
+
+.activity .toolbar li  a {
+	display: table-cell;
+	vertical-align: middle;
+}
+
+/* ==================================================
+ * 6) Steps List
+ * ================================================== */
+
+.step {
+	border: 1px solid #c9c9c9;
+	border-radius: 3px;
+	margin: 8px;
+	margin-right: 0;
+	position: relative;
+	float: left;
+	display: inline-block;
+	background: url(../img/sprites/steps/bg-left.png) repeat-x #ededed;
+	-webkit-box-shadow: 1px 1px 0px rgba(255,255,255,0.75);
+	-moz-box-shadow: 1px 1px 0px rgba(255,255,255,0.75);
+	box-shadow: 1px 1px 0px rgba(255,255,255,0.75);
+}
+
+.step:last-child {
+	margin-right: 8px;
+}
+
+.step:active {
+	background: url(../img/sprites/steps/active/bg-left.png) repeat-x #f9f9f9;
+}
+
+.step .circle {
+	position: absolute;
+	top: 50%;
+	margin-top: -20px;
+	left: 20px;
+	width: 19px;
+	height: 40px;
+	background: url(../img/sprites/steps/circle.png);
+	z-index: 90;
+}
+
+.step:active .circle {
+	background: url(../img/sprites/steps/active/circle.png);
+}
+
+.step span {
+	display: block;
+	width: 24px;
+	height: 24px;
+	border-radius: 24px;
+	border: 1px solid #c9c9c9;
+	line-height: 24px;
+	position: absolute;
+	top: 50%;
+	left: 7px;
+	margin-top: -13px;
+	float: left;
+	z-index: 100;
+}
+
+.step a {
+	padding: 20px 40px;
+	margin-left: 20px;
+	float: left;
+	padding-left: 30px;
+	background: url(../img/sprites/steps/bg-right.png) repeat-x #f8f8f8;
+	border-left: 1px solid #c9c9c9;
+	border-radius: 0 3px 3px 0;
+}
+
+.step:hover a {
+	background: url(../img/sprites/steps/active/bg-right.png) repeat-x #fff;
+}
+
+.step strong {
+	display: block;
+}

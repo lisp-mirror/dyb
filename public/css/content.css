@@ -1,0 +1,315 @@
+/*
+ * Peach - Clean & Smooth Admin Template
+ * by Stammi <http://themeforest.net/user/Stammi>
+ * 
+ * ===================
+ *   Content Styling
+ * ===================
+ * 
+ * -----------------
+ * TABLE OF CONTENTS
+ * -----------------
+ * 
+ * 1) Wrappers
+ * 2) Main Content
+ * 3) Boxes
+ *    a) Header
+ *    b) Content
+ *    c) Action Bar
+ *    d) Tabs
+ */
+
+/* ==================================================
+ * 1) Wrappers
+ * ================================================== */
+/* Let the body fill the window */
+html, body {
+	height: 100%;
+	min-height: 100%;
+	background-color: #fafafa;
+}
+
+/* Fill the window but let some space for the footer */
+#height-wrapper {
+	height: auto !important;
+	height: 100%;
+	margin: 0 auto -38px;
+	min-height: 100%;
+}
+
+#content-wrapper {
+	height: 100%;
+	position: relative;
+	margin-bottom: 38px;
+}
+
+.push {
+	height: 38px;
+}
+
+.webkit .push {
+	height: 60px;
+}
+
+.webkit .clear  + .push {
+	height: 38px;
+}
+
+/* ==================================================
+ * 2) Main Content
+ * ================================================== */
+#main_content {
+	padding: 20px;
+	overflow: hidden;
+}
+
+#main_content h2 {
+	margin-top: 0;
+	padding-bottom: 6px;
+	margin-bottom: 4px;
+	width: 100%;
+	background: url(../img/main_content/title-underline.png) repeat-x bottom;
+}
+
+/* ==================================================
+ * 3) Boxes
+ * ================================================== */
+
+.box {
+	margin-top: 15px;
+}
+
+/* ==================================================
+ * 3a) Boxes: Header
+ * ================================================== */
+
+.box .header {
+	background: rgb(120,177,237); /* Old browsers */
+	background: -moz-linear-gradient(top,  rgba(120,177,237,1) 0%, rgba(65,123,181,1) 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(120,177,237,1)), color-stop(100%,rgba(65,123,181,1))); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top,  rgba(120,177,237,1) 0%,rgba(65,123,181,1) 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top,  rgba(120,177,237,1) 0%,rgba(65,123,181,1) 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top,  rgba(120,177,237,1) 0%,rgba(65,123,181,1) 100%); /* IE10+ */
+	background: linear-gradient(top,  rgba(120,177,237,1) 0%,rgba(65,123,181,1) 100%); /* W3C */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#78b1ed', endColorstr='#417bb5',GradientType=0 ); /* IE6-9 */
+	height: 34px;
+	line-height: 34px;
+	border: 1px solid #2B5177;
+	border-radius: 3px 3px 0 0;
+	border-bottom: none;
+	box-shadow: inset 0 1px 0 0 rgba(255,255,255,0.5);
+}
+
+.box .header.grey {
+	background: url(../img/sprites/boxes/bg-header.png);
+	filter: none;
+	border-color: #C8C8C8;
+}
+
+.box .header.grey h3 {
+	color: #383838;
+	text-shadow: none;
+}
+
+.box.closed .header {
+	border-bottom: 1px solid #2B5177;
+	border-radius: 3px;
+}
+
+.box .header h3 {
+	float: left;
+	display: inline-block;
+	margin: 0;
+	padding: 0;
+	margin-left: 8px;
+	padding-left: 10px;
+	background: url(../img/sprites/boxes/divider-header.png) top left no-repeat !important;
+}
+
+.box .header.no-icon h3 {
+	background: none !important;
+	margin-left: 0;
+}
+
+.box .header img {
+	display: inline-block;
+	margin: 9px auto;
+	margin-left: 8px;
+	float: left;
+	-moz-user-select: none;
+}
+
+.box .header span {
+	background: url(../img/icons/packs/fugue/16x16/toggle.png) no-repeat;
+    cursor: pointer;
+    display: block;
+    float: right;
+    height: 16px;
+    margin-right: 10px;
+    margin-top: 10px;
+    width: 16px;
+}
+
+.box.closed .header span {
+    background: url(../img/icons/packs/fugue/16x16/toggle-expand.png) no-repeat;
+}
+
+/* ==================================================
+ * 3b) Boxes: Content
+ * ================================================== */
+
+.box .content {
+	padding: 0 10px;
+	border: 1px solid #C8C8C8;
+	border-radius: 0 0 3px 3px;
+	border-top: 1px solid #2B5177;
+	background: #fff;
+}
+
+.box.closed .content {
+	display: none;
+}
+
+.box .content.grey {
+	border-top-color: #C8C8C8;
+}
+
+.box .content:after {
+    content: ".";
+    display: block;
+    height: 0;
+    clear: both;
+    visibility: hidden;
+}
+
+.box .content.with-actions {
+	border-radius: 0;
+	border-bottom: 0;
+}
+
+.box .content.no-header {
+	border-radius: 3px;
+	border: 1px solid #C8C8C8;
+}
+
+.box .content.no-padding {
+	padding: 0;
+}
+
+.border-radius-bottom {
+	border-radius: 0 0 3px 3px;
+}
+
+/* ==================================================
+ * 3c) Boxes: Actions Bar
+ * ================================================== */
+
+.box .actions {
+	border: 1px solid #c8c8c8;
+	background: url(../img/sprites/boxes/bg-action.png) repeat-x #f7f7f7;
+	border-radius: 0 0 3px 3px;
+}
+
+.box .actions:after {
+    content: ".";
+    display: block;
+    height: 0;
+    clear: both;
+    visibility: hidden;
+}
+
+.box .actions input {
+	margin: 0;
+}
+
+.box .actions-left {
+	float: left;
+	margin: 5px;
+	margin-left: 10px;
+}
+
+.box .actions-right {
+	float: right;
+	margin: 5px;
+	margin-right: 10px;
+}
+
+/* ==================================================
+ * 3d) Boxes: Tabs
+ * ================================================== */
+.box .header ul {
+	font-size: 12px;
+	height: 23px;
+	padding: 0;
+	margin: 7px 0;
+	margin-right: 6px;
+    margin-top: 6px;
+	float: right;
+}
+
+.ie .header ul {
+	overflow: hidden;
+	border-radius: 5px;
+}
+
+.box .header ul li {
+	display: inline;
+	list-style: none;
+}
+
+.box .header ul li a {
+	padding: 0 10px;
+	margin: 0;
+	border-bottom: 1px solid #C0C0C0;
+	border-top: 1px solid #C0C0C0;
+	/* Gradient */
+	background: #fefefe; /* Old browsers */
+	background: -moz-linear-gradient(top,  #fefefe 0%, #f7f7f7 80%, #ededed 96%, #e5e5e5 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#fefefe), color-stop(80%,#f7f7f7), color-stop(96%,#ededed), color-stop(100%,#e5e5e5)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top,  #fefefe 0%,#f7f7f7 80%,#ededed 96%,#e5e5e5 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top,  #fefefe 0%,#f7f7f7 80%,#ededed 96%,#e5e5e5 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top,  #fefefe 0%,#f7f7f7 80%,#ededed 96%,#e5e5e5 100%); /* IE10+ */
+	background: linear-gradient(top,  #fefefe 0%,#f7f7f7 80%,#ededed 96%,#e5e5e5 100%); /* W3C */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fefefe', endColorstr='#e5e5e5',GradientType=0 ); /* IE6-9 */
+}
+
+.box .header ul li:first-child a {
+	border-radius: 5px 0 0 5px;
+	border-bottom: 1px solid #C0C0C0;
+    border-top: 1px solid #C0C0C0;
+    border-left: 1px solid #C0C0C0;
+}
+
+.box .header ul li:last-child a {
+	border-radius: 0 5px 5px 0;
+	border-bottom: 1px solid #C0C0C0;
+    border-top: 1px solid #C0C0C0;
+    border-right: 1px solid #C0C0C0;
+}
+
+.box .header ul li.current a {
+	background: rgb(46,86,129); /* Old browsers */
+	background: rgb(46,86,129); /* Old browsers */
+	background: -moz-linear-gradient(top,  rgba(46,86,129,1) 0%, rgba(88,130,175,1) 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(46,86,129,1)), color-stop(100%,rgba(88,130,175,1))); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top,  rgba(46,86,129,1) 0%,rgba(88,130,175,1) 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top,  rgba(46,86,129,1) 0%,rgba(88,130,175,1) 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top,  rgba(46,86,129,1) 0%,rgba(88,130,175,1) 100%); /* IE10+ */
+	background: linear-gradient(top,  rgba(46,86,129,1) 0%,rgba(88,130,175,1) 100%); /* W3C */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#2e5681', endColorstr='#5882af',GradientType=0 ); /* IE6-9 */
+	 -moz-background-clip: padding; -webkit-background-clip: padding-box; background-clip: padding-box; 
+	/* The inset shadow */
+	-webkit-box-shadow: inset 0px 0px 3px 0px #000;
+	-moz-box-shadow: inset 0px 0px 3px 0px #000;
+	box-shadow: inset 0px 0px 3px 0px #000;
+}
+
+.box .header ul li a {
+	line-height: 21px;
+	display: block;
+	float: left;
+}
+
+.box .header ul li.current a {
+	color: #FFFFFF;
+}

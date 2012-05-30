@@ -1,0 +1,258 @@
+/*
+ * Peach - Clean & Smooth Admin Template
+ * by Stammi <http://themeforest.net/user/Stammi>
+ * 
+ * =================
+ *   Table Styling
+ * =================
+ * 
+ * -----------------
+ * TABLE OF CONTENTS
+ * -----------------
+ * 
+ * 1) Generic
+ * 2) Pagination Buttons
+ * 3) Sort Icons
+ */
+
+/* ==================================================
+ * 1) Generic
+ * ================================================== */
+
+.table {
+	clear: both;
+	width: 100%;
+	margin: 0 auto;
+}
+
+.dataTables_wrapper .top {
+	padding: 5px 10px;
+	padding-top: 0;
+	padding-bottom: 0px;
+	background: url("../img/sprites/tables/table-head-bg.png") repeat-x scroll top left #dddddd;
+	border-bottom: 1px solid #949494;
+}
+
+.dataTables_wrapper .block-actions {
+	margin-top: 0;
+	line-height: 35px;
+	padding-left: 20px;
+	padding-right: 20px;
+}
+
+.dataTables_wrapper .actions {
+	border: none;
+	border-top: 1px solid #C8C8C8;
+}
+
+.dataTables_wrapper {
+	position: relative;
+	margin: 0 -10px;
+	clear: both;
+	zoom: 1; /* Feeling sorry for IE */
+}
+
+.dataTables_wrapper .actions {
+	line-height: 25px;
+}
+
+.dataTables_length {
+	float: left;
+	padding-left: 100px;
+}
+
+.dataTables_length div.selector {
+	width: 70px !important;
+}
+
+.dataTables_length div.selector span {
+	width: 70px !important;
+}
+
+.dataTables_length label {
+	margin-left: -100px;
+}
+
+.dataTables_length select {
+	width: 100px;
+}
+
+.dataTables_filter {
+	float: right;
+	text-align: right;
+	padding-left: 100px;
+}
+
+.dataTables_filter label {
+	margin-left: -100px;
+}
+
+.dataTables_filter input {
+	width: 150px;
+}
+
+.dataTables_info {
+	float: left;
+}
+
+.dataTables_paginate {
+	float: right;
+}
+
+.paging_full_numbers {
+	
+}
+
+.dataTables_wrapper label {
+	display: block;
+	margin-bottom: 0;
+	line-height: 33px;
+}
+
+.webkit .dataTables_wrapper label {
+	display: inline;
+}
+
+.dataTables_length .chzn-container {
+	display: inline-block;
+	float: right;
+    margin-left: 10px;
+}
+
+.webkit .dataTables_length .chzn-container {
+	width: 62px !important;
+}
+
+.webkit .dataTables_length .chzn-drop {
+	width: 60px !important;
+}
+
+.dataTables_filter input {
+	display: inline-block;
+	float: right;
+    margin: 5px 0 0 10px;
+}
+
+.dataTables_processing {
+	background-color: white;
+	border: 1px solid #DDDDDD;
+	color: #999999;
+	font-size: 14px;
+	height: 30px;
+	left: 50%;
+	margin-left: -125px;
+	margin-top: -15px;
+	padding: 14px 0 2px;
+	position: absolute;
+	text-align: center;
+	top: 50%;
+	width: 250px;
+}
+
+.table thead {
+	background: url("../img/sprites/tables/table-head-bg.png") repeat-x scroll top left #dddddd;
+	border-top: 1px solid #fff;
+	border-bottom: 1px solid #bcbcbc;
+}
+
+.table thead th:first-child {
+	border-left: none;
+}
+
+.table thead th:last-child {
+	border-right: none;
+}
+
+.table thead th {
+	vertical-align: middle;
+	text-align: left;
+	padding: 8px 13px;
+	border-left: 1px solid #fff;
+	border-right: 1px solid #c3c3c3;
+	cursor: pointer;
+}
+
+.table tbody th, .table tbody td, .table tfoot th, .table tfoot td {
+	vertical-align: top;
+	text-align: left;
+	padding: 7px;
+	border-left: 1px dotted #bebebe;
+}
+
+.table tbody td {
+	background: #f8f8f8;
+}
+
+.table tbody th:first-child, .table tbody .th:first-child, .table tbody td:first-child, .table tfoot th:first-child, .table tfoot td:first-child {
+	border-left: none;
+}
+
+.table tbody tr.even td, .table tbody tr:nth-child(2n) td {
+	background: #f0f0f0;
+}
+
+.table tbody tr:hover th, .table tbody tr:hover .th, .table tbody tr:hover td {
+	background: #e8eaef;
+}
+
+
+/* ==================================================
+ * 2) Pagination Buttons
+ * ================================================== */
+
+.paginate_button, .paginate_active {
+	background-color: #ebebeb;
+	border-style: solid;
+	border-width: 1px;
+	border-color: #ffffff #b5b5b5 #b5b5b5 #ffffff;
+	margin: 0;
+	padding: 2px 10px;
+	cursor: pointer;
+}
+
+.paginate_button_disabled {
+	cursor: default;
+}
+
+.paginate_active {
+	background-color: #2D5580;
+	border-color: #123458;
+}    
+
+.first {
+	border-radius: 3px 0 0 3px;
+}
+
+.last {
+	border-radius: 0 3px 3px 0;
+}
+
+
+
+
+
+
+/* ==================================================
+ * 3) Sort Icons
+ * ================================================== */
+
+.sorting_asc {
+	background: url('../img/sprites/tables/arrow-asc.png') no-repeat center right;
+}
+
+.sorting_desc {
+	background: url('../img/sprites/tables/arrow-desc.png') no-repeat center right;
+}
+
+.sorting {
+	background: url('../img/sprites/tables/arrow-both.png') no-repeat center right;
+}
+
+.sorting_asc_disabled {
+	background: none;
+}
+
+.sorting_desc_disabled {
+	background: none;
+}
+

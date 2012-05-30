@@ -1,0 +1,178 @@
+/*
+ * Peach - Clean & Smooth Admin Template
+ * by Stammi <http://themeforest.net/user/Stammi>
+ * 
+ * ================
+ *   Special Page
+ * ================
+ * 
+ * -----------------
+ * TABLE OF CONTENTS
+ * -----------------
+ * 
+ * 1) General Styling
+ * 2) Top Background
+ * 3) Content
+ * 4) Title
+ * 5) Box
+ * 6) Error
+ */
+
+/* ==================================================
+ * 1) General Styling
+ * ================================================== */
+
+.special_page {
+	background-color: #fafafa;
+}
+
+/* ==================================================
+ * 2) Top Background
+ * ================================================== */
+
+.special_page > .top {
+	height: 359px;
+	width: 100%;
+	position: absolute;
+	/* The blue background gradient */
+	background: #608dbe; /* Old browsers */
+	background: rgb(54,111,172); /* Old browsers */
+	background: -moz-linear-gradient(top,  rgba(54,111,172,1) 0%, rgba(24,75,130,1) 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(54,111,172,1)), color-stop(100%,rgba(24,75,130,1))); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top,  rgba(54,111,172,1) 0%,rgba(24,75,130,1) 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top,  rgba(54,111,172,1) 0%,rgba(24,75,130,1) 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top,  rgba(54,111,172,1) 0%,rgba(24,75,130,1) 100%); /* IE10+ */
+	background: linear-gradient(top,  rgba(54,111,172,1) 0%,rgba(24,75,130,1) 100%); /* W3C */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#366fac', endColorstr='#184b82',GradientType=0 ); /* IE6-9 */
+	/* Other colorfull stuff */
+	border-bottom: 1px solid #0d3259;
+	box-shadow: 0 2px 5px rgba(17, 16, 13, 0.5);
+}
+
+.special_page > .top .gradient {
+	position: absolute;
+	width: 100%;
+	top: 360px;
+	height: 270px;
+	/* The light grey gradient */
+	background: #e3e3e3; /* Old browsers */
+	background: -moz-linear-gradient(top,  #e3e3e3 0%, #fafafa 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#e3e3e3), color-stop(100%,#fafafa)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top,  #e3e3e3 0%,#fafafa 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top,  #e3e3e3 0%,#fafafa 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top,  #e3e3e3 0%,#fafafa 100%); /* IE10+ */
+	background: linear-gradient(top,  #e3e3e3 0%,#fafafa 100%); /* W3C */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#e3e3e3', endColorstr='#fafafa',GradientType=0 ); /* IE6-9 */
+}
+
+.special_page > .top .white {
+	position: absolute;
+	height: 1px;
+	width: 787px;
+	top:358px;
+	margin: 0 auto;
+	left: 0px; right: 0px;
+	background: url(../img/special-page/white-line.png);
+	z-index: 99;
+}
+
+.special_page > .top .shadow {
+	z-index: 80;
+	background: url(../img/special-page/white-line-shadow.png);
+	height: 25px;
+	width: 460px;
+	position: absolute;
+	top: 360px;
+	margin: 0 auto;
+	left: 0px; right: 0px;
+	z-index: 99;
+	
+}
+
+/* ==================================================
+ * 3) Content
+ * ================================================== */
+
+.special_page > .content .background {
+	z-index: 99;
+	position: absolute;
+	top: 0;
+	left: 0; right: 0;
+	margin: 0 auto;
+	width: 790px;
+	height: 167px;
+	background: url(../img/special-page/header.png);
+	
+}
+
+/* ==================================================
+ * 4) Title
+ * ================================================== */
+
+.special_page h1 {
+	position: absolute;
+	top: 60px;
+	left: 0; right: 0;
+	margin: 0;
+	z-index: 101;
+}
+
+.special_page h1 {
+	color: #fff;
+	font-size: 40px;
+	font-weight: bold;
+	text-align: center;
+	text-shadow: 0 0 5px rgba(10, 50, 92, 0.75);
+}
+
+/* ==================================================
+ * 5) Box
+ * ================================================== */
+
+.special_page .wrapper {
+	position: absolute;
+	width: 400px;
+	top: 250px;
+	left: 0; right: 0;
+	margin: 0 auto;
+	z-index: 101;
+}
+
+.special_page .box {
+	z-index: 110;
+	margin: 0 auto;
+	position: relative;
+}
+
+.special_page .wrapper .shadow {
+	width: 372px;
+	height: 18px;
+	bottom: -10px;
+	margin: 0 auto;
+	margin-top: -7px;
+	background: url(../img/special-page/box-shadow.png);
+	z-index: 99;
+	
+}
+
+/* ==================================================
+ * 6) Error
+ * ================================================== */
+
+.error_nr h1 {
+	margin-top: 50px;
+	color: #FFFFFF;
+    font-size: 200px;
+    text-shadow: 0 1px 0 #CCCCCC, 0 2px 0 #C9C9C9, 0 3px 0 #BBBBBB, 0 4px 0 #B9B9B9, 0 5px 0 #AAAAAA, 0 6px 1px rgba(0, 0, 0, 0.1), 0 0 5px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.3), 0 3px 5px rgba(0, 0, 0, 0.2), 0 5px 10px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.2), 0 20px 20px rgba(0, 0, 0, 0.15);
+}
+
+.error_text {
+	position: absolute;
+	top: 380px;
+	width: 100%;
+	text-align: center;
+}
+
+.error_text a.button {
+	display: inline-block;
+}
