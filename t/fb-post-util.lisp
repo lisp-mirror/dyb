@@ -343,7 +343,7 @@
 ; and I used it 1000 times as template
 (defun make-story--tag-list (story--tags)
 	   (let(( out '()))
-	   (dolist (st story--tags) (setf out (append out (list (make-story--tag (first (rest st))))))) out)
+	   (dolist (st story--tags) (setf out (append out (list (make-story--tag (first (rest st))))))) out))
 
 ;; with--tags helpers
 
