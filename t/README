@@ -1,0 +1,7 @@
+It lasted good seven hours instead of expected two.
+
+Do not know how to declare package, so it will be done slightly later. Also import of xdb2 and doc inheritance.
+
+fb-post-util.lisp are classes and test_fb.lisp is test - I load everything from the first one and then do tests from the second one
+
+small json string I used to test actions
