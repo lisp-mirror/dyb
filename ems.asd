@@ -44,6 +44,26 @@
                                              (:file "index")
                                              (:file "dashboard")
                                              (:file "user")))))
+                         (:module "facebook"
+                                  :serial t
+                                  :components
+                                  
+                                  ((:file "facebook-parser")
+                                   
+                                   (:module "db"
+                                            :serial t
+                                            :components 
+                                            ((:file "facebook")
+                                            
+                                             ))
+                                   (:module "pages"
+                                            :serial t
+                                            :components 
+                                            ((:file "facebook")
+                                             
+                                             ))
+                                   
+                                   ))
                          (:module "twitter"
                                   :serial t
                                   :components

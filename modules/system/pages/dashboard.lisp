@@ -14,7 +14,8 @@
 
                      (:ul :class "stats-list"
                           (dolist (item items)
-                            (htm (:li (:a :href "#" (str (first item)) (:span (str (second item)))))))))
+                            (htm (:li (:a :href "#" (str (first item)) 
+                                          (:span (str (second item)))))))))
                    :actions
                    (with-html-output-to-string (*standard-output*)
                      (:div :class "actions-left")
