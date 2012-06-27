@@ -97,7 +97,8 @@
   ((id :accessor comment-id :initarg :id)
    (from :type 'id-pair :accessor comment-from :initarg :from)
    (message :accessor comment-message :initarg :message)
-   (created-time :accessor comment-created-time :initarg :created-time)))
+   (created-time :accessor comment-created-time :initarg :created-time)
+   (likes :accessor comment-likes :initarg :likes)))
 
 (defclass application () 
   ((name :accessor application-name :initarg :name)

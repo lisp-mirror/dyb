@@ -49,7 +49,7 @@
 ;; message-tags helpers
 
 (defun get-message-tags (post)
-  (rest (assoc ':message-tags post)))
+  (rest (assoc ':message--tags post)))
 
 (defun get-message-tag-id (message-tag)
   (rest (assoc ':id message-tag)))
@@ -235,7 +235,7 @@
 ;; story-tags helpers
 
 (defun get-story-tags (post)
-  (rest (assoc  ':story-tags post)))
+  (rest (assoc  ':story--tags post)))
 
 (defun get-story-tag-id (story-tag)
   (rest (assoc ':id story-tag)))
@@ -269,7 +269,7 @@
 ;; with-tags helpers
 
 (defun get-with-tags ( post ) 
-  (rest (assoc ':with-tags post)))
+  (rest (assoc ':with--tags post)))
 
 (defun get-with-data (post)
   (rest (assoc ':data (get-with-tags post))))
@@ -309,14 +309,18 @@
 (defun get-comment-message (comment-data)
   (rest (assoc ':message comment-data)))
 
+(defun get-comment-likes (comment-data)
+  (rest (assoc ':likes comment-data)))
+
 (defun get-comment-created-time (comment-data)
-  (rest (assoc ':created-time comment-data)))
+  (rest (assoc ':created--time comment-data)))
 
 (defun make-comment (comment)
   (make-instance 'comment :id (get-comment-id comment) 
                  :from (make-from (get-comment-from comment))
                  :message (get-comment-message comment) 
-                 :created-time (get-comment-created-time comment )))
+                 :created-time (get-comment-created-time comment )
+                 :likes (get-comment-likes comment)))
 
 (defun make-comment-list (comments)
   (let(( out '()))
@@ -330,7 +334,7 @@
 ;; object-id not tested!!!
 
 (defun get-object-id (post)
-        (rest (assoc ':object-id post)))
+        (rest (assoc ':object--id post)))
 
 ;; application helpers
 
@@ -354,12 +358,12 @@
 ;; created-time
 
 (defun get-created-time ( post ) 
-  (rest (assoc ':created-time post)))
+  (rest (assoc ':created--time post)))
 
 ;; updated-time
 
 (defun get-updated-time ( post ) 
-  (rest (assoc ':updated-time post)))
+  (rest (assoc ':updated--time post)))
 
 ;; post loader
 
