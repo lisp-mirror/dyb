@@ -66,7 +66,8 @@
 			if (ch.wrapper) ch.wrapper.remove();
 			
 			/* Creating wrapper for checkbox and assigning "hover" event */
-			ch.wrapper = $('<span class="' + settings.cls + '"><span class="mark"><img src="' + settings.empty + '" /></span></span>');
+
+			ch.wrapper = $('<span class="' + settings.cls + '"><span class="mark"><img src="/' + settings.empty + '" /></span></span>');
 			ch.wrapperInner = ch.wrapper.children('span:eq(0)');
 			ch.wrapper.hover(
 				function(e) { ch.wrapperInner.addClass(settings.cls + '-hover');CB(e); },

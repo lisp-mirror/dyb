@@ -1,0 +1,111 @@
+(in-package :ems)
+
+(defclass user-preference (doc)
+  ((name :initarg :name
+          :accessor name)
+   (preference :initarg :preference
+             :accessor preference))
+  (:metaclass storable-class))
+
+(defclass permissions (doc)
+  ((name :initarg :name
+         :initform nil
+         :accessor name) 
+   (permission-list :initarg :permission-list
+                    :initform nil
+                    :accessor permission-list))
+  (:metaclass storable-class))
+
+(defclass user (doc)
+  ((email :initarg :email
+          :accessor email)
+   (password :initarg :password
+             :accessor password)
+   (salt :initarg :salt
+         :accessor salt)
+   (permissions :initarg :permissions
+                :initform nil
+                :accessor permissions) 
+   (accessible-entities :initarg :accessible-entities
+			:initform nil
+			:accessor accessible-entities)
+   (last-root :initarg :last-root
+              :initform nil
+              :accessor last-root)
+   (last-context :initarg :last-context
+                 :initform nil
+                 :accessor last-context)
+   (super-user-p :initarg :super-user-p
+                 :initform nil
+                 :accessor super-user-p))
+  (:metaclass storable-class))
+
+(defun users-collection ()
+  (get-collection (system-db) "users"))
+
+(defun permissions-collection ()
+  (get-collection (system-db) "permissions"))
+
+(defun users ()
+  (docs (users-collection)))
+
+(defvar *min-passwrod-length* 5)
+
+(defun make-password (password)
+  (let* ((salt (generate-salt))
+         (password (hash-password password salt)))
+    (values password salt)))
+
+(defun make-user (email password &key permissions
+                                      accessible-entities
+                                      super-user-p)
+  (multiple-value-bind (password salt)
+      (make-password password)
+    (make-instance 'user :key email :doc-type "user" 
+                         :xid (next-xid (users-collection))
+                         :email email
+                         :password password
+                         :salt salt
+                         :permissions permissions
+                         :accessible-entities accessible-entities
+                         :super-user-p super-user-p)))
+
+(defun change-user (user new-password
+                    &key (superuser nil superuser-supplied))
+  (when new-password
+    (setf (values (password user) (salt user))
+          (make-password new-password)))
+  (when superuser-supplied
+    ;; (setf (super-user-p user) superuser)
+    ))
+
+(defun get-user (email)
+  (get-doc (users-collection) email :element 'email))
+
+(defmethod persist-doc ((doc user) &key (force-stamp-p t))
+  (store-doc (users-collection) doc :force-stamp-p force-stamp-p))
+
+(defmethod persist-doc ((doc permissions) &key (force-stamp-p t))
+  (store-doc (permissions-collection) doc :force-stamp-p force-stamp-p))
+
+(defmethod match-entities ((doc user) entities)
+  (intersection (get-val doc 'accessible-entities) entities))
+
+(defun find-users (criteria)
+  (if criteria
+      (find-docs 'vector
+                 criteria
+                 (users-collection))
+      (users)))
+
+(add-collection (system-db) "users" 
+                :collection-class 'ems-collection 
+                :load-from-file-p t)
+
+(add-collection (system-db) "permissions" 
+                :collection-class 'ems-collection 
+                :load-from-file-p t)
+
+;;Don't remove this, but change the default password regularly
+(persist-doc (make-user "admin@ems.co.za" "admin"
+                        :super-user-p t))

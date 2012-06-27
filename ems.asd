@@ -8,81 +8,110 @@
                #:cl-json
                #:xdb2
                #:cl-oauth
-               #:wfx)
+               #:wfx
+               #:ht-simple-ajax)
   :components ((:file "package")
+               (:file "common")
+               (:file "requests")
                (:file "ini")
-               (:file "ems")
-
-               (:file "data")
                (:module "modules"
-                        :serial t
-                        :components
-                        ((:file "common")
-                         (:module "system"
-                                  :serial t
-                                  :components
-                                  
-                                  (;(:file "common")
-                                   
-                                   (:module "db"
-                                            :serial t
-                                            :components 
-                                            ((:file "classes")
-                                             (:file "users")
-                                             ))
-                                   (:module "widgets"
-                                            :serial t
-                                            :components 
-                                            ((:file "login")
-                                             (:file "page-template")
-                                         ))
-                                   (:module "pages"
-                                            :serial t
-                                            :components 
-                                            (
-                                             (:file "home")
-                                             (:file "index")
-                                             (:file "dashboard")
-                                             (:file "user")))))
-                         (:module "facebook"
-                                  :serial t
-                                  :components
-                                  
-                                  ((:file "facebook-parser")
-                                   
-                                   (:module "db"
-                                            :serial t
-                                            :components 
-                                            ((:file "facebook")
-                                            
-                                             ))
-                                   (:module "pages"
-                                            :serial t
-                                            :components 
-                                            ((:file "facebook")
-                                             
-                                             ))
-                                   
-                                   ))
-                         (:module "twitter"
-                                  :serial t
-                                  :components
-                                  
-                                  ((:file "common")
-                                   
-                                   (:module "db"
-                                            :serial t
-                                            :components 
-                                            ((:file "twitter")
-                                            
-                                             ))
-                                   (:module "pages"
-                                            :serial t
-                                            :components 
-                                            ((:file "auth")
-                                             
-                                             ))
-                                   
-                                   ))))
-               (:file "load-data")))
+                :serial t
+                :components
+                ((:module "db"
+                  :serial t
+                  :components
+                  ((:file "copy")
+                   (:file "common")
+                   (:module "xdb"
+                    :serial t
+                    :components
+                            ((:file "xdb")
+                             (:file "classes")))))
+                 (:module "system"
+                  :serial t
+                  :components
+                  ((:file "common")
+                   (:module "db"
+                    :serial t
+                    :components
+                            ((:file "allsorts")
+                             (:file "user")
+                             (:file "entities")
+                             (:file "entity-relationships")
+                             (:file "system-log")))
+
+                   (:module "widgets"
+                    :serial t
+                    :components
+                            ((:file "ajax")
+                             (:file "allsorts")
+                             (:file "grid")
+                             (:file "tree")
+                             (:file "entity-tree")
+                             (:file "entity-selection-tree")
+                             (:file "menu")
+                             (:file "peach-page")
+                             (:file "ems-page")
+                             (:file "input-widgets")
+                             (:file "login")))
+                   (:module "pages"
+                    :serial t
+                    :components
+                            ((:file "landing-page")
+                             (:file "allsorts")
+                             (:file "dashboard")
+                             (:file "context")
+                             (:file "entities")
+                             (:file "users")
+                             (:file "permissions")
+                             (:file "export-csv")))))
+                 (:module "administrative"
+                  :serial t
+                  :components
+                  ((:module "db"
+                    :serial t
+                    :components
+                            ((:file "country-town")
+                             
+                             (:file "contacts")
+                             (:file "address")
+                             (:file "companies")
+                             (:file "periods")))
+
+                   (:module "widgets"
+                    :serial t
+                    :components
+                            ((:file "address")
+                             (:file "clients")
+                             (:file "companies")
+                             (:file "country-town")
+                             
+                             (:file "periods")))
+
+                   (:module "pages"
+                    :serial t
+                    :components
+                            ((:file "address")
+                             (:file "clients")
+                             (:file "companies")
+                             (:file "country-town")
+                             
+                             (:file "periods")))))
+                 
+                 (:module "facebook"
+                  :serial t
+                  :components
+                  ((:file "facebook-parser")
+                   (:module "db"
+                    :serial t
+                    :components
+                            ((:file "facebook")))
+                   (:module "widgets"
+                    :serial t
+                    :components
+                            ((:file "facebook")))
+                   (:module "pages"
+                    :serial t
+                    :components
+                            ((:file "facebook"))))))) ))
 
