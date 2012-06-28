@@ -1,3 +1,5 @@
+(in-package #:ems)
+
 (defclass generic-entry (doc)
    (
 	(pid :accessor generic-entry-pid :initarg :pid)
@@ -26,7 +28,7 @@
 
 (defun wrap-fb-post (post)
 	(let (
-		(pid (get-val (post) 'id))
+		(pid (get-val post 'id))
 		(title (get-msg-or-story post))
 		(payload post)
 		(type "facebook")
@@ -74,17 +76,24 @@
 (defun generic-entry ()
   (docs (generic-entry-collection)))
 
-(defun get-post-by-id (id)
+(defun get-generic-entry-by-id (id)
   (get-doc (generic-entry-collection) id
            :element 'id))
 
-(defmethod persist-doc ((doc post) &key (force-stamp-p t))
+(defmethod persist-doc ((doc generic-entry) &key (force-stamp-p t))
   (store-doc (generic-entry-collection) doc :force-stamp-p force-stamp-p))
 
-(defun populate-post-db-from-json (post-list)
-    (dolist (post post-list) 
-      (persist-doc (make-post post))))
+;(defun populate-post-db-from-json (post-list)
+;    (dolist (post post-list) 
+;      (persist-doc (make-post post))))
 
+(defun populate-generic-db-from-post (post-list)
+    (dolist (post post-list) 
+      (persist-doc (wrap-fb-post (make-post post)))))
+      
+(defun populate-generic-db-from-tweet (tweet-list)
+    (dolist (tweet tweet-list) 
+      (persist-doc (wrap-tweet (make-tweet tweet)))))
 
 (add-collection (system-db) "generic-entry" 
                 :collection-class 'ems-collection

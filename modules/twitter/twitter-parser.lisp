@@ -840,7 +840,8 @@
                   :current-user-retweet current-user-retweet
                   :entities entities
                   :favorited favorited
-                  :id id
+                  :pid id
+                  :key id
                   :id-str id-str
                   :in-reply-to-screen-name in-reply-to-screen-name
                   :in-reply-to-status-id in-reply-to-status-id
