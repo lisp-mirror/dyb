@@ -25,7 +25,7 @@
 
 (define-easy-handler (dashboard-page :uri "/ems/dashboard") ()
   
-  (let ((page (make-widget 'ems-page :name "dashboard-page")))
+  (let ((page (make-widget 'page :name "dashboard-page")))
     (with-html-output(*standard-output*)
       (render page
               :body 
@@ -78,4 +78,3 @@
                   
                   )))
       )))
-

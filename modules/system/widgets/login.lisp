@@ -1,4 +1,4 @@
-(in-package #:ems)
+(in-package :ems)
 
 (defclass login (widget)
   ((email :initarg :email
@@ -18,40 +18,41 @@
 (defgeneric on-failure (login &key))
 
 (defmethod handle-action ((widget login) (action (eql 'submit-login)))
-  (when (and (get-val widget 'email) (get-val widget 'password))
+  (when (and (slot-val widget 'email) (slot-val widget 'password))
     (let ((user (validate-user widget)))
       (if user
           (on-success widget :user user)
           (on-failure widget)))))
 
 (defmethod render ((widget login) &key)
-  (with-html-output-to-string (*standard-output*)
-      (:form :method "post"
-             :action ""
-             :class (if (get-val widget 'css-class)
-                        (get-val widget 'css-class))
-             (:table 
-                 (:tr
-                  (:td 
-                   (:label :for "email" "Email"))
-                  (:td 
-                   (:input :type "text" :name (widgy-name widget "email") :id "email"
-                           :style "width:250px;"
-                           :value (get-val widget 'email))))
-               (:tr
-                (:td
-                 (:label :for "password" "Password"))
-                (:td
-                 (:input :type "password" :name (widgy-name widget "password") 
-                         :id "password"
-                         :style "width:250px;"))))
-             (:br)
-             (:p 
-              (:input :name (widgy-name widget "submit-login") 
-                      :type "submit" :value "Login")))
-      (if (get-val widget 'message)
-          (htm
-           (:div :class "error" (esc (get-val widget 'message)))))))
+  (with-html
+    (:div :class "box"
+          (box-header "Login" :icon "lock"
+                              :class "header grey")
+          (:form :method "post"
+                 :action ""               
+                 (:div :class "content no-padding"
+                     (:div :class "section _100"
+                      (:label :for "email" "Email")
+                      (:div
+                       (:input :class "required" :type "text" 
+                               :name (widgy-name widget "email") 
+                               :id "email"
+                               :value (slot-val widget 'email))))
+                     (:div :class "section _100"
+                           (:label :for "password" "Password")
+                           (:div
+                            (:input :class "required" :type "password" 
+                                    :name (widgy-name widget "password") 
+                                    :id "password"))))
+                 (:div :class "actions"
+                    (:div :class "actions-right"
+                     (:input :name (widgy-name widget "submit-login") 
+                          :type "submit" :value "Login"))))
+          (if (slot-val widget 'message)
+              (htm
+               (:div :class "error" (esc (slot-val widget 'message))))))))
+
 
 
 

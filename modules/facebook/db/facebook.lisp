@@ -1,7 +1,7 @@
 (in-package #:ems)
 
-(defclass post () 
-  ((id :accessor post-id :initarg :id)
+(defclass post (doc) 
+  ((post-id :accessor post-id :initarg :post-id)
    (from :accessor post-from :initarg :from)
    (to :accessor post-to :initarg :to)
    (message :accessor post-message :initarg :message)
@@ -26,7 +26,8 @@
    (object-id :accessor post-object-id :initarg :object-id)
    (application :accessor post-application :initarg :application)
    (created-time :accessor post-created-time :initarg :created-time)
-   (updated-time :accessor post-updated-time :initarg :updated-time)))
+   (updated-time :accessor post-updated-time :initarg :updated-time))
+  (:metaclass storable-class))
 
 (defclass from () 
   ((id :accessor from-id :initarg :id) 
@@ -108,7 +109,9 @@
 
 (defun make-post (post-raw)
   (make-instance 'post 
-                 :id (get-post-id post-raw) 
+                 :key (get-post-id post-raw)
+                 
+                 :post-id (get-post-id post-raw) 
                  :from (make-from (get-from post-raw)) 
                  :to (make-to-list (get-to-data (get-to post-raw))) 
                  :message (get-message post-raw) 
@@ -135,7 +138,24 @@
                  :created-time (get-created-time post-raw) 
                  :updated-time (get-updated-time post-raw)))
 
-(defun make-post-list (post-list)
-    (let ((out ()))
-      (dolist (post post-list) 
-        (setf out (append out (list (make-post post))))) out))
+(defun posts-collection ()
+  (get-collection (system-db) "posts"))
+
+(defun posts ()
+  (docs (posts-collection)))
+
+(defun get-post-by-id (id)
+  (get-doc (posts-collection) id
+           :element 'id))
+
+(defmethod persist-doc ((doc post) &key (force-stamp-p t))
+  (store-doc (posts-collection) doc :force-stamp-p force-stamp-p))
+
+(defun populate-post-db-from-json (post-list)
+    (dolist (post post-list) 
+      (persist-doc (make-post post))))
+
+
+(add-collection (system-db) "posts" 
+                :collection-class 'ems-collection
+                :load-from-file-p t)

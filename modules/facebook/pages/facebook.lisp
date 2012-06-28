@@ -83,15 +83,26 @@
 
 
 (define-easy-handler (facebook-page :uri "/ems/facebook") ()
-  (let ((posts  (make-post-list (rest (first (json:decode-json-from-string *jsstr*)))))
-        (page (make-widget 'ems-page :name "facebook-page"))
-        (fb-list (make-widget 'facebook-list :name "fb-list")))
+  (let* ((columns
+           (list
+            (make-instance 'grid-column
+                           :name 'post-id
+                           :header "Post Id")
+            (make-instance 'grid-column
+                           :name 'message
+                           :header "Message")
+            (make-instance 'grid-column
+                           :name 'story
+                           :header "Story") ))
+         (grid (make-widget 'post-grid :name "facebook-gridxxxxxx"
+                                       :columns columns
+                                       :edit-inline nil
+                                       :title "Facebook Inbox"
+                                       :row-object-class 'post)))
+    
+    (render (make-widget 'page :name "facebook-page")
+            :body (render-to-string grid)))
 
-    (setf (get-val fb-list 'posts) posts)
-    (with-html
-      (render page
-              :body
-              (with-html-to-string ()
-                (render fb-list)))
-      ))
+
+  
   )

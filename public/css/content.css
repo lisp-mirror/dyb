@@ -139,8 +139,8 @@ html, body {
 	-moz-user-select: none;
 }
 
-.box .header span {
-	background: url(../img/icons/packs/fugue/16x16/toggle.png) no-repeat;
+.box .header .collapse {
+    background: url(../img/icons/packs/fugue/16x16/toggle.png) no-repeat;
     cursor: pointer;
     display: block;
     float: right;
@@ -149,8 +149,20 @@ html, body {
     margin-top: 10px;
     width: 16px;
 }
+.box .header button {
+    margin-right: 10px;
+    margin-top: 5px;
+    float: right;
 
-.box.closed .header span {
+}
+
+.box .header .grid-filter {
+    margin-right: 10px;
+    float: right;
+    /* width: 300px; */
+}
+
+.box.closed .header .collapse {
     background: url(../img/icons/packs/fugue/16x16/toggle-expand.png) no-repeat;
 }
 
@@ -237,7 +249,7 @@ html, body {
 /* ==================================================
  * 3d) Boxes: Tabs
  * ================================================== */
-.box .header ul {
+.box .header .tabs ul {
 	font-size: 12px;
 	height: 23px;
 	padding: 0;
@@ -247,17 +259,17 @@ html, body {
 	float: right;
 }
 
-.ie .header ul {
+.ie .header .tabs ul {
 	overflow: hidden;
 	border-radius: 5px;
 }
 
-.box .header ul li {
+.box .header .tabs ul li {
 	display: inline;
 	list-style: none;
 }
 
-.box .header ul li a {
+.box .header .tabs ul li a {
 	padding: 0 10px;
 	margin: 0;
 	border-bottom: 1px solid #C0C0C0;
@@ -273,21 +285,21 @@ html, body {
 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fefefe', endColorstr='#e5e5e5',GradientType=0 ); /* IE6-9 */
 }
 
-.box .header ul li:first-child a {
-	border-radius: 5px 0 0 5px;
-	border-bottom: 1px solid #C0C0C0;
+.box .header .tabs ul li:first-child a {
+    border-radius: 5px 0 0 5px;
+    border-bottom: 1px solid #C0C0C0;
     border-top: 1px solid #C0C0C0;
     border-left: 1px solid #C0C0C0;
 }
 
-.box .header ul li:last-child a {
+.box .header .tabs ul li:last-child a {
 	border-radius: 0 5px 5px 0;
 	border-bottom: 1px solid #C0C0C0;
     border-top: 1px solid #C0C0C0;
     border-right: 1px solid #C0C0C0;
 }
 
-.box .header ul li.current a {
+.box .header .tabs ul li.current a {
 	background: rgb(46,86,129); /* Old browsers */
 	background: rgb(46,86,129); /* Old browsers */
 	background: -moz-linear-gradient(top,  rgba(46,86,129,1) 0%, rgba(88,130,175,1) 100%); /* FF3.6+ */
@@ -304,12 +316,12 @@ html, body {
 	box-shadow: inset 0px 0px 3px 0px #000;
 }
 
-.box .header ul li a {
+.box .header .tabs ul li a {
 	line-height: 21px;
 	display: block;
 	float: left;
 }
 
-.box .header ul li.current a {
+.box .header .tabs ul li.current a {
 	color: #FFFFFF;
 }

@@ -1,63 +1,152 @@
 (in-package #:ems)
 
-(defclass facebook-list (widget)
-  ((posts :initarg :posts)))
+;;(populate-post-db-from-json (rest (first (json:decode-json-from-string *jsstr*))))
 
-(defmethod render ((widget facebook-list) &key)
-  (with-html
-    (let ((box (make-widget 'peach-box :name (format nil "~A-box" "fuck"))))
-      (setf (header box) "Facebook Posts")
-      (str (render box
-                   :content
-                   (with-html-output-to-string (*standard-output*)
+(defclass post-grid (grid)
+  ()
+  (:default-initargs :edit-inline nil))
 
-                     (:ul :class "posts-list"
-                          (dolist (post (get-val widget 'posts))
-                            (htm
-                             (:li
-                            
-                              (:span (str (get-post-title post)))
-			      (str (nulable-section "likes : " (get-val (get-val post 'likes) 'count)))
-			      ;(:span (str (count-likes (get-val post 'likes))))
-			      (dolist (com (get-val (get-val post 'comments) 'data)) 
-				(str (nulable-section "comment : " (get-val com 'message)))
-				(str (nulable-section "&nbsp;&nbsp;likes : " (get-val com 'likes))))
-			      ;(str (nulable-section-two 
-				   ; "Comment count = " 
-				   ; (get-val (get-val post 'comments) 'count)))
-			      ;(:span (str (count-comments (get-val post 'comments))))
-                              )))))
-                   :actions
-                   (with-html-to-string ()
-                     (:div :class "actions-left")
-                           (:div :class "actions-right"
-                                 (:a :class "button" :href "#" "Got to stats &raquo;")))))
-      ))
-  (with-html
-    ))
-(defun nulable-section (title content)
-  (if content (format t "<br/>&nbsp;&nbsp;~A ~A" title content)))
-(defun nulable-section-two (title content)
-  (if (> content 0) (format t "<br/>&nbsp;&nbsp;~A ~A" title content)))
+(defun get-post-data (grid &key filter search)
+  (declare (ignore grid search))
+  (xdb2::sort-docs 
+   
+   (find-docs 'vector
+              (lambda (doc)
+                ;;(if (match-context-entities doc)
+                ;;    )
 
-(defun get-post-title (post)
-  (let (
-    (msg (get-val post 'message))
-    (story (get-val post 'story))
-  )
-  (if msg msg story)))
-(defun count-likes (post)
-  (let (
-	(count (get-val post 'count))
-	)
-    (if count count 0)))
-(defun count-comments (post)
-;  (let* (
-	(get-val post 'count))
-;	 (ctr (get-val com 'count))
-;	)
-;   (type-of  (post-comments post)));)
-   ; (if com (get-val com 'count) 0)))
-   ; (type-of com)))
-;(defun get-byforce (post)
-;  (comments-count (post-comments post)))
+                (cond ((equal filter 'with-audit-data)
+                           doc)
+                          (t 
+                           (if (not (string-equal (get-val doc 'doc-status) "superseded"))
+                               doc))))
+              (posts-collection))
+   :sort-value-func (lambda (doc)
+                      (get-val doc 'post-id))
+   :sort-test-func #'string<))
+
+(defmethod get-rows ((grid post-grid))
+  (setf (rows grid)
+	(get-post-data grid 
+                          :filter (grid-filter grid)  
+                          :search (search-term grid))))
+
+
+(defmethod render-row-editor ((grid post-grid) row)
+  (let ((form (make-widget 'peach-form :name "p-formx"
+                                       :grid-size 12
+                                       :header "Posts"
+                                       :form-id "post-edit-form"
+                                       :grid-name (name grid)))
+        (form-section (make-widget 'form-section
+                                   :name "form-section"))
+        (tab-box (make-widget 'peach-tab-box
+                              :name "post-tab-box"
+                              :header "post"
+                              :icon "card--pencil")))
+
+    (setf (get-val form 'header)
+          (format nil "Post (~A)" 
+                  (get-val (editing-row grid) 'post-id)))
+    (setf (get-val tab-box 'header)
+          (format nil "Post (~A)" 
+                  (get-val (editing-row grid) 'post-id)))
+    
+    (setf 
+     (tabs tab-box)
+     (list
+      (list
+       "post"
+       (with-html-to-string ()
+         (:div :class "section _100"
+               (render form
+                       :content
+                       (with-html-to-string ()
+                         (render 
+                          form-section
+                          :label "Post ID"
+                          :input (with-html-to-string ()
+                                   (render-edit-field 
+                                    "post-id"
+                                    (get-val row 'post-id))))
+                         (render 
+                          form-section
+                          :label "Message"
+                          :input (with-html-to-string ()
+                                   (render-edit-field 
+                                    "message"
+                                    (get-val row 'message)
+                                    :type :textarea)))
+                         (render 
+                          form-section
+                          :label "Story"
+                          :input (with-html-to-string ()
+                                   (render-edit-field 
+                                    "Story"
+                                    (get-val row 'story)
+                                    :type :textarea))))))))
+      (list
+       "Addresses"
+       (with-html-to-string ()
+         (:div :class "section _100"
+               #|
+               (let* ((columns
+                       (list
+                        (make-instance 'grid-column
+                                       :name 'address-type
+                                       :header "Address Type")
+                        (make-instance 'grid-column
+                                       :name 'country
+                                       :header "Country")
+                        (make-instance 'grid-column
+                                       :name 'province
+                                       :header "Province")
+                        (make-instance 'grid-column
+                                       :name 'town
+                                       :header "Town")))
+                      (address-grid (make-widget 'post-address-grid
+                                                 :name "post-address-gridx"
+                                                 :columns columns
+                                                 :edit-inline nil
+                                                 :title "Addresses"
+                                                 :row-object-class 'address)))
+
+                 (setf (get-val address-grid 'title)
+                       (format nil "Addresses (~A)" 
+                               (get-val (get-val (editing-row grid) 'entity) 'entity-name)))
+                 (setf (get-val address-grid 'current-post) (editing-row grid))
+                 (render address-grid))
+               |#
+               )))
+      (list
+       "Contacts"
+       (with-html-to-string ()
+         (:div :class "section _100"
+               #|
+               (let* ((columns
+                       (list
+                        (make-instance 'grid-column
+                                       :name 'contact-type
+                                       :header "Contact Type")
+                               
+                        (make-instance 'grid-column
+                                       :name 'contact-name
+                                       :header "Contact Name")
+                        (make-instance 'grid-column
+                                       :name 'email-address
+                                       :header "Email")
+                        ))
+                      (contact-grid (make-widget 'post-contact-grid
+                                                 :name "post-contact-grid"
+                                                 :columns columns
+                                                 :edit-inline nil
+                                                 :title "Contacts"
+                                                 :row-object-class 'contact)))
+
+                 (setf (get-val contact-grid 'title)
+                       (format nil "Contacts (~A)" 
+                               (get-val (get-val (editing-row grid) 'entity) 'entity-name)))
+                 (setf (get-val contact-grid 'current-post) (editing-row grid))
+                 (render contact-grid))|#
+               )))))
+    (render tab-box)))

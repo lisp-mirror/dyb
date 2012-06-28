@@ -1,0 +1,61 @@
+/*
+	Sitemap Styler 	 
+*/
+
+.js_tree, .js_tree ul, .js_tree li{
+	margin:0;
+	padding:0;
+	list-style:none;
+}
+.js_tree{background:url(/img/line1.gif) repeat-y;}
+.js_tree li{
+	line-height:20px;
+	margin-top:1px;
+	position:relative;
+	width:100%;
+}
+/* IE leaves a blank space where span is added so this is to avoid that */
+* html .js_tree li{
+	float:left;
+	display:inline;
+}
+
+.js_tree li a{padding-left:28px;}
+.js_tree li span.collapsed, .js_tree li span.expanded {float:left;position:absolute;top:5px;left:5px;width:13px;height:13px;cursor:auto;font-size:0;}
+.js_tree li span.collapsed{background:url(/img/collapsed.gif) no-repeat 0 0;}
+.js_tree li span.expanded{background:url(/img/expanded.gif) no-repeat 0 0;}
+
+/* sub levels */
+
+.js_tree li ul{
+	margin-left:28px;
+	background:url(/img/line1.gif) repeat-y;
+}
+.js_tree li li{
+	background:url(/img/line2.gif) no-repeat 0 0;
+}
+
+/* float fix */
+
+.js_tree:after, .js_tree ul:after{
+    content: ".";
+    display: block;
+    height: 0;
+    clear: both;
+    visibility: hidden;
+}
+.js_tree, .js_tree ul{display:block;}
+
+.js_tree, .js_tree ul{min-height:1%;}
+* html .js_tree, * html .js_tree ul{height:1%;}
+
+.js_tree ul{display:none;}
+
+.js_tree a{text-decoration:none;color:#0000FF;}
+
+.js_tree a:visited {text-decoration: none}
+.js_tree a:active {text-decoration: none}
+.js_tree a:hover {text-decoration: underline;}
+.js_tree .selected {
+    background-color: #c0d2ec;
+}
