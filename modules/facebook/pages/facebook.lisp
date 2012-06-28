@@ -93,8 +93,12 @@
                            :header "Message")
             (make-instance 'grid-column
                            :name 'story
-                           :header "Story") ))
-         (grid (make-widget 'post-grid :name "facebook-gridxxxxxx"
+                           :header "Story")
+	    (make-instance 'grid-column
+                           :name 'created-time
+                           :header "Created")
+ ))
+         (grid (make-widget 'post-grid :name "facebook-gridxyz"
                                        :columns columns
                                        :edit-inline nil
                                        :title "Facebook Inbox"

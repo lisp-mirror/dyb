@@ -31,7 +31,7 @@
                           :filter (grid-filter grid)  
                           :search (search-term grid))))
 
-
+; as it says 
 (defmethod render-row-editor ((grid post-grid) row)
   (let ((form (make-widget 'peach-form :name "p-formx"
                                        :grid-size 12
@@ -77,14 +77,27 @@
                                     "message"
                                     (get-val row 'message)
                                     :type :textarea)))
+			 (dolist (com (get-val (get-val row 'comments) 'data))
                          (render 
                           form-section
                           :label "Story"
                           :input (with-html-to-string ()
                                    (render-edit-field 
                                     "Story"
-                                    (get-val row 'story)
-                                    :type :textarea))))))))
+				    (get-val com 'message)
+				   ; (write-to-string (get-val (get-val row 'comments) 'count))
+				   ; (get-val row 'story)
+                                  ;(get-val (first (get-val (get-val row 'comments) 'data)) 'message)
+                                    :type :textarea))))
+			 (render 
+                          form-section
+                          :label "Created"
+                          :input (with-html-to-string ()
+                                   (render-edit-field 
+                                    "Created"
+                                    (get-val row 'created-time)
+                                    :type :textarea)))
+)))))
       (list
        "Addresses"
        (with-html-to-string ()
