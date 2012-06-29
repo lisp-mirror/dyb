@@ -763,7 +763,7 @@
 								:profile-background-image-url profile-background-image-url
 								:statuses-count statuses-count
 								:status status
-								:id id
+								:pid id
 								:location location
 								:profile-text-color profile-text-color
 								:show-all-inline-media show-all-inline-media

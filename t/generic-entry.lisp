@@ -54,7 +54,7 @@
 			
 (defun wrap-tweet (tweet)
 	(let (
-		(pid (get-val tweet 'id))
+		(pid (get-val tweet 'id-str))
 		(title (get-val tweet 'text))
 		(payload tweet)
 		(type "tweeter")
@@ -94,7 +94,15 @@
 (defun populate-generic-db-from-tweet (tweet-list)
     (dolist (tweet tweet-list) 
       (persist-doc (wrap-tweet (make-tweet tweet)))))
-
+;?
 (add-collection (system-db) "generic-entry" 
                 :collection-class 'ems-collection
                 :load-from-file-p t)
+; to see what is serialized
+(defun make-tw-wrapper-list (tweet-list)
+	(let ((out ()))
+	(dolist (tweet tweet-list) (setf out (append out (list (wrap-tweet (make-tweet tweet)))))) out ))
+;The slot XID is unbound in the object #<GENERIC-ENTRY
+;                                        {1009539393}>.
+;   [Condition of type UNBOUND-SLOT]
+;on single tweet it works on list doesn't!
