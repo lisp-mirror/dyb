@@ -715,7 +715,7 @@
 
 ;; version 1 needs status builder and maybe more
 
-(defun make-user (user)
+(defun make-tweet-user (user)
     (let (
             (profile-image-url-https (get-user-profile-image-url-https user))
             (utc-offset (get-user-utc-offset user))

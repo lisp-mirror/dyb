@@ -98,7 +98,7 @@
                            :name 'created-time
                            :header "Created")
  ))
-         (grid (make-widget 'post-grid :name "facebook-gridxyz"
+         (grid (make-widget 'post-grid :name "facebook-gridyyzw"
                                        :columns columns
                                        :edit-inline nil
                                        :title "Facebook Inbox"
