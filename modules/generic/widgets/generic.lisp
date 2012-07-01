@@ -77,6 +77,45 @@
                                     "title"
                                     (get-val row 'title)
                                     :type :textarea)))
+			 (if (string= (get-val row 'type) "facebook")
+			     (if (get-val (get-val (get-val row 'payload) 'likes) 'count)
+				  (render 
+				form-section
+				:label "Likes"
+				:input (with-html-to-string ()
+                                   (render-edit-field 
+                                    "Count"
+				   (write-to-string (get-val (get-val (get-val row 'payload) 'likes) 'count))
+				   ; (write-to-string (get-val (get-val row 'comments) 'count))
+				   ; (get-val row 'story)
+                                  ;(get-val (first (get-val (get-val row 'comments) 'data)) 'message)
+                                    :type :textarea))))
+			     (if (get-val (get-val row 'payload) 'retweet-count)
+				 (render 
+				form-section
+				:label "Retweets"
+				:input (with-html-to-string ()
+                                   (render-edit-field 
+                                    "Count"
+				   (write-to-string (get-val (get-val row 'payload) 'retweet-count))
+				   ; (write-to-string (get-val (get-val row 'comments) 'count))
+				   ; (get-val row 'story)
+                                  ;(get-val (first (get-val (get-val row 'comments) 'data)) 'message)
+                                    :type :textarea))))
+			     )
+			 (if (string= (get-val row 'type) "facebook")
+			     (dolist (com (get-val (get-val (get-val row 'payload) 'comments) 'data))
+			       (render 
+				form-section
+				:label "Comment"
+				:input (with-html-to-string ()
+                                   (render-edit-field 
+                                    "Story"
+				    (get-val com 'message)
+				   ; (write-to-string (get-val (get-val row 'comments) 'count))
+				   ; (get-val row 'story)
+                                  ;(get-val (first (get-val (get-val row 'comments) 'data)) 'message)
+                                    :type :textarea)))))
 #|			 (dolist (com (get-val (get-val row 'comments) 'data))
                          (render 
                           form-section

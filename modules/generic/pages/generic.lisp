@@ -91,11 +91,14 @@
             (make-instance 'grid-column
                            :name 'type
                            :header "Type")
+           (make-instance 'grid-column
+                           :name 'interaction
+                           :header "Response")
 	    (make-instance 'grid-column
                            :name 'created
                            :header "Created")
  ))
-         (grid (make-widget 'generic-grid :name "generic-grid0"
+         (grid (make-widget 'generic-grid :name "generic-grid01"
                                        :columns columns
                                        :edit-inline nil
                                        :title "Facebook Inbox"
