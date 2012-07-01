@@ -1,6 +1,6 @@
 (in-package #:ems)
 
-(defclass user (doc) 
+(defclass tw-user (doc) 
   ((profile-image-url-https :accessor user-profile-image-url-https :initarg :profile-image-url-https)
   (utc-offset :accessor user-utc-offset :initarg :utc-offset)
   (profile-background-image-url :accessor user-profile-background-image-url :initarg :profile-background-image-url)

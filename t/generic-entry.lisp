@@ -21,6 +21,7 @@
 		(comment-count (get-val (get-val post 'comments) 'count))
 		(likes-count (get-val (get-val post 'likes) 'count))
 		)
+	  (unless likes-count (setf likes-count 0))
 	(cond ((zerop (+ comment-count likes-count)) "none")
 			((= 1 (+ comment-count likes-count)) "low")
 			((= 2 (+ comment-count likes-count)) "medium")
@@ -28,7 +29,7 @@
 
 (defun wrap-fb-post (post)
 	(let (
-		(pid (get-val post 'id))
+		(pid (get-val post 'post-id))
 		(title (get-msg-or-story post))
 		(payload post)
 		(type "facebook")
@@ -95,9 +96,9 @@
     (dolist (tweet tweet-list) 
       (persist-doc (wrap-tweet (make-tweet tweet)))))
 ;?
-(add-collection (system-db) "generic-entry" 
-                :collection-class 'ems-collection
-                :load-from-file-p t)
+;(add-collection (system-db) "generic-entry" 
+;                :collection-class 'ems-collection
+;                :load-from-file-p t)
 ; to see what is serialized
 (defun make-tw-wrapper-list (tweet-list)
 	(let ((out ()))
@@ -106,3 +107,6 @@
 ;                                        {1009539393}>.
 ;   [Condition of type UNBOUND-SLOT]
 ;on single tweet it works on list doesn't!
+(defun make-fb-wrapper-list (post-list)
+	(let ((out ()))
+	(dolist (post post-list) (setf out (append out (list (wrap-fb-post (make-post post)))))) out ))

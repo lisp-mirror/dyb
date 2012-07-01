@@ -45,7 +45,7 @@
 (defun get-favorited (tweet)
   (rest (assoc ':favorited tweet)))
 
-(defun get-place (tweet)
+(defun get-tweet-place (tweet)
   (rest (assoc ':place tweet)))
 
 (defun get-possibly-sensitive (tweet)
@@ -57,13 +57,13 @@
 (defun get-retweeted (tweet)
   (rest (assoc ':retweeted tweet)))
 
-(defun get-source (tweet)
+(defun get-tweet-source (tweet)
   (rest (assoc ':source tweet)))
 
 (defun get-truncated (tweet)
   (rest (assoc ':truncated tweet)))
 
-(defun get-user (tweet)
+(defun get-tweet-user (tweet)
   (rest (assoc ':user tweet)))
 
 (defun get-withheld-copyright (tweet)
@@ -757,7 +757,7 @@
             (profile-background-image-url-https (get-user-profile-background-image-url-https user))
             (favourites-count (get-user-id user)))
       (if status (setf status (make-tweet status)))
-      (if (or profile-image-url-https utc-offset profile-background-image-url statuses-count status id location profile-text-color show-all-inline-media id-str name profile-use-background-image protected friends-count profile-image-url followers-count profile-sidebar-fill-color description time-zone profile-background-tile following is-translator profile-background-color default-profile profile-link-color lang listed-count created-at default-profile-image contributors-enabled verified geo-enabled profile-sidebar-border-color url screen-name follow-request-sent notifications profile-background-image-url-https favourites-count) (make-instance 'user 
+      (if (or profile-image-url-https utc-offset profile-background-image-url statuses-count status id location profile-text-color show-all-inline-media id-str name profile-use-background-image protected friends-count profile-image-url followers-count profile-sidebar-fill-color description time-zone profile-background-tile following is-translator profile-background-color default-profile profile-link-color lang listed-count created-at default-profile-image contributors-enabled verified geo-enabled profile-sidebar-border-color url screen-name follow-request-sent notifications profile-background-image-url-https favourites-count) (make-instance 'tw-user 
 								:profile-image-url-https profile-image-url-https
 								:utc-offset utc-offset
 								:profile-background-image-url profile-background-image-url
@@ -816,21 +816,21 @@
    (in-reply-to-status-id-str (get-in-reply-to-status-id-str tweet))
    (in-reply-to-user-id (get-in-reply-to-user-id tweet))
    (in-reply-to-user-id-str (get-in-reply-to-user-id-str tweet))
-   (place (make-places (get-place tweet)))
+   (place (make-places (get-tweet-place tweet)))
    (possibly-sensitive (get-possibly-sensitive tweet))
    (retweet-count (get-retweet-count tweet))
    (retweeted (get-retweeted tweet))
-   (source (get-source tweet))
+   (source (get-tweet-source tweet))
    (text (get-text tweet))
    (truncated (get-truncated tweet))
-   (user (get-user tweet))
+   (user (get-tweet-user tweet))
    (retweeted-status (get-retweeted-status tweet))
    (withheld-copyright (get-withheld-copyright tweet))
    (withheld-in-countries (get-withheld-in-countries tweet))
    (withheld-scope (get-withheld-scope tweet))
    )
       (if retweeted-status (setf retweeted-status (make-tweet retweeted-status)))
-      (if user (setf user (make-user user)))
+      (if user (setf user (make-tweet-user user)))
       (if (or contributors geo coordinates created-at current-user-retweet entities favorited id id-str in-reply-to-screen-name in-reply-to-status-id in-reply-to-status-id-str in-reply-to-user-id in-reply-to-user-id-str place possibly-sensitive retweet-count retweeted source text truncated user retweeted-status withheld-copyright withheld-in-countries withheld-scope) 
    (make-instance 'tweet 
                   :contributors contributors
