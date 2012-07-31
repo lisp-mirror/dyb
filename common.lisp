@@ -593,11 +593,12 @@ is replaced with replacement."
     (format t "~%~A" (get-val doc element))))
 
 (defun print-entity-name (doc)
-  (if doc
-      (if (string-equal (get-val doc 'doc-type) "entity")
-          (get-val doc 'entity-name)
-          (if (get-val doc 'entity)
-              (get-val (get-val doc 'entity) 'entity-name)))))
+  (when doc
+    (if (get-val doc 'doc-type)
+        (if (string-equal (get-val doc 'doc-type) "entity")
+            (get-val doc 'entity-name)
+            (if (get-val doc 'entity)
+                (get-val (get-val doc 'entity) 'entity-name))))))
 
 (defun print-supplier-name (doc)
   (if doc

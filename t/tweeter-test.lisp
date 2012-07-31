@@ -30,9 +30,10 @@
 ;calling directly make-tw-wrapper-list creates log but I can't incpect it with quicklook
 ;maybe I do not know how to use doc and quicklook
 ;though, following works
-(defparameter *test* (make-tw-wrapper-list *twraw*))
+(defparameter *test* (make-tw-wrapper-list *twt-json*))
 (dolist (tweet *test*) 
       (persist-doc tweet))
 (quicklook-docs *test*)
 
 
+(populate-generic-db-from-tweet (json::decode-json-from-string *twt-json*))

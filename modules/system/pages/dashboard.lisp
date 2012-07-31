@@ -5,31 +5,33 @@
    ))
 
 (defmethod render ((widget dashboard-item) &key name header items)
-  (with-html-output-to-string (*standard-output*)
+  (with-html-to-string ()
     (let ((box (make-widget 'peach-box :name (format nil "~A-box" name))))
       (setf (header box) header)
-      (str (render box
-                   :content
-                   (with-html-output-to-string (*standard-output*)
+      (setf (get-val box 'content )
+            (with-html-to-string ()
 
-                     (:ul :class "stats-list"
-                          (dolist (item items)
-                            (htm (:li (:a :href "#" (str (first item)) 
-                                          (:span (str (second item)))))))))
+                                    (:ul :class "stats-list"
+                                         (dolist (item items)
+                                           (htm (:li (:a :href "#" (str (first item)) 
+                                                         (:span (str (second item))))))))))
+      (str (render box
+                   ;;need to move this
                    :actions
-                   (with-html-output-to-string (*standard-output*)
+                   (with-html-to-string ()
                      (:div :class "actions-left")
                            (:div :class "actions-right"
                                  (:a :class "button" :href "#" "Got to stats &raquo;")))))
+     ; (htm (:div :class "clear"))
       )))
 
 (define-easy-handler (dashboard-page :uri "/ems/dashboard") ()
   
   (let ((page (make-widget 'page :name "dashboard-page")))
-    (with-html-output(*standard-output*)
+    (with-html
       (render page
               :body 
-              (with-html-output-to-string (*standard-output*)
+              (with-html-to-string ()
 
                 (let ((dash-item (make-widget 'dashboard-item :name "dash-item")))
 
@@ -46,6 +48,7 @@
                                 (list "+1's" "10")
                                 (list "Shares" "10")
                                 (list "Retweets" "10"))))
+
                   (str (render dash-item :name "reach" :header "Reach"
                                :items
                                (list

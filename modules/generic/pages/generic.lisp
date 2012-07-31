@@ -104,8 +104,26 @@
                                        :title "Facebook Inbox"
                                        :row-object-class 'generic-entry)))
     
+    (when (parameter "get-facebook-data")
+      (dolist (user (coerce (service-users) 'list))
+        
+        (when (and user (string-equal (get-val user 'doc-status) "Active"))
+          
+          (multiple-value-bind (bodyx)
+              (drakma:http-request 
+               (format nil "https://graph.facebook.com/~A/posts?access_token=~A" 
+                       (get-val user 'user-id)
+                       (get-val user 'last-access-token)))
+
+            
+            (populate-generic-db-from-post (rest (first (json::decode-json-from-string bodyx))))
+            ))))
     (render (make-widget 'page :name "generic-page")
-            :body (render-to-string grid)))
+            :body (with-html-to-string ()
+                    (:form :name "fetch-data"
+                           :method :post
+                           (:input :type "submit" :name "get-facebook-data" :value "Get Facebook Data"))
+                    (str (render grid)))))
 
 
   

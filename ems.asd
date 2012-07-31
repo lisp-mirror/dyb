@@ -76,7 +76,8 @@
                              (:file "contacts")
                              (:file "address")
                              (:file "companies")
-                             (:file "periods")))
+                             (:file "periods")
+                             (:file "service-users")))
 
                    (:module "widgets"
                     :serial t
@@ -86,7 +87,8 @@
                              (:file "companies")
                              (:file "country-town")
                              
-                             (:file "periods")))
+                             (:file "periods")
+                             (:file "service-users")))
 
                    (:module "pages"
                     :serial t
@@ -96,7 +98,9 @@
                              (:file "companies")
                              (:file "country-town")
                              
-                             (:file "periods")))))
+                             (:file "periods")
+                             (:file "service-users")))))
+                 
                  
                  (:module "facebook"
                   :serial t
@@ -113,5 +117,31 @@
                    (:module "pages"
                     :serial t
                     :components
-                            ((:file "facebook"))))))) ))
+                            ((:file "facebook")))))
+                 (:module "twitter"
+                  :serial t
+                  :components
+                  ((:file "twitter-parser")
+                   (:module "db"
+                    :serial t
+                    :components
+                            ((:file "twitter-classes")))
+                   
+                   ))
+                 (:module "generic"
+                  :serial t
+                  :components
+                  (
+                   (:module "db"
+                    :serial t
+                    :components
+                            ((:file "generic-entry")))
+                   (:module "widgets"
+                    :serial t
+                    :components
+                            ((:file "generic")))
+                   (:module "pages"
+                    :serial t
+                    :components
+                            ((:file "generic"))))))) ))
 

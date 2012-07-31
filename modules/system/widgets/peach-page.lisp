@@ -36,7 +36,7 @@
                 :accessor collapsible)))
 
 (defmethod render ((box peach-box) &key)
-  (with-html
+  (with-html-to-string ()
     (:div :class (format nil "grid_~A" (grid-size box))
           (:div :class "box" :id (name box)
                 (:div :class "header"
@@ -216,16 +216,16 @@ document.getElementById(\"~A\").submit();"
                        (:li 
                         (:a :href "/ems/companies" "Companies"))                     
                        (:li 
-                        (:a :href "/ems/reporting-periods" "Reporting Period"))
+                        (:a :href "/ems/service-users" "Service Users"))
                        
                        ))
                      (:li 
                       (:a :href "#"
                           (:img :src "/img/icons/25x25/dark/keyboard.png" :width "25" :height "25" :alt "")
-                          "Facebook")
+                          "Inbox")
                       (:ul
                        (:li 
-                        (:a :href "/ems/facebook" "Facebook"))))
+                        (:a :href "/ems/generic" "Inbox"))))
                      (:li 
                       (:a :href "#"
                           (:img :src "/img/icons/25x25/dark/chart-3.png" :width "25" :height "25" :alt "")
