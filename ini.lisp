@@ -31,6 +31,6 @@
   (create-prefix-dispatcher (ht-simple-ajax::server-uri processor)
                             (lambda () (call-lisp-function processor))))
 
-(defvar *ajax-prefix-dispatcher* (create-ajax-dispatcher *ajax-processor*))
+(defvar *ajax-prefix-dispatcher* (create-ajax-dispatcher *ems-ajax-processor*))
 
 (pushnew *ajax-prefix-dispatcher* *dispatch-table*)
