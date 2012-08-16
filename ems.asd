@@ -162,20 +162,21 @@
                                    (:module "pages"
                                             :serial t
                                             :components
-                                            ((:file "generic"))))))
+                                            ((:file "generic")))))
+                         (:module "quickview"
+                                  :serial t
+                                  :components
+                                  ((:file "common")
+                                   (:file "document")
+                                   (:file "document-html")
+                                   (:file "document-pdf")
+                                   (:file "html-filter")
+                                   (:file "html-to-document")
+                                   (:file "quickview-widgets")
+                                   (:file "drill-down")
+                                   (:file "forms-common"))))
                         )
-               (:module "quickview"
-                                 :serial t
-                                 :components
-                                 ((:file "common")
-                                  (:file "document")
-                                  (:file "document-html")
-                                  (:file "document-pdf")
-                                  (:file "html-filter")
-                                  (:file "html-to-document")
-                                  (:file "quickview-widgets")
-                                  (:file "drill-down")
-                                  (:file "forms-common")))
+               
 
 
                ))
