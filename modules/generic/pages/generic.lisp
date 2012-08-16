@@ -106,26 +106,33 @@
                           :name 'payload
                           :header "Likes"
                           :printer (lambda (doc)
+                                      ;;TODO: See why action ended up in likes slot
                                      (if doc
                                          (if (get-val doc 'likes)
-                                             (if (get-val (get-val doc 'likes) 'count)
-                                                 (get-val (get-val doc 'likes) 'count)
-                                                 0)
+                                             (if (string-equal 
+                                                  (type-of (make-instance 'comments))
+                                                  "LIKES")
+                                                 (if (get-val (get-val doc 'likes) 'count)
+                                                     (get-val (get-val doc 'likes) 'count)
+                                                     0))
                                              0)
                                          0)))
            (make-instance 'grid-column
                           :name 'payload
                           :header "Comments"
                           :printer (lambda (doc)
+                                     ;;TODO: See why actions ended up in comments slot
                                      (if doc
-                                         (when (string-equal 
-                                                (type-of (make-instance 'comments))
-                                                "COMMENTS")
-                                           (if (get-val doc 'comments)
-                                               (if (get-val (get-val doc 'comments) 'count)
-                                                   (get-val (get-val doc 'comments) 'count)
-                                                   0)
-                                               0))
+                                         (if (get-val doc 'comments)
+                                             (if (string-equal 
+                                                  (type-of (make-instance 'comments))
+                                                  "COMMENTS")
+                                           
+                                                 (if (get-val (get-val doc 'comments) 'count)
+                                                     (get-val (get-val doc 'comments) 'count)
+                                                     0))
+                                               0)
+                                         
                                          0)))
            (make-instance 'grid-column
                           :name 'created

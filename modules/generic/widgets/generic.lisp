@@ -110,9 +110,6 @@
                                                  "Count"
                                                  (if (get-val (get-val row 'payload) 'likes)
                                                   (get-val (get-val (get-val row 'payload) 'likes) 'count))
-                                        ; (write-to-string (get-val (get-val row 'comments) 'count))
-                                        ; (get-val row 'story)
-                                        ;(get-val (first (get-val (get-val row 'comments) 'data)) 'message)
                                                  :type :textarea))))
                                   (if (get-val (get-val row 'payload) 'retweet-count)
                                       (render 
@@ -122,9 +119,6 @@
                                                 (render-edit-field 
                                                  "Count"
                                                  (write-to-string (get-val (get-val row 'payload) 'retweet-count))
-                                        ; (write-to-string (get-val (get-val row 'comments) 'count))
-                                        ; (get-val row 'story)
-                                        ;(get-val (first (get-val (get-val row 'comments) 'data)) 'message)
                                                  :type :textarea))))
                                   )
                               (if (string= (get-val row 'type) "facebook")
@@ -136,22 +130,8 @@
                                               (render-edit-field 
                                                "Story"
                                                (get-val com 'message)
-                                        ; (write-to-string (get-val (get-val row 'comments) 'count))
-                                        ; (get-val row 'story)
-                                        ;(get-val (first (get-val (get-val row 'comments) 'data)) 'message)
+
                                                :type :textarea)))))
-                              #|			 (dolist (com (get-val (get-val row 'comments) 'data))
-                              (render 
-                              form-section
-                              :label "Story"
-                              :input (with-html-to-string ()
-                              (render-edit-field 
-                              "Story"
-                              (get-val com 'message)
-				   ; (write-to-string (get-val (get-val row 'comments) 'count)) ; ; ; ; ; ; ;
-				   ; (get-val row 'story) ; ; ; ; ; ; ;
-                                  ;(get-val (first (get-val (get-val row 'comments) 'data)) 'message) ; ; ; ; ; ; ;
-                              :type :textarea))))|#
 			 (render 
                           form-section
                           :label "Created"
