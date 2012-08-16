@@ -108,7 +108,8 @@
                                        :input (with-html-to-string ()
                                                 (render-edit-field 
                                                  "Count"
-                                                 (write-to-string (get-val (get-val (get-val row 'payload) 'likes) 'count))
+                                                 (if (get-val (get-val row 'payload) 'likes)
+                                                  (get-val (get-val (get-val row 'payload) 'likes) 'count))
                                         ; (write-to-string (get-val (get-val row 'comments) 'count))
                                         ; (get-val row 'story)
                                         ;(get-val (first (get-val (get-val row 'comments) 'data)) 'message)
@@ -177,10 +178,9 @@
                               (make-instance 'grid-column
                                              :name 'likes
                                              :header "Likes"
-                                             :printer (lambda (likes)
-                                                        (get-val likes 'count)))))
+                                             )))
                            (comment-grid (make-widget 'generic-comments-grid 
-                                                      :name "generic-comment-grid"
+                                                      :name "generic-comment-gridxx"
                                                       :columns columns
                                                       :edit-inline nil
                                                       :title "Comments"
