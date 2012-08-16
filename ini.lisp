@@ -2,7 +2,7 @@
 
 (setf hunchentoot:*catch-errors-p* nil)
 
-(defvar *acceptor* (make-instance 'ems-acceptor :port 8000))
+(defvar *acceptor* (make-instance 'ems-acceptor :port 8090))
 
 (unless (started *acceptor*)
   (start *acceptor*))
