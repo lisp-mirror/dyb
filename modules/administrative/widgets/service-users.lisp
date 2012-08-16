@@ -134,9 +134,12 @@
                  (format nil "https://graph.facebook.com/~A" username))
     (if body
         (let ((decoded-body (json::decode-json-from-string body)))
+          
           (if (string-equal (first (first decoded-body)) "ERROR")
               (cdr (second (first decoded-body)))
-              (cdr (first decoded-body)))))))
+              (if (assoc ':id decoded-body)
+                  (cdr (assoc ':id decoded-body))
+                  (cdr (second (first decoded-body)))))))))
 
 (defmethod handle-action ((grid service-user-grid) (action (eql 'save)))
   

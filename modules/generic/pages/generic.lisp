@@ -63,7 +63,7 @@
             (multiple-value-bind (bodyx)
                 (drakma:http-request 
                  (format nil "https://graph.facebook.com/~A/feed?access_token=~A" 
-                         (get-val user 'user-id)
+                         (url-encode (get-val user 'user-id))
                          (get-val user 'last-access-token)))
 
               (let ((post-list (rest (first (json::decode-json-from-string bodyx)))))
