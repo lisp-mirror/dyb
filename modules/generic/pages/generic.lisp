@@ -83,8 +83,16 @@
   (let* ((columns
            (list
             (make-instance 'grid-column
-                           :name 'pid
-                           :header "ID")
+                           :name 'payload
+                           :header "From"
+                           :printer (lambda (doc)
+                                     (if doc
+                                         (if (get-val doc 'from)
+                                             (if (get-val (get-val doc 'from) 'name)
+                                                 (get-val (get-val doc 'from) 'name)
+                                                 0)
+                                             0)
+                                         0)))
             (make-instance 'grid-column
                            :name 'title
                            :header "Title")
@@ -120,7 +128,7 @@
                           :name 'created
                           :header "Created")
            ))
-         (grid (make-widget 'generic-grid :name "generic-post-gridx"
+         (grid (make-widget 'generic-grid :name "generic-post-gridXx"
                                        :columns columns
                                        :edit-inline nil
                                        :title "Facebook Inbox"
