@@ -94,10 +94,33 @@
            (make-instance 'grid-column
                            :name 'interaction
                            :header "Response")
-	    (make-instance 'grid-column
-                           :name 'created
-                           :header "Created")))
-         (grid (make-widget 'generic-grid :name "generic-grid01"
+           (make-instance 'grid-column
+                          :name 'payload
+                          :header "Likes"
+                          :printer (lambda (doc)
+                                     (if doc
+                                         (if (get-val doc 'likes)
+                                             (if (get-val (get-val doc 'likes) 'count)
+                                                 (get-val (get-val doc 'likes) 'count)
+                                                 0)
+                                             0)
+                                         0)))
+           (make-instance 'grid-column
+                          :name 'payload
+                          :header "Comments"
+                          :printer (lambda (doc)
+                                     (if doc
+                                         (if (get-val doc 'comments)
+                                             (if (get-val (get-val doc 'comments) 'count)
+                                                 (get-val (get-val doc 'comments) 'count)
+                                                 0)
+                                             0)
+                                         0)))
+           (make-instance 'grid-column
+                          :name 'created
+                          :header "Created")
+           ))
+         (grid (make-widget 'generic-grid :name "generic-post-gridx"
                                        :columns columns
                                        :edit-inline nil
                                        :title "Facebook Inbox"
