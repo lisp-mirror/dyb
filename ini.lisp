@@ -2,12 +2,12 @@
 
 (setf hunchentoot:*catch-errors-p* nil)
 
-(defvar *acceptor* (make-instance 'ems-acceptor :port 8090))
+(defvar *ems-acceptor* (make-instance 'ems-acceptor :port 8090))
 
-(unless (started *acceptor*)
-  (start *acceptor*))
+(unless (started *ems-acceptor*)
+  (start *ems-acceptor*))
 
-(defparameter *ajax-processor*
+(defparameter *ems-ajax-processor*
   (make-instance 'ht-simple-ajax:ajax-processor :server-uri "/ems/ajax"))
 
 (defun call-lisp-function (processor)
@@ -32,4 +32,4 @@
                             (lambda () (call-lisp-function processor))))
 
 (setf *dispatch-table* (list 'dispatch-easy-handlers 
-                             (create-ajax-dispatcher *ajax-processor*)))
+                             (create-ajax-dispatcher *ems-ajax-processor*)))
