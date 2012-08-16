@@ -11,6 +11,8 @@
 
 (defparameter *salt-length* 10)
 
+(defparameter *count-year* 9999)
+
 (defun find-dfs (x tree &key (test #'eql) key)
   (let ((key (or key #'identity)))
     (labels ((do-find (x tree)
@@ -101,17 +103,6 @@
     (t
      (princ-to-string value))))
 
-(defun render-select (name items value &key first-value blank-allowed)
-  (let ((select (make-widget 'select
-                             :name name)))
-    (setf (blank-allowed select) blank-allowed)
-    (setf (first-item select) first-value)
-    (setf (items select) items)
-    (when value
-     (setf (value select) value))
-    (render select)
-    select))
-
 (defun render-edit-field (name value
                           &key data-element required 
                           (type "text") 
@@ -123,40 +114,44 @@
    (field-permission (or data-element name))
    (with-html
      (case type
-              (:span
-               (htm (:input :type "text"
-                            :name name
-                            :disabled t
-                            :readonly t
-                            :value (if (stringp value)
-                                       (esc value)
-                                       value))))
-              (:select
-               (render-select (or data-element name) data value
-                              :blank-allowed blank-allowed))
-              (:textarea
-               (htm (:textarea :class (if required "required") :cols 85 :rows 5 :name name
-                               (esc value))))
-              (:password
-               (htm (:input :type "password"
-                            :class (if required "required")
-                            :name name
-                            :value (esc value))))
-              (t
-               (htm
-
-                (:div (:input :type type
-                              :class (if required "required")
-                              :name name
-                              :min min
-                              :max max
-                              :value (if (stringp value)
-                                         (esc value)
-                                         value)))
-                (:div :style "display:none;"
-                      :name (format nil "validate-~A" name)
-                      :id (format nil "validate-~A" name)
-                      (:img :src "/images/q-icon.png"))))))))
+       (:span
+        (htm (:input :type "text"
+                     :name name
+                     :disabled t
+                     :readonly t
+                     :value (escape value))))
+       (:select
+        (render-select (or data-element name) data value
+                       :blank-allowed blank-allowed))
+       (:textarea
+        (htm (:textarea :class (if required "required")
+                        :name name
+                        :cols 85 :rows 5
+                        (str (escape value)))))
+       (:password
+        (htm (:input :type "password"
+                     :class (if required "required")
+                     :name name
+                     :value (escape value))))
+       (:date
+        (htm (:input :type "text"
+                     :class (if required
+                                "date-pick required"
+                                "date-pick")
+                     :name name
+                     :value (escape value))))
+       (t
+        (htm
+         (:div (:input :type type
+                       :class (if required "required")
+                       :name name
+                       :min min
+                       :max max
+                       :value (escape value)))
+         (:div :style "display:none;"
+               :name (format nil "validate-~A" name)
+               :id (format nil "validate-~A" name)
+               (:img :src "/images/q-icon.png"))))))))
 
 
 (defun find-direct-slot-definition (class slot-name)
@@ -184,7 +179,9 @@
              (string-equal slot-name "date-of-termination")
              (string-equal slot-name "date-of-birth")
              (string-equal slot-name "lof-start-date")
-             (string-equal slot-name "lof-end-date"))
+             (string-equal slot-name "lof-end-date")
+             (string-equal slot-name "feedback-date")
+             (string-equal slot-name "meeting-date"))
          (string-to-date value))
         (t value)
         ))
@@ -213,38 +210,36 @@
         (return-from find-duplicate-doc-list dup))))
 
 (defun update-master-child-doc (master-doc doc master-slot &key key (element 'key))
-  (let ((dup (find-duplicate-doc-list
-              doc
-              (get-val master-doc master-slot)
-              :element element))
-        (new-master (copy master-doc))
-        (new-doc (copy doc)))
+  (let ((old-master-doc (copy-new master-doc))
+        (old-doc (copy-new doc)))
+    (synq-edit-data doc)
+    (if (slot-exists-p doc 'key)
+        (setf (key doc) key))
+    (setf (get-val master-doc master-slot)
+          (append (get-val master-doc master-slot) (list doc)))
+    (if old-doc
+        (update-doc doc old-doc)
+        (persist doc))
+    (if old-master-doc
+        (update-doc master-doc old-master-doc)
+        (persist master-doc))))
 
-    (when dup
-        (setf (get-val new-master master-slot)
-              (remove dup (get-val new-master master-slot))))
+(defun persist-from-grid-edit (doc key)
+  (let ((old-doc (copy doc)))
+    (synq-edit-data doc)
+    (setf (key doc) key)
 
-    (synq-edit-data new-doc)
-    (if (slot-exists-p new-doc 'key)
-        (setf (key new-doc) key))
+    (if (get-val doc 'xid)
+            (persist doc)
+            (persist doc :old-object old-doc))
 
-    (setf (get-val new-master master-slot)
-          (append (get-val new-master master-slot) (list new-doc)))
-    new-master
+    (persist doc)
     ))
 
-(defun persist-doc-from-grid-edit (doc key)
-  (let ((new-doc (copy doc)))
-    (synq-edit-data new-doc)
-    (setf (key new-doc) key)
-    
-    (persist-doc new-doc)
-    ))
-
-(defun persist-doc-from-child-grid-edit (doc key)
+(defun persist-from-child-grid-edit (doc key)
   (let ((new-doc (copy doc)))
     (setf (key new-doc) key)
-    (persist-doc new-doc)
+    (persist new-doc)
     ))
 
 (defmacro render-row-edit (form-name object &key validation-list save-disabled-p body  )
@@ -294,7 +289,7 @@
   (when (array-in-bounds-p *long-months* (1- n))
     (aref *long-months* (1- n))))
 
-(defun format-universal-date (universal-date)
+(defun format-universal-date (universal-date)  
   (if (stringp universal-date)
       universal-date
       (multiple-value-bind (a b c day month year)
@@ -311,10 +306,24 @@
   (format nil "~d ~a ~d ~@{~2,'0d~^:~}"
           day (short-month-name month) year hour min sec))
 
+(defun year (date)
+  (values (decode-date date)))
+
+(defun month (date)
+  (nth-value 1 (decode-date date)))
+
+(defun day (date)
+  (nth-value 2 (decode-date date)))
+
 (defun format-date (date)
   (if (integerp date)
       (format-universal-date date)
       date))
+
+(defun parse-date (date)
+  (multiple-value-bind (year month date) (decode-date date)
+    (when (and year month date)
+      (encode-universal-time 0 0 0 date month year))))
 
 (defun split-string (string char)
     "Returns a list of substrings of string
@@ -323,6 +332,8 @@ divided by char."
           as j = (position char string :start i)
           collect (subseq string i j)
           while j))
+
+(defparameter *time-zone* 0)
 
 (defun string-to-date (date-string)
   (if (stringp date-string)
@@ -333,17 +344,57 @@ divided by char."
          (+ 1 (or 
                (position (second split-date) *short-months* :test 'string-equal)
                (position (second split-date) *long-months* :test 'string-equal))) 
-         (parse-integer (third split-date))))
+         (if (> (parse-integer (third split-date)) 1900) 
+             (parse-integer (third split-date))
+             1901)
+         ))
       date-string))
 
-(defun  format-short-date (date)
+(defun period-date-to-universal (date-string)  
+  (if date-string
+      (let ((split-date (split-string date-string #\-)))        
+        (encode-universal-time  
+         0 0 0   
+         (parse-integer (third split-date)) 
+         (parse-integer (second split-date)) 
+         (if (> (parse-integer (first split-date)) 1900) 
+             (parse-integer (first split-date))
+             1901)))
+      date-string))
+
+(defun date-to-universal (date-string)  
+  (if date-string
+      (let ((split-date (split-string date-string #\-)))        
+        (encode-universal-time  
+         0 0 0   
+         (parse-integer (third split-date)) 
+         (parse-integer (second split-date)) 
+         (if (> (parse-integer (first split-date)) 1900) 
+             (parse-integer (first split-date))
+             1901)))
+      date-string))
+
+(defun format-short-date (date)
   (let ((split-date (split-string (format-date date) #\space)))
     (format nil "~a ~a ~a"
             (first split-date)
             (string-capitalize (subseq (second split-date) 0 3))
             (third split-date))))
 
+(defun format-time-stamp (stamp)
+  (if (typep stamp 'simple-date:timestamp)
+      (multiple-value-call #'build-date-time
+        (simple-date:decode-timestamp stamp))
+      stamp))
 
+(defun previous-day ()
+  (multiple-value-call #'build-date (date-calc:yesterday)))
+
+(defun current-date-time ()
+  (multiple-value-call #'build-date-time (date-calc:today-and-now)))
+
+(defun current-date ()
+  (multiple-value-call #'build-date (date-calc:today)))
 
 (defun integer-paremeter (name)
   (let ((parameter (parameter name)))
@@ -391,7 +442,23 @@ divided by char."
   (distance-between-points (latitude object1) (longitude object1)
                            (latitude object2) (longitude object2)))
 
+(defun render-allsort-select (sort name value)
+  (let ((allsort (make-widget 'select
+			      :name name
+			      :items (find-allsorts-for-select sort))))
+    (setf (value allsort) value)
+    (render allsort)))
 
+(defun render-select (name items value &key first-value blank-allowed)
+  (let ((select (make-widget 'select
+                             :name name)))
+    (setf (blank-allowed select) blank-allowed)
+    (setf (first-item select) first-value)
+    (setf (items select) items)
+    (when value
+     (setf (value select) value))
+    (render select)
+    select))
 
 (defun build-validation-array (validation-list)
   (if validation-list
@@ -440,7 +507,33 @@ divided by char."
     (when position
       (1+ position))))
 
+(defun decode-date-string (date)
+  (ppcre:register-groups-bind
+      (day month year) ("(\\d+)\\s+(\\w+)\\s+(\\d+)" date)
+    (when day
+      (values (parse-integer year)
+              (month-number month)
+              (parse-integer day)))))
 
+(defun decode-date (date)
+  (etypecase date
+    (simple-date:date
+     (simple-date:decode-date date))
+    (string
+     (decode-date-string date))
+    (integer
+     (multiple-value-bind (a b c day month year)
+         (decode-universal-time date)
+       (declare (ignore a b c))
+       (values year month day)))))
+
+(defun days-between-dates (date1 date2)
+  (multiple-value-call #'date-calc:delta-days
+    (decode-date date1)
+    (decode-date date2)))
+
+(defun convert-days-to-years (start-date end-date)
+  (/ (days-between-dates start-date end-date) 365))
 
 (defun ensure-render (ensure body)
   (and ensure
@@ -505,6 +598,20 @@ divided by char."
              t))
         (t
          t)))
+
+(defun deep-copy-dao-effective (dao)
+  (let ((new (make-instance
+              (class-name (class-of dao)))))
+    (dolist (slot (sb-mop::class-slots (class-of dao)))
+      (setf (slot-value new (slot-definition-name slot))
+            (slot-value dao (slot-definition-name slot))))
+    new))
+
+
+
+(defun effective-date-validation (object)
+  (< (days-between-dates (slot-value object 'effective-std)
+                         (slot-value object 'effective-end)) 0))
 
 
 
@@ -588,17 +695,103 @@ is replaced with replacement."
 (defun defer-js (code)
   (push code (getf *widget-parameters* :javascript-defer)))
 
+(defun defer-js-function (code)
+  (push code (getf *widget-parameters* :javascript-defer-function)))
+
+(defun deferred-js ()
+  (format nil "$(document).ready(function(){~{~a;~}});~
+~{~a~}"
+          (getf *widget-parameters* :javascript-defer)
+          (getf *widget-parameters* :javascript-defer-function )))
+
 (defun check-vals (docs element)
   (dolist (doc (coerce docs 'list))
     (format t "~%~A" (get-val doc element))))
 
 (defun print-entity-name (doc)
-  (when doc
-    (if (get-val doc 'doc-type)
-        (if (string-equal (get-val doc 'doc-type) "entity")
-            (get-val doc 'entity-name)
-            (if (get-val doc 'entity)
-                (get-val (get-val doc 'entity) 'entity-name))))))
+  (if doc
+      (if (string-equal (get-val doc 'doc-type) "entity")
+          (get-val doc 'entity-name)
+          (if (get-val doc 'entity)
+              (get-val (get-val doc 'entity) 'entity-name)))))
+
+(defun print-entity-namex (doc)
+  (format nil "~A" (xid doc)))
+
+(defun print-entity-namexx (doc)
+  (get-val doc 'doc-status))
+
+(defun print-meeting (doc)   
+  (if doc
+      (if (string-equal (get-val doc 'doc-type) "project-meeting")
+          (format nil "~A (~A)" 
+                  (get-val doc 'description) 
+                  (format-universal-date
+                   (get-val doc 'meeting-date))))))
+
+(defun print-attendance-xx-entity (doc)  
+  ;(break "~A" doc)
+  (if doc
+      (get-val (get-val doc 'entity) 'entity-name)))
+
+(defun print-address-type (doc)  
+  ;(break "~A" doc)
+  (if doc
+      (get-val doc 'address-type)))
+
+(defun print-countryx (doc)  
+  ;(break "~A" doc)
+  (if doc
+      (get-val (get-val doc 'country-town) 'country)))
+
+(defun print-provincex (doc)
+;(break "~A" doc)
+  (if doc
+      (get-val (get-val doc 'country-town) 'province)))
+
+(defun print-townx (doc)
+;(break "~A" doc)
+  (if doc
+      (get-val (get-val doc 'country-town) 'town)))
+
+(defun print-country-town-xid (doc)  
+  (if doc
+      (if (string-equal (get-val doc 'doc-type) "country-town")
+          (get-val doc 'xid))))
+(defun print-country (doc)  
+  (if doc
+      (if (string-equal (get-val doc 'doc-type) "country-town")
+          (get-val doc 'country))))
+
+(defun print-province (doc)
+  (if doc
+      (if (string-equal (get-val doc 'doc-type) "country-town")
+          (get-val doc 'province))))
+
+(defun print-town (doc)
+  (if doc
+      (if (string-equal (get-val doc 'doc-type) "country-town")
+          (get-val doc 'town))))
+
+
+
+(defun print-course-name (doc)
+  (if doc
+      (if (string-equal (get-val doc 'doc-type) "training-intervention")
+          (get-val doc 'course-name)
+           )))
+
+(defun print-category (doc)
+  (if doc
+      (if (string-equal (get-val doc 'doc-type) "training-intervention")
+          (get-val doc 'category)
+           )))
+
+(defun print-industry-number (doc)
+  (if doc
+      (if (string-equal (get-val doc 'doc-type) "biographical")
+          (get-val doc 'employee-number)
+           )))
 
 (defun print-supplier-name (doc)
   (if doc
@@ -607,4 +800,21 @@ is replaced with replacement."
           (if (get-val doc 'supplier)
               (get-val (get-val doc 'supplier) 'supplier-name)))))
 
+(defun filter-active (objects)
+  (remove-if-not #'activep objects))
 
+(defun copy-new (doc)
+  (and (slot-val doc 'xid)
+       (copy doc)))
+
+(defun context ()
+  (and (current-user)
+       (multiple-value-bind (context found)
+           (session-value 'context)
+         (if found
+             context
+             (setf (context) (last-context (current-user)))))))
+
+(defun (setf context) (entities)
+  (and (current-user)
+       (setf (session-value 'context) entities)))

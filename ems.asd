@@ -1,16 +1,29 @@
-;;;; ems.asd
 
-(asdf:defsystem #:ems
+(defsystem ems
+  :version "0.2"
+  :depends-on (wfx
+               hunchentoot
+               cl-who
+               postmodern
+               simple-date
+               date-calc
+               local-time
+               alexandria
+               cl-ppcre
+               csv-parser
+               cl-typesetting
+               ironclad
+               cl-json
+               ht-simple-ajax
+ ;;              vecto-graphs
+               closure-html
+               closer-mop
+               cl-jpeg
+               xdb2
+               sb-posix
+               drakma)
   :serial t
-  :depends-on (#:hunchentoot
-               #:cl-who
-               #:drakma
-               #:cl-json
-               #:xdb2
-               #:cl-oauth
-               #:wfx
-               #:ht-simple-ajax)
-  :components ((:file "package")
+  :components ((:file "packages")
                (:file "common")
                (:file "requests")
                (:file "ini")
@@ -53,7 +66,8 @@
                              (:file "peach-page")
                              (:file "ems-page")
                              (:file "input-widgets")
-                             (:file "login")))
+                             (:file "login")
+                             (:file "root-entities")))
                    (:module "pages"
                     :serial t
                     :components
@@ -64,7 +78,8 @@
                              (:file "entities")
                              (:file "users")
                              (:file "permissions")
-                             (:file "export-csv")))))
+                           ;;  (:file "export-csv")
+                             (:file "root-entities")))))
                  (:module "administrative"
                   :serial t
                   :components
@@ -72,40 +87,44 @@
                     :serial t
                     :components
                             ((:file "country-town")
-                             
                              (:file "contacts")
                              (:file "address")
                              (:file "companies")
+                             (:file "service-users")
                              (:file "periods")
-                             (:file "service-users")))
+                             ))
 
                    (:module "widgets"
                     :serial t
                     :components
                             ((:file "address")
-                             (:file "clients")
                              (:file "companies")
                              (:file "country-town")
-                             
+                             (:file "service-users")
                              (:file "periods")
-                             (:file "service-users")))
+                             (:file "clients")))
 
                    (:module "pages"
                     :serial t
                     :components
                             ((:file "address")
-                             (:file "clients")
                              (:file "companies")
                              (:file "country-town")
-                             
+                             (:file "service-users")
                              (:file "periods")
-                             (:file "service-users")))))
+                             (:file "clients")
+                             ))))
                  
                  
-                 (:module "facebook"
+                 
+                 
+                 
+                
+ (:module "facebook"
                   :serial t
                   :components
                   ((:file "facebook-parser")
+                   (:file "common")
                    (:module "db"
                     :serial t
                     :components
@@ -144,4 +163,3 @@
                     :serial t
                     :components
                             ((:file "generic"))))))) ))
-

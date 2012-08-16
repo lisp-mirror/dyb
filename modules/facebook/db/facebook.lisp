@@ -144,16 +144,20 @@
 (defun posts ()
   (docs (posts-collection)))
 
+(defmethod doc-collection ((doc post))
+  (posts-collection))
+
 (defun get-post-by-id (id)
   (get-doc (posts-collection) id
            :element 'id))
 
-(defmethod persist-doc ((doc post) &key (force-stamp-p t))
-  (store-doc (posts-collection) doc :force-stamp-p force-stamp-p))
+(defun get-post-by-post-id (id)
+  (get-doc (posts-collection) id
+           :element 'post-id))
 
 (defun populate-post-db-from-json (post-list)
     (dolist (post post-list) 
-      (persist-doc (make-post post))))
+      (persist (make-post post))))
 
 
 (add-collection (system-db) "posts" 

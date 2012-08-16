@@ -2,11 +2,13 @@
 
 (defclass contact ()
   ((contact-name :initarg :contact-name 
-         :initform nil)
+                 :initform nil
+                 :accessor contact-name)
    (contact-type :initarg :contact-type 
                  :initform nil) 
    (telephone-number :initarg :telephone-number 
-                     :initform nil)
+                     :initform nil
+                     :accessor telephone-number)
    (facsimile-number :initarg :facsimile-number 
                      :initform nil)
    (email-address :initarg :email-address 

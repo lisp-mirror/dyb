@@ -9,24 +9,21 @@
 
 (defun get-all-sorts-data (grid &key filter search)
   (declare (ignore grid search))
-  (xdb2::sort-docs
-   (find-docs 'vector
-              (lambda (doc)
-                ;;TODO: Implement context
-               #| (if (and (string-equal (get-val (get-val doc 'verification-set) 'doc-type)
-                                       "entity")
-                         (find (xid (get-val doc 'verification-set)) (list (xid (get-val doc 'verification-set))))) 
-                    )
-                |#
-                (cond ((equal filter 'with-audit-data)
-                       doc)
-                      (t 
-                       (if (not (string-equal (get-val doc 'doc-status) "superseded"))
-                           doc))))
-              (allsorts-collection))
-   :sort-value-func (lambda (doc)
-                      (get-val doc 'sort-value))
-   :sort-test-func #'string<))
+
+  (if (equal filter 'with-audit-data)
+       (let ((docs))
+         (dolist (doc (coerce (allsorts) 'list))
+           (setf docs (append docs (list doc)))
+           (when (old-versions doc)
+               (setf docs (append docs (old-versions doc)))))
+         (coerce docs 'vector))
+
+       (find-docs 'vector
+                  (lambda (doc)
+                    (cond (t 
+                           (if (not (string-equal (get-val doc 'doc-status) "superseded"))
+                               doc))))
+                  (allsorts-collection))))
 
 (defmethod get-rows ((grid all-sorts-grid))
   (setf (rows grid) (get-all-sorts-data grid 
@@ -45,11 +42,10 @@
     
 
     (render form
+            :grid grid
             :content
             (with-html-to-string ()
-              
-              
-              (render form-section 
+                (render form-section 
                       :label "Sort"
                       :input (if (get-val row 'sort)
                                  (with-html-to-string ()
@@ -67,7 +63,8 @@
                       :label "Sort Order"
                       :input (with-html-to-string ()
                                (render-edit-field "sort-order" 
-                                                  (get-val row 'sort-order))))
+                                                  (get-val row 'sort-order)
+                                                  :type "number")))
 
               (render form-section 
                       :label "Sort Value"
@@ -93,7 +90,8 @@
                       :label "AA Sort Order"
                       :input (with-html-to-string ()
                                (render-edit-field "aa-sort-order" 
-                                                  (get-val row 'aa-sort-order))))
+                                                  (get-val row 'aa-sort-order)
+                                                  :type "number")))
 
               (render form-section 
                       :label "Description"
@@ -105,7 +103,7 @@
                                  (with-html-to-string ()
                                    (render-edit-field "description" 
                                                       (get-val row 'description)
-                                                      :required t))) )
+                                                      :required t))))
               (render form-section 
                       :label "Extended Description"
                       :input (with-html-to-string ()
@@ -113,19 +111,58 @@
                                                   (get-val row 'extended-description))))
               ))))
 
-
-(defmethod handle-action ((grid all-sorts-grid) (action (eql 'cancel)))
-  (finish-editing grid))
+(defun get-allsorts-exist (sort sort-value)
+  (find-doc (allsorts-collection)
+            :test
+            (lambda (doc)
+              (and       
+               (not (string-equal (get-val doc 'doc-status) "superseded"))
+               (string-equal (get-val doc 'sort) sort)
+               (string-equal (get-val doc 'sort-value) sort-value)))))
 
 (defmethod handle-action ((grid all-sorts-grid) (action (eql 'save)))
   (when (string-equal (parameter "form-id") "allsorts-form")
-   (let ((new-doc (copy (editing-row grid))))
+   (let ((old-doc (copy (editing-row grid)))
+         (new-doc (editing-row grid)))
+     (setf (get-val new-doc 'sort) (parameter "sort"))
+     (setf (get-val new-doc 'sort-value) (parameter "sort-value"))
+     (setf (get-val new-doc 'doc-type) "allsort")
      (synq-edit-data new-doc)
      (setf (key new-doc) (list (parameter "sort") 
                                (parameter "sort-value")))
-     
-     (persist-doc new-doc))))
+     (setf (error-message grid) nil)
+
+     (cond ((and (not (get-val new-doc 'xid))
+                    (get-allsorts-exist 
+                     (get-val new-doc 'sort)
+                     (get-val new-doc 'sort-value)))
+            (setf (error-message grid)
+                     "Record already exists")
+            (finish-editing grid))
+              (t
+               (if (not (get-val new-doc 'xid))
+         (persist new-doc)
+         (persist new-doc :old-object old-doc)))
+              (finish-editing grid)) )))
 
 (defmethod export-csv ((grid all-sorts-grid))
-  (let ((data (grid-filtered-rows grid)))
-    (format nil "~{~{~a~^| ~}~%~}" data)))
+  (let* ((data (grid-filtered-rows grid)))
+    (when data
+      (with-output-to-string (stream)
+        (format stream "~A~A~A Filtered by :~A ~%Context:~A~%~%" "Allsorts Export" 
+                " Date:" (current-date-time) (or (get-val grid 'grid-filter ) "All Records") (print-context))
+        (format stream "~A~%" "sort|sort-order|sort-value|multinational|alternate-sort-order|aa-sort-order|description|extended-description")
+        (loop 
+           for doc across data 
+           do (format stream "~A|~A|~A|~A|~A|~A|~A|~%"
+                          (get-val doc 'sort)
+                          (get-val doc 'sort-order)
+                          (get-val doc 'sort-value)
+                          (get-val doc 'alternate-sort-order)
+                          (get-val doc 'aa-sort-order)
+                          (get-val doc 'description)
+                          (get-val doc 'extended-description))
+             )))))
+
+(defmethod handle-action ((grid all-sorts-grid) (action (eql 'cancel)))
+  (finish-editing grid))

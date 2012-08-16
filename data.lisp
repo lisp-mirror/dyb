@@ -10,7 +10,6 @@
 (defun users ()
   (get-collection (system-db*)
                    "users"))
-
 (defun services ()
   (get-collection (system-db*)
                    "services"))

@@ -2,9 +2,11 @@
 
 (defclass municipality ()
   ((district-municipality :initarg :district-municipality 
-                          :initform nil)
+                          :initform nil
+                          :accessor district-municipality)
    (local-municipality :initarg :local-municipality 
-                       :initform nil))
+                       :initform nil
+                       :accessor local-municipality))
   (:metaclass storable-class))
 
 (defclass country-town (doc)
@@ -29,7 +31,8 @@
              :accessor latitude)
    (guess-p :initarg :guess-p
             :initform nil))
-  (:metaclass storable-class))
+  (:metaclass storable-class)
+  (:default-initargs :doc-type "country-town"))
 
 (defun country-towns-collection ()
   (get-collection (system-db) "country-towns"))
@@ -37,12 +40,17 @@
 (defun country-towns ()
   (docs (country-towns-collection)))
 
-(defmethod persist-doc ((doc country-town) &key (force-stamp-p t))
-  (store-doc (country-towns-collection) doc :force-stamp-p force-stamp-p))
+(defmethod doc-collection ((doc country-town))
+  (country-towns-collection))
 
-(defun make-country-town (country province town &key longitude latitude municipalities guess-p)
-  (make-instance 'country-town :key (list country province town) :doc-type "country-town" 
-                 :xid (next-xid (country-towns-collection))
+(defun make-country-town (country province town 
+                          &key longitude latitude municipalities guess-p crap-p)
+  (make-instance 'country-town 
+                 :key (list country province town) 
+                 :doc-type "country-town" 
+                 :xid (if crap-p
+                          nil
+                          0)
                  :country country
                  :province province
                  :town town
@@ -52,7 +60,30 @@
                  :guess-p guess-p))
 
 (defun get-country-town (country province town)
-  (get-doc (country-towns-collection) (list country province town)))
+  (find-doc (country-towns-collection) 
+            :test
+            (lambda (doc)
+              (and             
+               (string-equal (get-val doc 'country) country)
+               (string-equal (get-val doc 'province) province)
+               (string-equal (get-val doc 'town) town)))))
+
+(defun find-country-town (country province town)
+  (let ((country-town (get-country-town country province town)))
+    
+    (unless  country-town
+      
+      (setf country-town (make-country-town country province town :crap-p T))
+      (setf (get-val country-town 'xid) nil)
+      (persist country-town)
+      (setf country-town (get-country-town country province town))
+
+      ;forcing crep country-town record(xid) to be nil 
+      (setf (get-val country-town 'xid) nil)
+      (persist country-town)
+      (setf country-town (get-country-town country province town)))
+    
+    country-town))
 
 (defun get-country-town-by-id (id)
   (get-doc (country-towns-collection) id

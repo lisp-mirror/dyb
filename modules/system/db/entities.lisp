@@ -2,8 +2,10 @@
 
 (defclass entity-type (doc)
   ((entity-type-name :initarg :entity-type-name
-         :accessor entity-type-name)
+                     :initform nil
+                     :accessor entity-type-name)
    (description :initarg :description
+                :initform nil
                 :accessor description))
   (:metaclass storable-class))
 
@@ -21,33 +23,38 @@
 
 (defun make-entity-type (entity-type-name description)
   (make-instance 'entity-type :key entity-type-name :doc-type "entity-type" 
-                 :xid (next-xid (entity-types-collection))
+                
                  :entity-type-name entity-type-name
                  :description description))
 
-(defmethod persist-doc ((doc entity-type) &key (force-stamp-p t))
-  (store-doc (entity-types-collection) doc :force-stamp-p force-stamp-p))
+(defmethod doc-collection ((doc entity-type))
+  (entity-types-collection))
 
 
 (add-collection (system-db) "entity-types" 
                 :collection-class 'ems-collection
                 :load-from-file-p t)
 
-(persist-doc (make-entity-type "Client" "Client"))
-(persist-doc (make-entity-type "Company" "Company" ))
-(persist-doc (make-entity-type "Building" "Building" ))
-(persist-doc (make-entity-type "Complex" "Complex" ))
-(persist-doc (make-entity-type "Country" "Country" ))
-(persist-doc (make-entity-type "Province/State" "Province/State" ))
-(persist-doc (make-entity-type "Meter" "Meter" ))
-(persist-doc (make-entity-type "Unit" "Unit" ))
+(when (= (length (entity-types)) 0)
+    (persist (make-entity-type "Client" "Client"))
+    (persist (make-entity-type "Company" "Company" ))
+    (persist (make-entity-type "Mine" "Mine" ))
+    (persist (make-entity-type "Contractor" "Contractor" ))
+    (persist (make-entity-type "Community" "Community" ))
+    (persist (make-entity-type "Division" "Division" ))
+    (persist (make-entity-type "Department" "Department" ))
+    (persist (make-entity-type "Plant" "Plant" ))
+    (persist (make-entity-type "Smelter" "Smelter" ))
+    (persist (make-entity-type "Country" "Country" ))
+    (persist (make-entity-type "Province/State" "Province/State" )))
 
 (defclass entity (doc)
-  ((entity-type :initarg :entity-type 
+  ((entity-type :initarg :entity-type
+                :initform nil
                 :accessor entity-type)
    (entity-name :initarg :entity-name 
-                 :initform nil
-                 :accessor entity-name))
+                :initform nil
+                :accessor entity-name))
   (:metaclass storable-class))
 
 (defun entities-collection ()
@@ -56,15 +63,15 @@
 (defun entities ()
   (docs (entities-collection)))
 
-(defmethod persist-doc ((doc entity) &key (force-stamp-p t))
-  (store-doc (entities-collection) doc :force-stamp-p force-stamp-p))
-
+(defmethod doc-collection ((doc entity))
+  (entities-collection))
 
 (defun make-entity (entity-type entity-name)
-  (make-instance 'entity 
-                 :key entity-name 
-                 :doc-type "entity" 
-                 :xid (next-xid (entities-collection))
+(when (string-equal entity-name "Xstrata")
+  ;(break "~A" entity-name)
+  )
+  (make-instance 'entity :key entity-name :doc-type "entity" 
+             
                  :entity-type (get-entity-type entity-type) 
                  :entity-name entity-name))
 
@@ -86,7 +93,7 @@
 
 (defmethod match-context-entities (doc)
   (if (get-val doc 'entity)
-      (find (xid (get-val doc 'entity)) (last-context (current-user)))))
+      (find (xid (get-val doc 'entity)) (context))))
 
 (defun entity-list ()
   (let ((e-list))
@@ -102,6 +109,12 @@
       (if (not (string-equal (get-val doc 'doc-status) "superseded"))
           (setf e-list (append e-list (list (list (get-val doc 'xid) 
                                                   (get-val doc 'entity-type-name)))))))
+    e-list))
+
+(defun print-context ()
+  (let ((e-list))
+    (dolist (id (coerce (context) 'list))
+      (setf e-list (append e-list (list (format nil "[~A]" (get-val (get-entity-by-id id) 'entity-name ))))))
     e-list))
 
 (add-collection (system-db) "entities" 

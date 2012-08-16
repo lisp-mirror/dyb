@@ -26,6 +26,7 @@
         (form-section (make-widget 'form-section
                                    :name "form-section")))
     (render form
+            :grid grid
             :content
             (with-html-to-string ()
               (:input :type "hidden" :name "entity-type" 
@@ -50,17 +51,21 @@
 (defmethod handle-action ((grid clients-grid) (action (eql 'save)))
   (when (string-equal (parameter "form-id") "clients-form")
 
-   (let ((new-doc (copy (editing-row grid))))
+   (let ((new-doc (editing-row grid))
+         (old-doc (copy (editing-row grid))))
      (synq-edit-data new-doc)
      (setf (key new-doc) (parameter "entity-name"))
      (setf (get-val new-doc 'entity-type) (get-entity-type (parameter "entity-type")) )
      (setf (get-val new-doc 'doc-type) "Entity")
     
-     (persist-doc new-doc)
+     (if (xid old-doc) 
+         (persist new-doc :old-object old-doc)
+         (persist new-doc))
 
      (let* ((entity (get-entity (parameter "entity-name")))
            (relation (get-root (xid entity))))
 
        (unless relation
          (setf relation (make-entity-relationship nil nil entity nil)))
-       (persist-doc relation)))))
+       (persist relation))
+     (finish-editing grid))))

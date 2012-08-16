@@ -97,8 +97,8 @@
                                'entity-type-name)
                       (parameter "new-entity"))))
 
-      (persist-doc entity)
-      
+      (persist entity)
+
       (add-relationship-child (if (get-val (selected-nodes (tree widget)) 'parent)
                                    (selected-nodes (tree widget))
                                    root) 
@@ -110,7 +110,7 @@
                                entity
                                nil))
 
-      (persist-doc root)))
+      (persist root)))
   
   (when (parameter "delete-entity-click")
     (remove-relationship-tree-child

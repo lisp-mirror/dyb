@@ -28,8 +28,7 @@
                             :status status
                             :headers (format nil "~A" (headers-in*))
                             :remote-address (remote-addr*)
-                            :entities (if (current-user) 
-                                          (get-val (current-user) 'last-context))
+                            :entities (context)
                             :message message
                             :stamp nil)))
 

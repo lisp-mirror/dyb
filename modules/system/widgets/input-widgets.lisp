@@ -71,12 +71,10 @@
               :value (if (value checkbox)
                          "on" 
                          "off"))
-
-      (:label
+      (:label :style (style checkbox)
        (:input :type "checkbox"
                :name (widgy-name checkbox "value")
                :class (css-class checkbox)
-               :style (style checkbox)
                :checked (when (value checkbox)
                           "checked")
                :onchange (when (or on-change on-click)
@@ -128,12 +126,14 @@
                                     (submit-on-change checkbox-list)
                                     :on-click (when (check-all checkbox-list)
                                                 "updateCheckAll(this)")
-                                    :style (ecase (orientation checkbox-list)
-                                             (:vertical "display: block")
-                                             (:horizontal "display: inline")))
+                                    :style (and (plusp level)
+                                                (fmt "margin-left: ~apx;" (* 10 level))))
         when change
         do (setf (value checkbox) selected
                  (description checkbox) description)
+        do (setf (style checkbox)
+                 (and (plusp level)
+                      (fmt "padding-left: ~apx;" (* 10 level))))
         collect (list* checkbox
                        (%create-checkboxes checkbox-list
                                            sub
@@ -197,19 +197,16 @@
   (with-html
     (loop for (checkbox . sub) in checkboxes
           do
-          (loop repeat level
-                do (htm "&nbsp;"))
           (render checkbox)
-          ;; (ecase (orientation checkbox-list)
-          ;;   (:vertical (htm (:br)))
-          ;;   (:horizontal (htm " ")))
           (lay-checkbox-list checkbox-list sub
                              :level (1+ level)))))
 
 (defmethod render ((checkbox-list checkbox-list) &key)
   (with-html
     (:div
-     :class "checkbox-list"
+     :class (ecase (orientation checkbox-list)
+              (:vertical "cb-list")
+              (:horizontal "horizontal-cb-list"))
      :id (name checkbox-list)
      (make-check-all-button checkbox-list)
      (lay-checkbox-list checkbox-list
@@ -267,8 +264,7 @@ Please select a legal one"
        :name (name select)
        :id (name select)
        :class (css-class select)
-       
-       :style "position:relative;z-index:99;" ;;(style select)
+       :style (style select)
        :onchange (on-change-function select)
        (when first-item
          (htm (:option :selected
@@ -330,7 +326,8 @@ Please select a legal one"
                                   widget
                                   (mapcar #'value (ldiff selects member)))))
     (setf (items widget) values
-          (value widget) (car values))
+          ;(value widget) (car values)
+          )
     (when next-select
       (defer-js (fmt "$('#~a select').trigger('change')" (name widget)))
       (defer-js (fmt "$('#~a select').change(function(){~a;})"
@@ -344,7 +341,9 @@ Please select a legal one"
 
 (defmethod action-handler ((select chained-select))
   (setf (value select)
-        (mapcar #'value (selects select))))
+            (mapcar #'value (selects select)))
+
+  )
 
 (defclass country-town-select (chained-select)
   ()
@@ -369,6 +368,7 @@ Please select a legal one"
                       (country-towns))))
 
 (defmethod retrieve-values ((chain-select country-town-select) select values)
+  
   (destructuring-bind (&optional country province) values
    (let ((position (position select (selects chain-select))))
      (case position
@@ -408,16 +408,12 @@ Please select a legal one"
 
 (defun get-all-entitiesx ()
   (map 'list (lambda (doc)
-               (list (get-val doc 'xid) 
-                     (get-val doc 'entity-name)))
-        (entities)))
+               (if (not (string-equal (get-val doc 'doc-status) "superseded"))
+                   (list (get-val doc 'xid) 
+                         (get-val doc 'entity-name))))
+       (entities)))
 
-(defmethod retrieve-values ((chain-select entity-select) select values)  
-  (destructuring-bind (&optional entity) values
-   (let ((position (position select (selects chain-select))))     
-     (case position
-       (0 (get-all-entitiesx))
-       (1 (get-all-entitiesx))))))
+
 
 (defclass supplier-branch-select (chained-select)
   ()
@@ -443,37 +439,42 @@ Please select a legal one"
 
 
 (defun get-project-description (eid classification-type)
-
   (cond ((string-equal classification-type "HDSA In Management")
-           (find-allsorts-for-select "HDSA Target"))
-          ((string-equal classification-type "Career Progression Plans")
-           (find-allsorts-for-select "Occupational Level"))
-          ((string-equal classification-type "Workforce Ramp Up")
-           (find-allsorts-for-select "Occupational Level"))
-          ((string-equal classification-type "Preferential Procurement - HDSA")
-           (find-allsorts-for-select "Procurement Service Rendered"))
-          ((string-equal classification-type "Preferential Procurement - Local")
-           (find-allsorts-for-select "Preferential Procurement - Local"))		  
-          ((string-equal classification-type "Women In Mining")
-           (find-allsorts-for-select "Women In Mining Target"))
-          ((string-equal classification-type "Local Recruitment")
-           (find-allsorts-for-select "Labour Sending Areas"))
-          ((string-equal classification-type "Mentoring")
-           (get-mentoring-target-value-list eid))
-          ((string-equal classification-type "Employment Equity")
-           ;(get-employment-equity-target-value-list eid)
-           ()
-           )
-          ((find classification-type 
-                 '("ABET" "Learnerships" "Core Business Skills Training" "Portable Skills Training" "Bursaries" "Internships" "ABET Community" "Portable Skills Training (Non Mining)") 
-                 :test #'string-equal)
-           (course-name-value-list classification-type eid))		      
-          (nil)))
+         (find-allsorts-for-select "HDSA Target"))
+        ((string-equal classification-type "Career Progression Plans")
+         (find-allsorts-for-select "Occupational Level"))
+        ((string-equal classification-type "Workforce Ramp Up")
+         (find-allsorts-for-select "Occupational Level"))
+        ((string-equal classification-type "Preferential Procurement - HDSA")
+         (find-allsorts-for-select "Procurement Service Rendered"))
+        ((string-equal classification-type "Preferential Procurement - Local")
+         (find-allsorts-for-select "Preferential Procurement - Local"))		  
+        ((string-equal classification-type "Women In Mining")
+         (find-allsorts-for-select "Women In Mining Target"))
+        ((string-equal classification-type "Local Recruitment")
+         (find-allsorts-for-select "Labour Sending Areas"))
+        ((string-equal classification-type "Mentoring")
+         (when (entity-eid-p eid)
+           (get-mentoring-target-value-list (parse-integer eid))))
+        ((string-equal classification-type "Employment Equity")
+         (when (entity-eid-p eid) 
+           (get-employment-equity-target-value-list (parse-integer eid))))
+        ((find classification-type 
+               '("ABET" "Learnerships" "Core Business Skills Training" "Portable Skills Training" "Bursaries" "Internships" "ABET Community" "Portable Skills Training (Non Mining)") 
+               :test #'string-equal)
+         (when (entity-eid-p eid)
+           (course-name-value-list classification-type (parse-integer eid))))))
+
+(defun entity-eid-p (eid)  
+  (when  eid  
+    (if (string-equal (subseq eid 0 1) "(") ;handle this crep entity (1 Agnes)
+      nil
+      T)))
 
 (defclass target-description-select (chained-select)
   ((classification-type :initarg :classification-type))
   (:metaclass widget-class)
-  (:default-initargs :select-names '(entity description)))
+  (:default-initargs :select-names '(entity target-description)))
 
 (defmethod retrieve-values ((chain-select target-description-select) select values)
   (destructuring-bind (&optional entity) values

@@ -1,30 +1,6 @@
 (in-package #:ems)
 
-#|
-(defun parse-profile (json-list)
-  (if (listp json-list)
-      (let ((stream ""))
-        (dolist (parm json-list)
-          (setf stream (concatenate 'string stream
-                                    (format nil "~A : ~A~%" (car parm) (cdr parm)))))
-        stream))
-  
-  )
 
-(defun parse-picture (json-list)
-
-  (if (listp json-list)
-      (let ((stream ""))
-        (dolist (parm json-list)
-          
-          (when (string-equal (car parm) "picture")
-            
-              (setf stream (concatenate 'string stream
-                                        (cdr parm)))))
-        stream)))
-
-|#
-#|
 (define-easy-handler (ems :uri "/ems/proof") ()
   (with-html-output-to-string (*standard-output*)
 
@@ -71,13 +47,37 @@
                          ))
                (:tr (:td :colspan 2
                          (:input :type :submit :name "profile" :value "Profile")
-                         (:input :type :submit :name "post" :value "Posts")))
-               )
+                         (:input :type :submit :name "post" :value "Posts")))))))))
 
-           
-    
+
+(defun update-facebook-posts-for-users (grid)
+  
+  (dolist (user (find-docs 'list 
+                           (lambda (doc)
+                             (match-context-entities doc))
+                            (service-users-collection)))
+        
+        (when (and user (string-equal (get-val user 'doc-status) "Active"))
+          ;;TODO: How to get error messages in for users without access tokens.
+          (when (get-val user 'last-access-token)
+            (multiple-value-bind (bodyx)
+                (drakma:http-request 
+                 (format nil "https://graph.facebook.com/~A/feed?access_token=~A" 
+                         (get-val user 'user-id)
+                         (get-val user 'last-access-token)))
+
+              (let ((post-list (rest (first (json::decode-json-from-string bodyx)))))
+
+                (if (populate-generic-db-from-post post-list )
+                    (if (string-equal (car (car post-list)) "MESSAGE")
+                  
+                        (when grid 
+                    
+                          (setf (error-message grid)
+                                (format nil (error-message grid) "~A~%~A%"
+                                        (error-message grid)
+                                        (car (cdr post-list))) ) ))))
               )))))
-|#
 
 (define-easy-handler (generic-page :uri "/ems/generic") ()
   (let* ((columns
@@ -96,8 +96,7 @@
                            :header "Response")
 	    (make-instance 'grid-column
                            :name 'created
-                           :header "Created")
- ))
+                           :header "Created")))
          (grid (make-widget 'generic-grid :name "generic-grid01"
                                        :columns columns
                                        :edit-inline nil
@@ -105,24 +104,14 @@
                                        :row-object-class 'generic-entry)))
     
     (when (parameter "get-facebook-data")
-      (dolist (user (coerce (service-users) 'list))
-        
-        (when (and user (string-equal (get-val user 'doc-status) "Active"))
-          
-          (multiple-value-bind (bodyx)
-              (drakma:http-request 
-               (format nil "https://graph.facebook.com/~A/posts?access_token=~A" 
-                       (get-val user 'user-id)
-                       (get-val user 'last-access-token)))
-
-            
-            (populate-generic-db-from-post (rest (first (json::decode-json-from-string bodyx))))
-            ))))
+      (update-facebook-posts-for-users grid))
+    
     (render (make-widget 'page :name "generic-page")
             :body (with-html-to-string ()
                     (:form :name "fetch-data"
                            :method :post
-                           (:input :type "submit" :name "get-facebook-data" :value "Get Facebook Data"))
+                           (:input :type "submit" :name "get-facebook-data" 
+                                   :value "Get Facebook Data"))
                     (str (render grid)))))
 
 

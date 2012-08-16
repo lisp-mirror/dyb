@@ -1,7 +1,7 @@
 (in-package :ems)
 
 (defclass ems-collection (collection)
-())
+  ())
 
 (defgeneric max-xid (collection))
 
@@ -12,7 +12,6 @@
 
 (defmethod next-xid ((col ems-collection))
   (next-sequence (list (xdb2::name col) 'xid)))
-
 
 (defmethod next-id ((col ems-collection))
   (next-sequence (list (xdb2::name col) 'id)))
@@ -32,7 +31,6 @@
               :accessor import-id))
   (:metaclass storable-class))
 
-
 (defclass documentx ()
   ((key :initarg :key
         :accessor key)
@@ -41,19 +39,31 @@
          :accessor doc-type))
   (:metaclass storable-class))
 
-
 (defclass doc (documentx)
   ((xid :initarg :xid
-       :accessor xid)
+        :initform nil
+        :accessor xid)
    (version :initarg :version
-             :initform 1
-             :accessor version)
+            :initform 1
+            :accessor version
+            :storep nil)
+   (old-versions :initarg :old-versions
+                 :initform nil
+                 :accessor old-versions
+                 :storep nil)
+   (collection :initarg :collection
+               :initform nil
+               :accessor collection
+               :storep nil)
+   (top-level :initarg :top-level
+              :initform nil
+              :accessor top-level)
    (stamp-date :initarg :stamp-date
                :initform nil
                :accessor stamp-date)
-   (effective-date :initarg :stamp-date
-               :initform nil
-               :accessor effective-date)
+   (effective-date :initarg :effective-date
+                   :initform nil
+                   :accessor effective-date)
    (doc-status :initarg :doc-status 
                :initform "active"
                :accessor doc-status
@@ -67,6 +77,62 @@
                :documentation "Inserted, updated, deleted, rolledback."))
   (:metaclass storable-class))
 
+(defgeneric doc-collection (doc))
+
+(defun supersede (object old-object)
+  (setf (doc-status old-object) "superseded"
+        (effective-date old-object) (stamp-date object))
+  (push old-object (old-versions object)))
+
+(defmethod load-from-file ((collection ems-collection) file)
+  (when (probe-file file)
+    (load-data collection file
+               (lambda (object &key copy)
+                 (cond ((not (typep object 'doc))
+                        (when (not (typep object 'storable-object))
+                          (vector-push-extend object (docs collection))))
+                       (copy
+                        (supersede object copy))
+                       ((top-level object)
+                        (setf (collection object) collection)
+                        (vector-push-extend object (docs collection)))
+                       (t
+                        (setf (collection object) collection))))
+               (lambda (object)
+                 (alexandria:deletef (docs collection) object)))))
+
+(defmethod remove-doc ((object storable-object))
+  (let ((collection (doc-collection object)))
+    (alexandria:deletef (docs collection) object)
+    (delete-doc collection object)))
+
+(defmethod update-doc ((object storable-object) old-object &key (set-time t))
+  (when set-time
+    (setf (stamp-date object) (get-universal-time)))
+  (incf (version object))
+  (when old-object
+    (supersede object old-object))
+  (serialize-doc (collection object) object))
+
+(defmethod persist ((doc storable-object) &key old-object (set-time t))
+  (let ((collection (doc-collection doc)))
+    (when (not (get-val doc 'xdb2::id))
+      (setf (version doc) 0
+            (xid doc) (or (xid doc)
+                          (next-id collection))
+            (doc-status doc) "active"
+            (log-action doc) "inserted"
+            (user doc) (and (current-user)
+                            (slot-val (current-user) 'email))
+            (collection doc) collection
+            (top-level doc) t)
+      (vector-push-extend doc (docs collection)))
+    (update-doc doc old-object :set-time set-time))
+    
+  doc)
+
+;;;
+
 (defgeneric match-any (doc criteria))
 
 (defmethod match-any ((doc doc) criteria)
@@ -78,12 +144,6 @@
             (t
              (if (equal (get-val doc slot-name) criteria)
                (return-from match-any doc)))))))
-
-(defgeneric copy-instance (instance &rest initargs))
-
-(defmethod copy-instance ((doc doc) &rest initargs)
-  (apply #'copy-object doc 'standard-class initargs))
-
 
 ;;TODO: Add start and end date check
 (defmethod duplicate-doc-p ((doc date-doc) test-doc)
@@ -116,111 +176,12 @@
      collection)
     result-doc))
 
-(defmethod add-doc ((collection ems-collection) (doc doc) 
-                    &key (duplicate-doc-p-func 'duplicate-doc-p)
-                    (force-stamp-p t)
-                    (ignore-superseded-p t))
-  (when (and doc collection)    
-    (when force-stamp-p
-      (setf (stamp-date doc) (get-universal-time)))
 
-    (unless (get-val doc 'stamp-date)
-      (setf (stamp-date doc) (get-universal-time)))
-
-    (let ((dup (and duplicate-doc-p-func
-                    (find-duplicate-doc collection doc
-                                        :function duplicate-doc-p-func
-                                        :ignore-superseded-p ignore-superseded-p))))
-      (when dup
-        
-        ;;This is to enable versioning of doc.
-        (setf (version doc) (+ (get-val dup 'version)  1))
-        ;;Keep the application-id the same accross versions.
-        (setf (xid doc) (xid dup))
-        (setf (get-val doc 'xdb2::id) nil)
-        (setf (log-action doc) "updated")
-        (setf (doc-status dup) "superseded")
-        
-        )
-      
-      (when (or (not (get-val doc 'version)) (not (get-val doc 'xid)))
-          (setf (get-val doc 'version) 1)
-          (setf (get-val doc 'xdb2::id) nil)
-          (setf (get-val doc 'xdb2::written) nil)
-          (setf (xid doc) (next-xid collection))
-          (setf (log-action doc) "inserted"))
-
-      (unless (get-val doc 'user)
-        
-        (setf (get-val doc 'user) (if (current-user)
-                                      (get-val (current-user) 'email))))
-      
-      (vector-push-extend doc (docs collection)))
-    doc))
-
-
-(defmethod store-doc ((collection ems-collection) (doc doc)
-                      &key (duplicate-doc-p-func 'duplicate-doc-p)
-                      (force-stamp-p t)
-                      (ignore-superseded-p t))
-  (when (and doc collection :duplicate-doc-p-func duplicate-doc-p-func)
-    (when (and doc collection)    
-    (when force-stamp-p
-      (setf (stamp-date doc) (get-universal-time)))
-
-    (unless (get-val doc 'stamp-date)
-      (setf (stamp-date doc) (get-universal-time)))
-
-    (let ((dup (and duplicate-doc-p-func
-                    (find-duplicate-doc collection doc
-                                        :function duplicate-doc-p-func
-                                        :ignore-superseded-p ignore-superseded-p))))
-      (when dup
-       ; (when (eq doc dup)
-      ;    (break "shit ? ~a" doc)
-       ;     (setf doc (copy doc)))
-
-        ;;This is to enable versioning of doc.
-        (setf (version doc) (+ (get-val dup 'version)  1))
-        ;;Keep the application-id the same accross versions.
-        (setf (xid doc) (xid dup))
-        (setf (get-val doc 'xdb2::id) nil)
-        (setf (get-val doc 'xdb2::written) nil)
-        (setf (log-action doc) "updated")
-
-        (setf (doc-status dup) "superseded")
-        ;(setf (get-val dup 'xdb2::written) nil)          
-        (serialize-doc collection dup)
-        )
-      
-      (when (or (not (get-val doc 'version)) (not (get-val doc 'xid)))
-          (setf (get-val doc 'version) 1)
-          (setf (get-val doc 'xdb2::id) nil)
-          (setf (get-val doc 'xdb2::written) nil)
-          (setf (xid doc) (next-xid collection))
-          (setf (xdb2::id doc) (next-id collection))
-          (setf (doc-status doc) "active")
-          (setf (log-action doc) "inserted"))
-
-      (unless (get-val doc 'user)
-        
-        (setf (get-val doc 'user) (if (current-user)
-                                      (get-val (current-user) 'email))))
-      
-      (vector-push-extend doc (docs collection)))
-    (serialize-doc  collection doc))
-    ))
-
-
-(defgeneric persist-doc (doc &key force-stamp-p))
 (defgeneric invalidate-doc (doc &key))
 
 (defmethod invalidate-doc ((doc doc) &key)
   (setf (doc-status doc) "Invalidated")
-  (persist-doc doc))
-
-(defgeneric delete-doc (doc &key))
-(defgeneric remove-doc (doc &key))
+  (persist doc))
 
 
 ;;Find the last doc that matches to get the lastest version
@@ -256,8 +217,7 @@
 (defun quicklook-docs (docs)
   (dolist (doc (coerce docs 'list))
           (format t "~%--id ~A --written ~A --key ~A --version ~A --xid ~A --log-action ~A --status ~A --stamp ~A" 
-                  (get-val doc 'xdb2::id) (get-val doc 'xdb2::written) (get-val doc 'key) (version doc) (xid doc) (log-action doc) (doc-status doc) (stamp-date doc))))
-
+                  (get-val doc 'xdb2::id) (get-val doc 'xdb2::written) (key doc) (version doc) (xid doc) (log-action doc) (doc-status doc) (stamp-date doc))))
 
 (defun activep (doc)
   (and (typep doc 'doc)

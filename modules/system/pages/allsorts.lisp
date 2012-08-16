@@ -30,5 +30,11 @@
                                        :edit-inline nil
                                        :title "All-Sorts"
                                        :row-object-class 'allsort)))
+    (setf (sort-key-function grid)
+          (lambda (doc)
+                      (format nil "~A ~A"  
+                              (get-val doc 'sort)
+                              (get-val doc 'sort-value))
+                      ))
     (render (make-widget 'page :name "all-sorts-page")
             :body (render-to-string grid))))

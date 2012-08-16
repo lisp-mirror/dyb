@@ -4,8 +4,7 @@
         :wfx
         :cl-who
         :hunchentoot
-        :xdb2
-        )
+        :xdb2)
   (:shadow
    :text
    :define-easy-handler
@@ -89,7 +88,6 @@
    :check-permission
    :check-page-permission
    :*min-passwrod-length*
-   :last-context
    :biographical
    :id-number
    :gender
@@ -152,10 +150,91 @@
    :password
    :salt
    :permissions
-   :last-root
    :super-user-p
    :entity-name
-   :render-to-string))
+   :render-to-string
+   :mine
+   :mining-right-reference-number
+   :mining-right-date
+   :mine-location
+   :municipalities
+   :employment-equity-strategy
+   :strategy
+   :mentoring-p
+   :strategy-categories
+   :activep
+   :address
+   :address-type
+   :procurement-transaction
+   :supplier
+   :branch-name
+   :transaction-reference
+   :discretionary-spend
+   :service-rendered
+   :item-description
+   :transaction-amount
+   :transaction-date
+   :procurement-transactions
+   :supplier-branch
+   :supplier-name
+   :supplier-reference
+   :branches
+   :multinational
+   :narrow-based-bee-classification
+   :broad-based-bee-classification
+   :hdsa-percentage
+   :black-women-owned
+   :on-change
+   :get-country-town
+   :suppliers
+   :country-towns
+   :contact
+   :contact-name
+   :contact-type
+   :telephone-number
+   :facsimile-number
+   :email-address
+   :country-town
+   :job-titles
+   :hard-to-fill-vacancy
+   :reason
+   :entity-relationships
+   :entity-type
+   :entity-type-name
+   :root
+   :parent
+   :children
+   :filter-active
+   :municipality
+   :old-versions
+   :training-interventions
+   :training-attendances
+   :training-intervention
+   :mentor
+   :category
+   :course-name
+   :mentorship-p
+   :entry-level
+   :accredited-p
+   :length
+   :training-length
+   :project-entities
+   :project-entity
+   :project-entity-type
+   :background
+   :data
+   :meeting-feedbacks
+   :feedbacks
+   :project-entity-data
+   :data-name
+   :data-value
+   :find-allsorts
+   :context
+   :parse-date
+   :project-meeting-feedback
+   :feedback
+   :feedback-date
+   :meeting))
 
 (defpackage #:ems-quickview
   (:use :cl
@@ -166,5 +245,5 @@
         :xdb2
         :ems)
   (:shadowing-import-from :ems
-   :define-easy-handler)
+   :define-easy-handler :data)
   (:shadow :text :document))

@@ -3,7 +3,13 @@
 ;; id helper
 
 (defun get-post-id (post)
-  (rest (assoc ':id  post)))
+ (when (listp post)
+   ;;TODO: Find a better way to check if post is not an error.  
+   (unless (or (string-equal (format nil "~A" (first post)) "MESSAGE")
+               (string-equal (format nil "~A" (first post)) "TYPE")
+               (string-equal (format nil "~A" (first post)) "CODE")
+               (string-equal (format nil "~A" (first post)) "ERROR--SUBCODE")) 
+       (rest (assoc ':id  post)))))
 
 ;; from helpers
 

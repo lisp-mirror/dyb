@@ -22,7 +22,7 @@
 (defmethod get-rows ((grid user-grid))
   (setf (rows grid)
 	(if (super-user-p (current-user))
-            (users)
+            (filter-active (users))
             (find-users (lambda (doc)
                           (match-entities
                            doc
@@ -67,7 +67,7 @@
           (accessible-entities user)
           (list (root (entity-editor editor))
                 (selected-entities (entities-select (entity-editor editor)))))
-    (persist-doc user))
+    (persist user))
   (finish-editing grid))
 
 (defmethod render ((editor user-editor) &key)

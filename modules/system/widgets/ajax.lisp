@@ -27,8 +27,7 @@
     (when widget
       (json:encode-json-to-string
        (list (render-to-string widget :from-ajax t)
-             (format nil "~{~a~^;~}"
-                     (getf *widget-parameters* :javascript-defer)))))))
+             (deferred-js))))))
 
 (defun js-render (widget &rest args-scripts)
   (format nil "ajax_render(~s, ~s~@[, [~{~a~^,~}]~])"

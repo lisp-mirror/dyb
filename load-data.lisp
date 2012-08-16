@@ -1,5 +1,6 @@
 (in-package :ems)
 
+#|
 (add-collection (system-db*) "users" :load-from-file-p nil)
 
 ;;Init an admin user just to get things started.
@@ -21,3 +22,4 @@
                                 :callback-uri "http://smackaho.st:8000/twitter/callback"
                                 :port 8000
                                 )))
+|#

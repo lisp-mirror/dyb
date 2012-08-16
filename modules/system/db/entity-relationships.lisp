@@ -1,16 +1,18 @@
 (in-package :ems)
 
 (defclass entity-relationship (doc)
-  ((root :initarg :root 
+  ((root :initarg :root
+         :initform nil
          :accessor root)
    (parent :initarg :parent
+           :initform nil
            :accessor parent)
    (entity :initarg :entity
-        :accessor entity)
-   
+           :initform nil
+           :accessor entity)
    (children :initarg :children 
-                 :initform ()
-                 :accessor children))
+             :initform ()
+             :accessor children))
   (:metaclass storable-class))
 
 (defun entity-relationships-collection ()
@@ -19,8 +21,8 @@
 (defun entity-relationships ()
   (docs (entity-relationships-collection)))
 
-(defmethod persist-doc ((doc entity-relationship) &key (force-stamp-p t))
-  (store-doc (entity-relationships-collection) doc :force-stamp-p force-stamp-p))
+(defmethod doc-collection ((doc entity-relationship))
+  (entity-relationships-collection))
 
 (defgeneric add-relationship-child (parent child))
 
@@ -94,13 +96,13 @@
              (delete child (children rel)))))))
 
 (defun make-entity-relationship (root parent-relationship entity children)
-  ;(unless root (break "~A" entity))
+  ;(unless root (break "fuck ~A" entity))
   (let ((doc (make-instance 'entity-relationship 
                             :key (list (if root (xid (entity root))) 
                                        (if parent-relationship
                                            (xid (entity parent-relationship))) 
                                        (xid entity)) 
-                            :xid (next-xid (entity-relationships-collection))
+                           ;; :xid (next-xid (entity-relationships-collection))
                             
                             :doc-type "entity-relationship"
                             :root (if root (xid (entity root)))
@@ -108,7 +110,7 @@
                             :parent (if parent-relationship
                                         (entity parent-relationship))
                             :children children)))
-    (setf (xdb2::id doc) (next-id (entity-relationships-collection)))
+    ;;(setf (xdb2::id doc) (next-id (entity-relationships-collection)))
     doc))
 
 (defun get-entity-relationships-ordered (root-id entity-ids)
@@ -153,17 +155,17 @@
 (defun make-test-tree ()
   
   (let* ((root
-          (make-entity-relationship nil nil (persist-doc (make-entity "Client" "Demo Client" )) nil))
-         (a (make-entity-relationship root root (persist-doc (make-entity "Mine" "Demo Mine 1" )) nil))
-         (b (make-entity-relationship root root (persist-doc (make-entity "Mine" "Demo Mine 2" )) nil))
-         (c (make-entity-relationship root root (persist-doc (make-entity "Mine" "Demo Mine 3" )) nil))
-         (d (make-entity-relationship root c (persist-doc (make-entity "Contractor" "Contractor 1" )) nil))
-         (e (make-entity-relationship root d (persist-doc (make-entity "Community" "Community 1" )) nil))
-         (f (make-entity-relationship root root (persist-doc (make-entity "Mine" "Demo Mine 4" )) nil))
-         (g (make-entity-relationship root f (persist-doc (make-entity "Contractor" "Contractor 2" )) nil))
-         (h (make-entity-relationship root f (persist-doc (make-entity "Contractor" "Contractor 3" )) nil))
-         (i (make-entity-relationship root f (persist-doc (make-entity "Community" "Community 2" )) nil))
-         (j (make-entity-relationship root f (persist-doc (make-entity "Plant" "Plant 1" )) nil)))
+          (make-entity-relationship nil nil (persist (make-entity "Client" "Demo Client" )) nil))
+         (a (make-entity-relationship root root (persist (make-entity "Mine" "Demo Mine 1" )) nil))
+         (b (make-entity-relationship root root (persist (make-entity "Mine" "Demo Mine 2" )) nil))
+         (c (make-entity-relationship root root (persist (make-entity "Mine" "Demo Mine 3" )) nil))
+         (d (make-entity-relationship root c (persist (make-entity "Contractor" "Contractor 1" )) nil))
+         (e (make-entity-relationship root d (persist (make-entity "Community" "Community 1" )) nil))
+         (f (make-entity-relationship root root (persist (make-entity "Mine" "Demo Mine 4" )) nil))
+         (g (make-entity-relationship root f (persist (make-entity "Contractor" "Contractor 2" )) nil))
+         (h (make-entity-relationship root f (persist (make-entity "Contractor" "Contractor 3" )) nil))
+         (i (make-entity-relationship root f (persist (make-entity "Community" "Community 2" )) nil))
+         (j (make-entity-relationship root f (persist (make-entity "Plant" "Plant 1" )) nil)))
 
     (setf (children root) (list a b c f))
     (setf (children c) (list d e))
@@ -177,7 +179,7 @@
 ;(remove-relationship-tree-child tree (get-relationship-tree-item tree 101))
 
 
-;;(persist-doc (make-test-tree))
+;;(persist (make-test-tree))
 
 
 

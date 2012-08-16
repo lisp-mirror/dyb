@@ -8,8 +8,6 @@
                (get-val (current-user) 'last-context)))
       (setf display (concatenate 'string display entity "\|")))))
 
-
-
 (defclass page (peach-page)
   ((alert :initarg :alert
              :initform nil
@@ -19,11 +17,7 @@
   (:include-js "/js/ems/common.js"
                "/js/ems/checkbox-list.js"
                "/js/ems/validation.js"
-               "/tinymce/jscripts/tiny_mce/tiny_mce.js")
-  (:include-bits
-   "<script type=\"text/javascript\">
-       tinyMCE.init({mode: 'textareas', theme: 'simple'});
-    </script> "))
+               "/tinymce/jscripts/tiny_mce/tiny_mce.js"))
 
 
 (defmethod render ((widget page) &key body)
@@ -60,5 +54,8 @@
                                   :alert (second (slot-val widget 'alert)))))
                       
                    (str body))
-             (:div :class "clear"))
-       (:div :class "push clear")))))
+             (:div :class "clear")
+             )
+       (:div :class "push ")
+
+       ))))

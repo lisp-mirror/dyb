@@ -49,6 +49,9 @@
 (defun users ()
   (docs (users-collection)))
 
+(defmethod doc-collection ((doc user))
+  (users-collection))
+
 (defvar *min-passwrod-length* 5)
 
 (defun make-password (password)
@@ -62,7 +65,7 @@
   (multiple-value-bind (password salt)
       (make-password password)
     (make-instance 'user :key email :doc-type "user" 
-                         :xid (next-xid (users-collection))
+                         
                          :email email
                          :password password
                          :salt salt
@@ -82,11 +85,11 @@
 (defun get-user (email)
   (get-doc (users-collection) email :element 'email))
 
-(defmethod persist-doc ((doc user) &key (force-stamp-p t))
-  (store-doc (users-collection) doc :force-stamp-p force-stamp-p))
+(defmethod doc-collection ((doc user))
+  (users-collection))
 
-(defmethod persist-doc ((doc permissions) &key (force-stamp-p t))
-  (store-doc (permissions-collection) doc :force-stamp-p force-stamp-p))
+(defmethod doc-collection ((doc permissions))
+  (permissions-collection))
 
 (defmethod match-entities ((doc user) entities)
   (intersection (get-val doc 'accessible-entities) entities))
@@ -107,5 +110,5 @@
                 :load-from-file-p t)
 
 ;;Don't remove this, but change the default password regularly
-(persist-doc (make-user "admin@ems.co.za" "admin"
+(persist (make-user "admin@ems.co.za" "admin"
                         :super-user-p t))

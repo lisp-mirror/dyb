@@ -197,11 +197,11 @@ tr.altrow td {
 
 .quickview_table th {
     text-align:center;
+    vertical-align: middle;
     background-color:#ffffd6;
     border-width:1px;
     border-style:solid;
     border-color: #808080;
-
 }
 
 .quickview_table td {
@@ -211,6 +211,8 @@ tr.altrow td {
     border-color: #808080;
     text-align:center;
     padding:2px;
+    text-align:center;
+    vertical-align: middle;
 }
 
 .edit-form-error {
@@ -223,4 +225,53 @@ tr.altrow td {
     font-weight:bold;
 
     font-size:12px;
+}
+
+.horizontal-cb-list label {
+    display: inline-block;
+    margin-right: 12px;
+}
+
+.horizontal-cb-list .checkbox {
+    margin-right: 4px;
+}
+
+.mine-selector {
+    display: block;
+}
+
+.mine-selector > input, .mine-selector > label {
+    display: inline-block;
+    width: auto;
+}
+
+.mine-selector > label 
+{
+    page-break-before:always;
+}
+
+.mine-selector > div {
+    display: inline-block;
+}
+
+.period-select {
+    display: inline-block;
+}
+
+.period-select > input, .period-select > label {
+    width: auto;
+    display: inline-block;
+}
+
+.period-select .button-wrap {
+    overflow: visible;
+}
+
+.period-select > select,  .mine-selector > select {
+    width: 400px;
+    display: inline-block;
+}
+
+.period-select > div {
+    display: inline-block;
 }

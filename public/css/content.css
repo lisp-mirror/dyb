@@ -60,7 +60,7 @@ html, body {
  * ================================================== */
 #main_content {
 	padding: 20px;
-	overflow: hidden;
+	/* overflow: hidden; */
 }
 
 #main_content h2 {

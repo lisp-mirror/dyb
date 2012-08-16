@@ -28,23 +28,24 @@
 			((= 2 (+ comment-count likes-count)) "medium")
 			(t "high"))))
 
-(defun wrap-fb-post (post)
-	(let (
-		(pid (get-val post 'post-id))
-		(title (get-msg-or-story post))
-		(payload post)
-		(type "facebook")
-		(interaction (get-fb-activity post))
-		(created (get-val post 'created-time)))
-	(if pid
-		(make-instance 'generic-entry
-						:key pid
-						:pid pid
-						:title title
-						:payload payload
-						:type type
-						:interaction interaction
-						:created created) ())))
+(defun wrap-fb-post (fb-post)
+  (when (get-val fb-post 'post-id)
+      (let* ((post (get-generic-entry-by-post-id (get-val fb-post 'post-id)))
+            (old-post (if post
+                          (copy post))))
+        (unless post
+          (setf post (make-instance 'generic-entry
+                                    :key (get-val fb-post 'post-id)
+                                    :pid (get-val fb-post 'post-id)
+                                    :title (get-msg-or-story fb-post)
+                                    :payload fb-post
+                                    :type "Facebook"
+                                    :interaction (get-fb-activity fb-post)
+                                    :created (get-val fb-post 'created-time))))
+        (if (and old-post (xid old-post))
+            (persist post :old-object old-post)
+            (persist post)))))
+
 ; NIL protection
 (defun get-tw-activity (count)
 	(if count 
@@ -75,27 +76,47 @@
 (defun generic-entry-collection ()
   (get-collection (system-db) "generic-entry"))
 
-(defun generic-entry ()
+(defun generic-entries ()
   (docs (generic-entry-collection)))
 
 (defun get-generic-entry-by-id (id)
   (get-doc (generic-entry-collection) id
            :element 'id))
 
-(defmethod persist-doc ((doc generic-entry) &key (force-stamp-p t))
-  (store-doc (generic-entry-collection) doc :force-stamp-p force-stamp-p))
+(defun get-generic-entry-by-post-id (id)
+  (get-doc (generic-entry-collection) id
+           :element 'pid))
+
+(defmethod doc-collection ((doc generic-entry))
+  (generic-entry-collection))
 
 ;(defun populate-post-db-from-json (post-list)
 ;    (dolist (post post-list) 
 ;      (persist-doc (make-post post))))
 
 (defun populate-generic-db-from-post (post-list)
-    (dolist (post post-list) 
-      (persist-doc (wrap-fb-post (make-post post)))))
+  
+  (dolist (post post-list)
+    
+    
+    (if (listp post)
+        (if (get-post-id post)
+            (let* ((old-post (get-post-by-post-id (get-post-id post)))
+                   (new-post (if old-post
+                                 old-post
+                                 (make-post post))))
+
+              (if (and old-post (xid old-post))
+          
+                  (persist new-post :old-object (copy old-post))
+                  (persist new-post))
+
+              (wrap-fb-post new-post)))
+        post)))
       
 (defun populate-generic-db-from-tweet (tweet-list)
     (dolist (tweet tweet-list) 
-      (persist-doc (wrap-tweet (make-tweet tweet)))))
+      (persist (wrap-tweet (make-tweet tweet)))))
 
 
 (add-collection (system-db) "generic-entry" 

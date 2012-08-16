@@ -55,12 +55,21 @@
    (sort-column :initarg :sort-column
                 :initform nil
                 :accessor sort-column)
+   (sort-key-function :initarg :sort-key-function
+                :initform nil
+                :accessor sort-key-function)
    (grid-filter :initarg :grid-filter
                 :initform nil
                 :accessor grid-filter)
    (filter-parameters :initarg :filter-parameters
                       :initform nil
-                      :accessor filter-parameters)))
+                      :accessor filter-parameters)
+   (state :initarg :state
+          :initform nil
+          :accessor state)
+   (parent-grid :initarg :parent-grid
+                :initform nil
+                :accessor parent-grid)))
 
 (defclass grid-column ()
   ((header :initarg :header
@@ -230,31 +239,41 @@ document.getElementById(\"~A\").submit();"
   (when *logging*
    (format *debug-io* "~a ~a~%" action object)))
 
-#|
+
 (defmethod handle-action ((grid grid) (action (eql 'delete)))
   (when (editable grid)
     (let ((row (selected-row grid)))
-      (setf (rows grid) (remove row (rows grid)))
-      (dq-delete-object row))))
-|#
+      (remove-doc row)
+      (update-table grid))))
+
 
 (defmethod handle-action ((grid grid) (action (eql 'init-new)))
   (editing-row grid))
 
 (defmethod handle-action ((grid grid) (action (eql 'new)))
-  (when (editable grid)
-    (let* ((rows (rows grid))
-           (first-row (and (plusp (length rows))
-                           (elt rows 0)))
-           (object-class
-             (or (row-object-class grid)
-                 (and first-row
-                      (class-of first-row)))))
-      (when object-class
-        (let ((new-instance (make-instance object-class)))
-          (push new-instance (rows grid))
+  (when (editable grid) 
+    (when (row-object-class grid)
+      ;;TODO: Do we need to add to rows??
+        (let ((new-instance (make-instance (row-object-class grid))))
+         ; (if (arrayp (rows grid))
+         ;     (vector-push-extend new-instance (rows grid))
+         ;     (push new-instance (rows grid)))
           (setf (editing-row grid) new-instance))
-        (handle-action grid 'init-new)))))
+        (handle-action grid 'init-new))
+    
+    (unless (row-object-class grid)
+      ;;TODO: Do we need to add to rows??
+      (let* ((rows (rows grid))
+             (first-row (and (plusp (length rows))
+                             (elt rows 0)))
+             (object-class
+              (or (row-object-class grid)
+                  (and first-row
+                       (class-of first-row)))))
+        (let ((new-instance (make-instance object-class)))
+       ;   (push new-instance (rows grid))
+          (setf (editing-row grid) new-instance))
+        ))))
 
 (defun parse-cell (key rows columns)
   (ppcre:register-groups-bind (name row-id column-id)
@@ -291,6 +310,9 @@ document.getElementById(\"~A\").submit();"
 
 
 (defmethod handle-action ((grid grid) (action (eql 'edit)))
+  (when (edit-form grid)
+    (setf (error-message (edit-form grid)) nil))
+  (setf (error-message grid) nil)
   (setf (editing-row grid) (selected-row grid)))
 
 (defmethod handle-action ((grid grid) (action (eql 'cancel)))
@@ -394,12 +416,14 @@ document.getElementById(\"~A\").submit();"
 (defun render-ajax-delete-button (grid row-id)
   (with-html
     (:a :href
-        (js-link (js-render (editor grid)
-                            (js-pair "grid-name" (name grid))
-                            (js-pair "action" "delete")
-                            (js-pair "row_id" row-id)))
+        (js-link (format nil
+                         "if(confirm(\"Delete document?\")){~a}"
+                         (js-render (editor grid)
+                                    (js-pair "grid-name" (name grid))
+                                    (js-pair "action" "delete")
+                                    (js-pair "row_id" row-id))))
         (make-icon "card--minus"
-              :title "Delete"))))
+                   :title "Delete"))))
 
 (defun render-grid-rows (grid &key editing)
   (with-html
@@ -466,8 +490,7 @@ document.getElementById(\"~A\").submit();"
                               :onclick
                               (js-render (editor grid)
                                          (js-pair "grid-name" (name grid))
-                                         (js-pair "action" "cancel")
-                                         (scroll-to grid))
+                                         (js-pair "action" "cancel"))
                               "Cancel")))))))))
 
 (defclass grid-editor (ajax-widget)
@@ -476,12 +499,37 @@ document.getElementById(\"~A\").submit();"
          :accessor grid))
   (:metaclass widget-class))
 
+(defun ancestor-grids (grid)
+  (loop for parent = (parent-grid grid) then (parent-grid parent)
+        while parent
+        collect parent))
+
+ 	
+
+(defun update-table (grid)
+  (loop for parent in (ancestor-grids grid)
+     do
+     (defer-js (fmt "updateTable('~a-table')" (name parent))))
+  (defer-js (fmt "updateTable('~a-table')" (name grid))))
+
 (defmethod render ((editor grid-editor) &key)
   (let* ((grid (grid editor))
          (editing-row (editing-row grid)))
-    (when (and (not (edit-inline grid))
-               editing-row)
-      (render-row-editor grid editing-row))))
+    (cond ((and (not (edit-inline grid))
+                editing-row)
+           (with-html
+             (when (error-message grid)
+               (htm
+                (:div :class "edit-form-error"
+                      (esc (error-message grid)))))
+             (render-row-editor grid editing-row))
+           (defer-js (scroll-to editor))
+           (setf (state grid) :editing))
+          ((eql (state grid) :editing)
+           (unless (equal (parameter "action") "cancel")
+             (update-table grid))
+           (defer-js (scroll-to editor))
+           (setf (state grid) nil)))))
 
 (defmethod render ((grid grid) &key footer)
   (let ((editing-row (and (edit-inline grid)
@@ -510,12 +558,7 @@ document.getElementById(\"~A\").submit();"
       (:div :class "box"
             (:table
                 :style "text-align:center"
-              (:tr
-               (:td
-                (when (error-message grid)
-                  (htm
-                   (:div :class "edit-form-error"
-                         (esc (error-message grid)))))))
+              
               (:tr
                (:td
                 (unless (or editing-row
@@ -542,7 +585,13 @@ document.getElementById(\"~A\").submit();"
                                                  :name "grid-link"
                                                  :grid-name (name grid))
                                     :image "/images/edit.png"
-                                    :task "edit-all"))))))))))))
+                                    :task "edit-all")))))))))))
+              (:tr
+               (:td
+                (when (error-message grid)
+                  (htm
+                   (:div :class "edit-form-error"
+                         (esc (error-message grid))))))))
             (str footer))
       (render editor)
       (defer-js
@@ -614,7 +663,11 @@ document.getElementById(\"~A\").submit();"
 (defun sort-data (grid rows)
   (let ((column (elt (columns grid) (sort-column grid))))
     (sort rows (sort-direction-function grid)
-          :key (lambda (row) (column-text row column)))))
+          :key (if (equal (sort-column grid) 0) 
+                   (if (sort-key-function grid)
+                       (sort-key-function grid)
+                       (lambda (row) (column-text  row column)))
+                   (lambda (row) (column-text  row column))))))
 
 (defmethod process-data-table ((grid grid))
   (print (get-parameters*))
@@ -658,7 +711,9 @@ document.getElementById(\"~A\").submit();"
                     :accessor save-disabled-p)))
 
 (defun finish-editing (grid)
+  (setf (error-message grid) nil)
   (when (edit-form grid)
+    
     (setf (error-message (edit-form grid)) nil))
   (setf (editing-row grid) nil))
 
@@ -673,10 +728,7 @@ document.getElementById(\"~A\").submit();"
              :name name
              (:div :class "content no-padding"
                    (str body)
-                   (when (error-message form)
-                     (htm
-                      (:div :class "section _100 edit-form-error"
-                            (str (error-message form))))))
+                   )
              (:div :class "actions"
                    (:div :class "actions-left"
                          (:input :type "submit"
@@ -689,14 +741,10 @@ document.getElementById(\"~A\").submit();"
                                  :value "Save"))
                    (:div :class "actions-right"
                          (:input :type "submit" :name "action" :value "Cancel")))
-             (:div :id "section _100 legend-div" :style "display:none;"
-                   (:table  :style "text-align:center;margin:auto;"
-                            (:tr (:td :colspan 4 "Validation Error Legend"))
-                            (:tr
-                             (:td :style "font-weight:bold;background-color:#FF0000;color:#FFFFFF;" "Required Field")
-                             (:td :style "font-weight:bold;background-color:#FFCC00" "Email Incorrect")
-                             (:td :style "font-weight:bold;background-color:#FFFF00" "Date Format \"dd MMM yyyy\"")
-                             (:td :style "font-weight:bold;background-color:pink;" "Numeric Field"))))))))
+             (when (error-message form)
+                     (htm
+                      (:div :class "section _100 edit-form-error"
+                            (str (error-message form)))))))))
 
 (define-condition validation-error (error)
   ((error-message :initarg :message

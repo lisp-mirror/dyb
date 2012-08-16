@@ -1,8 +1,9 @@
 (in-package :ems)
 
 (defclass period (doc)
-  ((entity-relationship :initarg :entity-relationship
-                        :initform nil)
+  ((entity :initarg :entity
+           :initform nil
+           :accessor entity)
    (period-name :initarg :period-name 
                 :initform nil
                 :accessor period-name)
@@ -19,7 +20,8 @@
              :accessor end-date)
    (status :initarg :status :initform nil
            :documentation "Open, Closed"))
-  (:metaclass storable-class))
+  (:metaclass storable-class)
+  (:default-initargs :doc-type "period"))
 
 (defun periods-collection ()
   (get-collection (system-db) "periods"))
@@ -27,17 +29,15 @@
 (defun periods ()
   (docs (periods-collection)))
 
-(defmethod persist-doc ((doc period) &key (force-stamp-p t))
-  (store-doc (periods-collection) doc :force-stamp-p force-stamp-p))
+(defmethod doc-collection ((doc period))
+  (periods-collection))
 
-
-(defun make-period (entity-relationship
+(defun make-period (entity
                     period-name period-type description 
                     start-date end-date status)
-  (make-instance 'period :key (list (get-val entity-relationship 'xid) period-name) 
+  (make-instance 'period :key (list (get-val entity 'xid) period-name) 
                  :doc-type "period" 
-                 :xid (next-xid (periods-collection))
-                 :entity-relationship entity-relationship
+                 :entity entity
                  :period-name period-name
                  :period-type period-type
                  :description description
@@ -45,9 +45,12 @@
                  :end-date end-date
                  :status status))
 
-(defun get-period (entity-relationship-id period-name)
-  (get-doc (periods-collection) 
-            (list entity-relationship-id period-name)))
+(defun get-period (entity-id period-name)
+  (get-doc (periods-collection)   
+            (list (if (stringp entity-id)
+                                 (parse-integer entity-id)
+                                 entity-id)
+                  (format nil "~A" period-name))))
 
 (defun get-period-by-id (id)
   (get-doc (periods-collection) id

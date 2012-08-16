@@ -3,11 +3,9 @@
 (define-easy-handler (period-page :uri "/ems/reporting-periods") ()
   (let* ((columns
            (list
+            
             (make-instance 'grid-column
-                           :name 'key
-                           :header "Key")
-            (make-instance 'grid-column
-                           :name 'entity-relationship
+                           :name 'entity
                            :header "Entity"
                            :printer 'print-entity-name)
             (make-instance 'grid-column
@@ -30,10 +28,16 @@
             (make-instance 'grid-column
                            :name 'status
                            :header "Status")))
-         (grid (make-widget 'period-grid :name "period-gridxxx"
+         (grid (make-widget 'period-grid :name "period-gridxz"
                                        :columns columns
                                        :edit-inline nil
                                        :title "Reporting Period"
                                        :row-object-class 'period)))
-    (render (make-widget 'page :name "period-pagexx")
+    (setf (sort-key-function grid)
+          (lambda (doc)
+                      (format nil "~A ~A"  
+                              (get-val (get-val doc 'entity) 'entity-name)
+                              (get-val doc 'period-name))
+                      ))
+    (render (make-widget 'page :name "period-page")
             :body (render-to-string grid))))

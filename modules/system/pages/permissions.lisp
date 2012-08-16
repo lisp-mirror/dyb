@@ -22,7 +22,7 @@
 (defmethod handle-action ((grid permission-grid) (action (eql 'save)))
   (setf (permission-list (editing-row grid))
         (mapcar #'list (value (cb-list (edit-form grid)))))
-  (persist-doc (editing-row grid))
+  (persist (editing-row grid))
   (finish-editing grid))
 
 (defmethod render ((widget permission-editor) &key)

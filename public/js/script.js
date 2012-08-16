@@ -163,15 +163,15 @@ if(Function.prototype.bind == null) {
     /* ==================================================
      * 6) Tables
      * ================================================== */
-    (function() {
-	if($.fn.dataTable) {
-	    $(document).data('datatables', $.fn.dataTable);
-	    $.fn.dataTable = function(options) {
-		$(document).data('datatables').bind(this, options)().parent().find('select').chosen().next().find('input').remove();
-		return $(this);
-	    }
-	}
-    })();
+    // (function() {
+    //     if($.fn.dataTable) {
+    //         $(document).data('datatables', $.fn.dataTable);
+    //         $.fn.dataTable = function(options) {
+    //     	$(document).data('datatables').bind(this, options)().parent().find('select').chosen().next().find('input').remove();
+    //     	return $(this);
+    //         }
+    //     }
+    // })();
 
     /* ==================================================
      * 12) jGrowl
@@ -347,39 +347,44 @@ function applyPeach (context)
 	    /* 
 	     * Date Pickers
 	     */
-	    if ($.fn.datepicker && $.fn.datetimepicker && !$.browser.opera) {
-		var defaults = {
-		    hourGrid: 23,
-		    minuteGrid: 59
-		}
+	    // if ($.fn.datepicker && $.fn.datetimepicker && !$.browser.opera) {
+	    //     var defaults = {
+	    //         hourGrid: 23,
+	    //         minuteGrid: 59
+	    //     }
 		
-		$('input[type=date]', context).datepicker($.extend(defaults, {showButtonPanel: true}));
-		$('input[type=datetime]', context).datetimepicker(defaults);
-		$('input[type=time]', context).not('[data-timeformat=12]').timepicker(defaults);
-		$('input[type=time][data-timeformat=12]', context).timepicker($.extend(defaults, {ampm: true}));
+	    //     $('input[type=date]', context).datepicker($.extend(defaults, {showButtonPanel: true}));
+	    //     $('input[type=datetime]', context).datetimepicker(defaults);
+	    //     $('input[type=time]', context).not('[data-timeformat=12]').timepicker(defaults);
+	    //     $('input[type=time][data-timeformat=12]', context).timepicker($.extend(defaults, {ampm: true}));
 		
-		$('input.hasDatepicker[data-date-relative]', context).each(function(){
-		    var ids = $(this).attr('id').split(' '), id;
-		    var el = this;
+	    //     $('input.hasDatepicker[data-date-relative]', context).each(function(){
+	    //         var ids = $(this).attr('id').split(' '), id;
+	    //         var el = this;
 		    
-		    $.each(ids, function(){
-			if (this.indexOf('dp') == 0 || $('label[for=' + this +']').length) {
-			    id = this;
-			}
-		    });
+	    //         $.each(ids, function(){
+	    //     	if (this.indexOf('dp') == 0 || $('label[for=' + this +']').length) {
+	    //     	    id = this;
+	    //     	}
+	    //         });
 		    
-		    if (!id) {
-			throw "Invalid form";
-		    }
+	    //         if (!id) {
+	    //     	throw "Invalid form";
+	    //         }
 		    
-		    if ($(this).attr('type') == 'date') {
-			$(this).datepicker("option", "defaultDate", null );
-			$('.ui-datepicker-today', $.datepicker._getInst($('#' + id)[0]).dpDiv).click();
-		    } else {
-			$.datepicker._gotoToday('#' + id);
-		    }
-		});
-	    }
+	    //         if ($(this).attr('type') == 'date') {
+	    //     	$(this).datepicker("option", "defaultDate", null );
+	    //     	$('.ui-datepicker-today', $.datepicker._getInst($('#' + id)[0]).dpDiv).click();
+	    //         } else {
+	    //     	$.datepicker._gotoToday('#' + id);
+	    //         }
+	    //     });
+	    // }
+            if ($.fn.datepicker) {
+                $(".date-pick", context).each(function(){
+                    $(this).datepicker({ dateFormat: "d M yy"});
+                });
+            }
 	    /* Color input */
 	    if(!$.browser.opera && $.fn.miniColors) {
 		$("input[type=color]", context).miniColors();
@@ -404,9 +409,9 @@ function applyPeach (context)
 	    // .box .header > span
 	    $('.box', context).find('.header').children('.collapse').click(function() {
 		var $this = $(this);
-		var $box = $this.parents('.box');
-		var $content = $box.find('.content');
-		var $actions = $box.find('.actions');
+		var $box = $($this.parents('.box')[0]);
+		var $content = $box.children('.content');
+		var $actions = $box.children('.actions');
 
 		// .box .content:visible
 		if($content.is(':visible')) {
@@ -646,5 +651,10 @@ function applyPeach (context)
 	})();
 	
     })(jQuery);
+    tinyMCE.init({mode: 'textareas', theme: 'simple'});
 }
 applyPeach();
+
+function updateTable(table) {
+    jQuery('#' + table).dataTable().fnDraw();
+}
