@@ -15,7 +15,7 @@
                ironclad
                cl-json
                ht-simple-ajax
- ;;              vecto-graphs
+               ;;              vecto-graphs
                closure-html
                closer-mop
                cl-jpeg
@@ -28,138 +28,154 @@
                (:file "requests")
                (:file "ini")
                (:module "modules"
-                :serial t
-                :components
-                ((:module "db"
-                  :serial t
-                  :components
-                  ((:file "copy")
-                   (:file "common")
-                   (:module "xdb"
-                    :serial t
-                    :components
-                            ((:file "xdb")
-                             (:file "classes")))))
-                 (:module "system"
-                  :serial t
-                  :components
-                  ((:file "common")
-                   (:module "db"
-                    :serial t
-                    :components
-                            ((:file "allsorts")
-                             (:file "user")
-                             (:file "entities")
-                             (:file "entity-relationships")
-                             (:file "system-log")))
+                        :serial t
+                        :components
+                        ((:module "db"
+                                  :serial t
+                                  :components
+                                  ((:file "copy")
+                                   (:file "common")
+                                   (:module "xdb"
+                                            :serial t
+                                            :components
+                                            ((:file "xdb")
+                                             (:file "classes")))))
+                         (:module "system"
+                                  :serial t
+                                  :components
+                                  ((:file "common")
+                                   (:module "db"
+                                            :serial t
+                                            :components
+                                            ((:file "allsorts")
+                                             (:file "user")
+                                             (:file "entities")
+                                             (:file "entity-relationships")
+                                             (:file "system-log")))
 
-                   (:module "widgets"
-                    :serial t
-                    :components
-                            ((:file "ajax")
-                             (:file "allsorts")
-                             (:file "grid")
-                             (:file "tree")
-                             (:file "entity-tree")
-                             (:file "entity-selection-tree")
-                             (:file "menu")
-                             (:file "peach-page")
-                             (:file "ems-page")
-                             (:file "input-widgets")
-                             (:file "login")
-                             (:file "root-entities")))
-                   (:module "pages"
-                    :serial t
-                    :components
-                            ((:file "landing-page")
-                             (:file "allsorts")
-                             (:file "dashboard")
-                             (:file "context")
-                             (:file "entities")
-                             (:file "users")
-                             (:file "permissions")
-                           ;;  (:file "export-csv")
-                             (:file "root-entities")))))
-                 (:module "administrative"
-                  :serial t
-                  :components
-                  ((:module "db"
-                    :serial t
-                    :components
-                            ((:file "country-town")
-                             (:file "contacts")
-                             (:file "address")
-                             (:file "companies")
-                             (:file "service-users")
-                             (:file "periods")
-                             ))
+                                   (:module "widgets"
+                                            :serial t
+                                            :components
+                                            ((:file "ajax")
+                                             (:file "allsorts")
+                                             (:file "grid")
+                                             (:file "tree")
+                                             (:file "entity-tree")
+                                             (:file "entity-selection-tree")
+                                             (:file "menu")
+                                             (:file "peach-page")
+                                             (:file "ems-page")
+                                             (:file "input-widgets")
+                                             (:file "login")
+                                             (:file "root-entities")))
+                                   (:module "pages"
+                                            :serial t
+                                            :components
+                                            ((:file "landing-page")
+                                             (:file "allsorts")
+                                             (:file "dashboard")
+                                             (:file "context")
+                                             (:file "entities")
+                                             (:file "users")
+                                             (:file "permissions")
+                                             ;;  (:file "export-csv")
+                                             (:file "root-entities")))))
+                         (:module "administrative"
+                                  :serial t
+                                  :components
+                                  ((:module "db"
+                                            :serial t
+                                            :components
+                                            ((:file "country-town")
+                                             (:file "contacts")
+                                             (:file "address")
+                                             (:file "companies")
+                                             (:file "service-users")
+                                             (:file "periods")
+                                             ))
 
-                   (:module "widgets"
-                    :serial t
-                    :components
-                            ((:file "address")
-                             (:file "companies")
-                             (:file "country-town")
-                             (:file "service-users")
-                             (:file "periods")
-                             (:file "clients")))
+                                   (:module "widgets"
+                                            :serial t
+                                            :components
+                                            ((:file "address")
+                                             (:file "companies")
+                                             (:file "country-town")
+                                             (:file "service-users")
+                                             (:file "periods")
+                                             (:file "clients")))
 
-                   (:module "pages"
-                    :serial t
-                    :components
-                            ((:file "address")
-                             (:file "companies")
-                             (:file "country-town")
-                             (:file "service-users")
-                             (:file "periods")
-                             (:file "clients")
-                             ))))
+                                   (:module "pages"
+                                            :serial t
+                                            :components
+                                            ((:file "address")
+                                             (:file "companies")
+                                             (:file "country-town")
+                                             (:file "service-users")
+                                             (:file "periods")
+                                             (:file "clients")
+                                             ))))
                  
                  
                  
                  
                  
                 
- (:module "facebook"
-                  :serial t
-                  :components
-                  ((:file "facebook-parser")
-                   (:file "common")
-                   (:module "db"
-                    :serial t
-                    :components
-                            ((:file "facebook")))
-                   (:module "widgets"
-                    :serial t
-                    :components
-                            ((:file "facebook")))
-                   (:module "pages"
-                    :serial t
-                    :components
-                            ((:file "facebook")))))
-                 (:module "twitter"
-                  :serial t
-                  :components
-                  ((:file "twitter-parser")
-                   (:module "db"
-                    :serial t
-                    :components
-                            ((:file "twitter-classes")))
+                         (:module "facebook"
+                                  :serial t
+                                  :components
+                                  ((:file "facebook-parser")
+                                   (:file "common")
+                                   (:module "db"
+                                            :serial t
+                                            :components
+                                            ((:file "facebook")))
+                                   (:module "widgets"
+                                            :serial t
+                                            :components
+                                            ((:file "facebook")))
+                                   (:module "pages"
+                                            :serial t
+                                            :components
+                                            ((:file "facebook")))))
+                         (:module "twitter"
+                                  :serial t
+                                  :components
+                                  ((:file "twitter-parser")
+                                   (:module "db"
+                                            :serial t
+                                            :components
+                                            ((:file "twitter-classes")))
                    
-                   ))
-                 (:module "generic"
-                  :serial t
-                  :components
-                  (
-                   (:module "db"
-                    :serial t
-                    :components
-                            ((:file "generic-entry")))
-                   (:module "widgets"
-                    :serial t
-                    :components
-                            ((:file "generic")))
-                   (:module "pages"
-                    :serial t
-                    :components
-                            ((:file "generic"))))))) ))
+                                   ))
+                         (:module "generic"
+                                  :serial t
+                                  :components
+                                  (
+                                   (:module "db"
+                                            :serial t
+                                            :components
+                                            ((:file "generic-entry")))
+                                   (:module "widgets"
+                                            :serial t
+                                            :components
+                                            ((:file "generic")))
+                                   (:module "pages"
+                                            :serial t
+                                            :components
+                                            ((:file "generic"))))))
+                        )
+               (:module "quickview"
+                                 :serial t
+                                 :components
+                                 ((:file "common")
+                                  (:file "document")
+                                  (:file "document-html")
+                                  (:file "document-pdf")
+                                  (:file "html-filter")
+                                  (:file "html-to-document")
+                                  (:file "quickview-widgets")
+                                  (:file "drill-down")
+                                  (:file "forms-common")))
+
+
+               ))
