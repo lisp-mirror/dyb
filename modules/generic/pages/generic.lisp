@@ -118,11 +118,14 @@
                           :header "Comments"
                           :printer (lambda (doc)
                                      (if doc
-                                         (if (get-val doc 'comments)
-                                             (if (get-val (get-val doc 'comments) 'count)
-                                                 (get-val (get-val doc 'comments) 'count)
-                                                 0)
-                                             0)
+                                         (when (string-equal 
+                                                (type-of (make-instance 'comments))
+                                                "COMMENTS")
+                                           (if (get-val doc 'comments)
+                                               (if (get-val (get-val doc 'comments) 'count)
+                                                   (get-val (get-val doc 'comments) 'count)
+                                                   0)
+                                               0))
                                          0)))
            (make-instance 'grid-column
                           :name 'created
