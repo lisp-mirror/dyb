@@ -62,25 +62,24 @@
                                                                              :external-format external-format)
                             do (format s "%~2,'0x" octet)))))))
 
-
 (defun build-query-thingy (parameters)
-  (let ((query-string "")
-        (count 0))
-    (mapcar (lambda (parameter)
-              (if (equal count 0)
-                  (setf query-string (concatenate 'string query-string  (hunchentoot:url-encode (car parameter)) "=" (hunchentoot:url-encode (cdr parameter))))
-                  (setf query-string (concatenate 'string query-string "&" (hunchentoot:url-encode (car parameter)) "=" (hunchentoot:url-encode (cdr parameter)))))
-              (incf count))
-            parameters)
-    query-string))
+  (with-output-to-string (stream)
+    (loop for separator = "" then "&"
+          for (key value) in parameters
+          do
+          (format stream "~a~a=~a"
+                  separator
+                  (url-encode key)
+                  (url-encode value)))))
 
 (defun signature-base-string (&key uri
                                    (request-method "POST")
                                    parameters)
-  (concatenate 'string (string-upcase (princ-to-string request-method))
-                       "&" (url-encode
-                             (normalize-uri uri))
-                        "&" (url-encode (build-query-thingy parameters))))
+  (format nil "~:@(~a~)&~a&~a"
+          request-method
+          (url-encode (normalize-uri uri))
+          (url-encode (build-query-thingy
+                       (sort-parameters parameters)))))
 
 (defun hmac-key (consumer-secret &optional token-secret)
   "9.2"
@@ -93,7 +92,6 @@
     (ironclad:update-hmac hmac s)
     (ironclad:hmac-digest hmac)))
 
-
 (defun encode-signature (octets url-encode-p)
   "9.2.1"
   (let ((base64 (cl-base64:usb8-array-to-base64-string octets)))
@@ -101,95 +99,50 @@
       (url-encode base64)
       base64)))
 
-
-
-(defun twitter-oauthxx (service-user)
-  (let* ((stamp (format nil "~A" (get-unix-time))
-           )
-        (nonce (format nil "~A~A" (xid service-user) stamp))
-         )
-    
-    (format nil "Authorization: ~A " (build-auth-string (list 
-                                                
-                                                         (cons "oauth_callback" (url-encode *twitter-callback-uri*))
-                                                         (cons "oauth_consumer_key" *twitter-client-id*)
-                                                         (cons "oauth_nonce" nonce)
-                                                         (cons "oauth_signature" 
-                                                               (encode-signature 
-                                                                (hmac-sha1 
-                                                                 (signature-base-string :uri *twitter-oauth-uri*
-                                                                                        :request-method "POST"
-                                                                                        :parameters (sort-parameters (list 
-                                                                                                                      (cons "oauth_consumer_key" *twitter-client-id* )
-                                                                                                                      (cons "oauth_nonce" nonce)
-                                                                                                                      (cons "oauth_signature_method" "HMAC-SHA1")
-                                                                                                                      (cons "oauth_timestamp" stamp)
-                                        ;(cons "oauth_token" "")
-                                                                                                                      (cons "oauth_version" "1.0")
-                                                                                                                      )))
-                                                                 (hmac-key  *twitter-client-secret* 
-                                                                            "")) 
-                                                                t))
-                                                         (cons "oauth_signature_method" "HMAC-SHA1")
-                                                         (cons "oauth_timestamp" stamp)
-                                                         (cons "oauth_version" "1.0"))))))
-
 (defun sort-parameters (parameters)
-  "Sort PARAMETERS according to the OAuth spec. This is a destructive operation."
+  "Sort PARAMETERS according to the OAuth spec."
   (assert (not (assoc "oauth_signature" parameters :test #'equal)))
-  (sort parameters #'string< :key (lambda (x)
-                                    "Sort by key and value."
-                                    (concatenate 'string (princ-to-string (car x))
-                                                 (princ-to-string (cdr x))))))
+  (sort (copy-list parameters) #'string<
+        :key #'car))
 
 (defun build-auth-string (parameters)
   (format nil "OAuth ~{~A=~S~^, ~}"
-          (alexandria:flatten (mapcar
-                                (lambda (x y) (list x y))
-                                (mapcar (alexandria:compose #'url-encode #'car) parameters)
-                                (mapcar (alexandria:compose #'url-encode #'cdr) parameters)))))
-
-
+          (loop for (key value) in parameters
+                collect (url-encode key)
+                collect (url-encode value))))
 
 (defun twitter-oauth (service-user-id)
   (let* ((stamp (format nil "~A" (get-unix-time)))
-        (nonce (format nil "~A~A" service-user-id stamp)))
-    
-
+         (nonce (format nil "~A~A" service-user-id stamp)))
     (drakma:http-request   
-       *twitter-oauth-uri*
-    
-       :method :post
-       :additional-headers  
-       `(("Authorization" . ,(build-auth-string (list 
-                                                 (cons "oauth_callback" (url-encode *twitter-callback-uri*))
-                                                 (cons "oauth_consumer_key" *twitter-client-id*)
-                                                 (cons "oauth_nonce" nonce)
-                                                 (cons "oauth_signature" 
-                                                       (encode-signature 
-                                                        (hmac-sha1 
-                                                         (signature-base-string :uri *twitter-oauth-uri*
-                                                                                :request-method "POST"
-                                                                                :parameters (sort-parameters (list 
-                                                                                                              (cons "oauth_consumer_key" *twitter-client-id* )
-                                                                                                              (cons "oauth_nonce" nonce)
-                                                                                                              (cons "oauth_signature_method" "HMAC-SHA1")
-                                                                                                              (cons "oauth_timestamp" stamp)
-                                                                                                              ;;(cons "oauth_token" "")
-                                                                                                              (cons "oauth_version" "1.0")
-                                                                                                              )))
-                                                         (hmac-key  *twitter-client-secret* 
-                                                                    "")) 
-                                                        t))
-                                                 (cons "oauth_signature_method" "HMAC-SHA1")
-                                                 (cons "oauth_timestamp" stamp)
-                                                 (cons "oauth_version" "1.0"))))
-         )
-       :redirect-methods '(:get :post :head)
-           
-       )
-    )
-  )
+     *twitter-oauth-uri*
+     :method :post
+     :additional-headers  
+     `(("Authorization" 
+        ,@(build-auth-string
+           `(;; ("oauth_callback" ,(url-encode *twitter-callback-uri*))
+             ("oauth_consumer_key" ,*twitter-client-id*)
+             ("oauth_nonce" ,nonce)
+             ("oauth_signature" 
+              ,(encode-signature 
+                (hmac-sha1 
+                 (signature-base-string
+                  :uri *twitter-oauth-uri*
+                  :request-method "POST"
+                  :parameters `( ;; ("oauth_callback" ,*twitter-callback-uri*)
+                                ("oauth_consumer_key" ,*twitter-client-id*)
+                                ("oauth_nonce" ,nonce)
+                                ("oauth_signature_method" "HMAC-SHA1")
+                                ("oauth_timestamp" ,stamp)
+                                ;;("oauth_token" "")
+                                ("oauth_version" "1.0")))
+                 (hmac-key  *twitter-client-secret*
+                            "")) 
+                nil))
+             ("oauth_signature_method" "HMAC-SHA1")
+             ("oauth_timestamp" ,stamp)
+             ("oauth_version" "1.0")))))
+     :redirect-methods '(:get :post :head))))
 
 ;;Test
 ;;(twitter-oauth 1)
