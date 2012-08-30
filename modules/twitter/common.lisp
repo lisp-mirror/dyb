@@ -18,6 +18,34 @@
 
 (defvar +utf-8+ (flexi-streams:make-external-format :utf8 :eol-style :lf))
 
+
+(defmethod normalize-uri ((uri string))
+  (normalize-uri (puri:parse-uri uri)))
+
+(defmethod normalize-uri ((uri puri:uri))
+  "9.1.2"
+  (let ((*print-case* :downcase) ; verify that this works!!
+        (scheme (puri:uri-scheme uri))
+        (host (puri:uri-host uri))
+        (port (puri:uri-port uri))
+        (path (puri:uri-path uri)))
+    (values
+      (concatenate 'string
+        (string-downcase (princ-to-string scheme))
+        "://"
+        (string-downcase host)
+        (cond
+          ((null port)
+           "")
+          ((and (eq scheme :http) (eql port 80))
+           "")
+          ((and (eq scheme :https) (eql port 443))
+           "")
+          (t
+           (concatenate 'string ":" (princ-to-string port))))
+        path)
+      )))
+
 (defun url-encode (string &optional (external-format +utf-8+))
   "URL-encodes a string using the external format EXTERNAL-FORMAT."
   (with-output-to-string (s)
