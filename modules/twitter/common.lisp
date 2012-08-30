@@ -114,18 +114,18 @@
 (defun twitter-oauth (service-user-id)
   (let* ((stamp (format nil "~A" (get-unix-time)))
          (nonce (format nil "~A~A" service-user-id stamp)))
-    (drakma:http-request   
+    (drakma:http-request
      *twitter-oauth-uri*
      :method :post
-     :additional-headers  
-     `(("Authorization" 
+     :additional-headers
+     `(("Authorization"
         ,@(build-auth-string
            `(;; ("oauth_callback" ,(url-encode *twitter-callback-uri*))
              ("oauth_consumer_key" ,*twitter-client-id*)
              ("oauth_nonce" ,nonce)
-             ("oauth_signature" 
-              ,(encode-signature 
-                (hmac-sha1 
+             ("oauth_signature"
+              ,(encode-signature
+                (hmac-sha1
                  (signature-base-string
                   :uri *twitter-oauth-uri*
                   :request-method "POST"
@@ -137,7 +137,7 @@
                                 ;;("oauth_token" "")
                                 ("oauth_version" "1.0")))
                  (hmac-key  *twitter-client-secret*
-                            "")) 
+                            ""))
                 nil))
              ("oauth_signature_method" "HMAC-SHA1")
              ("oauth_timestamp" ,stamp)
