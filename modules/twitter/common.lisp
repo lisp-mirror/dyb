@@ -63,7 +63,16 @@
                             do (format s "%~2,'0x" octet)))))))
 
 
-
+(defun build-query-thingy (parameters)
+  (let ((query-string "")
+        (count 0))
+    (mapcar (lambda (parameter)
+              (if (equal count 0)
+                  (setf query-string (concatenate 'string query-string  (hunchentoot:url-encode (car parameter)) "=" (hunchentoot:url-encode (cdr parameter))))
+                  (setf query-string (concatenate 'string query-string "&" (hunchentoot:url-encode (car parameter)) "=" (hunchentoot:url-encode (cdr parameter)))))
+              (incf count))
+            parameters)
+    query-string))
 
 (defun signature-base-string (&key uri
                                    (request-method "POST")
