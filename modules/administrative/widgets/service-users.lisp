@@ -128,6 +128,30 @@
                                                     (str "Authenticate using >> ")) (str (facebook-oauth-uri row))))))))))))
 
 
+
+
+
+
+
+
+
+
+(defun get-twitter-id (username)
+  (multiple-value-bind (body)
+                (drakma:http-request 
+                 (format nil "http://api.twitter.com/1/users/lookup.json?screen_name=~A" username))
+    (if body
+        (let ((decoded-body (json::decode-json-from-string (babel:octets-to-string body))))
+          
+          (if (or (stringp (first (first decoded-body)))
+                  (string-equal (type-of  (first (first decoded-body))) "keyword"))
+              (if (string-equal (first (first decoded-body)) "ERRORS")
+                
+                  (car (second (first decoded-body))))
+              (if (assoc ':id (first decoded-body))
+                  (cdr (assoc ':id (first decoded-body)))
+                  (second (first decoded-body))))))))
+
 (defun get-facebook-id (username)
   (multiple-value-bind (body)
                 (drakma:http-request 
@@ -150,32 +174,64 @@
   (when (string-equal (parameter "service-user-type") "")
     (setf (error-message grid) "Select a Service."))
 
-  (when (and (parameter "service-user-name") (not (string-equal (parameter "service-user-name") "")))
-    (let ((facebook-user-id (get-facebook-id (parameter "service-user-name"))))
-      (if (find #\# facebook-user-id)
-          (setf (error-message grid) facebook-user-id)
-          (unless (string-equal (parameter "entity") "")
-            (let ((new-doc (editing-row grid))
-                  (old-doc (copy (editing-row grid))))
-              (synq-edit-data new-doc)
+  (when (and (not (string-equal (parameter "entity") ""))
+             (not (string-equal (parameter "service-user-type") "")))
+ 
+    (when (and (parameter "service-user-name") (not (string-equal (parameter "service-user-name") "")))
+
+      (cond ((string-equal (parameter "service-user-type") "facebook") 
+             (let ((facebook-user-id (get-facebook-id (parameter "service-user-name"))))
+               (if (find #\# facebook-user-id)
+                   (setf (error-message grid) facebook-user-id)
+                   (unless (string-equal (parameter "entity") "")
+                     (let ((new-doc (editing-row grid))
+                           (old-doc (copy (editing-row grid))))
+                       (synq-edit-data new-doc)
         
-              (unless (parameter "entity-xid") 
-                (setf (get-val new-doc 'entity) 
-                      (get-entity-by-id 
-                       (if (stringp (parameter "entity"))
-                           (parse-integer 
-                            (parameter "entity"))
-                           (parameter "entity")))))
+                       (unless (parameter "entity-xid") 
+                         (setf (get-val new-doc 'entity) 
+                               (get-entity-by-id 
+                                (if (stringp (parameter "entity"))
+                                    (parse-integer 
+                                     (parameter "entity"))
+                                    (parameter "entity")))))
 
-              (setf (key new-doc) (list (xid (get-val new-doc 'entity))
-                                        (parameter "service-user-type")
-                                        (parameter "service-user-name")))
-              (setf (get-val new-doc 'user-id) facebook-user-id)
-              (if (xid old-doc)
-                  (persist new-doc :old-object old-doc)
-                  (persist new-doc))
+                       (setf (key new-doc) (list (xid (get-val new-doc 'entity))
+                                                 (parameter "service-user-type")
+                                                 (parameter "service-user-name")))
+                       (setf (get-val new-doc 'user-id) facebook-user-id)
+                       (if (xid old-doc)
+                           (persist new-doc :old-object old-doc)
+                           (persist new-doc))
 
-              (finish-editing grid)))))))
+                       (finish-editing grid))))))
+            ((string-equal (parameter "service-user-type") "twitter")
+             (let ((twitter-user-id (get-twitter-id (parameter "service-user-name"))))
+               (if (or (consp twitter-user-id) (listp twitter-user-id))
+                   (setf (error-message grid) (cdr twitter-user-id))
+                   (unless (string-equal (parameter "entity") "")
+                     (let ((new-doc (editing-row grid))
+                           (old-doc (copy (editing-row grid))))
+                       (synq-edit-data new-doc)
+        
+                       (unless (parameter "entity-xid") 
+                         (setf (get-val new-doc 'entity) 
+                               (get-entity-by-id 
+                                (if (stringp (parameter "entity"))
+                                    (parse-integer 
+                                     (parameter "entity"))
+                                    (parameter "entity")))))
+
+                       (setf (key new-doc) (list (xid (get-val new-doc 'entity))
+                                                 (parameter "service-user-type")
+                                                 (parameter "service-user-name")))
+                       (setf (get-val new-doc 'user-id) twitter-user-id)
+                       (if (xid old-doc)
+                           (persist new-doc :old-object old-doc)
+                           (persist new-doc))
+
+                       (finish-editing grid)))))
+             )))))
 
 
 

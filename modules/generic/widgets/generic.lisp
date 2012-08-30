@@ -139,7 +139,7 @@
                                    (render-edit-field 
                                     "Created"
                                     (get-val row 'created)
-                                    :type :textarea)))
+                                    :type :datetime)))
                          )))))
            (list 
             "Comments"
@@ -195,7 +195,7 @@
                                          "pid"
                                          (get-val row 'pid))))
                              (render form-section 
-                                     :label "Entity"
+                                     :label "Comment"
                                      :input 
                                      (with-html-to-string ()
                                        (render-edit-field
@@ -203,7 +203,16 @@
                                         ""
                                             
                                         :required t
-                                        :type :input))))) ))
+                                        :type :input)))
+                             (render 
+                              form-section
+                              :label "Scheduled Date"
+                              :input (with-html-to-string ()
+                                       (render-edit-field 
+                                        "scheduled-date"
+                                        (get-val row 'created)
+                                        :type :datetime-local)))
+                             )) ))
             )))
     (render tab-box)
     ))

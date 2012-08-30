@@ -21,7 +21,8 @@
                cl-jpeg
                xdb2
                sb-posix
-               drakma)
+               drakma
+               split-sequence)
   :serial t
   :components ((:file "packages")
                (:file "common")
@@ -141,6 +142,7 @@
                                   :serial t
                                   :components
                                   ((:file "twitter-parser")
+                                   (:file "common")
                                    (:module "db"
                                             :serial t
                                             :components
