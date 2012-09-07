@@ -108,3 +108,34 @@
 
   
   )
+
+
+(define-easy-handler (scheduled-page :uri "/ems/scheduled") ()
+  (let* ((columns
+                             (list
+                              (make-instance 'grid-column
+                                             :name 'pid
+                                             :header "Post Id"
+                                             )
+                              (make-instance 'grid-column
+                                             :name 'action
+                                             :header "Action")
+                              (make-instance 'grid-column
+                                             :name 'scheduled-date
+                                             :header "Scheduled Date"
+                                             )))
+                           (action-grid (make-widget 'generic-actions-grid 
+                                                      :name "generic-actions-grid"
+                                                      :columns columns
+                                                      :edit-inline nil
+                                                      :title "Actions"
+                                                      :row-object-class 'generic-action)))
+
+                      
+            
+            
+                     (render (make-widget 'page :name "scheduled-page")
+                             :body (with-html-to-string ()
+                                     
+                                     (str (render action-grid))))
+                     ))

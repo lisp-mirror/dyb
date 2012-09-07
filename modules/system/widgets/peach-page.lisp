@@ -252,6 +252,8 @@
                         (:a :href "/ems/companies" "Companies"))                     
                        (:li 
                         (:a :href "/ems/service-users" "Service Users"))
+                       (:li
+                        (:a :href "/ems/search-stream" "Search Streams"))
                        ))
                      (:li
                       (:a :href "#"
@@ -262,8 +264,11 @@
                        (:li
                         (:a :href "/ems/generic" "Inbox"))
                        
+                       (:li
+                        (:a :href "/ems/scheduled" "Scheduled Actions"))
                        
-                 
+                       (:li
+                        (:a :href "/ems/search-stream-feedback" "Search Stream Feedback"))
                        ))
                      
                      

@@ -2,7 +2,140 @@
 
 ;;(populate-post-db-from-json (rest (first (json:decode-json-from-string *jsstr*))))
 
+(defclass generic-actions-grid (grid)
+  ((parent-grid :initarg :parent-grid)
+   (current-doc :initarg nil))
+  (:default-initargs :edit-inline nil))
 
+
+(defun get-generic-actions-data (grid &key filter search)
+  (declare (ignore grid search))
+  (find-docs 'vector
+              (lambda (doc)
+             ;;   (if (match-context-entities (get-val doc 'payload) ))
+                (cond ((equal filter 'with-audit-data)
+                           doc)
+                          (t 
+                           (if (not (string-equal (get-val doc 'doc-status) "superseded"))
+                               doc))))
+              (generic-actions-collection)))
+
+(defmethod get-rows ((grid generic-actions-grid))
+  (setf (rows grid)
+	(get-generic-actions-data grid 
+                          :filter (grid-filter grid)  
+                          :search (search-term grid))))
+
+(defmethod render-row-editor ((grid generic-actions-grid) row)
+  (let ((comment-form (make-widget 'peach-form :name "schedule-action-formx"
+                                       :grid-size 12
+                                       :header "Schedule Action Against Post"
+                                       :form-id "schedule-action-form"
+                                       ))
+        (form-section (make-widget 'form-section
+                                   :name "form-section"))
+        (current-doc (get-val grid 'current-doc)))
+    
+    (render comment-form
+                    :grid grid
+                    :content
+                    (with-html-to-string ()
+                      (:input :type "hidden" :name "from-user-id" 
+                              :value (get-val 
+                                      (get-val 
+                                       (get-val current-doc 'payload) 'from) 'id))
+                      (:input :type "hidden" :name "to-user-id" 
+                              :value (if (get-val (get-val current-doc 'payload) 'to)
+                                         (if (listp (get-val 
+                                                     (get-val current-doc 'payload) 'to))
+                                             (get-val 
+                                              (first (get-val 
+                                                      (get-val current-doc 'payload) 'to)) 'id)
+                                             (get-val (get-val 
+                                                       (get-val current-doc 'payload) 'to) 'id))))
+                      (render 
+                       form-section
+                       :label "Post ID"
+                       :input (with-html-to-string ()
+                                (render-edit-field 
+                                 "pid"
+                                 (get-val current-doc 'pid))))
+                      (render form-section 
+                       :label "Action Type"
+                       :input (with-html-to-string ()
+                                (render-edit-field 
+                                 "action-type" 
+                                 (get-val row 'action-type)
+                                 :data (list (list "Like" "Like")
+                                             (list "Comment" "Comment"))
+                                 :required t
+                                 :blank-allowed t
+                                 :type :select)))
+
+                      (render form-section 
+                              :label "Action"
+                              :input 
+                              (with-html-to-string ()
+                                (render-edit-field
+                                 "action" 
+                                 (get-val row 'action)
+                                 :required t
+                                 :type :input)))
+                      (render 
+                       form-section
+                       :label "Scheduled Date"
+                       :input (with-html-to-string ()
+                                (render-edit-field 
+                                 "scheduled-date"
+                                 (get-val row 'scheduled-date)
+                                 :type :datetime-local)
+                                ))
+                      
+                      ))))
+
+
+
+(defun comment-facebook (action)
+  (let ((from-user (get-val action 'from-user-id))
+        (to-user (get-val action 'to-user-id)))
+    (multiple-value-bind (body)
+        (drakma:http-request (format nil "https://graph.facebook.com/~A/comments&access_token=~A"
+                                     (get-val action 'pid)
+                                     (get-val (or from-user to-user) 'last-access-token))
+                             :method :post
+                             :parameters (list (cons "message"  (parameter "comment"))))
+
+      (let ((error-message (get-facebook-error body) ))           
+        (when error-message
+          (setf (get-val action 'action-status) "Error")
+          (setf (get-val action 'action-log) (cdr (car (rest error-message)))))
+
+        (unless error-message 
+            (setf (get-val action 'action-status) "Completed")
+            (setf (get-val action 'action-log) "Posted comment successfully."))))))
+
+(defmethod handle-action ((grid generic-actions-grid) (action (eql 'save)))
+  (setf (error-message grid) nil)
+(break "? ~A" (parameter "form-id"))
+  (when (and (string-equal (parameter "form-id") "schedule-action-form"))
+    (let ((from-user (get-facebook-access-token (parameter "from-user-id")))
+          (to-user (get-facebook-access-token (parameter "to-user-id"))))
+      (when (or from-user to-user)
+
+        (if (xid (editing-row grid))
+            (let ((new-doc (editing-row grid))
+                  (old-doc (copy (editing-row grid))))
+              (synq-edit-data new-doc)
+              (persist new-doc :old-object old-doc))
+            (persist (make-generic-action (get-val (get-val grid 'current-doc) 'pid)
+                                          (get-val (get-val grid 'current-doc) 'type)
+                                          from-user to-user
+                                          (parameter "action-type")
+                                          (parameter "action")
+                                          (parameter "scheduled-date")))))
+      (unless (or from-user to-user)
+          (setf (error-message grid) "User does not exist.")))))
+ 
 (defclass generic-comments-grid (grid)
   ((parent-grid :initarg :parent-grid)
    (current-doc :initarg nil))
@@ -20,13 +153,12 @@
                       'payload) 
                                'comments)
                       'data))
-    
-
     (setf (rows grid)
-          (loop for comment across (coerce (get-val (get-val (get-val (get-val grid 'current-doc) 
-                                                                      'payload) 
-                                                             'comments)
-                                                    'data) 'vector)
+          (loop for comment across 
+               (coerce (get-val (get-val (get-val (get-val grid 'current-doc) 
+                                                  'payload) 
+                                         'comments)
+                                'data) 'vector)
              collect comment))))
 
 (defclass generic-grid (grid)
@@ -59,11 +191,7 @@
                                        :header "Posts"
                                        :form-id "generic-edit-form"
                                        :grid-name (name grid)))
-        (comment-form (make-widget 'peach-form :name "post-comment-form"
-                                       :grid-size 12
-                                       :header "Comment Post"
-                                       :form-id "post-comment-edit-form"
-                                       ))
+        
         (form-section (make-widget 'form-section
                                    :name "form-section"))
         (tab-box (make-widget 'peach-tab-box
@@ -172,48 +300,35 @@
                      
                       (render comment-grid)))))
            (list 
-            "Comment Post"
+            "Actions"
             (with-html-to-string ()
-              ;;(break "~A" row)
-              (:div :class "section _100"
-                   (render comment-form
-                           :grid grid
-                           :content
-                           (with-html-to-string ()
-                             (:input :type "hidden" :name "from-user-id" 
-                                     :value (get-val (get-val (get-val row 'payload) 'from) 'id))
-                             (:input :type "hidden" :name "to-user-id" 
-                                     :value (if (get-val (get-val row 'payload) 'to)
-                                                (if (listp (get-val (get-val row 'payload) 'to))
-                                                    (get-val (first (get-val (get-val row 'payload) 'to)) 'id)
-                                                    (get-val (get-val (get-val row 'payload) 'to) 'id))))
-                             (render 
-                               form-section
-                               :label "Post ID"
-                               :input (with-html-to-string ()
-                                        (render-edit-field 
-                                         "pid"
-                                         (get-val row 'pid))))
-                             (render form-section 
-                                     :label "Comment"
-                                     :input 
-                                     (with-html-to-string ()
-                                       (render-edit-field
-                                        "comment" 
-                                        ""
-                                            
-                                        :required t
-                                        :type :input)))
-                             (render 
-                              form-section
-                              :label "Scheduled Date"
-                              :input (with-html-to-string ()
-                                       (render-edit-field 
-                                        "scheduled-date"
-                                        (get-val row 'created)
-                                        :type :datetime-local)))
-                             )) ))
-            )))
+              (:div :class "section _100" 
+                   (let* ((columns
+                             (list
+                              (make-instance 'grid-column
+                                             :name 'pid
+                                             :header "Post Id"
+                                             )
+                              (make-instance 'grid-column
+                                             :name 'action
+                                             :header "Action")
+                              (make-instance 'grid-column
+                                             :name 'scheduled-date
+                                             :header "Scheduled Date"
+                                             )))
+                           (action-grid (make-widget 'generic-actions-grid 
+                                                      :name "generic-actions-grid"
+                                                      :columns columns
+                                                      :edit-inline nil
+                                                      :title "Actions"
+                                                      :row-object-class 'generic-action)))
+
+                      
+                     (setf (get-val action-grid 'parent-grid) grid)
+                     (setf (get-val action-grid 'current-doc) (editing-row grid))
+                     
+                      (render action-grid)))))
+           ))
     (render tab-box)
     ))
 
@@ -231,6 +346,7 @@
 
 (defmethod handle-action ((grid generic-grid) (action (eql 'save)))
   (setf (error-message grid) nil)
+(break "??")
   (when (and (string-equal (parameter "form-id") "post-comment-edit-form"))
     (let ((from-user (get-facebook-access-token (parameter "from-user-id")))
           (to-user (get-facebook-access-token (parameter "to-user-id"))))
