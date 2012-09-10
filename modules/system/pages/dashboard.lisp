@@ -65,11 +65,11 @@
               (loop 
                  for user across (service-users)
                     do (when (match-context-entities user)                      
-                          (when (string-equal (get-val user 'user-id) (get-fb-post-from doc))
+                         (when (string-equal (format nil "~A" (get-val user 'user-id)) (get-fb-post-from doc))
                                 (incf count)
                                 (incf likes (get-fb-likes-count doc)) 
                                 (incf comments (get-fb-comments-count doc)))
-                          (when (string-equal (get-val user 'user-id) (get-fb-post-from doc))
+                          (when (string-equal (format nil "~A" (get-val user 'user-id)) (get-fb-post-from doc))
                                 (incf count)
                                 (incf likes (get-fb-likes-count doc)) 
                                 (incf comments (get-fb-comments-count doc)))))))
