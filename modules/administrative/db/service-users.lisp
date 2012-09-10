@@ -12,6 +12,12 @@
    (user-id :initarg :user-id
                 :initform nil)
    (last-access-token :initarg :last-access-token
+                      :initform nil)
+   (last-token-secret :initarg :last-token-secret
+                      :initform nil)
+   (request-token :initarg :request-token
+                      :initform nil)
+   (request-secret :initarg :request-secret
                       :initform nil))
   (:metaclass storable-class)
   (:default-initargs :doc-type "service-user"))
