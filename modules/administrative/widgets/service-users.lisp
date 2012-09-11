@@ -124,8 +124,8 @@
                                                 (get-val row 'service-user-type)
                                                 (parameter "service-user-type")) 
                                             "Twitter")
-                                           (htm (:a :href  (facebook-oauth-uri row)  
-                                                    (str "Authenticate using >> ")) (str (facebook-oauth-uri row))))))))))))
+                                           (htm (:a :href  (twitter-authorize-uri (get-val row 'request-token))  
+                                                    (str "Authenticate using >> ")) (str (twitter-authorize-uri (get-val row 'request-token)))))))))))))
 
 
 
@@ -206,7 +206,9 @@
 
                        (finish-editing grid))))))
             ((string-equal (parameter "service-user-type") "twitter")
-             (let ((twitter-user-id (get-twitter-id (parameter "service-user-name"))))
+             (let ((twitter-user-id (get-twitter-id (parameter "service-user-name")))
+                   ;;(request-result (get-auth-pair (twitter-oauth xid)));;no xid yet
+                  )
                (if (or (consp twitter-user-id) (listp twitter-user-id))
                    (setf (error-message grid) (cdr twitter-user-id))
                    (unless (string-equal (parameter "entity") "")
@@ -226,6 +228,13 @@
                                                  (parameter "service-user-type")
                                                  (parameter "service-user-name")))
                        (setf (get-val new-doc 'user-id) twitter-user-id)
+		      
+		       (let ((auth-pair (get-auth-pair (twitter-oauth (get-val new-doc 'xid)))))
+
+			 (setf (get-val new-doc 'request-token) (first auth-pair))
+			 (setf (get-val new-doc 'request-secret) (second auth-pair)))
+                       
+                       
                        (if (xid old-doc)
                            (persist new-doc :old-object old-doc)
                            (persist new-doc))

@@ -2,10 +2,11 @@
 
 (defparameter *twitter-client-id* "H5wWh6azz3n0Go4hOu5kgg")
 (defparameter *twitter-client-secret* "m7u7UoEyTPIg5p0Gl1EV73hkl139tu3GkZjMetzS7G8")
-(defparameter *twitter-callback-uri* "http://local.dataxware.co.za";; "http://app.digyourbrand.co.za/ems/twcallback"
+(defparameter *twitter-callback-uri* "http://local.dataxware.co.za/ems/twitcallback";; "http://app.digyourbrand.co.za/ems/twcallback"
 )
 (defparameter *twitter-oauth-uri* "https://api.twitter.com/oauth/request_token")
 (defparameter *twitter-access-token-uri* "https://graph.facebook.com/oauth/access_token")
+(defparameter *twitter-oauth-authorize-uri* "https://api.twitter.com/oauth/authorize")
 
 
 (setf drakma:*header-stream* *standard-output*)
@@ -113,14 +114,18 @@
 
 (defun twitter-oauth (service-user-id)
   (let* ((stamp (format nil "~A" (get-unix-time)))
-         (nonce (format nil "~A~A" service-user-id stamp)))
+         (nonce (format nil "~A~A" 
+			(if service-user-id
+			    service-user-id
+			    (random 1234567))
+			stamp)))
     (drakma:http-request
      *twitter-oauth-uri*
      :method :post
      :additional-headers
      `(("Authorization"
         ,@(build-auth-string
-           `(;; ("oauth_callback" ,(url-encode *twitter-callback-uri*))
+           `(("oauth_callback" ,*twitter-callback-uri*)
              ("oauth_consumer_key" ,*twitter-client-id*)
              ("oauth_nonce" ,nonce)
              ("oauth_signature"
@@ -129,7 +134,7 @@
                  (signature-base-string
                   :uri *twitter-oauth-uri*
                   :request-method "POST"
-                  :parameters `( ;; ("oauth_callback" ,*twitter-callback-uri*)
+                  :parameters `( ("oauth_callback" ,*twitter-callback-uri*)
                                 ("oauth_consumer_key" ,*twitter-client-id*)
                                 ("oauth_nonce" ,nonce)
                                 ("oauth_signature_method" "HMAC-SHA1")
@@ -155,3 +160,38 @@
 
 ;;What to look out for when getting 401 errors
 ;;;http://codingthis.com/programming/php/when-oauth-goes-wrong-debugging-signature-mismatch-issues-in-php/
+
+(defun get-auth-pair (auth-reply)
+       (let (
+	     (eqlist (split-sequence:split-sequence #\= auth-reply))
+	     )
+       (if (string= "true" (first (last eqlist))) 
+	   (list 
+	    (first (split-sequence:split-sequence #\& (second eqlist))) 
+	    (first (split-sequence:split-sequence #\& (third eqlist)))) 
+	   ())))
+
+;; then we do https://api.twitter.com/oauth/authorize?oauth_token=oauth_token what shows login tw dialog
+;; screen_name for additional con(m)fort (if in DB)
+;; (format nil "~A&~A=~A" *twitter-oauth-authorize-uri* "oauth_token" user-oauth)
+
+(defun twitter-authorize-uri (oauth-token)
+  (format nil "~A?~A=~A" *twitter-oauth-authorize-uri* "oauth_token" oauth-token))
+;; administration/service-users.lisp save handler
+
+(define-easy-handler (tw-callback :uri "/ems/twitcallback") ()
+
+       (when (parameter "oauth_token")
+	 (let 
+	     (
+	      (temp (get-service-user-by-auth-token (parameter "oauth_token")))
+	       ;;TODO Drakma call for access token
+	   )
+	 ;;redirect for happy outcome
+	 (render (make-widget 'page :name "twitter-callback-page")
+		 :body (with-html-to-string ()
+			 (str (parameter "oauth_token"))))))
+	   (unless (parameter "oauth_token")
+	       (render (make-widget 'page :name "twitter-callback-page")
+		 :body (with-html-to-string ()
+			 "Authorization failed!"))))

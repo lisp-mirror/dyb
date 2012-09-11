@@ -62,3 +62,5 @@
 (add-collection (system-db) "service-users" 
                 :collection-class 'ems-collection
                 :load-from-file-p t)
+(defun get-service-user-by-auth-token (auth-token)
+  (get-doc (service-users-collection) auth-token :element 'request-token))
