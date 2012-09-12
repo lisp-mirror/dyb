@@ -64,3 +64,7 @@
                 :load-from-file-p t)
 (defun get-service-user-by-auth-token (auth-token)
   (get-doc (service-users-collection) auth-token :element 'request-token))
+  
+(defun get-service-user-by-user-id (user-id)
+  (get-doc (service-users-collection) user-id :element 'user-id))
+  

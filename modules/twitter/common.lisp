@@ -5,7 +5,7 @@
 (defparameter *twitter-callback-uri* "http://local.dataxware.co.za/ems/twitcallback";; "http://app.digyourbrand.co.za/ems/twcallback"
 )
 (defparameter *twitter-oauth-uri* "https://api.twitter.com/oauth/request_token")
-(defparameter *twitter-access-token-uri* "https://graph.facebook.com/oauth/access_token")
+(defparameter *twitter-access-token-uri* "https://api.twitter.com/oauth/access_token")
 (defparameter *twitter-oauth-authorize-uri* "https://api.twitter.com/oauth/authorize")
 
 
@@ -180,18 +180,112 @@
 ;; administration/service-users.lisp save handler
 
 (define-easy-handler (tw-callback :uri "/ems/twitcallback") ()
-
-       (when (parameter "oauth_token")
-	 (let 
-	     (
-	      (temp (get-service-user-by-auth-token (parameter "oauth_token")))
-	       ;;TODO Drakma call for access token
-	   )
-	 ;;redirect for happy outcome
-	 (render (make-widget 'page :name "twitter-callback-page")
+       (let ((error-msg "Authorize failed!"))
+  (when (parameter "oauth_token")
+    (let* 
+      (
+	 (user-object (get-service-user-by-auth-token (parameter "oauth_token")))
+	 (old-user (copy user-object))
+    (reply (twitter-oauth-access NIL (parameter "oauth_token") (parameter "oauth_verifier")))
+        (access-triplet (get-auth-access-triplet reply)))
+      ;;(break "~A" reply)
+      (unless (search "error" (write-to-string reply))
+	;;(break "nema error ~A" reply)
+      (setf (get-val user-object 'last-access-token) (first access-triplet))
+      (setf (get-val user-object 'last-token-secret) (second access-triplet))
+      (persist user-object :old-object old-user)
+      (setf error-msg ())
+      (redirect "ems/inbox"))
+      (when (search "error" (write-to-string reply))
+	;;(break "ima error ~A" reply)
+	 (setf error-msg reply))
+    )
+  )
+  (when error-msg
+    	 (render (make-widget 'page :name "twitter-callback-page")
 		 :body (with-html-to-string ()
-			 (str (parameter "oauth_token"))))))
-	   (unless (parameter "oauth_token")
-	       (render (make-widget 'page :name "twitter-callback-page")
-		 :body (with-html-to-string ()
-			 "Authorization failed!"))))
+			 (str error-msg))))))
+       
+(defun twitter-oauth-access (service-user-id oauth-token oauth-verifier)
+  (let* ((stamp (format nil "~A" (get-unix-time)))
+         (nonce (format nil "~A~A" 
+			(if service-user-id
+			    service-user-id
+			    (random 1234567))
+			stamp)))
+    (drakma:http-request
+     *twitter-access-token-uri*
+     :method :post
+     :additional-headers
+     `(("Authorization"
+        ,@(build-auth-string
+           `(;;("oauth_callback" ,*twitter-callback-uri*)
+             ("oauth_consumer_key" ,*twitter-client-id*)
+             ("oauth_nonce" ,nonce)
+             ("oauth_signature"
+              ,(encode-signature
+                (hmac-sha1
+                 (signature-base-string
+                  :uri *twitter-oauth-uri*
+                  :request-method "POST"
+                  :parameters `( ;;("oauth_callback" ,*twitter-callback-uri*)
+                                ("oauth_consumer_key" ,*twitter-client-id*)
+                                ("oauth_nonce" ,nonce)
+                                ("oauth_signature_method" "HMAC-SHA1")
+                                ("oauth_timestamp" ,stamp)
+                                ("oauth_token" ,oauth-token)
+				("oauth_verifier" ,oauth-verifier)
+                                ("oauth_version" "1.0")))
+                 (hmac-key  *twitter-client-secret*
+                            ""))
+                nil))
+             ("oauth_signature_method" "HMAC-SHA1")
+             ("oauth_timestamp" ,stamp)
+	     ("oauth_token" ,oauth-token)
+	     ("oauth_verifier" ,oauth-verifier)
+             ("oauth_version" "1.0")))))
+     :redirect-methods '(:get :post :head))))
+     
+(defun get-auth-access-triplet (access-reply)
+   (let (
+   (eqlist (split-sequence:split-sequence #\= access-reply))
+   )
+     (list 
+      (first (split-sequence:split-sequence #\& (second eqlist))) 
+      (first (split-sequence:split-sequence #\& (third eqlist)))
+      (first (split-sequence:split-sequence #\& (fourth eqlist)))) 
+   ))
+   
+(defun twitter-get-stream (access-token)
+  (let* ((stamp (format nil "~A" (get-unix-time)))
+         (nonce (format nil "~A~A" (random 1234567) stamp)))
+    (drakma:http-request
+     *user-stream-tw2*
+     :method :get
+     :additional-headers
+     `(("Authorization"
+        ,@(build-auth-string
+           `(;;("oauth_callback" ,*twitter-callback-uri*)
+             ("oauth_consumer_key" ,*twitter-client-id*)
+             ("oauth_nonce" ,nonce)
+             ("oauth_signature"
+              ,(encode-signature
+                (hmac-sha1
+                 (signature-base-string
+                  :uri *twitter-oauth-uri*
+                  :request-method "POST"
+                  :parameters `( ;;("oauth_callback" ,*twitter-callback-uri*)
+                                ("oauth_consumer_key" ,*twitter-client-id*)
+                                ("oauth_nonce" ,nonce)
+                                ("oauth_signature_method" "HMAC-SHA1")
+                                ("oauth_timestamp" ,stamp)
+                                ("oauth_token" ,access-token)
+                                ("oauth_version" "1.0")))
+                 (hmac-key  *twitter-client-secret*
+                            "P1o9nk6KrqOvytCIYx3HX8oAz8iwbiJZzZEEiti6sZo"))
+                nil))
+             ("oauth_signature_method" "HMAC-SHA1")
+             ("oauth_timestamp" ,stamp)
+	          ("oauth_token" ,access-token)
+             ("oauth_version" "1.0")))))
+    :want-stream t)))
