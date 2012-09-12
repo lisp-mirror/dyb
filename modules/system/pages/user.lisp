@@ -24,7 +24,7 @@
               :body 
               (with-html-output-to-string (*standard-output*)
 
-                (let ((box (make-widget 'peach-form :name "system-user-form"))
+                (let ((box (make-widget 'html-framework-form :name "system-user-form"))
                       (form-section (make-widget 'form-section :name "row")))
                   (setf (header box) "System User")
                   (str (render box
@@ -92,7 +92,7 @@
               :body 
               (with-html-output-to-string (*standard-output*)
 
-                (let ((box (make-widget 'peach-form :name "service-user-form"))
+                (let ((box (make-widget 'html-framework-form :name "service-user-form"))
                       (form-section (make-widget 'form-section :name "row")))
                   (setf (header box) "User")
                   (str (render box

@@ -27,7 +27,7 @@
 
 (defmethod render ((widget permission-editor) &key)
   (let* ((permissions (permissions widget))
-         (box (make-widget 'peach-box))
+         (box (make-widget 'html-framework-box))
          (cb-list (make-widget 'checkbox-list
                                :name "permission-list"))
          (grid (grid widget)))

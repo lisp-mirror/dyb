@@ -43,7 +43,7 @@
     e-list))
 
 (defmethod render-row-editor ((grid service-user-grid) row)
-  (let ((form (make-widget 'peach-form :name "service-user-formv"
+  (let ((form (make-widget 'html-framework-form :name "service-user-formv"
                            :grid-size 12
                            :header "Reporting Service-Users"
                            :form-id "reporting-service-user-form"

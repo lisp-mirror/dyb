@@ -102,7 +102,7 @@
                               :grid grid))
          (permissions (make-widget 'user-permission-editor))
          (entitites (make-widget 'user-entity-editor))
-         (tabs (make-instance 'peach-tab-box :name "user-edit"
+         (tabs (make-instance 'html-framework-tab-box :name "user-edit"
                                              :header "Users"
                                              :icon "card--pencil")))
     (setf (edit-form grid) editor

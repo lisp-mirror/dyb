@@ -3,7 +3,7 @@
 (defclass ajax-widget (widget)
   ()
   (:metaclass widget-class)
-  (:include-js "/js/ems/ajax.js"))
+  (:include-js "/appjs/ajax.js"))
 
 (defvar *in-ajax-request* nil)
 

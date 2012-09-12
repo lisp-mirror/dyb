@@ -18,7 +18,7 @@
               collect clients)))
 
 (defmethod render-row-editor ((grid clients-grid) row)
-  (let ((form (make-widget 'peach-form :name "clients-form"
+  (let ((form (make-widget 'html-framework-form :name "clients-form"
                            :grid-size 12
                            :header "Clients"
                            :form-id "clients-form"

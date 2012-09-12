@@ -1,6 +1,6 @@
 (in-package :ems)
 
-(defclass peach-box (widget)
+(defclass html-framework-box (widget)
   ((grid-size :initarg :grid-size
                :initform 4
          :accessor grid-size)
@@ -9,7 +9,7 @@
 
 
 
-(defmethod render ((widget peach-box) &key content actions)
+(defmethod render ((widget html-framework-box) &key content actions)
   (with-html-output-to-string (*standard-output* nil :indent t)
     (:div :class (format nil "grid_~A" (get-val widget 'grid-size))
           (:div :class "box"
@@ -24,14 +24,14 @@
                       )))))
 
 
-(defclass peach-form (widget)
+(defclass html-framework-form (widget)
   ((grid-size :initarg :grid-size
               :initform 4
          :accessor grid-size)
    (header :initarg :header
            :accessor header)))
 
-(defmethod render ((widget peach-form) &key content)
+(defmethod render ((widget html-framework-form) &key content)
   (with-html-output-to-string (*standard-output* nil :indent t)
     (:div :class (format nil "grid_~A" (get-val widget 'grid-size))
           (:div :class "box"
@@ -68,7 +68,7 @@
            ))))
 
 
-(defclass peach-page (widget)
+(defclass html-framework-page (widget)
   ((title :initarg :title
           :initform ""
           :accessor title)
@@ -87,7 +87,7 @@
   (:metaclass widget-class))
 
 
-(defmethod render ((widget peach-page) &key body)
+(defmethod render ((widget html-framework-page) &key body)
   (let ((title (or (title widget) (name widget))))
  
     (with-html-output-to-string (*standard-output* nil :indent t)

@@ -105,7 +105,7 @@
           :elements
           (list*
            title
-           (image "/images/x-packs-logo-small.jpg")
+           (image "/appimgx-packs-logo-small.jpg")
            "Reporting period: "
            (and *reporting-period*
                 (format nil "~a - ~a"

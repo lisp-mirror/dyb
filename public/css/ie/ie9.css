@@ -1,0 +1,24 @@
+.side-nav li a, .side-nav li a, .side-nav li a:hover, .accordion-header a, .accordion-header a:hover, .cal caption, .navbar-inner, .navbar-fixed-top .dropdown-menu, .breadcrumb, .widget-control .dropdown-menu, .alert-noty, .themer-content, .theme-accordion-header a, .content-wizard ul.anchor li a.selected .stepNumber, .content-wizard ul.anchor li a.done .stepNumber, .content-wizard .buttonNext, .content-wizard .buttonPrevious, .content-wizard .buttonFinish, .paging_full_numbers a.paginate_button, .paging_full_numbers a.paginate_button:hover, .paging_full_numbers a.paginate_active, .noty_bar.noty_theme_default, .noty_bar.noty_theme_default.noty_error, .noty_bar.noty_theme_default.noty_success, .noty_bar.noty_theme_default.noty_information, .box-tab .tabs-below .nav-tabs, .box-tab .nav-tabs, .chzn-container-single .chzn-single, .chzn-container-multi .chzn-choices .search-choice, .chzn-container .chzn-results .highlighted, .chzn-container-active .chzn-single-with-drop, .actionsBox .menu, .boot-accordion .accordion-heading, .accordion-basic .title, .accordion-basic a:hover, .accordion-basic a.selected, .errorcode span, .theme-default, .theme-blue, .theme-orange, .theme-light-blue, .theme-dark, .theme-gray, .theme-chrome, .theme-pink, {
+ filter:none;
+}
+.side-nav li ul li a {
+	background: rgb(248,248,248); /* Old browsers */
+	background: -moz-linear-gradient(top, rgba(248, 248, 248, 1) 0%, rgba(245, 245, 245, 1) 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, rgba(248, 248, 248, 1)), color-stop(100%, rgba(245, 245, 245, 1))); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top, rgba(248, 248, 248, 1) 0%, rgba(245, 245, 245, 1) 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top, rgba(248, 248, 248, 1) 0%, rgba(245, 245, 245, 1) 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top, rgba(248, 248, 248, 1) 0%, rgba(245, 245, 245, 1) 100%); /* IE10+ */
+	background: linear-gradient(to bottom, rgba(248, 248, 248, 1) 0%, rgba(245, 245, 245, 1) 100%); /* W3C */
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f8f8f8', endColorstr='#f5f5f5', GradientType=0 ); /* IE6-9 */
+}
+.side-nav li a:hover {
+	background: rgb(248,248,248); /* Old browsers */
+	background: -moz-linear-gradient(top, rgba(248, 248, 248, 1) 0%, rgba(245, 245, 245, 1) 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, rgba(248, 248, 248, 1)), color-stop(100%, rgba(245, 245, 245, 1))); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top, rgba(248, 248, 248, 1) 0%, rgba(245, 245, 245, 1) 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top, rgba(248, 248, 248, 1) 0%, rgba(245, 245, 245, 1) 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top, rgba(248, 248, 248, 1) 0%, rgba(245, 245, 245, 1) 100%); /* IE10+ */
+	background: linear-gradient(to bottom, rgba(248, 248, 248, 1) 0%, rgba(245, 245, 245, 1) 100%); /* W3C */
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f8f8f8', endColorstr='#f5f5f5', GradientType=0 ); /* IE6-9 */
+	color:#333;
+}

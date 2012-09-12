@@ -31,7 +31,7 @@
                                         :search (search-term grid))))
 
 (defmethod render-row-editor ((grid all-sorts-grid) row)
-  (let ((form (make-widget 'peach-form :name "allsorts-form"
+  (let ((form (make-widget 'html-framework-form :name "allsorts-form"
                            :grid-size 12
                            :header "All-Sorts"
                            :form-id "allsorts-form"

@@ -243,7 +243,7 @@
   (unless (or (invalid-value-p (value select))
               (not (items select)))
     (with-html
-      (:img :src "/images/vfr-red-icon.png" 
+      (:img :src "/appimgvfr-red-icon.png" 
             :alt ""
             :title (format nil "Illegal value \"~A\"! ~
 Please select a legal one"

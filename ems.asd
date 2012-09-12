@@ -64,7 +64,7 @@
                                              (:file "entity-tree")
                                              (:file "entity-selection-tree")
                                              (:file "menu")
-                                             (:file "peach-page")
+                                             (:file "html-framework-page")
                                              (:file "ems-page")
                                              (:file "input-widgets")
                                              (:file "login")

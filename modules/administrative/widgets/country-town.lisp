@@ -14,7 +14,7 @@
              collect municipality))))
 
 (defmethod render-row-editor ((grid municipalities-grid) row)
-  (let ((form (make-widget 'peach-form :name "municipalities-formxx"
+  (let ((form (make-widget 'html-framework-form :name "municipalities-formxx"
                            :grid-size 12
                            :header "Municipalities"
                            :form-id "municipalities-edit-form"
@@ -94,14 +94,14 @@
                                :search (search-term grid))))
 
 (defmethod render-row-editor ((grid country-town-grid) row)
-  (let ((form (make-widget 'peach-form :name "country-town-formxxx"
+  (let ((form (make-widget 'html-framework-form :name "country-town-formxxx"
                            :grid-size 12
                            :header "Country Town"
                            :form-id "country-town-form"
                            :grid-name (name grid)))
         (form-section (make-widget 'form-section
                                    :name "form-section"))
-        (tab-box (make-widget 'peach-tab-box
+        (tab-box (make-widget 'html-framework-tab-box
                               :name "country-town-tab-box"
                               :header "Country/Town"
                               :icon "card--pencil")))

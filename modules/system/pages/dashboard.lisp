@@ -6,7 +6,7 @@
 
 (defmethod render ((widget dashboard-item) &key name header items)
   (with-html-to-string ()
-    (let ((box (make-widget 'peach-box :name (format nil "~A-box" name))))
+    (let ((box (make-widget 'html-framework-box :name (format nil "~A-box" name))))
       (setf (header box) header)
       (setf (get-val box 'content )
             (with-html-to-string ()
@@ -106,7 +106,13 @@
       (render page
               :body 
               (with-html-to-string ()
-                (multiple-value-bind (posts likes comments)
+                (str "help")))
+      )))
+
+
+#|
+
+(multiple-value-bind (posts likes comments)
                     (fb-count-posts-from)
                     (let ((dash-item (make-widget 'dashboard-item :name "dash-item"))) 
                       (str (render dash-item :name "analisys" :header "Summary"
@@ -163,5 +169,6 @@
                                     (list "Links in published material" "0")
                                     (list "Links to home WWW in published material" "0"))))
                   
-                      ))))
-      )))
+                      ))
+
+|#
