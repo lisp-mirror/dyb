@@ -35,23 +35,17 @@
                 :initform t
                 :accessor collapsible)))
 
-(defmethod render ((box html-framework-box) &key)
-  (with-html
-    (:div :class "fluid-row" :id (name box)
-          (:div :class (format nil "span-~A" (grid-size box))
-                (:div :class "widget-block"
-                      (:div :class "widget-head"
-                           ;; (when (icon box)
-                           ;;   (make-icon (icon box)
-                           ;;              :size (icon-size box)))
-                            (:h3 (esc (header box)))
-                            ;;(when (collapsible box)
-                            ;;  (htm (:div :class "collapse")))
-                            ;;(when (header-content box)
-                            ;;  (str (header-content box)))
-                            )
-                      (:div :class "widget-content"
-                            (str (content box))))))))
+
+(defmethod render ((box html-framework-box) &key content)
+  (with-html-output-to-string (*standard-output* nil :indent t)
+    (:div :class "widget-block"
+                (:div :class "widget-head"
+                      (:h3 (esc (header box))))
+                (:div :class "widget-content"
+                      (:div :class "widget-box"
+                            (str content))))))
+
+
 
 (defclass html-framework-form (widget)
   ((grid-size :initarg :grid-size
@@ -68,68 +62,54 @@
 
 (defmethod render ((widget html-framework-form) &key content grid)
   (with-html
-    (:div :class (format nil "grid_~A" (get-val widget 'grid-size))
-          (:div :class "box"
-                (:div :class "header"
-                      (:img :src "" :alt "" :width 16 :height 16)
-                      (:h3 (str (get-val widget 'header)))
-                      (:div :class "collapse"))
-                (:form :name (get-val widget 'form-id)
-                       :id (get-val widget 'form-id)
-                       :class "validate"
-                       :method "post"
-                       :onsubmit "return false;"
-                       (:input :type "hidden" :name "form-id"
-                               :value (get-val widget 'form-id))
+    (:div :class "nonboxy-widget"
+          (:div :class "widget-head"
+                (:h3 (str (get-val widget 'header))))
+          (:div :class "widget-content"
+                (:div :class "widget-box"
+                      (:form :name (get-val widget 'form-id)
+                             :id (get-val widget 'form-id)
+                             :class "form-horizontal well"
+                             :method "post"
+                             :onsubmit "return false;"
+                             (:fieldset
+                              (:input :type "hidden" :name "form-id"
+                                      :value (get-val widget 'form-id))
 
-                       (if (get-val widget 'grid-name)
-                           (htm (:input :type "hidden" :name "grid-name"
-                                        :value (get-val widget 'grid-name))))
+                              (if (get-val widget 'grid-name)
+                                  (htm (:input :type "hidden" :name "grid-name"
+                                               :value (get-val widget 'grid-name))))
 
-                       (:div :class "content no-padding"
+                              (str content)
 
-                             (str content))
-
-                       (:div :class "actions"
-                             (:div :class "actions-left"
-                                   (:button :onclick
-                                            (format nil
-                                                    "if($(\"#~a\").valid()){~a}"
-                                                    (get-val widget 'form-id)
-                                                    
-                                                    (js-render-form-values (editor grid)
-                                                                           (get-val widget 'form-id)
-                                                                           (js-pair "grid-name" (name grid))
-                                                                           (js-pair "action" "save"))
-                                                   #| (if (get-val widget 'parent-grid)
-                                                        (js-render (parent-grid widget)
-                                                                   (js-pair "grid-name" (name (parent-grid widget)))
-                                                                   (js-pair "action" "edit")
-                                                                   (js-pair "row_id" 2)
-                                                                   ))
-                                                    (js-render grid
-                                                                   (js-pair "grid-name" (name grid))
-                                                                   (js-pair "action" "edit")
-                                                                   (js-pair "row_id" 0)
-                                                                   )
-                                                    |#
-                                                    )
-                                            "Save"))
-                             (:div :class "actions-right"
-                                   (:button :class "red"
+                              (:div :class "form-actions"
+                                    (:button
+                                     :class "btn btn-info"
+                                     :onclick
+                                     (format nil
+                                             "if($(\"#~a\").valid()){~a}"
+                                             (get-val widget 'form-id)
+                                             
+                                             (js-render-form-values 
+                                              (editor grid)
+                                              (get-val widget 'form-id)
+                                              (js-pair "grid-name" (name grid))
+                                              (js-pair "action" "save")))
+                                     "Save")
+                                    (:button :class "btn btn-warning"
                                             :onclick
                                             (js-render (editor grid)
                                                        (js-pair "grid-name" (name grid))
                                                        (js-pair "action" "cancel"))
-                                            "Cancel")))
+                                            "Cancel")
 
-                       )
 
-                (:form :type "post" :name (format nil "~A-cancel" (get-val widget 'form-id)) :id (format nil "~A-cancel" (get-val widget 'form-id))
-                       (:input :type "hidden" :name "action" :value "Cancel")
-                       (if (get-val widget 'grid-name)
-                           (htm (:input :type "hidden" :name "grid-name"
-                                        :value (get-val widget 'grid-name)))))
+                                    
+                             ))
+
+                       ))
+
+                
                 ))))
 
 (defclass form-section (widget)
@@ -137,15 +117,16 @@
                  :initform 100
                  :accessor section-size)))
 
-(defmethod render ((widget form-section) &key label input)
+(defmethod render ((widget form-section) &key label input label-for)
   (with-html
-    (:div :class (format nil "section _~A" (get-val widget 'section-size))
-          (:label
-           (str label))
-          (:div
+    (:div :class "control-group"
+          (:label :class "control-label" :for label-for 
+                  (str label))
+          (:div :class "controls"
+                (str input)))
 
-           (str input)
-           ))))
+
+    ))
 
 (defclass html-framework-tab-box (html-framework-box)
   ((tabs :initarg :tabs
@@ -155,30 +136,38 @@
                  :initform nil
                  :accessor body-content)))
 
+
+
+
 (defmethod render ((widget html-framework-tab-box) &key)
-  (setf (header-content widget)
-        (with-html-string
-          (:div :class "tabs"
-                (:ul
-                 (loop for (title) in (tabs widget)
-                       for i from 0
-                       do
-                       (htm
-                        (:li
-                         (:a :href (format nil "#~a-tab-~a" (name widget) i)
-                             (esc title)))))))))
-  (setf (content widget)
-        (with-html-string
-          (loop for (nil content) in (tabs widget)
-                for i from 0
-                do
-                (htm
-                 (:div :class "tab-content"
-                       :id (format nil "~a-tab-~a" (name widget) i)
-                       (str content))))
-          (str (body-content widget))))
-  (call-next-method)
-  (defer-js (format nil "$('#~a').createTabs();" (name widget))))
+  (with-html-string
+          (:div :class "box-tab"
+                (:div :class "tabbalbe tabs-right"
+                      (:ul :class "nav nav-tabs"
+                           (loop for (title) in (tabs widget)
+                              for i from 0
+                              do
+                                (htm
+                                 (:li
+                                  (:a :data-toggle "tab" 
+                                      :href (format nil "#~a-tab-~a" (name widget) i)
+                                      (esc title))))))
+                      (:div :class "tab-content"
+                            (loop for (nil content) in (tabs widget)
+                               for i from 0
+                               do
+                               (htm
+                                (:div :class "tab-pane"
+                                      :id (format nil "~a-tab-~a" (name widget) i)
+                                      (str content)))))
+
+
+)))
+  
+  ;;????
+  ;;(call-next-method)
+  ;;(defer-js (format nil "$('#~a').createTabs();" (name widget)))
+)
 
 
 (defclass html-framework-header (widget)
@@ -314,13 +303,13 @@
        ================================================== -->
        <!-- Placed at the end of the document so the pages load faster -->"
 #|      (:script :src "/js/jquery.js")
-      (:script :src "/js/jquery-ui-1.8.16.custom.min.js")
-      (:script :src "/js/bootstrap.min.js")
-      (:script :src "/js/prettify.js")
-      (:script :src "/js/jquery.sparkline.min.js")
-      (:script :src "/js/accordion.jquery.js")
-      (:script :src "/js/jquery.nicescroll.min.js")
-|#
+                                                   (:script :src "/js/jquery-ui-1.8.16.custom.min.js")
+                                                   (:script :src "/js/bootstrap.min.js")
+                                                   (:script :src "/js/prettify.js")
+                                                   (:script :src "/js/jquery.sparkline.min.js")
+                                                   (:script :src "/js/accordion.jquery.js")
+                                                   (:script :src "/js/jquery.nicescroll.min.js")
+                                                   |#
 
 "<script src=\"/js/jquery.js\"></script>
 <script src=\"/js/jquery-ui-1.8.16.custom.min.js\"></script>
@@ -420,16 +409,16 @@
     (render page
             :styling ""
            #| (with-html-output-to-string (*standard-output* nil :indent t)
-              ;; REQUIRED: Header styling
-              (:link :rel "stylesheet" :href "/css/header.css")
-               ;; REQUIRED: Navigation styling
-              (:link :rel "stylesheet" :href "/css/navigation.css")
-               ;; REQUIRED: Footer styling
-              (:link :rel "stylesheet" :href "/css/footer.css")
-               ;; OPTIONAL: Sidebar
-              (:link :rel "stylesheet" :href "/css/sidebar.css")
-               ;; SPRITE: Tables styling
-              (:link :rel "stylesheet" :href "/css/sprite.tables.css"))|#
+              ;; REQUIRED: Header styling ; ;
+(:link :rel "stylesheet" :href "/css/header.css")
+               ;; REQUIRED: Navigation styling ; ;
+(:link :rel "stylesheet" :href "/css/navigation.css")
+               ;; REQUIRED: Footer styling ; ;
+(:link :rel "stylesheet" :href "/css/footer.css")
+               ;; OPTIONAL: Sidebar     ; ;
+(:link :rel "stylesheet" :href "/css/sidebar.css")
+               ;; SPRITE: Tables styling ; ;
+(:link :rel "stylesheet" :href "/css/sprite.tables.css"))|#
 
             :body
             (with-html-output-to-string (*standard-output* nil :indent t)

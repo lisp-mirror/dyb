@@ -256,12 +256,14 @@
       (first (split-sequence:split-sequence #\& (fourth eqlist)))) 
    ))
    
-(defun twitter-get-stream (access-token)
+(defun twitter-get-stream (access-token access-secret)
   (let* ((stamp (format nil "~A" (get-unix-time)))
-         (nonce (format nil "~A~A" (random 1234567) stamp)))
-    (drakma:http-request
-     *user-stream-tw2*
-     :method :get
+         (nonce (format nil "~A~A" (random 1234567) stamp))
+         )
+    
+    (drakma:http-request "https://userstream.twitter.com/1.1/user.json"
+      
+     :method :post
      :additional-headers
      `(("Authorization"
         ,@(build-auth-string
@@ -272,20 +274,20 @@
               ,(encode-signature
                 (hmac-sha1
                  (signature-base-string
-                  :uri *twitter-oauth-uri*
+                  :uri "https://userstream.twitter.com/1.1/user.json"
                   :request-method "POST"
-                  :parameters `( ;;("oauth_callback" ,*twitter-callback-uri*)
+                  :parameters `(;;("oauth_callback" ,*twitter-callback-uri*)
                                 ("oauth_consumer_key" ,*twitter-client-id*)
                                 ("oauth_nonce" ,nonce)
                                 ("oauth_signature_method" "HMAC-SHA1")
                                 ("oauth_timestamp" ,stamp)
                                 ("oauth_token" ,access-token)
                                 ("oauth_version" "1.0")))
-                 (hmac-key  *twitter-client-secret*
-                            "P1o9nk6KrqOvytCIYx3HX8oAz8iwbiJZzZEEiti6sZo"))
+                 (hmac-key  *twitter-client-secret* 
+                            access-secret))
                 nil))
              ("oauth_signature_method" "HMAC-SHA1")
              ("oauth_timestamp" ,stamp)
-	          ("oauth_token" ,access-token)
+             ("oauth_token" ,access-token)
              ("oauth_version" "1.0")))))
     :want-stream t)))

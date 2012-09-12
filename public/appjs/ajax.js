@@ -74,7 +74,7 @@ function ajax_render (script_name, widget_id, args) {
                        function (response) {
                            var json = jQuery.parseJSON(response);
                            widget.innerHTML = json[0];
-                           applyPeach(widget);
+                           //applyPeach(widget);
                            if (json[1]) {
                                eval(json[1]);
                            }
