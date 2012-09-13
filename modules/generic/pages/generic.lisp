@@ -37,12 +37,18 @@
                            :header "From"
                            :printer (lambda (doc)
                                      (if doc
-                                         (if (get-val doc 'from)
-                                             (if (get-val (get-val doc 'from) 'name)
-                                                 (get-val (get-val doc 'from) 'name)
-                                                 0)
-                                             0)
-                                         0)))
+					 (typecase doc 
+					   (tweet
+					    (if (get-val doc 'user)
+						(get-val (get-val doc 'user) 'name)))
+					   (post
+					    (if (get-val doc 'from)
+						(if (get-val (get-val doc 'from) 'name)
+						    (get-val (get-val doc 'from) 'name)
+						    "Unknown Source")
+						"Unknown Source")
+					    )
+					   (t "Unknown Source")))))
             (make-instance 'grid-column
                            :name 'title
                            :header "Title")
@@ -58,7 +64,10 @@
                           :printer (lambda (doc)
                                       ;;TODO: See why action ended up in likes slot
                                      (if doc
-                                         (if (get-val doc 'likes)
+					 (typecase doc 
+					   
+					   (post
+					    (if (get-val doc 'likes)
                                              (if (string-equal 
                                                   (type-of (make-instance 'comments))
                                                   "LIKES")
@@ -66,29 +75,35 @@
                                                      (get-val (get-val doc 'likes) 'count)
                                                      0))
                                              0)
-                                         0)))
+					    )
+					   (t 0)))
+                                         
+                                         0))
            (make-instance 'grid-column
                           :name 'payload
                           :header "Comments"
                           :printer (lambda (doc)
                                      ;;TODO: See why actions ended up in comments slot
                                      (if doc
-                                         (if (get-val doc 'comments)
-                                             (if (string-equal 
-                                                  (type-of (make-instance 'comments))
-                                                  "COMMENTS")
+					 (typecase doc
+					   (post
+					    (if (get-val doc 'comments)
+						(if (string-equal 
+						     (type-of (make-instance 'comments))
+						     "COMMENTS")
                                            
-                                                 (if (get-val (get-val doc 'comments) 'count)
-                                                     (get-val (get-val doc 'comments) 'count)
-                                                     0))
-                                               0)
-                                         
-                                         0)))
+						    (if (get-val (get-val doc 'comments) 'count)
+							(get-val (get-val doc 'comments) 'count)
+							0))
+						0)
+					    
+					    )
+					   (t 0)))))
            (make-instance 'grid-column
                           :name 'created
                           :header "Created")
            ))
-         (grid (make-widget 'generic-grid :name "generic-post-gridXx"
+         (grid (make-widget 'generic-grid :name "generic-post-gridz"
                                        :columns columns
                                        :edit-inline nil
                                        :title "Facebook Inbox"
