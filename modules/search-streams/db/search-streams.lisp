@@ -1,5 +1,27 @@
 (in-package #:ems)
 
+(defclass social-mention (doc)
+  ((id :initarg :id
+           :initform nil)
+   (title :initarg :title
+           :initform nil)
+   (link :initarg :link)
+   (time-stamp :initarg :time-stamp)
+   (language :initarg :language)
+   (image :initarg :image)
+   (embeded :initarg :embeded)
+   (user :initarg :user)
+   (user-image :initarg :user-image)
+   (user-link :initarg :user-link)
+   (domain :initarg :domain)
+   (source :initarg :source)
+   (favicon :initarg :favicon)
+   (type :initarg :type)
+   
+   )
+  (:metaclass storable-class))
+
+
 (defclass search-stream (doc)
   ((entity :initarg :entity
            :initform nil)
