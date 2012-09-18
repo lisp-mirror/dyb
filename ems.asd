@@ -149,6 +149,22 @@
                                             ((:file "twitter-classes")))
                    
                                    ))
+                         (:module "search-streams"
+                                  :serial t
+                                  :components
+                                  ((:file "common")
+                                   (:module "db"
+                                            :serial t
+                                            :components
+                                            ((:file "search-streams")))
+                                   (:module "widgets"
+                                            :serial t
+                                            :components
+                                            ((:file "search-streams")))
+                                   (:module "pages"
+                                            :serial t
+                                            :components
+                                            ((:file "search-streams")))))
                          (:module "generic"
                                   :serial t
                                   :components
@@ -165,6 +181,8 @@
                                             :serial t
                                             :components
                                             ((:file "generic")))))
+                         
+
                          (:module "quickview"
                                   :serial t
                                   :components
