@@ -35,14 +35,14 @@
                 :initform t
                 :accessor collapsible)))
 
-(defmethod render ((box html-framework-box) &key content)
+(defmethod render ((box html-framework-box) &key)
   (with-html
     (:div :class "widget-block"
           (:div :class "widget-head"
                 (:h3 (esc (header box))))
           (:div :class "widget-content"
                 (:div :class "widget-box"
-                      (str content))))))
+                      (str (content box)))))))
 
 (defclass html-framework-form (widget)
   ((grid-size :initarg :grid-size
