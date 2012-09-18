@@ -531,6 +531,20 @@ document.getElementById(\"~A\").submit();"
            (defer-js (scroll-to editor))
            (setf (state grid) nil)))))
 
+(defun widget-head (text &key icon (icon-size 16)
+                              (class "widget-head")
+                              collapsible
+                              body)
+  (with-html
+    (:div :class class
+          ;; (when icon
+          ;;   (make-icon icon
+          ;;              :size icon-size))
+          (:h5 (esc text))
+          ;; (when collapsible
+          ;;   (htm (:div :class "collapse")))
+          (str body))))
+
 (defmethod render ((grid grid) &key footer)
   (let ((editing-row (and (edit-inline grid)
                           (editing-row grid)))
@@ -542,64 +556,73 @@ document.getElementById(\"~A\").submit();"
                              :grid grid)))
     (setf (editor grid) editor)
     (with-html
-      (:div :class "box"
-            (box-header (title grid)
-                        :icon "table-excel"
+      (:div :class "span12 widget-block"
+            (widget-head (title grid)
+                         :icon "table-excel"
                         :collapsible t
                         :body (with-html-string
-                                (render filter)
-                                (:button :onclick
-                                         (format nil "window.open(\"/ems/export-csv?grid=~a&script-name=~a\")"
-                                                 (name grid)
-                                                 (script-name*))
-                                         "Export CSV")))
-            (:div :class "content"
-                  (render-grid-rows grid :editing editing-row)))
-      (:div :class "box"
-            (:table
-                :style "text-align:center"
+                                (:div :class "widget-control"
+                                 (render filter)
+                                 (:button :onclick
+                                          (format nil "window.open(\"/ems/export-csv?grid=~a&script-name=~a\")"
+                                                  (name grid)
+                                                  (script-name*))
+                                          "Export CSV"))))
+            (:div :class "widget-content"
+                  (:div :class "widget-box"
+                   (render-grid-rows grid :editing editing-row)))
+            (:div :class "widget-box"
+                  (:table
+                      :style "text-align:center"
               
-              (:tr
-               (:td
-                (unless (or editing-row
-                            (not (editable grid)))
-                  (htm
-                   (:table :class "table"
-                     (:tr
-                      (htm
-                       (:td
-                        (:a :href
-                            (js-link (js-render (editor grid)
-                                                (js-pair "grid-name" (name grid))
-                                                (js-pair "action" "new")))
-                            (make-icon "plus" :size 32
-                                              :title "Add"))))
-                      (when (edit-inline grid)
+                    (:tr
+                     (:td
+                      (unless (or editing-row
+                                  (not (editable grid)))
                         (htm
-                         (:td
-                          (let ((link (make-widget 'grid-link
-                                                   :name "grid-link")))
-                            (setf (slot-value link 'enabled-p)
-                                  (test-allowed-action (allowed-actions grid) "Edit All"))
-                            (render (make-widget 'grid-link
-                                                 :name "grid-link"
-                                                 :grid-name (name grid))
-                                    :image "/appimgedit.png"
-                                    :task "edit-all")))))))))))
-              (:tr
-               (:td
-                (when (error-message grid)
-                  (htm
-                   (:div :class "edit-form-error"
-                         (esc (error-message grid))))))))
-            (str footer))
+                         (:table :class "table"
+                           (:tr
+                            (htm
+                             (:td
+                              (:a :href
+                                  (js-link (js-render (editor grid)
+                                                      (js-pair "grid-name" (name grid))
+                                                      (js-pair "action" "new")))
+                                  (make-icon "plus" :size 32
+                                                    :title "Add"))))
+                            (when (edit-inline grid)
+                              (htm
+                               (:td
+                                (let ((link (make-widget 'grid-link
+                                                         :name "grid-link")))
+                                  (setf (slot-value link 'enabled-p)
+                                        (test-allowed-action (allowed-actions grid) "Edit All"))
+                                  (render (make-widget 'grid-link
+                                                       :name "grid-link"
+                                                       :grid-name (name grid))
+                                          :image "/appimgedit.png"
+                                          :task "edit-all")))))))))))
+                    (:tr
+                     (:td
+                      (when (error-message grid)
+                        (htm
+                         (:div :class "edit-form-error"
+                               (esc (error-message grid))))))))
+                  (str footer)))
       (render editor)
       (defer-js
           (format nil "$('#~a').dataTable({
-\"bProcessing\": true,
-\"bServerSide\": true,
-\"sAjaxSource\": \"/ems/ajax/TABLE?script-name=~a&id=~a\",
-~:[~;\"aoColumnDefs\": [{\"bSortable\": false, \"aTargets\": [~a]}]~]
+'bProcessing': true,
+'bServerSide': true,
+'sPaginationType': 'full_numbers',
+'bServerSide': true,
+'iDisplayLength': 10,
+'oLanguage': {
+            'sLengthMenu': \"<span class='lenghtMenu'> _MENU_</span><span class='lengthLabel'>Entries per page:</span>\",
+        },
+'sAjaxSource': '/ems/ajax/TABLE?script-name=~a&id=~a',
+'sDom': '<\"tbl-searchbox clearfix\"flr,<\"clear\">>,<\"table_content\"t>,<\"widget-bottom\"p<\"clear\">>',
+~:[~;'aoColumnDefs': [{'bSortable': false, 'aTargets': [~a]}]~]
 });"
                   (sub-name grid "table")
                   (script-name*)

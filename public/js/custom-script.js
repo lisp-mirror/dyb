@@ -551,15 +551,15 @@ $(".tbl_length").chosen({
 });
 
 $(function () {
-    $('.data-tbl-boxy').dataTable({
-        "sPaginationType": "full_numbers",
-        "iDisplayLength": 10,
-        "oLanguage": {
-            "sLengthMenu": "<span class='lenghtMenu'> _MENU_</span><span class='lengthLabel'>Entries per page:</span>",
-        },
-        "sDom": '<"tbl-searchbox clearfix"fl<"clear">>,<"table_content"t>,<"widget-bottom"p<"clear">>'
+    // $('.data-tbl-boxy').dataTable({
+    //     "sPaginationType": "full_numbers",
+    //     "iDisplayLength": 10,
+    //     "oLanguage": {
+    //         "sLengthMenu": "<span class='lenghtMenu'> _MENU_</span><span class='lengthLabel'>Entries per page:</span>",
+    //     },
+    //     "sDom": '<"tbl-searchbox clearfix"fl<"clear">>,<"table_content"t>,<"widget-bottom"p<"clear">>'
 
-    });
+    // });
     $("div.tbl-searchbox select").addClass('tbl_length');
 /*$(".tbl_length").chosen({
 		disable_search_threshold: 4	
