@@ -28,17 +28,17 @@
 (defclass landing-page (widget)
   ()
    (:metaclass widget-class)
-   (:include-css "/css/ems/site_style.css"))
+   (:include-css "/appcss/site_style.css"))
 
 (defmethod render ((page landing-page) &key)
-  (let ((peach-page (make-widget 'special-peach-page
+  (let ((html-framework-page (make-widget 'special-html-framework-page
                                  :name (widgy-name page "special-landing-page"))))
-    (setf (slot-value peach-page 'header) "Login")
-    (setf (slot-value peach-page 'author) "DATA X-WARE; info@dataxware.co.za")
-    (setf (slot-value peach-page 'key-words) "Social and Labour plan")
+    (setf (slot-value html-framework-page 'header) "Login")
+    (setf (slot-value html-framework-page 'author) "DATA X-WARE; info@dataxware.co.za")
+    (setf (slot-value html-framework-page 'key-words) "Social and Labour plan")
 
     (render
-     peach-page
+     html-framework-page
      :body
      (render-to-string (make-widget 'login :name "login")))))
 

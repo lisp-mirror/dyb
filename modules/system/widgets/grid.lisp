@@ -381,7 +381,7 @@ document.getElementById(\"~A\").submit();"
     (when save-button
       (htm
        (:td (:input :type "hidden" :name "action" :value "save")
-            (:input :type "image" :src "/images/save-small.png"))))))
+            (:input :type "image" :src "/appimgsave-small.png"))))))
 
 
 (defgeneric apply-grid-link-rules (grid link row-object))
@@ -441,7 +441,7 @@ document.getElementById(\"~A\").submit();"
       (when (eq editing :all)
         (htm
          (:td (:input :type "hidden" :name "action" :value "save")
-              (:input :type "image" :src "/images/save.png")))))))
+              (:input :type "image" :src "/appimgsave.png")))))))
 
 (defun scroll-to (widget)
   (format nil
@@ -584,7 +584,7 @@ document.getElementById(\"~A\").submit();"
                             (render (make-widget 'grid-link
                                                  :name "grid-link"
                                                  :grid-name (name grid))
-                                    :image "/images/edit.png"
+                                    :image "/appimgedit.png"
                                     :task "edit-all")))))))))))
               (:tr
                (:td

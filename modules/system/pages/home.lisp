@@ -59,7 +59,7 @@
               :body 
               (with-html-output-to-string (*standard-output*)
 
-                (let ((box (make-widget 'peach-form :name "service-user-form"))
+                (let ((box (make-widget 'html-framework-form :name "service-user-form"))
                       (form-section (make-widget 'form-section :name "row")))
                   (setf (header box) "Twitter User")
                   (str (render box

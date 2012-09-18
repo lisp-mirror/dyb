@@ -14,7 +14,7 @@
               collect root-entities)))
 
 (defmethod render-row-editor ((grid root-entities-grid) row)
-  (let ((form (make-widget 'peach-form :name "root-entities-form"
+  (let ((form (make-widget 'html-framework-form :name "root-entities-form"
                            :grid-size 12
                            :header "Root-Entities"
                            :form-id "root-entities-form"

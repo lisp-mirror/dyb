@@ -33,14 +33,14 @@
 
 ; as it says 
 (defmethod render-row-editor ((grid post-grid) row)
-  (let ((form (make-widget 'peach-form :name "p-formx"
+  (let ((form (make-widget 'html-framework-form :name "p-formx"
                                        :grid-size 12
                                        :header "Posts"
                                        :form-id "post-edit-form"
                                        :grid-name (name grid)))
         (form-section (make-widget 'form-section
                                    :name "form-section"))
-        (tab-box (make-widget 'peach-tab-box
+        (tab-box (make-widget 'html-framework-tab-box
                               :name "post-tab-box"
                               :header "post"
                               :icon "card--pencil")))

@@ -10,7 +10,7 @@
         (entities
           (make-widget 'entity-selection-tree))
         (user (current-user))
-        (box (make-widget 'peach-box)))
+        (box (make-widget 'html-framework-box)))
     (setf (on-change root)
           (js-render widget (js-value root)))
     (setf (items root)

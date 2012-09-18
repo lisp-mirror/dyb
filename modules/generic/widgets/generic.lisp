@@ -27,7 +27,7 @@
                           :search (search-term grid))))
 
 (defmethod render-row-editor ((grid generic-actions-grid) row)
-  (let ((comment-form (make-widget 'peach-form :name "schedule-action-formx"
+  (let ((comment-form (make-widget 'html-framework-form :name "schedule-action-formx"
                                        :grid-size 12
                                        :header "Schedule Action Against Post"
                                        :form-id "schedule-action-form"
@@ -186,7 +186,7 @@
 ; as it says 
 (defmethod render-row-editor ((grid generic-grid) row)
 
-  (let ((form (make-widget 'peach-form :name "p-formx"
+  (let ((form (make-widget 'html-framework-form :name "p-formx"
                                        :grid-size 12
                                        :header "Posts"
                                        :form-id "generic-edit-form"
@@ -194,7 +194,7 @@
         
         (form-section (make-widget 'form-section
                                    :name "form-section"))
-        (tab-box (make-widget 'peach-tab-box
+        (tab-box (make-widget 'html-framework-tab-box
                               :name "post-tab-box"
                               :header "Posts"
                               :icon "card--pencil")))

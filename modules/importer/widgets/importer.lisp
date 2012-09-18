@@ -73,7 +73,7 @@
           'list)))
 
 (defun render-import-edit-form (grid row)
-  (let ((form (make-widget 'peach-form :name "importer-form"
+  (let ((form (make-widget 'html-framework-form :name "importer-form"
                            :grid-size 12
                            :header "Import"
                            :form-id "import-edit-form"))
@@ -127,7 +127,7 @@
   (get-some-lines file :lines 1))
 
 (defun render-import-tab (import-tab mapping-tab)
-  (let ((tab-box (make-widget 'peach-tab-box
+  (let ((tab-box (make-widget 'html-framework-tab-box
                               :name "supplier-branch-tab-box"
                               :header "Branch"
                               :icon "card--pencil")))
@@ -154,7 +154,7 @@
 
 (defun render-import-mapping-form (grid row )
   (let ((col-headers (get-header-line (format nil "/home/phil/hunchentoot-upload/~A" (get-val row 'file-name))))
-        (form (make-widget 'peach-form :name "importer-mapping-form"
+        (form (make-widget 'html-framework-form :name "importer-mapping-form"
                            :grid-size 12
                            :header "Import Mapping"
                            :form-id "import-mapping-edit-form"))

@@ -28,13 +28,13 @@
           (:form :id (format nil "add-entity-~A" (get-val (wfx:data tree-node) 'xid))  :method "post"
                  (:input :type "hidden" :name "add-entity-click" 
                          :value (get-val (wfx:data tree-node) 'xid))
-                 (:img :src "/images/add-ex-small.png" 
+                 (:img :src "/appimgadd-ex-small.png" 
                        :onclick (format nil "javascript:document.getElementById(\"add-entity-~A\").submit();" (get-val (wfx:data tree-node) 'xid)))))
     (:div :style "display:table-cell; vertical-align:middle"
           (:form :id (format nil "delete-entity-~A" (get-val (wfx:data tree-node) 'xid)) :method "post"
                  (:input :type "hidden" :name "delete-entity-click" 
                          :value (get-val (wfx:data tree-node) 'xid))
-                 (:img :src "/images/delete-ex-small.png" 
+                 (:img :src "/appimgdelete-ex-small.png" 
                        :onclick (format nil "javascript:document.getElementById(\"delete-entity-~A\").submit();" (get-val (wfx:data tree-node) 'xid))))) ))
 
 (defmethod render-tree-node ((tree entities-edit-tree) &key data leaf-p)
@@ -123,7 +123,7 @@
   (let ((root (make-widget 'select :name "root-select"))
         (tree (make-widget 'entities-edit-tree :name "entities-edit-tree"))
         (user (current-user))
-        (box (make-widget 'peach-box)))
+        (box (make-widget 'html-framework-box)))
     
     (setf (on-change root)
           (js-render widget (js-value root)))
@@ -160,7 +160,7 @@
               (when (parameter "add-entity-click")
                 (let ((entity-select (make-widget 'select :name "entity-select"))
                       (entity-type-select (make-widget 'select :name "entity-type-select"))
-                      (edit-box (make-widget 'peach-box :name "edit-box")))
+                      (edit-box (make-widget 'html-framework-box :name "edit-box")))
 
                   (setf (items entity-select) (entity-list))
                   (setf (items entity-type-select) (entity-type-list))

@@ -47,7 +47,7 @@
 
 
 (defmethod render-row-editor ((grid period-grid) row)
-  (let ((form (make-widget 'peach-form :name "period-formxx"
+  (let ((form (make-widget 'html-framework-form :name "period-formxx"
                            :grid-size 12
                            :header "Reporting Periods"
                            :form-id "reporting-period-form"

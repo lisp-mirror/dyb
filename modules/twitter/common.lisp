@@ -260,10 +260,10 @@
   (let* ((stamp (format nil "~A" (get-unix-time)))
          (nonce (format nil "~A~A" (random 1234567) stamp))
          )
-   
-    (drakma:http-request "https://userstream.twitter.com/2/user.json"
-     ;;:parameters `(("replies" . "all"))
-     :method :get
+    
+    (drakma:http-request "https://userstream.twitter.com/1.1/user.json"
+      
+     :method :post
      :additional-headers
      `(("Authorization"
         ,@(build-auth-string
@@ -274,43 +274,28 @@
               ,(encode-signature
                 (hmac-sha1
                  (signature-base-string
-                  :uri "https://userstream.twitter.com/2/user.json"
-                  :request-method "GET"
+                  :uri "https://userstream.twitter.com/1.1/user.json"
+                  :request-method "POST"
                   :parameters `(;;("oauth_callback" ,*twitter-callback-uri*)
                                 ("oauth_consumer_key" ,*twitter-client-id*)
                                 ("oauth_nonce" ,nonce)
                                 ("oauth_signature_method" "HMAC-SHA1")
                                 ("oauth_timestamp" ,stamp)
                                 ("oauth_token" ,access-token)
-                                ("oauth_version" "1.0")
-				))
-                 (hmac-key  *twitter-client-secret*
+                                ("oauth_version" "1.0")))
+                 (hmac-key  *twitter-client-secret* 
                             access-secret))
                 nil))
              ("oauth_signature_method" "HMAC-SHA1")
              ("oauth_timestamp" ,stamp)
              ("oauth_token" ,access-token)
-             ("oauth_version" "1.0")
-	     ))))
-     :keep-alive t
-    :close ()
-    :want-stream t
-    )))
-
-(defun testing-twitter-listener ()
-       (let ((stream (twitter-get-stream "427626012-F9OkhcBSftgWU5FvEPo2s89gUWmwZWuJ4FTycJs" "P1o9nk6KrqOvytCIYx3HX8oAz8iwbiJZzZEEiti6sZo")))
-                   (loop for i below 20
-                         for line = (read-line stream)
-                         when (and (> i 0) (> (length line) 2))
-                         do (populate-generic-db-from-tweet (list (json::decode-json-from-string line))))
-                   (close stream)
-                   (values)))
+             ("oauth_version" "1.0")))))
+    :want-stream t)))
 
 
 (defun twitter-listener (service-user)
   (when service-user
     (when (get-val service-user 'last-access-token)
-      
       (let ((stream (twitter-get-stream (get-val service-user 'last-access-token) (get-val service-user 'last-token-secret))))
         (when stream
             (loop for i below 200

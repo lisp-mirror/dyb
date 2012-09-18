@@ -33,6 +33,6 @@
 (defmethod render ((page ems-page) &key body)
 
   (with-html-output (*standard-output*)
-      (render (make-widget 'peach-page :name (widgy-name page "ems-page"))
+      (render (make-widget 'html-framework-page :name (widgy-name page "ems-page"))
               :body (with-html-output-to-string (*standard-output*)
                       (str body)))))

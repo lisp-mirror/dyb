@@ -3,10 +3,7 @@
 (defun parse-social-mention (mentions)
   (let ((items (assoc ':items mentions)))
     (when items
-    
       (dolist (mention (cdr items) )
-        
-
         (let* ((men (get-generic-entry-by-post-id (assoc ':id mention)))
                (old-men (if men
                             (copy men))))
@@ -39,9 +36,7 @@
               (persist men))
           )
         ))))
-
 #|
-
 (let* ((men (get-generic-entry-by-post-id (assoc ':id mention)))
                (old-men (if men
                             (copy men))))
@@ -73,5 +68,4 @@
               (persist men :old-object old-men)
               (persist men))
           )
-
 |#

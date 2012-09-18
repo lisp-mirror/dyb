@@ -151,7 +151,7 @@
          (:div :style "display:none;"
                :name (format nil "validate-~A" name)
                :id (format nil "validate-~A" name)
-               (:img :src "/images/q-icon.png"))))))))
+               (:img :src "/appimgq-icon.png"))))))))
 
 
 (defun find-direct-slot-definition (class slot-name)
