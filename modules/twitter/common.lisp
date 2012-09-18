@@ -291,3 +291,16 @@
              ("oauth_token" ,access-token)
              ("oauth_version" "1.0")))))
     :want-stream t)))
+
+
+(defun twitter-listener (service-user)
+  (when service-user
+    (when (get-val service-user 'last-access-token)
+      (let ((stream (twitter-get-stream (get-val service-user 'last-access-token) (get-val service-user 'last-token-secret))))
+        (when stream
+            (loop for i below 200
+               for line = (read-line stream)
+               when (and (> i 0) (> (length line) 2))
+               do (populate-generic-db-from-tweet (list (json::decode-json-from-string line))))
+            (close stream)
+            (values))))))
