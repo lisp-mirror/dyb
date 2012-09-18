@@ -429,7 +429,7 @@ document.getElementById(\"~A\").submit();"
   (with-html
     (:table
         :id (sub-name grid "table")
-      :class "table"
+      :class "data-tbl-boxy table" ;;"table"
       (render-grid-header grid)
       (:tbody
        (:td :colspan (- (length (columns grid))
