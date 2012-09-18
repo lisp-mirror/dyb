@@ -269,7 +269,7 @@
        (:link :rel "stylesheet" :href "/css/icons-sprite.css")
 
 
-       (:link :id "themes" :rel "stylesheet" :href "/css/theme-default.css")
+       (:link :id "themes" :rel "stylesheet" :href "/css/theme-blue.css")
   
 
 
