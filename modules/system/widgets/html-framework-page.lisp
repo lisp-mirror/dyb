@@ -97,20 +97,11 @@
                                               (js-pair "action" "save")))
                                      "Save")
                                     (:button :class "btn btn-warning"
-                                            :onclick
-                                            (js-render (editor grid)
-                                                       (js-pair "grid-name" (name grid))
-                                                       (js-pair "action" "cancel"))
-                                            "Cancel")
-
-
-                                    
-                             ))
-
-                       ))
-
-                
-                ))))
+                                             :onclick
+                                             (js-render (editor grid)
+                                                        (js-pair "grid-name" (name grid))
+                                                        (js-pair "action" "cancel"))
+                                             "Cancel")))))))))
 
 (defclass form-section (widget)
   ((section-size :initarg :section-size
@@ -123,10 +114,7 @@
           (:label :class "control-label" :for label-for 
                   (str label))
           (:div :class "controls"
-                (str input)))
-
-
-    ))
+                (str input)))))
 
 (defclass html-framework-tab-box (html-framework-box)
   ((tabs :initarg :tabs
@@ -136,38 +124,27 @@
                  :initform nil
                  :accessor body-content)))
 
-
-
-
 (defmethod render ((widget html-framework-tab-box) &key)
-  (with-html-string
-          (:div :class "box-tab"
-                (:div :class "tabbalbe tabs-right"
-                      (:ul :class "nav nav-tabs"
-                           (loop for (title) in (tabs widget)
-                              for i from 0
-                              do
-                                (htm
-                                 (:li
-                                  (:a :data-toggle "tab" 
-                                      :href (format nil "#~a-tab-~a" (name widget) i)
-                                      (esc title))))))
-                      (:div :class "tab-content"
-                            (loop for (nil content) in (tabs widget)
-                               for i from 0
-                               do
-                               (htm
-                                (:div :class "tab-pane"
-                                      :id (format nil "~a-tab-~a" (name widget) i)
-                                      (str content)))))
-
-
-)))
-  
-  ;;????
-  ;;(call-next-method)
-  ;;(defer-js (format nil "$('#~a').createTabs();" (name widget)))
-)
+  (with-html
+    (:div :class "box-tab"
+          (:div :class "tabbalbe tabs-right"
+                (:ul :class "nav nav-tabs"
+                     (loop for (title) in (tabs widget)
+                           for i from 0
+                           do
+                           (htm
+                            (:li
+                             (:a :data-toggle "tab" 
+                                 :href (format nil "#~a-tab-~a" (name widget) i)
+                                 (esc title))))))
+                (:div :class "tab-content"
+                      (loop for (nil content) in (tabs widget)
+                            for i from 0
+                            do
+                            (htm
+                             (:div :class "tab-pane"
+                                   :id (format nil "~a-tab-~a" (name widget) i)
+                                   (str content)))))))))
 
 
 (defclass html-framework-header (widget)
