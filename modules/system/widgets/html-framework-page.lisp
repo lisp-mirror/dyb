@@ -467,7 +467,7 @@
                     )
               
               (:div :id "main-content"
-                    (:div :class "fluid-content"
+                    (:div :class "container-fluid"
                           
                           (str body)))
 

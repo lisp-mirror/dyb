@@ -43,13 +43,12 @@
      html-framework-page
      :body
      (with-html-to-string ()
-       (:div :id "main-content"
-             (:div :class "container-fluid"
-                   (:div :class "page-header"
+       (:div :class "page-header"
                          (:h2 (str title)))
                    
                    (when (slot-val widget 'alert)
                      (str (render page-alert-box 
                                   :alert-type (first (slot-val widget 'alert))
                                   :alert (second (slot-val widget 'alert)))))
-                   (str body)))))))
+                   (str body)
+                   ))))
