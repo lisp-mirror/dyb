@@ -559,18 +559,18 @@ document.getElementById(\"~A\").submit();"
       (:div :class "span12 widget-block"
             (widget-head (title grid)
                          :icon "table-excel"
-                        :collapsible t
-                        :body (with-html-string
-                                (:div :class "widget-control"
-                                 (render filter)
-                                 (:button :onclick
-                                          (format nil "window.open(\"/ems/export-csv?grid=~a&script-name=~a\")"
-                                                  (name grid)
-                                                  (script-name*))
-                                          "Export CSV"))))
+                         :collapsible t
+                         :body (with-html-string
+                                 (:div :class "widget-control"
+                                       (render filter)
+                                       (:button :onclick
+                                                (format nil "window.open(\"/ems/export-csv?grid=~a&script-name=~a\")"
+                                                        (name grid)
+                                                        (script-name*))
+                                                "Export CSV"))))
             (:div :class "widget-content"
                   (:div :class "widget-box"
-                   (render-grid-rows grid :editing editing-row)))
+                        (render-grid-rows grid :editing editing-row)))
             (:div :class "widget-box"
                   (:table
                       :style "text-align:center"
@@ -608,8 +608,8 @@ document.getElementById(\"~A\").submit();"
                         (htm
                          (:div :class "edit-form-error"
                                (esc (error-message grid))))))))
-                  (str footer)))
-      (render editor)
+                  (str footer))
+            (render editor))
       (defer-js
           (format nil "$('#~a').dataTable({
 'bProcessing': true,
@@ -780,7 +780,7 @@ document.getElementById(\"~A\").submit();"
 (defgeneric export-csv (widget))
 
 (defmethod export-csv ((grid grid))
-  (let* ((data (coerce (grid-filtered-rows grid) 'list))
+  (let* ((data (coerce (gridf-iltered-rows grid) 'list))
         (slots (if data
                    (class-slots (class-of (elt data 0))))))
     (when data
