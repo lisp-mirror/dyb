@@ -35,17 +35,14 @@
                 :initform t
                 :accessor collapsible)))
 
-
 (defmethod render ((box html-framework-box) &key content)
-  (with-html-output-to-string (*standard-output* nil :indent t)
+  (with-html
     (:div :class "widget-block"
-                (:div :class "widget-head"
-                      (:h3 (esc (header box))))
-                (:div :class "widget-content"
-                      (:div :class "widget-box"
-                            (str content))))))
-
-
+          (:div :class "widget-head"
+                (:h3 (esc (header box))))
+          (:div :class "widget-content"
+                (:div :class "widget-box"
+                      (str content))))))
 
 (defclass html-framework-form (widget)
   ((grid-size :initarg :grid-size
