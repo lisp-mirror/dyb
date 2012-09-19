@@ -12,7 +12,7 @@
           (when (get-val user 'last-access-token)
             (multiple-value-bind (bodyx)
                 (drakma:http-request 
-                 (format nil "https://graph.facebook.com/~A/feed?access_token=~A" 
+                 (format nil "https://graph.facebook.com/~A/feed?limit=2000&access_token=~A" 
                          (url-encode (get-val user 'user-id))
                          (get-val user 'last-access-token)))
 
@@ -51,37 +51,64 @@
 					   (t "Unknown Source")))))
             (make-instance 'grid-column
                            :name 'title
-                           :header "Title")
+                           :header "Title"
+                            :width "250px;")
             (make-instance 'grid-column
                            :name 'type
-                           :header "Type")
+                           :header "Type"
+                           :width "70px;"
+                           :printer (lambda (post-type)
+                                      (cond ((string-equal post-type "Facebook")
+                                             (with-html-to-string ()
+                                               (:img :style "width:16px;height:16px;" :src "/appimg/facebook.png")))
+                                            ((string-equal post-type "Twitter")
+                                             (with-html-to-string ()
+                                               (:img :style "width:16px;height:16px;" :src "/appimg/facebook.png"))))))
            (make-instance 'grid-column
                            :name 'interaction
-                           :header "Response")
+                           :header "Response"
+                           :width "80px;")
            (make-instance 'grid-column
                           :name 'payload
                           :header "Likes"
+                          :width "70px;"
                           :printer (lambda (doc)
                                       ;;TODO: See why action ended up in likes slot
+                                     
                                      (if doc
 					 (typecase doc 
 					   
 					   (post
+                                            
 					    (if (get-val doc 'likes)
                                              (if (string-equal 
                                                   (type-of (make-instance 'comments))
                                                   "LIKES")
                                                  (if (get-val (get-val doc 'likes) 'count)
-                                                     (get-val (get-val doc 'likes) 'count)
-                                                     0))
-                                             0)
+                                                     (with-html-to-string ()
+                                                       (:img :style "width:16px;height:16px;" :src "/appimg/fb-like.jpeg")
+                                                       (str (get-val (get-val doc 'likes) 'count))
+)
+                                                     (with-html-to-string ()
+                                                       (:img :style "width:16px;height:16px;" :src "/appimg/fb-like.jpeg")
+                                                       (str 0)
+                                                       ))
+                                                 (with-html-to-string ()
+                                                       (:img :style "width:16px;height:16px;" :src "/appimg/fb-like.jpeg")
+                                                       (str 0)
+                                                       ))
+                                             (with-html-to-string ()
+                                                       (:img :style "width:16px;height:16px;" :src "/appimg/fb-like.jpeg")
+                                                       (str 0)
+                                                       ))
 					    )
-					   (t 0)))
+					   (t "??"))
                                          
-                                         0))
+                                         "?-?")))
            (make-instance 'grid-column
                           :name 'payload
                           :header "Comments"
+                          :width "80px;"
                           :printer (lambda (doc)
                                      ;;TODO: See why actions ended up in comments slot
                                      (if doc
@@ -103,7 +130,7 @@
                           :name 'created
                           :header "Created")
            ))
-         (grid (make-widget 'generic-grid :name "generic-post-gridz"
+         (grid (make-widget 'generic-grid :name "generic-post-gridzzssrzrssssssppsstsxs0ss"
                                        :columns columns
                                        :edit-inline nil
                                        :title "Facebook Inbox"

@@ -297,6 +297,7 @@
                       
                      (setf (get-val comment-grid 'parent-grid) grid)
                      (setf (get-val comment-grid 'current-doc) (editing-row grid))
+                     (setf (get-val comment-grid 'css-span) 9)
                      
                       (render comment-grid)))))
            (list 
