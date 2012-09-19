@@ -69,7 +69,10 @@
           :accessor state)
    (parent-grid :initarg :parent-grid
                 :initform nil
-                :accessor parent-grid)))
+                :accessor parent-grid)
+   (css-span :initarg :css-span
+          :initform nil
+          :accessor css-span)))
 
 (defclass grid-column ()
   ((header :initarg :header
@@ -337,7 +340,9 @@ document.getElementById(\"~A\").submit();"
     (:thead
      (:tr
       (dolist (column (columns widget))
-        (htm (:th (esc (header column)))))
+        (htm (:th :style (if (get-val column 'width)
+                     (format nil "width:~A;" (get-val column 'width))) 
+              (esc (header column)))))
       (when (editable widget)
         (htm (:th)))))))
 
@@ -454,44 +459,35 @@ document.getElementById(\"~A\").submit();"
 
 (defmethod render-row-editor ((grid grid) row)
   (let ((row-id (position row (rows grid)))
-        (columns (columns grid)))
+        (columns (columns grid))
+        (form (make-instance 'html-framework-form :name "row-editor-generic" 
+                             :grid-size 9
+                             :header "Edit" :form-id "generic-edit-form"
+                             :grid-name (name grid)))
+        (form-section (make-widget 'form-section
+                                   :name "form-section")))
     (with-html
-      (:div
-       :class "grid_6"
-       (:div
-        :class "box"
-        (box-header "Edit" :icon "card--pencil"
-                           :collapsible t)
-        (:form
-         :method "post"
-         :onsubmit "return false;"
-         (:div
-          :class "content no-padding"
-          (loop for column in columns
-                for column-id from 0
-                for name = (slot-val row (name column))
-                for text = (if (printer column)
-                               (funcall (printer column) name)
-                               name)
-                for widget-name = (format nil "cell~d:~d" row-id column-id)
-                do
-                (htm
-                 (:div :class "section _100"
-                       (:label (esc (header column)))
-                       (:div (grid-present text widget-name
-                                           (editor-type column)
-                                           :init-values (editor-init-values column)))))))
-         (:div :class "actions"
-               (:div :class "actions-left"
-                     (:button :onclick "alert(\"Save does not work at the moment\");"
-                              "Save"))
-               (:div :class "actions-right"
-                     (:button :class "red"
-                              :onclick
-                              (js-render (editor grid)
-                                         (js-pair "grid-name" (name grid))
-                                         (js-pair "action" "cancel"))
-                              "Cancel")))))))))
+      (render form 
+              :grid grid
+              :content
+              (with-html-to-string ()
+                (loop for column in columns
+                   for column-id from 0
+                   for name = (slot-val row (name column))
+                   for text = (if (printer column)
+                                  (funcall (printer column) name)
+                                  name)
+                   for widget-name = (format nil "cell~d:~d" row-id column-id)
+                   do
+                   (render form-section
+                           :label (string-capitalize (name column))
+                            :input
+                            (with-html-to-string ()
+                              (render-edit-field widget-name  
+                                                 text
+                                                 :type (editor-type column)
+                                                 ))))))
+      )))
 
 (defclass grid-editor (ajax-widget)
   ((grid :initarg :grid
@@ -556,7 +552,9 @@ document.getElementById(\"~A\").submit();"
                              :grid grid)))
     (setf (editor grid) editor)
     (with-html
-      (:div :class "span12 widget-block"
+      (:div :class (format nil "span~A widget-block" (if (get-val grid 'css-span)
+                                                         (get-val grid 'css-span)
+                                                         11))
             (widget-head (title grid)
                          :icon "table-excel"
                          :collapsible t
@@ -780,7 +778,7 @@ document.getElementById(\"~A\").submit();"
 (defgeneric export-csv (widget))
 
 (defmethod export-csv ((grid grid))
-  (let* ((data (coerce (gridf-iltered-rows grid) 'list))
+  (let* ((data (coerce (grid-filtered-rows grid) 'list))
         (slots (if data
                    (class-slots (class-of (elt data 0))))))
     (when data

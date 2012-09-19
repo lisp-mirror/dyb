@@ -108,14 +108,19 @@
                           (type "text") 
                           data (blank-allowed t)
                           min
-                          max)
+                          max
+                          width)
 
   (ensure-render
    (field-permission (or data-element name))
    (with-html
      (case type
        (:span
-        (htm (:input :type "text"
+        (htm (:input
+              :style (if width
+                         (format nil "width:~A;" width)
+                         (format nil "width:~A;" "300px"))
+              :type "text"
                      :name name
                      :disabled t
                      :readonly t
@@ -124,17 +129,28 @@
         (render-select (or data-element name) data value
                        :blank-allowed blank-allowed))
        (:textarea
-        (htm (:textarea :class (if required "required")
-                        :name name
-                        :cols 85 :rows 5
+        (htm (:textarea
+              :style (if width
+                         (format nil "width:~A;" width)
+                         (format nil "width:~A;" "300px"))
+              :class (if required "required")
+              :name name
+              :cols 85 :rows 5
                         (str (escape value)))))
        (:password
-        (htm (:input :type "password"
-                     :class (if required "required")
-                     :name name
-                     :value (escape value))))
+        (htm (:input
+              :style (if width
+                         (format nil "width:~A;" width)
+                         (format nil "width:~A;" "300px"))
+              :type "password"
+              :class (if required "required")
+              :name name
+              :value (escape value))))
        (:date
         (htm (:input :type "text"
+                     :style (if width
+                                (format nil "width:~A;" width)
+                                (format nil "width:~A;" "300px"))
                      :class (if required
                                 "date-pick required"
                                 "date-pick")
@@ -143,6 +159,9 @@
        (t
         (htm
          (:div (:input :type type
+                       :style (if width
+                                  (format nil "width:~A;" width)
+                                  (format nil "width:~A;" "300px"))
                        :class (if required "required")
                        :name name
                        :min min
