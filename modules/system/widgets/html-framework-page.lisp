@@ -238,7 +238,8 @@
        (:link :rel "stylesheet" :href "/css/bootstrap.css")
        (:link :rel "stylesheet" :href "/css/bootstrap-responsive.css")
        (:link :rel "stylesheet" :href "/css/prettify.css")
-;;" <link href=\"css/jquery-ui-1.8.16.custom.css\" rel=\"stylesheet\">"
+  ;;     (:link :rel "stylesheet" :href "css/jquery-ui-1.8.16.custom.css")
+
        (:link :rel "stylesheet" :href "/css/styles.css")
        (:link :rel "stylesheet" :href "/css/icons-sprite.css")
 
@@ -320,6 +321,8 @@
 <script src=\"/js/custom-script.js\"></script>"
 
 
+
+
 ;;" <script src=\"js/jquery.noty.js\"></script>"
 ;;" <script src=\"/js/custom-script.js\"></script>"
 
@@ -382,17 +385,7 @@
     (setf (slot-value page 'key-words) (slot-value widget 'key-words))
     (render page
             :styling ""
-           #| (with-html-output-to-string (*standard-output* nil :indent t)
-              ;; REQUIRED: Header styling ; ;
-(:link :rel "stylesheet" :href "/css/header.css")
-               ;; REQUIRED: Navigation styling ; ;
-(:link :rel "stylesheet" :href "/css/navigation.css")
-               ;; REQUIRED: Footer styling ; ;
-(:link :rel "stylesheet" :href "/css/footer.css")
-               ;; OPTIONAL: Sidebar     ; ;
-(:link :rel "stylesheet" :href "/css/sidebar.css")
-               ;; SPRITE: Tables styling ; ;
-(:link :rel "stylesheet" :href "/css/sprite.tables.css"))|#
+
 
             :body
             (with-html-output-to-string (*standard-output* nil :indent t)
@@ -463,7 +456,10 @@
                                           (:i :class "nav-icon month_calender")
                                           (str "Todays Event")))
                                 (:div :class "accordion-content"
-                                      (str "do calendar here"))))
+
+                                      (:div  :id "datepicker" :class "date" :data-date "12-02-2012" :data-date-format "dd-mm-yyyy"
+                                            ;; (:input :type "text" :value "12-02-2012")
+                                            ))))
                     )
               
               (:div :id "main-content"
