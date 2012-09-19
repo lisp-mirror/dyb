@@ -1,12 +1,5 @@
 (in-package :ems)
 
-(defparameter *twitter-client-id* "H5wWh6azz3n0Go4hOu5kgg")
-(defparameter *twitter-client-secret* "m7u7UoEyTPIg5p0Gl1EV73hkl139tu3GkZjMetzS7G8")
-(defparameter *twitter-callback-uri* "http://local.dataxware.co.za/ems/twitcallback";; "http://app.digyourbrand.co.za/ems/twcallback"
-)
-(defparameter *twitter-oauth-uri* "https://api.twitter.com/oauth/request_token")
-(defparameter *twitter-access-token-uri* "https://api.twitter.com/oauth/access_token")
-(defparameter *twitter-oauth-authorize-uri* "https://api.twitter.com/oauth/authorize")
 
 
 (setf drakma:*header-stream* *standard-output*)

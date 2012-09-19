@@ -1,16 +1,12 @@
 (in-package :ems)
 
-(defparameter *facebook-client-id* "254949787943221")
-(defparameter *facebook-client-secret* "b7ca6b0a7243cb0df0b39d009257e4b2")
-(defparameter *facebook-callback-uri* "http://app.digyourbrand.co.za/ems/fbcallback")
-(defparameter *facebook-oauth-uri* "https://www.facebook.com/dialog/oauth")
-(defparameter *facebook-access-token-uri* "https://graph.facebook.com/oauth/access_token")
+
 
 (defun facebook-oauth-uri (service-user)
   (format nil "~A?client_id=~A&response_type=code&scope=~A&redirect_uri=~A&state=~A" 
           *facebook-oauth-uri*
           *facebook-client-id*
-          "publish_stream,read_stream"
+          "publish_stream,read_stream,read_insights,read_mailbox"
           *facebook-callback-uri*
           (xid service-user)))
 
