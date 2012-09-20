@@ -85,10 +85,11 @@
 
             (multiple-value-bind (bodyx)
                 (drakma:http-request 
-                 (format nil "https://graph.facebook.com/~A/feed?limit=2000&access_token=~A" 
-                         (url-encode (get-val user 'user-id))
-                         (get-val user 'last-access-token)))
-
+                  (format nil "https://graph.facebook.com/~A/feed?limit=2000&access_token=~A" 
+                          (url-encode (get-val user 'user-id))
+                          (get-val user 'last-access-token)))
+              
+              
               (let ((post-list (rest (first (json::decode-json-from-string bodyx)))))
 
                 (if (populate-generic-db-from-post post-list )
@@ -100,5 +101,5 @@
                                 (format nil (error-message grid) "~A~%~A%"
                                         (error-message grid)
                                         (car (cdr post-list))) ) ))
-                    (break "Shitt?")))
+                    ))
               )))))
