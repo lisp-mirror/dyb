@@ -238,7 +238,7 @@
        (:link :rel "stylesheet" :href "/css/bootstrap.css")
        (:link :rel "stylesheet" :href "/css/bootstrap-responsive.css")
        (:link :rel "stylesheet" :href "/css/prettify.css")
-  ;;     (:link :rel "stylesheet" :href "css/jquery-ui-1.8.16.custom.css")
+       (:link :rel "stylesheet" :href "/css/jquery-ui-1.8.16.custom.css")
 
        (:link :rel "stylesheet" :href "/css/styles.css")
        (:link :rel "stylesheet" :href "/css/icons-sprite.css")
@@ -437,15 +437,15 @@
                               "Inbox")
                           (:ul :class "acitem" :style "display:none;"
 
-                           (:li
-                            (:a :href "/ems/generic" "Inbox"))
+                               (:li
+                                (:a :href "/ems/generic" "Inbox"))
                        
-                           (:li
-                            (:a :href "/ems/scheduled" "Scheduled Actions"))
+                               (:li
+                                (:a :href "/ems/scheduled" "Scheduled Actions"))
                        
-                           (:li
-                            (:a :href "/ems/search-stream-feedback" "Search Stream Feedback"))
-                           ))
+                               (:li
+                                (:a :href "/ems/search-stream-feedback" "Search Stream Feedback"))
+                               ))
                          )
                     (:div :id "side-accordion"
                           (:div :class "accordion-group"
@@ -456,18 +456,13 @@
                                           (:i :class "nav-icon month_calender")
                                           (str "Todays Event")))
                                 (:div :class "accordion-content"
-
-                                      (:div  :id "datepicker" :class "date" :data-date "12-02-2012" :data-date-format "dd-mm-yyyy"
-                                            ;; (:input :type "text" :value "12-02-2012")
-                                            ))))
-                    )
+                                      (:div :id "inline-datepicker"
+                                            :value "12-02-2012")))))
               
               (:div :id "main-content"
                     (:div :class "container-fluid"
                           
-                          (str body)))
-
-              )
+                          (str body))))
             :bottom-java-script
             "")))
 

@@ -764,3 +764,7 @@ THEME SWITCHER
 				$('#themes').attr('href','css'+'/'+stylesheet+'.css');
 				});
 			});
+
+$(function () {
+    $('#inline-datepicker').datepicker({ dateFormat: "dd-mm-yyyy" })
+})
