@@ -245,8 +245,22 @@
 
 
        (:link :id "themes" :rel "stylesheet" :href "/css/theme-blue.css")
-  
+       (:style 
+        "div.ui-datepicker{
+ font-size:12px;
+}
+")
 
+       "<script type=\"text/javaScript\">
+function timedRefresh(timeoutPeriod) {
+var okToRefresh = confirm(\"Do you really want to refresh the page?\");
+if (okToRefresh)
+	{
+			setTimeout(\"window.location.reload(true);\",timeoutPeriod);
+	}
+
+}
+</script>"
 
        "<!--[if IE 7]>
        <link rel= \" stylesheet\" type=\"text/css\" href=\"/css/ie/ie7.css\" />
@@ -269,7 +283,7 @@
        (page-include-bits)
        )
 
-      (:body 
+      (:body ;;:onload "timedRefresh(30000)"
        (str body)
 
 
@@ -456,7 +470,7 @@
                                           (:i :class "nav-icon month_calender")
                                           (str "Todays Event")))
                                 (:div :class "accordion-content"
-                                      (:div :id "inline-datepicker"
+                                      (:div :id "inline-datepicker" ;:style "font-size:8px;"
                                             :value "12-02-2012")))))
               
               (:div :id "main-content"

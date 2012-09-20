@@ -11,18 +11,20 @@
                alexandria
                cl-ppcre
                csv-parser
-               cl-typesetting
+             
                ironclad
                cl-json
                ht-simple-ajax
-               ;;              vecto-graphs
-               closure-html
+             
+             
                closer-mop
                cl-jpeg
                xdb2
                sb-posix
                drakma
-               split-sequence)
+               split-sequence
+               trivial-timers
+               )
   :serial t
   :components ((:file "packages")
                (:file "common")
@@ -139,8 +141,7 @@
                          (:module "facebook"
                                   :serial t
                                   :components
-                                  ((:file "facebook-parser")
-                                   (:file "common")
+                                  (
                                    (:module "db"
                                             :serial t
                                             :components
@@ -152,7 +153,9 @@
                                    (:module "pages"
                                             :serial t
                                             :components
-                                            ((:file "facebook")))))
+                                            ((:file "facebook")))
+                                   (:file "facebook-parser")
+                                   (:file "common")))
                          (:module "twitter"
                                   :serial t
                                   :components
@@ -181,20 +184,17 @@
                                             :serial t
                                             :components
                                             ((:file "generic")))))
-                         
-
-                         (:module "quickview"
+                         (:module "scheduler"
                                   :serial t
                                   :components
-                                  ((:file "common")
-                                   (:file "document")
-                                   (:file "document-html")
-                                   (:file "document-pdf")
-                                   (:file "html-filter")
-                                   (:file "html-to-document")
-                                   (:file "quickview-widgets")
-                                   (:file "drill-down")
-                                   (:file "forms-common"))))
+                                  ((:file "scheduler")
+                                   
+                                   
+                   
+                                   ))
+                         
+
+                         )
                         )
                
 

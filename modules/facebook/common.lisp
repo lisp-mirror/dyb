@@ -69,16 +69,20 @@
                         (json::decode-json-from-string body)))))))
 
 
-(defun update-facebook-posts-for-users (grid)
+(defun update-facebook-posts-for-users (&optional grid)
   
-  (dolist (user (find-docs 'list 
-                           (lambda (doc)
-                             (match-context-entities doc))
-                            (service-users-collection)))
+
+;;(find-docs 'list 
+;;           (lambda (doc)
+;;             (match-context-entities doc))
+;;           (service-users-collection))
+  (dolist (user (coerce (service-users) 'list ))
         
         (when (and user (string-equal (get-val user 'doc-status) "Active"))
           ;;TODO: How to get error messages in for users without access tokens.
+
           (when (get-val user 'last-access-token)
+
             (multiple-value-bind (bodyx)
                 (drakma:http-request 
                  (format nil "https://graph.facebook.com/~A/feed?limit=2000&access_token=~A" 
@@ -95,5 +99,6 @@
                           (setf (error-message grid)
                                 (format nil (error-message grid) "~A~%~A%"
                                         (error-message grid)
-                                        (car (cdr post-list))) ) ))))
+                                        (car (cdr post-list))) ) ))
+                    (break "Shitt?")))
               )))))
