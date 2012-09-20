@@ -147,9 +147,7 @@
     (if (listp post)
         (if (get-post-id post)
             (let* ((old-post (get-post-by-post-id (get-post-id post)))
-                   (new-post (if old-post
-                                 old-post
-                                 (make-post post))))
+                   (new-post (make-post post)))
 
               (if (and old-post (xid old-post))
           

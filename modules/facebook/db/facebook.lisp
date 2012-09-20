@@ -29,13 +29,17 @@
    (updated-time :accessor post-updated-time :initarg :updated-time))
   (:metaclass storable-class))
 
+
+
 (defclass from () 
   ((id :accessor from-id :initarg :id) 
-   (name :accessor from-name :initarg :name)))
+   (name :accessor from-name :initarg :name)
+   (picture :accessor picture :initarg :picture)))
 
 (defclass to () 
   ((id :accessor to-id :initarg :id) 
-   (name :accessor to-name :initarg :name)))
+   (name :accessor to-name :initarg :name)
+   (picture :accessor picture :initarg :picture)))
 
 (defclass message-tag () 
   ((id :accessor message-tag-id :initarg :id)
@@ -107,7 +111,7 @@
    (id :accessor application-id :initarg :id)))
 
 
-(defun make-post (post-raw)
+(defun make-post (post-raw )
   (make-instance 'post 
                  :key (get-post-id post-raw)
                  

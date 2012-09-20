@@ -67,3 +67,33 @@
           (setf (session-value "facebook-oauth-error") 
                 (format nil "Something went wrong:~%~A"
                         (json::decode-json-from-string body)))))))
+
+
+(defun update-facebook-posts-for-users (grid)
+  
+  (dolist (user (find-docs 'list 
+                           (lambda (doc)
+                             (match-context-entities doc))
+                            (service-users-collection)))
+        
+        (when (and user (string-equal (get-val user 'doc-status) "Active"))
+          ;;TODO: How to get error messages in for users without access tokens.
+          (when (get-val user 'last-access-token)
+            (multiple-value-bind (bodyx)
+                (drakma:http-request 
+                 (format nil "https://graph.facebook.com/~A/feed?limit=2000&access_token=~A" 
+                         (url-encode (get-val user 'user-id))
+                         (get-val user 'last-access-token)))
+
+              (let ((post-list (rest (first (json::decode-json-from-string bodyx)))))
+
+                (if (populate-generic-db-from-post post-list )
+                    (if (string-equal (car (car post-list)) "MESSAGE")
+                  
+                        (when grid 
+                    
+                          (setf (error-message grid)
+                                (format nil (error-message grid) "~A~%~A%"
+                                        (error-message grid)
+                                        (car (cdr post-list))) ) ))))
+              )))))

@@ -1,54 +1,107 @@
 (in-package #:ems)
 
-(defun update-facebook-posts-for-users (grid)
-  
-  (dolist (user (find-docs 'list 
-                           (lambda (doc)
-                             (match-context-entities doc))
-                            (service-users-collection)))
-        
-        (when (and user (string-equal (get-val user 'doc-status) "Active"))
-          ;;TODO: How to get error messages in for users without access tokens.
-          (when (get-val user 'last-access-token)
-            (multiple-value-bind (bodyx)
-                (drakma:http-request 
-                 (format nil "https://graph.facebook.com/~A/feed?limit=2000&access_token=~A" 
-                         (url-encode (get-val user 'user-id))
-                         (get-val user 'last-access-token)))
 
-              (let ((post-list (rest (first (json::decode-json-from-string bodyx)))))
-
-                (if (populate-generic-db-from-post post-list )
-                    (if (string-equal (car (car post-list)) "MESSAGE")
-                  
-                        (when grid 
-                    
-                          (setf (error-message grid)
-                                (format nil (error-message grid) "~A~%~A%"
-                                        (error-message grid)
-                                        (car (cdr post-list))) ) ))))
-              )))))
 
 (define-easy-handler (generic-page :uri "/ems/generic") ()
   (let* ((columns
            (list
-            (make-instance 'grid-column
-                           :name 'payload
-                           :header "From"
-                           :printer (lambda (doc)
-                                     (if doc
-					 (typecase doc 
-					   (tweet
-					    (if (get-val doc 'user)
-						(get-val (get-val doc 'user) 'name)))
-					   (post
-					    (if (get-val doc 'from)
-						(if (get-val (get-val doc 'from) 'name)
-						    (get-val (get-val doc 'from) 'name)
-						    "Unknown Source")
-						"Unknown Source")
-					    )
-					   (t "Unknown Source")))))
+            (make-instance 
+             'grid-column
+             :name 'payload
+             :header "Post"
+             :width "100%"
+             :printer (lambda (doc)
+                        (if doc
+                            (typecase doc 
+                              (tweet
+                               (if (get-val doc 'user)
+                                   (get-val (get-val doc 'user) 'name)))
+                              (post
+                               (with-html-to-string ()
+                                 (:div :class "nonboxy-widget"
+                                       ;; (:div :class "widget-head")
+                                       (:div :class "widget-content" :style "background:white;"
+                                             (if (get-val doc 'from)
+                                                 (htm
+                                                  (:table 
+                                                      :style "width:100%;border-bottom: 1px;border-top: 1px;border-spacing: 0px;border-bottom-style:solid;border-collapse: collapse;border-color:gray;"
+                                                      (:tr 
+                                                       (:td :rowspan 1 :style "width:32px;border-width: 0px;padding: 0px;border-style: none;border-color:-moz-border-radius: ;"
+                                                            (if (get-val (get-val doc 'from) 'picture)
+                                                                (htm
+                                                      
+                                                                 (:img :style "padding: 3px;width:32px;height:32px;" :src (get-val (get-val doc 'from) 'picture)))
+                                                                ""))
+                                                       (:td :style "border-width: 0px;padding: 0px;border-style: none;border-color: gray;-moz-border-radius: ;"
+                                                            (str (get-val (get-val doc 'from) 'name))
+                                                            (:br)
+                                                            (str (get-val doc 'created-time)))
+                                                       
+                                                       )
+                                                          
+                                                    
+                                                      )
+                                                  
+                                                  (str (get-val doc 'message))
+                                                  (if (get-val doc 'picture)
+                                                      (htm
+                                                       (:img :style "padding: 3px;width:32px;height:32px;" :src (get-val doc 'picture))))
+                                                  (:br)
+                                                  (:div :style "width:100%;background-color:green;"
+                                                   (:span :style "float:right;"
+                                                          (str (if (get-val doc 'comments)
+                                                                   (if (string-equal 
+                                                                        (type-of (make-instance 'comments))
+                                                                        "COMMENTS")
+                                           
+                                                                       (if (get-val (get-val doc 'comments) 'count)
+                                                                           (get-val (get-val doc 'comments) 'count)
+                                                                           0))
+                                                                   0)))
+                                                   (:img :style "float:right; " :src "/appimg/fb-comment.png"))
+                                                  )
+                                                 
+                                                 ""))
+                                       )))))))
+#|            (make-instance 
+             'grid-column
+             :name 'payload
+             :header "From"
+             :printer (lambda (doc)
+                        (if doc
+                            (typecase doc 
+                              (tweet
+                               (if (get-val doc 'user)
+                                   (get-val (get-val doc 'user) 'name)))
+                              (post
+                               (if (get-val doc 'from)
+                                     (if (get-val (get-val doc 'from) 'name)
+                                         (get-val (get-val doc 'from) 'name)
+                                         "Unknown Source")
+                                     "Unknown Source")
+                                            
+                               )
+                              (t "Unknown Source")))))
+            (make-instance 
+             'grid-column
+             :name 'payload
+             :header "Picture"
+             :printer (lambda (doc)
+                        (if doc
+                            (typecase doc 
+                              (tweet
+                               (if (get-val doc 'user)
+                                   (get-val (get-val doc 'user) 'name)))
+                              (post
+                               (if (get-val doc 'from)
+                                     (if (get-val (get-val doc 'from) 'picture)
+                                         (with-html-to-string ()
+                                               (:img :style "width:32px;height:32px;" :src (get-val (get-val doc 'from) 'picture))) ;
+                                               "")
+                                                  "")
+                                            
+                                                 )
+                                             (t "")))))
             (make-instance 'grid-column
                            :name 'title
                            :header "Title"
@@ -126,15 +179,16 @@
 					    
                                                         )
                                                        (t 0))))))
+|#
            (make-instance 'grid-column
                           :name 'created
-                          :header "Created")
-           ))
-         (grid (make-widget 'generic-grid :name "generic-post-gridzzssrzrssssssppsstsxs0sss"
-                                       :columns columns
+                          :header "Created")))
+         (grid (make-widget 'generic-grid :name "generic-post-grid"
+                                       ;;:columns columns
                                        :edit-inline nil
                                        :title "Facebook Inbox"
                                        :row-object-class 'generic-entry)))
+    (setf (get-val grid 'columns) columns)
     
     (when (parameter "get-facebook-data")
       (update-facebook-posts-for-users grid))

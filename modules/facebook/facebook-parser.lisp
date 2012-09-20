@@ -24,8 +24,31 @@
 
 ;;(get-from-name (get-comment-from (first (get-comments-data (get-comments (nth 4 *post-list*))))))
 
+(defun get-fb-picture (id)
+  (multiple-value-bind (bodyx)
+                (drakma:http-request 
+                 (format nil "https://graph.facebook.com/~A?fields=picture,link" 
+                         id
+                         ))
+    (json::decode-json-from-string bodyx)))
+
+(defun check-fb-picture (id)
+  (find-doc (generic-entry-collection)
+            :test (lambda (doc)
+                    (if (get-val doc 'payload)
+                        (typecase (get-val doc 'payload)
+                          (post
+                           (if (get-val (get-val doc 'payload) 'from)
+                               (if (equal id (get-val (get-val (get-val doc 'payload) 'from) 'id))
+                                   (get-val (get-val (get-val doc 'payload) 'from) 'picture)))))))))
+
 (defun make-from (from-raw)
-  (make-instance 'from :id (get-from-id from-raw) :name (get-from-name from-raw)))
+  (let ((picture (check-fb-picture (get-from-id from-raw))))
+    
+    (make-instance 'from :id (get-from-id from-raw) :name (get-from-name from-raw)
+                   :picture (if picture
+                                (get-val (get-val (get-val picture 'payload) 'from) 'picture)
+                                (cdr (assoc ':picture (get-fb-picture (get-from-id from-raw))))))))
 
 ;; to helpers
 
