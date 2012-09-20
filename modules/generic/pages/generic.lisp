@@ -111,26 +111,26 @@
                           :width "80px;"
                           :printer (lambda (doc)
                                      ;;TODO: See why actions ended up in comments slot
-                                     (if doc
-					 (typecase doc
-					   (post
-					    (if (get-val doc 'comments)
-						(if (string-equal 
-						     (type-of (make-instance 'comments))
-						     "COMMENTS")
+                                     (format nil "~A" (if doc
+                                                     (typecase doc
+                                                       (post
+                                                        (if (get-val doc 'comments)
+                                                            (if (string-equal 
+                                                                 (type-of (make-instance 'comments))
+                                                                 "COMMENTS")
                                            
-						    (if (get-val (get-val doc 'comments) 'count)
-							(get-val (get-val doc 'comments) 'count)
-							0))
-						0)
+                                                                (if (get-val (get-val doc 'comments) 'count)
+                                                                    (get-val (get-val doc 'comments) 'count)
+                                                                    0))
+                                                            0)
 					    
-					    )
-					   (t 0)))))
+                                                        )
+                                                       (t 0))))))
            (make-instance 'grid-column
                           :name 'created
                           :header "Created")
            ))
-         (grid (make-widget 'generic-grid :name "generic-post-gridzzssrzrssssssppsstsxs0ss"
+         (grid (make-widget 'generic-grid :name "generic-post-gridzzssrzrssssssppsstsxs0sss"
                                        :columns columns
                                        :edit-inline nil
                                        :title "Facebook Inbox"

@@ -341,7 +341,7 @@ document.getElementById(\"~A\").submit();"
      (:tr
       (dolist (column (columns widget))
         (htm (:th :style (if (get-val column 'width)
-                     (format nil "width:~A;" (get-val column 'width))) 
+                             (format nil "width:~A;" (get-val column 'width))) 
               (esc (header column)))))
       (when (editable widget)
         (htm (:th)))))))
