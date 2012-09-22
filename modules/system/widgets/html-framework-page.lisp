@@ -373,7 +373,7 @@ if (okToRefresh)
 			
 
 		
-		$( \"[dialog-form]\" ).dialog({
+		$( \"#dialog-form\" ).dialog({
 			autoOpen: false,
 			height: 300,
 			width: 350,
