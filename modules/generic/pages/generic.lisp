@@ -1,7 +1,5 @@
 (in-package #:ems)
 
-
-
 (define-easy-handler (generic-page :uri "/ems/generic") ()
   (let* ((columns
            (list
@@ -24,16 +22,16 @@
                                              (if (get-val doc 'from)
                                                  (htm
                                                   (:table 
-                                                      :style "width:100%;border-bottom: 1px;border-top: 1px;border-spacing: 0px;border-bottom-style:solid;border-collapse: collapse;border-color:gray;"
+                                                      :style "width:100%;border-bottom: 1px;border-spacing: 0px;border-bottom-style:solid;border-collapse: collapse;border-color:lightgray;"
                                                       (:tr 
                                                        (:td :rowspan 1 :style "width:32px;border-width: 0px;padding: 0px;border-style: none;border-color:-moz-border-radius: ;"
                                                             (if (get-val (get-val doc 'from) 'picture)
                                                                 (htm
                                                       
-                                                                 (:img :style "padding: 3px;width:32px;height:32px;" :src (get-val (get-val doc 'from) 'picture)))
+                                                                 (:img :style "padding: 3px;height:50%;" :src (get-val (get-val doc 'from) 'picture)))
                                                                 ""))
                                                        (:td :style "border-width: 0px;padding: 0px;border-style: none;border-color: gray;-moz-border-radius: ;"
-                                                            (str (get-val (get-val doc 'from) 'name))
+                                                            (:strong (str (get-val (get-val doc 'from) 'name)))
                                                             (:br)
                                                             (str (get-val doc 'created-time)))
                                                        
@@ -42,10 +40,12 @@
                                                     
                                                       )
                                                   
-                                                  (str (get-val doc 'message))
+                                                  (str (if (get-val doc 'message)
+                                                           (get-val doc 'message)
+                                                           (get-val doc 'story)))
                                                   (if (get-val doc 'picture)
                                                       (htm
-                                                       (:img :style "padding: 3px;width:32px;height:32px;" :src (get-val doc 'picture))))
+                                                       (:img :style "padding: 3px;height:100%;" :src (get-val doc 'picture))))
                                                   (:br)
                                                   (:div :style "width:100%;background-color:green;"
                                                    (:span :style "float:right;"

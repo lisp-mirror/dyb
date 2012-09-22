@@ -26,7 +26,7 @@
                           :search (search-term grid))))
 
 (defmethod render-row-editor ((grid search-streams-grid) row)
-  (let ((form (make-widget 'peach-form :name "search-stream-form"
+  (let ((form (make-widget 'html-framework-form :name "search-stream-form"
                            :grid-size 12
                            :header "Search Streams"
                            :form-id "search-stream-form"
@@ -113,8 +113,9 @@
             (entity
              (if (parameter "entity-xid")
                  (get-entity-by-id (parse-integer (parameter "entity-xid")))
-                 (get-entity (parameter "entity")))
+                 (get-entity-by-id (parse-integer (parameter "entity"))))
              ))
+        
         (synq-edit-data new-doc)
         (setf (get-val new-doc 'entity) entity)
         (if (xid old-doc)

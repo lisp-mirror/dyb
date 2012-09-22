@@ -1,5 +1,12 @@
 (in-package #:ems)
 
+(defun fetch-social-mention (search)
+  (multiple-value-bind (body)
+      (drakma:http-request (format nil "http://api2.socialmention.com/search?q=~A&f=json&t=all&lang=en" search))
+    (parse-social-mention body)))
+
+
+
 (defun parse-social-mention (mentions)
   (let ((items (assoc ':items mentions)))
     (when items

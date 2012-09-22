@@ -22,6 +22,8 @@
 
 (defclass search-stream (doc)
   (
+   (entity :initarg :entity)
+   (description :initarg :discription)
    (search-stream-type :initarg :search-stream-type)
    (search-stream :initarg :search-stream)
    (search-stream-status :initarg :search-stream-status)
@@ -30,8 +32,12 @@
   (:metaclass storable-class))
 
 
+
 (defun search-streams-collection ()
   (get-collection (system-db) "search-streams"))
+
+(defmethod doc-collection ((doc search-stream))
+  (search-streams-collection))
 
 (defun search-streams ()
   (docs (search-streams-collection)))
@@ -44,10 +50,12 @@
   (get-doc (search-streams-collection) id
            :element 'pid))
 
-(defun make-search-stream (search-stream-type 
+(defun make-search-stream (entity description search-stream-type 
                             search-stream)
   (make-instance 'search-stream 
-                 
+                 :key (list (xid entity) description)
+                 :entity entity
+                 :description description
                  :search-stream-type search-stream-type
                  :search-stream search-stream
               

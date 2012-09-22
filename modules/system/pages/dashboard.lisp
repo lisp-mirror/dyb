@@ -106,7 +106,64 @@
       (render page
               :body 
               (with-html-to-string ()
-                (str "help")))
+                (multiple-value-bind (posts likes comments)
+                    (fb-count-posts-from)
+                    (let ((dash-item (make-widget 'dashboard-item :name "dash-item"))) 
+                      (str (render dash-item :name "analisys" :header "Summary"
+                                   :items
+                                   (list
+                                    (list "Posts" posts)
+                                    (list "Likes" likes)
+                                    (list "Comments" comments))))
+
+                      (str (render dash-item :name "analisys" :header "Analysis"
+                                   :items
+                                   (list
+                                    (list "Brand Awareness" "0")
+                                    (list "Customer Services" "0"))))
+
+                      (str (render dash-item :name "engagement" :header "Engagement"
+                                   :items
+                                   (list
+                                    (list "Likes" likes)
+                                    (list "+1's" "0")
+                                    (list "Shares" "0")
+                                    (list "Retweets" "0"))))
+
+                      (str (render dash-item :name "reach" :header "Reach"
+                                   :items
+                                   (list
+                                    (list "Followers" "0")
+                                    (list "Links" "0")
+                                    (list "Twitter @ Replies" "0"))))
+
+                      (str (render dash-item :name "ave-engagement" :header "Ave Engagement By Publication"
+                                   ;;TODO: Graph
+                                   ))
+
+                      (str (render dash-item :name "top-10-content" :header "Top 10 Content"
+                                   :items
+                                   (list
+                                    (list "Facebook Posts by Piet Snot" posts)
+                                    (list "WP Post by Piet Snot" "0"))))
+
+                      (str (render dash-item :name "top-10-mentions" :header "Top 10 Mentions"
+                                   :items
+                                   (list
+                                    (list "@pietsnot" "0")
+                                    (list "@sannie koekemoer" "0"))))
+                      (str (render dash-item :name "top-10-users" :header "Top 10 Users"
+                                   :items
+                                   (list
+                                    (list "Piet Snot" "0")
+                                    (list "Gert Gieter" "0"))))
+                      (str (render dash-item :name "published-with-links" :header "Activities Published with Links"
+                                   :items
+                                   (list
+                                    (list "Links in published material" "0")
+                                    (list "Links to home WWW in published material" "0"))))
+                  
+                      ))))
       )))
 
 
