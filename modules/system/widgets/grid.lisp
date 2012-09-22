@@ -410,11 +410,16 @@ document.getElementById(\"~A\").submit();"
 (defun render-ajax-edit-button (grid row-id)
   (with-html
     (:a :href
-        (js-link (scroll-to (editor grid))
-                 (js-render (editor grid)
-                            (js-pair "grid-name" (name grid))
-                            (js-pair "action" "edit")
-                            (js-pair "row_id" row-id)))
+        (js-link 
+        
+         ;;(scroll-to (editor grid))
+         (format nil "$(function() {$( \"#dialog-form\" ).dialog( \"open\" );})" )
+         (js-render (editor grid)
+                    (js-pair "grid-name" (name grid))
+                    (js-pair "action" "edit")
+                    (js-pair "row_id" row-id))
+         
+          )
         (make-icon "card--pencil"
               :title "Edit"))))
 
@@ -508,7 +513,7 @@ document.getElementById(\"~A\").submit();"
      (defer-js (fmt "updateTable('~a-table')" (name parent))))
   (defer-js (fmt "updateTable('~a-table')" (name grid))))
 
-(defmethod render ((editor grid-editor) &key)
+(defmethod render ((editor grid-editor) &key (modal-p t) )
   (let* ((grid (grid editor))
          (editing-row (editing-row grid)))
     (cond ((and (not (edit-inline grid))
@@ -518,7 +523,16 @@ document.getElementById(\"~A\").submit();"
                (htm
                 (:div :class "edit-form-error"
                       (esc (error-message grid)))))
-             (render-row-editor grid editing-row))
+             (:input :type "button" :value "shit" :onclick "$(function() {
+				$( \"#dialog-form\" ).dialog( \"open\" );
+
+			})")
+        ;;     (:div :id "dialog-form" (str "What the fuck"))
+             (if modal-p
+                 (htm (:div :id "dialog-form"
+                            
+                            (render-row-editor grid editing-row)))
+                 (render-row-editor grid editing-row)))
            (defer-js (scroll-to editor))
            (setf (state grid) :editing))
           ((eql (state grid) :editing)

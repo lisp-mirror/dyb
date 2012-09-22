@@ -156,7 +156,7 @@
                 (:div :class "container-fluid"
                       (:div :class "branding"
                             (:div :class "logo"
-                                  (str "LOGO SHOULD GO HERE")))
+                                  (:img :style "width:50%;" :src "/appimg/dyb-logo.png")))
                       (:ul :class "nav pull-right"
                            (:li :class "dropdown"
                                 (:a :class "dropdown-toggle" :href "#" :data-toggle "dropdown"
@@ -242,6 +242,11 @@
 
        (:link :rel "stylesheet" :href "/css/styles.css")
        (:link :rel "stylesheet" :href "/css/icons-sprite.css")
+       (:link :rel "stylesheet" :type "text/css" :href "http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.11/themes/base/jquery-ui.css")
+   
+       (:link :rel "stylesheet" :type "text/css" :href "http://static.jquery.com/ui/css/demo-docs-theme/ui.theme.css")
+
+    
 
 
        (:link :id "themes" :rel "stylesheet" :href "/css/theme-blue.css")
@@ -288,6 +293,8 @@ if (okToRefresh)
 
 
 
+
+
       "<!-- javascript
        ================================================== -->
        <!-- Placed at the end of the document so the pages load faster -->"
@@ -301,6 +308,9 @@ if (okToRefresh)
                                                    |#
 
 "<script src=\"/js/jquery.js\"></script>
+      <script type='text/javascript' src=\"http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.11/jquery-ui.min.js\"></script>
+      <script type='text/javascript' src=\"https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js\"></script>
+
 <script src=\"/js/jquery-ui-1.8.16.custom.min.js\"></script>
 <script src=\"/js/bootstrap.js\"></script>
 <script src=\"/js/prettify.js\"></script>
@@ -352,6 +362,58 @@ if (okToRefresh)
 
        (str bottom-java-script)
 
+
+"<script>
+	$(function() {
+
+		var name = $( \"#name\" ),
+			email = $( \"#email\" ),
+			password = $( \"#password\" ),
+			allFields = $( [] ).add( name ).add( email ).add( password );
+			
+
+		
+		$( \"[dialog-form]\" ).dialog({
+			autoOpen: false,
+			height: 300,
+			width: 350,
+			modal: true,
+			buttons: {
+				\"Create an account\": function() {
+			
+		//put save here
+						$( this ).dialog( \"close\" );
+					
+				},
+				Cancel: function() {
+					$( this ).dialog( \"close\" );
+				}
+			},
+			close: function() {
+				allFields.val( \"\" ).removeClass( \"ui-state-error\" );
+			}
+		});
+
+		$( \"#create-user\" )
+			.button()
+			.click(function() {
+				$( \"#dialog-form\" ).dialog( \"open\" );
+			});
+	});
+	</script>"
+
+       (:script "$(\"#inline-datepicker\").datepicker({
+   onSelect: function(dateText, inst) { 
+      var dateAsString = dateText; //the first parameter of this function
+      var dateAsObject = $(this).datepicker( 'getDate' ); //the getDate method
+      //alert (dateText);
+      //$(\"#inline-datepicker\").submit();
+      window.location.replace(\"/ems/generic-scheduler\");
+
+   }
+});
+")
+       
        (:script :defer t :src "/appjs/ajax.js")       
        (:script (str (deferred-js)))
 
@@ -447,18 +509,42 @@ if (okToRefresh)
                                ))
                          (:li
                           (:a :href "#"
-                              (:img :src "/img/icons/25x25/dark/keyboard.png" :width "25" :height "25" :alt "")
+                              (:span :class "white-icons mail")
                               "Inbox")
                           (:ul :class "acitem" :style "display:none;"
 
                                (:li
                                 (:a :href "/ems/generic" "Inbox"))
                        
+                               
+                       
+                               
+                               ))
+                         (:li
+                          (:a :href "#"
+                              (:span :class "white-icons month_calendar")
+                              "Scheduler")
+                          (:ul :class "acitem" :style "display:none;"
+
+                                                     
                                (:li
-                                (:a :href "/ems/scheduled" "Scheduled Actions"))
+                                (:a :href "/ems/generic-scheduler" "Scheduler"))
+                       
+                               
+                               ))
+                         (:li
+                          (:a :href "#"
+                              (:span :class "white-icons magnifying_glass")
+                              "Search Streams")
+                          (:ul :class "acitem" :style "display:none;"
+
+                               (:li
+                                (:a :href "/ems/search-stream" "Search Streams"))
+                       
+                               
                        
                                (:li
-                                (:a :href "/ems/search-stream-feedback" "Search Stream Feedback"))
+                                (:a :href "/ems/search-stream-feedback" "Search Stream Data"))
                                ))
                          )
                     (:div :id "side-accordion"
@@ -470,8 +556,11 @@ if (okToRefresh)
                                           (:i :class "nav-icon month_calender")
                                           (str "Todays Event")))
                                 (:div :class "accordion-content"
-                                      (:div :id "inline-datepicker" ;:style "font-size:8px;"
-                                            :value "12-02-2012")))))
+                                      (:div :id "inline-datepicker" :altField "shit" ;:style "font-size:8px;"
+                                           
+                                            :value "12-02-2012"
+                                            (:intput :id "shit" :type "hidden" ;;:onchange "(alert 'shit');";; "document.getElementById(\"shit\").submit();"
+                                                     ))))))
               
               (:div :id "main-content"
                     (:div :class "container-fluid"
