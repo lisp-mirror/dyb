@@ -518,16 +518,14 @@ document.getElementById(\"~A\").submit();"
                (htm
                 (:div :class "edit-form-error"
                       (esc (error-message grid)))))
+             (render-row-editor grid editing-row)
              (cond (modal-p
-                    (htm (:div :id (format nil "~a-dialog-form"
-                                           (name grid))
-                               (render-row-editor grid editing-row)))
-                    (defer-js (format nil "$('#~a-dialog-form').dialog('open')"
-                                      (name grid)))
-                    (defer-js (format nil "$('#~a-dialog-form').dialog({autoOpen: false, width: 600, height: 500})"
-                                      (name grid))))
+                    (defer-js (format nil "$('#~a').dialog('open')"
+                                      (name editor)))
+                    (defer-js (format nil "$('#~a').dialog({autoOpen: false, width: 600, height: 500})"
+                                      (name editor))))
                    (t
-                    (render-row-editor grid editing-row)
+                    
                     (defer-js (scroll-to editor)))))
            
            (setf (state grid) :editing))
@@ -535,8 +533,8 @@ document.getElementById(\"~A\").submit();"
            (unless (equal (parameter "action") "cancel")
              (update-table grid))
            (if modal-p
-               (defer-js (format nil "$('#~a-dialog-form').dialog('close')"
-                                 (name grid)))
+               (defer-js (format nil "$('#~a').dialog('close')"
+                                 (name editor)))
                (defer-js (scroll-to editor)))
            (setf (state grid) nil)))))
 
