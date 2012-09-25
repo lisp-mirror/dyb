@@ -44,6 +44,57 @@
                 (:div :class "widget-box"
                       (str (content box)))))))
 
+
+(defclass html-simple-framework-form (widget)
+  ((grid-size :initarg :grid-size
+              :initform 6
+              :accessor grid-size)
+   (header :initarg :header
+           :accessor header)
+   (form-id :initarg :form-id
+            :accessor form-id)))
+
+(defmethod render ((widget html-simple-framework-form) &key content)
+  (with-html
+    (:div :class "nonboxy-widget"
+          (if (get-val widget 'header)
+              (htm (:div :class "widget-head"
+                         (:h5 (str (get-val widget 'header))))))
+          (:div :class "widget-content"
+                (:div :class "widget-box"
+                      (:form :name (get-val widget 'form-id)
+                             :id (get-val widget 'form-id)
+                             :class "form-horizontal well"
+                             :method "post"
+                             :onsubmit "return false;"
+                             (:fieldset
+                              (:input :type "hidden" :name "form-id"
+                                      :value (get-val widget 'form-id))
+
+                              (str content)
+
+                              (:div :class "form-actions"
+                                    (:button
+                                     :class "btn btn-info"
+                                     :onclick
+                                     #|(format nil
+                                             "if($(\"#~a\").valid()){~a}"
+                                             (get-val widget 'form-id)
+                                             
+                                             (js-render-form-values  
+                                              (editor grid)
+                                              (get-val widget 'form-id)
+                                              (js-pair "grid-name" (name grid))
+                                              (js-pair "action" "save")))|#
+                                     "Save")
+                                    (:button :class "btn btn-warning"
+                                             :onclick
+                                             #|(js-render (editor grid)
+                                                        (js-pair "grid-name" (name grid))
+                                                        (js-pair "action" "cancel"))|#
+                                             "Cancel")))))))))
+
+
 (defclass html-framework-form (widget)
   ((grid-size :initarg :grid-size
               :initform 6
@@ -375,8 +426,8 @@ if (okToRefresh)
 		
 		$( \"#dialog-form\" ).dialog({
 			autoOpen: false,
-			height: 300,
-			width: 350,
+			height: 595,
+			width: 1100,
 			modal: true,
 			buttons: {
 				\"Create an account\": function() {

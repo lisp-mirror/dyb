@@ -95,24 +95,7 @@
 
 
 
-(defun comment-facebook (action)
-  (let ((from-user (get-val action 'from-user-id))
-        (to-user (get-val action 'to-user-id)))
-    (multiple-value-bind (body)
-        (drakma:http-request (format nil "https://graph.facebook.com/~A/comments&access_token=~A"
-                                     (get-val action 'pid)
-                                     (get-val (or from-user to-user) 'last-access-token))
-                             :method :post
-                             :parameters (list (cons "message"  (parameter "comment"))))
 
-      (let ((error-message (get-facebook-error body) ))           
-        (when error-message
-          (setf (get-val action 'action-status) "Error")
-          (setf (get-val action 'action-log) (cdr (car (rest error-message)))))
-
-        (unless error-message 
-            (setf (get-val action 'action-status) "Completed")
-            (setf (get-val action 'action-log) "Posted comment successfully."))))))
 
 (defmethod handle-action ((grid generic-actions-grid) (action (eql 'save)))
   (setf (error-message grid) nil)
