@@ -173,34 +173,25 @@
                                     "COMMENTS")
                                        
                                    (dolist (comment (get-val (get-val doc 'comments) 'data))
-                                     (htm (:div (str (get-val comment 'message))))
-                                     ))
-                               )
+                                     (htm (:div (str (get-val comment 'message)))))))
                            (:br)
 
                            (let ((comment-form 
-                                  (make-instance 'fb-post-comment-form  
-                                                 :name (format nil 
-                                                               "comments-~A-dialog-form" 
-                                                               (get-val doc 'post-id)))))
-                            ;; (setf (get-val comment-form 'current-post) doc)
+                                   (make-widget 'fb-post-comment-form
+                                                :name (format nil 
+                                                              "comments-~A-dialog-form" 
+                                                              (get-val doc 'post-id)))))
+                             ;; (setf (get-val comment-form 'current-post) doc)
                              (htm (:a :href
                                       (js-link 
                                        (js-render comment-form
                                                   (js-pair "post-id" 
                                                            (get-val doc 'post-id))
-                                                  (js-pair "action" "comment")
-                                                  ))
+                                                  (js-pair "action" "comment")))
                                       (make-icon "card--pencil"
                                                  :title "Post Comment"))
-                                  (render comment-form)))
-
-                           )
-                     )
-                    
-                                                 
-                ""))
-    )))
+                                  (render comment-form)))))
+                "")))))
 
 (define-easy-handler (generic-page :uri "/ems/generic") ()
   (let* ((columns
