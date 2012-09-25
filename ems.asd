@@ -188,7 +188,10 @@
                                   :serial t
                                   :components
                                   ((:file "scheduler")
-                                   
+                                   (:module "pages"
+                                            :serial t
+                                            :components
+                                            ((:file "generic-scheduler")))
                                    
                    
                                    ))
