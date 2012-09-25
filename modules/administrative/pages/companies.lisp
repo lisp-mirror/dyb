@@ -4,12 +4,22 @@
   (let* ((columns
            (list
             (make-instance 'grid-column
-                           :name 'name
+                           :name 'entity
+                           :header "Entity")
+            (make-instance 'grid-column
+                           :name 'company-name
                            :header "Name")
+            (make-instance 'grid-column
+                           :name 'contact-person
+                           :header "Contact Person")
+            (make-instance 'grid-column
+                           :name 'contact-number
+                           :header "Contact Number")
             ))
-         (grid (make-widget 'companies-grid :name "companies-grid"
+         (grid (make-widget 'companies-grid :name "companies-gridxxx"
                                        :columns columns
                                        :edit-inline nil
-                                       :title "Companies")))
+                                       :title "Companies"
+                                       :row-object-class 'company)))
     (render (make-widget 'page :name "companies-page")
             :body (render-to-string grid))))

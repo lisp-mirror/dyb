@@ -1,9 +1,13 @@
 (in-package :ems)
 
 (defclass company (doc)
-  ((company-name :initarg :company-name 
+  ((entity :initarg :entity)
+   (company-name :initarg :company-name 
                  :initform nil
-                 :accessor company-name))
+                 :accessor company-name)
+   (contact-person :initarg :contact-person)
+   (contact-number :initarg :contact-number)
+   )
   (:metaclass storable-class))
 
 (defun companies-collection ()
