@@ -522,8 +522,12 @@ document.getElementById(\"~A\").submit();"
              (cond (modal-p
                     (defer-js (format nil "$('#~a').dialog('open')"
                                       (name editor)))
-                    (defer-js (format nil "$('#~a').dialog({autoOpen: false, width: 600, height: 500})"
-                                      (name editor))))
+                    (defer-js (format nil "$('#~a').dialog({autoOpen: false, width: 600, height: 500,~@
+                                           close: function(){~a}})"
+                                      (name editor)
+                                      (js-render (editor grid)
+                                                 (js-pair "grid-name" (name grid))
+                                                 (js-pair "action" "cancel")))))
                    (t
                     
                     (defer-js (scroll-to editor)))))
