@@ -7,6 +7,7 @@
 (defmethod render ((widget dashboard-item) &key name header items)
   (with-html-to-string ()
     (let ((box (make-widget 'html-framework-box :name (format nil "~A-box" name))))
+      (setf (get-val box 'grid-size) 11)
       (setf (header box) header)
       (setf (get-val box 'content )
             (with-html-to-string ()
@@ -21,7 +22,7 @@
                      (:div :class "actions-left")
                      (:div :class "actions-right"
                                  (:a :class "button" :href "#" "Got to stats &raquo;")))))
-      (htm (:div :class "clear"))
+      
       )))
 
 
@@ -106,6 +107,7 @@
       (render page
               :body 
               (with-html-to-string ()
+                
                 (multiple-value-bind (posts likes comments)
                     (fb-count-posts-from)
                     (let ((dash-item (make-widget 'dashboard-item :name "dash-item"))) 

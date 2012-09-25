@@ -37,7 +37,9 @@
 
 (defmethod render ((box html-framework-box) &key)
   (with-html
-    (:div :class "widget-block"
+    (:div :class (if (get-val box 'grid-size)
+                     (format nil "widget-block span-~A" (get-val box 'grid-size))
+                     "widget-block")
           (:div :class "widget-head"
                 (:h3 (esc (header box))))
           (:div :class "widget-content"
@@ -77,22 +79,21 @@
                                     (:button
                                      :class "btn btn-info"
                                      :onclick
-                                     #|(format nil
+                                     (format nil
                                              "if($(\"#~a\").valid()){~a}"
                                              (get-val widget 'form-id)
                                              
                                              (js-render-form-values  
-                                              (editor grid)
+                                              widget
                                               (get-val widget 'form-id)
-                                              (js-pair "grid-name" (name grid))
-                                              (js-pair "action" "save")))|#
+                                              
+                                              (js-pair "action" "save")))
                                      "Save")
                                     (:button :class "btn btn-warning"
                                              :onclick
-                                             #|(js-render (editor grid)
-                                                        (js-pair "grid-name" (name grid))
-                                                        (js-pair "action" "cancel"))|#
-                                             "Cancel")))))))))
+                                             (js-render widget
+                                                        
+                                                        (js-pair "action" "cancel"))                                             "Cancel")))))))))
 
 
 (defclass html-framework-form (widget)
