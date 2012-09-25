@@ -413,46 +413,6 @@ if (okToRefresh)
 
        (str bottom-java-script)
 
-
-"<script>
-	$(function() {
-
-		var name = $( \"#name\" ),
-			email = $( \"#email\" ),
-			password = $( \"#password\" ),
-			allFields = $( [] ).add( name ).add( email ).add( password );
-			
-
-		
-		$( \"#dialog-form\" ).dialog({
-			autoOpen: false,
-			height: 595,
-			width: 1100,
-			modal: true,
-			buttons: {
-				\"Create an account\": function() {
-			
-		//put save here
-						$( this ).dialog( \"close\" );
-					
-				},
-				Cancel: function() {
-					$( this ).dialog( \"close\" );
-				}
-			},
-			close: function() {
-				allFields.val( \"\" ).removeClass( \"ui-state-error\" );
-			}
-		});
-
-		$( \"#create-user\" )
-			.button()
-			.click(function() {
-				$( \"#dialog-form\" ).dialog( \"open\" );
-			});
-	});
-	</script>"
-
        (:script "$(\"#inline-datepicker\").datepicker({
    onSelect: function(dateText, inst) { 
       var dateAsString = dateText; //the first parameter of this function

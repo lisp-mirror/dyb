@@ -768,3 +768,7 @@ THEME SWITCHER
 $(function () {
     $('#inline-datepicker').datepicker({ dateFormat: "dd-mm-yyyy" })
 })
+
+function updateTable(table) {
+    jQuery('#' + table).dataTable().fnDraw();
+}
