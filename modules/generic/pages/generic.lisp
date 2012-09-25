@@ -178,10 +178,7 @@
                                )
                            (:br)
 
-                           
-
-                           )
-                     (let ((comment-form 
+                           (let ((comment-form 
                                   (make-instance 'fb-post-comment-form  
                                                  :name (format nil 
                                                                "comments-~A-dialog-form" 
@@ -196,7 +193,10 @@
                                                   ))
                                       (make-icon "card--pencil"
                                                  :title "Post Comment"))
-                                  (render comment-form))))
+                                  (render comment-form)))
+
+                           )
+                     )
                     
                                                  
                 ""))
