@@ -221,20 +221,20 @@
                                       (:a :href "/ems/dashboard" "Dashboard"))
                                      (:li
                                       (:a :href "/ems/users" "Users"))
-                                     (:li
-                                      (:a :href "/ems/country-town" "Country/Town"))
+                                    ;; (:li
+                                    ;;  (:a :href "/ems/country-town" "Country/Town"))
                                      (:li
                                       (:a :href "/ems/permissions" "Permissions"))
-                                     (:li
-                                      (:a :href "/ems/root-entities" "Root Entities"))
+                                    ;; (:li
+                                    ;;  (:a :href "/ems/root-entities" "Root Entities"))
                                      (:li
                                       (:a :href "/ems/entities" "Entities"))
                                      (:li
                                       (:a :href "/ems/all-sorts" "Allsorts"))
                                      (:li
                                       (:a :href "/ems/context" "Context"))
-                                     (:li
-                                      (:a :href "/ems/importer" "Importer"))
+                                     ;;(:li
+                                     ;; (:a :href "/ems/importer" "Importer"))
                                      (:li :class "divider")
                                      (:li
                                       (:a :href "/ems/logout"
@@ -513,11 +513,11 @@ if (okToRefresh)
                                            (:span :class "sidenav-link-color"))
                                     "Service Users"
                                     ))
-                               (:li
-                                (:a :href "/ems/search-stream" 
-                                    (:span :class "sidenav-icon"
-                                           (:span :class "sidenav-link-color"))
-                                    "Search Streams"))
+                               ;;(:li
+                               ;; (:a :href "/ems/search-stream" 
+                                ;;    (:span :class "sidenav-icon"
+                                 ;;          (:span :class "sidenav-link-color"))
+                                  ;;  "Search Streams"))
                                ))
                          (:li
                           (:a :href "#"
