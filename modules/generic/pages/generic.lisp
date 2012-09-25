@@ -50,8 +50,8 @@
                           (get-post-by-post-id (parameter "post-id")))))
     (with-html 
       
-      ;;(if (parameter "action"))
-      (render comment-form
+      (if (parameter "action")
+          (render comment-form
                   ;;:grid grid
                   :content
                   (with-html-to-string ()
@@ -88,14 +88,15 @@
                                 (parameter "scheduled-date")
                                 :type :datetime-local)
                                ))
-                     )))
-#|
+                     ))))
+      
+
       (defer-js (format nil 
                         "$('#comments~a-dialog-form').dialog('open')"
                         (get-val current-post 'post-id)))
       (defer-js (format nil "$('#comments~a-dialog-form').dialog({autoOpen: false, width: 900, height: 590})"
                         (get-val current-post 'post-id)))
-|#
+
 )))
 
 (defun generic-grid-item-display (doc)
