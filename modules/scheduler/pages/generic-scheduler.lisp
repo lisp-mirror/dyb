@@ -17,7 +17,7 @@
                                        ;;:columns columns
                                        :edit-inline nil
                                        :title "Schedule Actions"
-                                       :row-object-class 'generic-acttion)))
+                                       :row-object-class 'generic-action)))
     (setf (get-val grid 'columns) columns)
     
     (render (make-widget 'page :name "generic-scheduler-page")
