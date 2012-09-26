@@ -1,4 +1,30 @@
+body {
+ background-color: #13547e !important;
+}
 
+.bodyclass {
+  color:#333;
+  margin: auto;
+  font-size:11px;
+  width: 1024px;
+  font-family:verdana,"lucida grande",helvetica,arial,sans-serif;
+
+}
+.content {
+ width: 300px;
+ margin: 0 auto;
+}
+
+.header h3 {
+ color: white;
+}
+.background {
+ background: url(http://digyourbrand.com/wp-content/uploads/2012/07/logo.png) no-repeat;
+ height: 113px;
+}
+label {
+ color: white;
+}
 
 
 /*

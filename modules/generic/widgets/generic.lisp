@@ -211,27 +211,27 @@
                                          (get-val row 'title)
                                          :type :textarea)))
                               
-                              (if (string-equal (get-val row 'type) "facebook")
-                                  (if (get-val (get-val (get-val row 'payload) 'likes) 'count)
-                                      (render 
-                                       form-section
-                                       :label "Likes"
-                                       :input (with-html-to-string ()
-                                                (render-edit-field 
-                                                 "Count"
-                                                 (if (get-val (get-val row 'payload) 'likes)
-                                                  (get-val (get-val (get-val row 'payload) 'likes) 'count))
-                                                 :type :textarea))))
-                                  (if (get-val (get-val row 'payload) 'retweet-count)
-                                      (render 
-                                       form-section
-                                       :label "Retweets"
-                                       :input (with-html-to-string ()
-                                                (render-edit-field 
-                                                 "Count"
-                                                 (write-to-string (get-val (get-val row 'payload) 'retweet-count))
-                                                 :type :textarea))))
-                                  )
+                              (cond ((string-equal (get-val row 'type) "facebook")
+                                     (if (get-val (get-val (get-val row 'payload) 'likes) 'count)
+                                         (render 
+                                          form-section
+                                          :label "Likes"
+                                          :input (with-html-to-string ()
+                                                   (render-edit-field 
+                                                    "Count"
+                                                    (if (get-val (get-val row 'payload) 'likes)
+                                                        (get-val (get-val (get-val row 'payload) 'likes) 'count))
+                                                    :type :textarea)))))
+                                    ((string-equal (get-val row 'type) "facebook")
+                                     (if (get-val (get-val row 'payload) 'retweet-count)
+                                         (render 
+                                          form-section
+                                          :label "Retweets"
+                                          :input (with-html-to-string ()
+                                                   (render-edit-field 
+                                                    "Count"
+                                                    (write-to-string (get-val (get-val row 'payload) 'retweet-count))
+                                                    :type :textarea))))))
                               (if (string= (get-val row 'type) "facebook")
                                   (dolist (com (get-val (get-val (get-val row 'payload) 'comments) 'data))
                                     (render 

@@ -299,7 +299,7 @@
        (:link :rel "stylesheet" :type "text/css" :href "http://static.jquery.com/ui/css/demo-docs-theme/ui.theme.css")
 
     
-
+       " <link href=\"/css/jquery.jqplot.css\" rel=\"stylesheet\">"
 
        (:link :id "themes" :rel "stylesheet" :href "/css/theme-blue.css")
        (:style 
@@ -389,14 +389,26 @@ if (okToRefresh)
 <script src=\"/js/inputmask.jquery.js\"></script>
 <script src=\"http://bp.yahooapis.com/2.4.21/browserplus-min.js\"></script>
 <script src=\"/js/plupupload/jquery.plupload.queue/jquery.plupload.queue.js\"></script>
-<script src=\"/js/excanvas.min.js\"></script>
-<script src=\"/js/jquery.jqplot.min.js\"></script>
-<script src=\"/js/chart/jqplot.highlighter.min.js\"></script>
-<script src=\"/js/chart/jqplot.cursor.min.js\"></script>
-<script src=\"/js/chart/jqplot.dateAxisRenderer.min.js\"></script>
+
+    <script src=\"/js/excanvas.min.js\"></script>
+    <script src=\"/js/jquery.jqplot.min.js\"></script>
+    <script src=\"/js/chart/jqplot.highlighter.min.js\"></script>
+    <script src=\"/js/chart/jqplot.cursor.min.js\"></script>
+    <script src=\"/js/chart/jqplot.barRenderer.min.js\"></script>
+    <script src=\"/js/chart/jqplot.pointLabels.min.js\"></script>
+    <script src=\"/js/chart/jqplot.dateAxisRenderer.min.js\"></script>
+    <script src=\"/js/chart/jqplot.pieRenderer.min.js\"></script>
+    <script src=\"/js/chart/jqplot.donutRenderer.min.js\"></script>
+    <script src=\"/js/chart/jqplot.categoryAxisRenderer.min.js\"></script>
+    <script src=\"/js/chart/jqplot.logAxisRenderer.min.js\"></script>
+    <script src=\"/js/chart/jqplot.canvasTextRenderer.min.js\"></script>
+    <script src=\"/js/chart/jqplot.canvasAxisTickRenderer.min.js\"></script> 
+
+
 <script src=\"/js/custom-script.js\"></script>"
 
-
+   
+  
 
 
 ;;" <script src=\"js/jquery.noty.js\"></script>"

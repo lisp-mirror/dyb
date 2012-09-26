@@ -1,20 +1,43 @@
 (in-package :ems)
 
-(defclass dashboard-item (widget)
+
+(defclass dashboard-item-full (widget)
   (
    ))
 
-(defmethod render ((widget dashboard-item) &key name header items)
+(defmethod render ((widget dashboard-item-full) &key header content)
   (with-html-to-string ()
     (:div :class "widget-block" 
           (:div :class "widget-head" 
                 (:h5 (esc header)))
           (:div :class "widget-content"
-                (:div :class "widget-box" 
-                      (:ul :class "stats-list" 
-                           (dolist (item items)
-                             (htm (:li (:a :href "#" (str (first item)) 
-                                           (:span (str (second item)))))))))))))
+                (:table (:tr (:td :style "vertical-align:top;"
+                                  (:img  :style "padding :10px;" :src "/appimg/save.png"))
+                             (:td  :style "width:100%;padding :10px"
+                              
+                              (str content)
+                              )))
+                
+                ))))
+
+(defclass dashboard-item (widget)
+  (
+   ))
+
+(defmethod render ((widget dashboard-item) &key header content)
+  (with-html-to-string ()
+    (:div :class "widget-block" 
+          (:div :class "widget-head" 
+                (:h5 (esc header)))
+          (:div :class "widget-content"
+                (:table (:tr (:td :style "vertical-align:top;"
+                                  (:img  :style "padding :10px;" :src "/appimg/save.png"))
+                             (:td 
+                              (:div :style "padding :10px"
+                                    (str content))
+                              )))
+                
+                ))))
 
 
 (defun get-facebook-user (fb-user-id)
@@ -104,20 +127,22 @@
 
                 (multiple-value-bind (posts likes comments)
                     (fb-count-posts-from)
-                  (let ((dash-item (make-widget 'dashboard-item :name "dash-item")))
+                  (let ((dash-item (make-widget 'dashboard-item :name "dash-item"))
+                        (dash-item-full (make-widget 'dashboard-item-full :name "dash-item-full")))
                     (htm 
-                     (str (render dash-item :name "ave-engagement" :header "Ave Engagement By Publication"
+                     (str (render dash-item-full :name "ave-engagement" :header "Ave Engagement By Publication"
                                   ;;TODO: Graph
+                                  :content (render-to-string (make-widget 'line-graph :name "chart6"))
                                   ))
                      (:table :style "width:100%"
                           (:tr
                            (:td :style "vertical-align:top;"
-                            (str (render dash-item :name "analisys" :header "Summary"
-                                         :items
-                                         (list
-                                          (list "Posts" posts)
-                                          (list "Likes" likes)
-                                          (list "Comments" comments)))))
+                            (str (render dash-item :name "analisys" :header "Total Reach"
+                                         :content
+                                         "Total Reach of <strong>974</strong><br/>
+<strong>12%</strong> up from previous month<br/>
+Current Network is <strong>373</strong>, up <strong>5%</strong> from previous month<br/>
+Total impressions is <strong>3848</strong>, up <strong>9%</strong> from previous month<br/>")))
                            (:td :style "vertical-align:top;"
 
                             (str (render dash-item :name "analisys" :header "Analysis"
@@ -165,10 +190,8 @@
                                           (list "Kobus" "0")))))
                            (:td :style "vertical-align:top;"
                             (str (render dash-item :name "published-with-links" :header "Activities Published with Links"
-                                         :items
-                                         (list
-                                          (list "Links in published material" "0")
-                                          (list "Links to home WWW in published material" "0"))))))))
+                                         :content
+                                         "Links in published material"))))))
                   
                     ))))
       )))

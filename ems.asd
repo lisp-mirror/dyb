@@ -70,7 +70,8 @@
                                              (:file "ems-page")
                                              (:file "input-widgets")
                                              (:file "login")
-                                             (:file "root-entities")))
+                                             (:file "root-entities")
+                                             (:file "graphs")))
                                    (:module "pages"
                                             :serial t
                                             :components
