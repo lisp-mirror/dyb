@@ -6,24 +6,15 @@
 
 (defmethod render ((widget dashboard-item) &key name header items)
   (with-html-to-string ()
-    (let ((box (make-widget 'html-framework-box :name (format nil "~A-box" name))))
-      (setf (get-val box 'grid-size) 11)
-      (setf (header box) header)
-      (setf (get-val box 'content )
-            (with-html-to-string ()
-              (:ul :class "stats-list"
-                   (dolist (item items)
-                     (htm (:li (:a :href "#" (str (first item)) 
-                                   (:span (str (second item))))))))))
-      (str (render box
-                   ;;need to move this
-                   :actions
-                   (with-html-to-string ()
-                     (:div :class "actions-left")
-                     (:div :class "actions-right"
-                                 (:a :class "button" :href "#" "Got to stats &raquo;")))))
-      
-      )))
+    (:div :class "widget-block" 
+          (:div :class "widget-head" 
+                (:h5 (esc header)))
+          (:div :class "widget-content"
+                (:div :class "widget-box" 
+                      (:ul :class "stats-list" 
+                           (dolist (item items)
+                             (htm (:li (:a :href "#" (str (first item)) 
+                                           (:span (str (second item)))))))))))))
 
 
 (defun get-facebook-user (fb-user-id)
@@ -65,15 +56,17 @@
                              'doc-status) "superseded"))
               (loop 
                  for user across (service-users)
-                    do (when (match-context-entities user)                      
-                         (when (string-equal (format nil "~A" (get-val user 'user-id)) (get-fb-post-from doc))
-                                (incf count)
-                                (incf likes (get-fb-likes-count doc)) 
-                                (incf comments (get-fb-comments-count doc)))
-                          (when (string-equal (format nil "~A" (get-val user 'user-id)) (get-fb-post-from doc))
-                                (incf count)
-                                (incf likes (get-fb-likes-count doc)) 
-                                (incf comments (get-fb-comments-count doc)))))))
+                    do (when (match-context-entities user)  
+                         (typecase (get-val doc 'payload)
+                           (post
+                            (when (string-equal (format nil "~A" (get-val user 'user-id)) (get-fb-post-from doc))
+                              (incf count)
+                              (incf likes (get-fb-likes-count doc)) 
+                              (incf comments (get-fb-comments-count doc)))
+                            (when (string-equal (format nil "~A" (get-val user 'user-id)) (get-fb-post-from doc))
+                              (incf count)
+                              (incf likes (get-fb-likes-count doc)) 
+                              (incf comments (get-fb-comments-count doc)))))))))
     (values count likes comments)))
 
 (defun fb-count-posts-to ()
@@ -107,65 +100,77 @@
       (render page
               :body 
               (with-html-to-string ()
-                
+
+
                 (multiple-value-bind (posts likes comments)
                     (fb-count-posts-from)
-                    (let ((dash-item (make-widget 'dashboard-item :name "dash-item"))) 
-                      (str (render dash-item :name "analisys" :header "Summary"
-                                   :items
-                                   (list
-                                    (list "Posts" posts)
-                                    (list "Likes" likes)
-                                    (list "Comments" comments))))
+                  (let ((dash-item (make-widget 'dashboard-item :name "dash-item")))
+                    (htm 
+                     (str (render dash-item :name "ave-engagement" :header "Ave Engagement By Publication"
+                                  ;;TODO: Graph
+                                  ))
+                     (:table :style "width:100%"
+                          (:tr
+                           (:td :style "vertical-align:top;"
+                            (str (render dash-item :name "analisys" :header "Summary"
+                                         :items
+                                         (list
+                                          (list "Posts" posts)
+                                          (list "Likes" likes)
+                                          (list "Comments" comments)))))
+                           (:td :style "vertical-align:top;"
 
-                      (str (render dash-item :name "analisys" :header "Analysis"
-                                   :items
-                                   (list
-                                    (list "Brand Awareness" "0")
-                                    (list "Customer Services" "0"))))
+                            (str (render dash-item :name "analisys" :header "Analysis"
+                                         :items
+                                         (list
+                                          (list "Brand Awareness" "0")
+                                          (list "Customer Services" "0")))))
+                           (:td :style "vertical-align:top;"
 
-                      (str (render dash-item :name "engagement" :header "Engagement"
-                                   :items
-                                   (list
-                                    (list "Likes" likes)
-                                    (list "+1's" "0")
-                                    (list "Shares" "0")
-                                    (list "Retweets" "0"))))
+                            (str (render dash-item :name "engagement" :header "Engagement"
+                                         :items
+                                         (list
+                                          (list "Likes" likes)
+                                          (list "+1's" "0")
+                                          (list "Shares" "0")
+                                          (list "Retweets" "0")))))
+                           (:td :style "vertical-align:top;"
 
-                      (str (render dash-item :name "reach" :header "Reach"
-                                   :items
-                                   (list
-                                    (list "Followers" "0")
-                                    (list "Links" "0")
-                                    (list "Twitter @ Replies" "0"))))
+                            (str (render dash-item :name "reach" :header "Reach"
+                                         :items
+                                         (list
+                                          (list "Followers" "0")
+                                          (list "Links" "0")
+                                          (list "Twitter @ Replies" "0")))))
+                           
+                           (:td :style "vertical-align:top;"
 
-                      (str (render dash-item :name "ave-engagement" :header "Ave Engagement By Publication"
-                                   ;;TODO: Graph
-                                   ))
+                            (str (render dash-item :name "top-10-content" :header "Top 10 Content"
+                                         :items
+                                         (list
+                                          (list "Facebook Posts Kobus" posts)
+                                          (list "WP Post by Kobus" "0")))))
+                           (:td :style "vertical-align:top;"
 
-                      (str (render dash-item :name "top-10-content" :header "Top 10 Content"
-                                   :items
-                                   (list
-                                    (list "Facebook Posts by Piet Snot" posts)
-                                    (list "WP Post by Piet Snot" "0"))))
-
-                      (str (render dash-item :name "top-10-mentions" :header "Top 10 Mentions"
-                                   :items
-                                   (list
-                                    (list "@pietsnot" "0")
-                                    (list "@sannie koekemoer" "0"))))
-                      (str (render dash-item :name "top-10-users" :header "Top 10 Users"
-                                   :items
-                                   (list
-                                    (list "Piet Snot" "0")
-                                    (list "Gert Gieter" "0"))))
-                      (str (render dash-item :name "published-with-links" :header "Activities Published with Links"
-                                   :items
-                                   (list
-                                    (list "Links in published material" "0")
-                                    (list "Links to home WWW in published material" "0"))))
+                            (str (render dash-item :name "top-10-mentions" :header "Top 10 Mentions"
+                                         :items
+                                         (list
+                                          (list "@ems" "0")
+                                          (list "@ems" "0")))))
+                           (:td :style "vertical-align:top;"
+                            (str (render dash-item :name "top-10-users" :header "Top 10 Users"
+                                         :items
+                                         (list
+                                          (list "Kobus" "0")
+                                          (list "Kobus" "0")))))
+                           (:td :style "vertical-align:top;"
+                            (str (render dash-item :name "published-with-links" :header "Activities Published with Links"
+                                         :items
+                                         (list
+                                          (list "Links in published material" "0")
+                                          (list "Links to home WWW in published material" "0"))))))))
                   
-                      ))))
+                    ))))
       )))
 
 

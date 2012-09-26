@@ -409,14 +409,16 @@ document.getElementById(\"~A\").submit();"
 
 (defun render-ajax-edit-button (grid row-id)
   (with-html
+    
     (:a :href
         (js-link 
          (js-render (editor grid)
                     (js-pair "grid-name" (name grid))
                     (js-pair "action" "edit")
                     (js-pair "row_id" row-id)))
-        (make-icon "card--pencil"
-              :title "Edit"))))
+        ;(make-icon "card--pencil"
+        ;      :title "Edit")
+        "Edit")))
 
 (defun render-ajax-delete-button (grid row-id)
   (with-html
@@ -427,8 +429,10 @@ document.getElementById(\"~A\").submit();"
                                     (js-pair "grid-name" (name grid))
                                     (js-pair "action" "delete")
                                     (js-pair "row_id" row-id))))
-        (make-icon "card--minus"
-                   :title "Delete"))))
+        ;;;(make-icon "card--minus"
+        ;;:title "Delete")
+        "Delete"
+    )))
 
 (defun render-grid-rows (grid &key editing)
   (with-html
@@ -601,8 +605,10 @@ document.getElementById(\"~A\").submit();"
                                   (js-link (js-render (editor grid)
                                                       (js-pair "grid-name" (name grid))
                                                       (js-pair "action" "new")))
-                                  (make-icon "plus" :size 32
-                                                    :title "Add"))))
+                                  ;;(make-icon "plus" :size 32
+                                  ;;                  :title "Add"
+                                   ;;                 )
+                                  "Add")))
                             (when (edit-inline grid)
                               (htm
                                (:td

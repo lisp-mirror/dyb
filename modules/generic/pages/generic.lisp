@@ -260,12 +260,18 @@
              :printer #'generic-grid-item-display)))
 
            
-         (grid (make-widget 'generic-grid :name "generic-post-gridx"
+         (grid (make-widget 'generic-grid :name "generic-post-gridxx"
                                        ;;:columns columns
                                        :edit-inline nil
                                        :title "Inbox"
                                        :row-object-class 'generic-entry)))
     (setf (get-val grid 'columns) columns)
+    (setf (sort-direction grid) :descending)
+    (setf (sort-key-function grid)
+          (lambda (doc)
+            (format nil "~A"  
+                    
+                    (get-val doc 'created))))
     
     (when (parameter "get-facebook-data")
       (update-facebook-posts-for-users grid))
