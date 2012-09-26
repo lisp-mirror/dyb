@@ -13,8 +13,7 @@
              :initform nil
              :accessor alert))
   (:metaclass widget-class)
-  (:include-css "/appcss/site_style.css"
-                )
+  (:include-css "/appcss/site_style.css")
   (:include-js 
    "/appjs/common.js"
    "/appjs/checkbox-list.js"

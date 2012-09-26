@@ -139,14 +139,13 @@
         (:link :rel "stylesheet" :href "/css/ie.fixes.css") "<!-- OPTIONAL: Fixes for IE7 -->"
         (:link :rel "stylesheet" :href "/css/sprite.tables.css")
 
-
+        (str (page-include-css))
 
         " <!-- All JavaScript at the bottom, except this Modernizr build.
        Modernizr enables HTML5 elements & feature detects for optimal performance.
        Create your own custom Modernizr build: www.modernizr.com/download/ -->"
         (:script :src "/js/libs/modernizr-2.0.6.min.js")
  
-        (str (page-include-css))
         (str (page-include-js))
         (str (page-include-bits))
         )

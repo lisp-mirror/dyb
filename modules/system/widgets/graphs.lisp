@@ -1,7 +1,23 @@
 (in-package #:ems)
 
 (defclass line-graph (ajax-widget)
-())
+  ()
+  (:metaclass widget-class)
+  (:include-js "/appcss/site_style.css"
+                "/js/jquery.jqplot.min.js"
+                "/js/chart/jqplot.highlighter.min.js"
+                "/js/chart/jqplot.cursor.min.js"
+                "/js/chart/jqplot.barRenderer.min.js"
+                "/js/chart/jqplot.pointLabels.min.js"
+                "/js/chart/jqplot.dateAxisRenderer.min.js"
+                "/js/chart/jqplot.pieRenderer.min.js"
+                "/js/chart/jqplot.donutRenderer.min.js"
+                "/js/chart/jqplot.categoryAxisRenderer.min.js"
+                "/js/chart/jqplot.logAxisRenderer.min.js"
+                "/js/chart/jqplot.canvasTextRenderer.min.js"
+                "/js/chart/jqplot.canvasAxisTickRenderer.min.js"
+                ))
+
 
 (defmethod render ((widget line-graph) &key)
 

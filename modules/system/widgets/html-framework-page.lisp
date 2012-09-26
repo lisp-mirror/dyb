@@ -219,6 +219,12 @@
                                 (:ul :class "dropdown-menu"
                                      (:li
                                       (:a :href "/ems/dashboard" "Dashboard"))
+                                     (:li 
+                                      (:a :href "/ems/clients" "Clients"))
+                                     (:li 
+                                      (:a :href "/ems/companies" "Companies"))                     
+                                     (:li 
+                                      (:a :href "/ems/service-users" "Service Users"))
                                      (:li
                                       (:a :href "/ems/users" "Users"))
                                     ;; (:li
@@ -307,6 +313,7 @@
  font-size:12px;
 }
 ")
+       (page-include-css)
 
        "<script type=\"text/javaScript\">
 function timedRefresh(timeoutPeriod) {
@@ -335,8 +342,8 @@ if (okToRefresh)
        (if styling
            (str styling))
 
-       (page-include-css)
-       (page-include-js)
+       
+       
        (page-include-bits)
        )
 
@@ -391,6 +398,14 @@ if (okToRefresh)
 <script src=\"/js/plupupload/jquery.plupload.queue/jquery.plupload.queue.js\"></script>
 
     <script src=\"/js/excanvas.min.js\"></script>
+
+
+
+<script src=\"/js/custom-script.js\"></script>"
+
+   
+  #|
+
     <script src=\"/js/jquery.jqplot.min.js\"></script>
     <script src=\"/js/chart/jqplot.highlighter.min.js\"></script>
     <script src=\"/js/chart/jqplot.cursor.min.js\"></script>
@@ -403,13 +418,9 @@ if (okToRefresh)
     <script src=\"/js/chart/jqplot.logAxisRenderer.min.js\"></script>
     <script src=\"/js/chart/jqplot.canvasTextRenderer.min.js\"></script>
     <script src=\"/js/chart/jqplot.canvasAxisTickRenderer.min.js\"></script> 
+|#
 
-
-<script src=\"/js/custom-script.js\"></script>"
-
-   
-  
-
+(page-include-js)
 
 ;;" <script src=\"js/jquery.noty.js\"></script>"
 ;;" <script src=\"/js/custom-script.js\"></script>"
@@ -485,8 +496,6 @@ if (okToRefresh)
     (setf (slot-value page 'key-words) (slot-value widget 'key-words))
     (render page
             :styling ""
-
-
             :body
             (with-html-output-to-string (*standard-output* nil :indent t)
               (if (get-val widget 'header)
@@ -504,63 +513,22 @@ if (okToRefresh)
                           (:a :href "/ems/dashboard"
                               (:span :class "white-icons computer_imac")
                               (str "Dashboard")))
+                         
                          (:li
-                          (:a :href "#"
-                              (:span :class "white-icons computer_imac")
-                              "Framework")
-                          (:ul :class "acitem" :style "display:none;"
-                               (:li 
-                                (:a :href "/ems/clients" 
-                                    (:span :class "sidenav-icon"
-                                           (:span :class "sidenav-link-color"))
-                                    "Clients"))
-                               (:li 
-                                (:a :href "/ems/companies" 
-                                    (:span :class "sidenav-icon"
-                                           (:span :class "sidenav-link-color"))
-                                    "Companies"))                     
-                               (:li 
-                                (:a :href "/ems/service-users" 
-                                    (:span :class "sidenav-icon"
-                                           (:span :class "sidenav-link-color"))
-                                    "Service Users"
-                                    ))
-                               ;;(:li
-                               ;; (:a :href "/ems/search-stream" 
-                                ;;    (:span :class "sidenav-icon"
-                                 ;;          (:span :class "sidenav-link-color"))
-                                  ;;  "Search Streams"))
-                               ))
-                         (:li
-                          (:a :href "#"
+                          (:a :href "/ems/generic"
                               (:span :class "white-icons mail")
                               "Inbox")
-                          (:ul :class "acitem" :style "display:none;"
-
-                               (:li
-                                (:a :href "/ems/generic" "Inbox"))
-                       
-                               
-                       
-                               
-                               ))
+                          )
                          (:li
-                          (:a :href "#"
+                          (:a :href "/ems/generic-scheduler"
                               (:span :class "white-icons month_calendar")
                               "Scheduler")
-                          (:ul :class "acitem" :style "display:none;"
-
-                                                     
-                               (:li
-                                (:a :href "/ems/generic-scheduler" "Scheduler"))
-                       
-                               
-                               ))
+                          )
                          (:li
-                          (:a :href "#"
+                          (:a :href "/ems/search-stream"
                               (:span :class "white-icons magnifying_glass")
                               "Search Streams")
-                          (:ul :class "acitem" :style "display:none;"
+                         #| (:ul :class "acitem" :style "display:none;"
 
                                (:li
                                 (:a :href "/ems/search-stream" "Search Streams"))
@@ -569,7 +537,8 @@ if (okToRefresh)
                        
                                (:li
                                 (:a :href "/ems/search-stream-feedback" "Search Stream Data"))
-                               ))
+                               )|#
+                          )
                          )
                     (:div :id "side-accordion"
                           (:div :class "accordion-group"
@@ -631,7 +600,9 @@ if (okToRefresh)
     (render page
             :styling
             (with-html-to-string ()
-              (:link :rel "stylesheet" :href "/css/special-page.css"))
+              (:link :rel "stylesheet" :href "/css/special-page.css")
+              (:link :rel "stylesheet" :href "/appcss/login-style.css")
+              )
             :body
             (with-html-to-string ()
               (:div :class "top"
