@@ -145,11 +145,13 @@ Current Network is <strong>373</strong>, up <strong>5%</strong> from previous mo
 Total impressions is <strong>3848</strong>, up <strong>9%</strong> from previous month<br/>")))
                            (:td :style "vertical-align:top;"
 
-                            (str (render dash-item :name "analisys" :header "Analysis"
-                                         :items
-                                         (list
-                                          (list "Brand Awareness" "0")
-                                          (list "Customer Services" "0")))))
+                            (str (render dash-item :name "analisys" :header "Activity"
+                                         :content
+                                         "<strong>31</strong> Planned Activities<br/>
+<strong>52%</strong> up from previous month<br/>
+<strong>31</strong> Published Activities<br/>
+<strong>52%</strong> up from previous month<br/>
+<strong>100%</strong> of planned activities were published<br/>")))
                            (:td :style "vertical-align:top;"
 
                             (str (render dash-item :name "engagement" :header "Engagement"
@@ -159,39 +161,41 @@ Total impressions is <strong>3848</strong>, up <strong>9%</strong> from previous
                                           (list "+1's" "0")
                                           (list "Shares" "0")
                                           (list "Retweets" "0")))))
-                           (:td :style "vertical-align:top;"
+                           (:tr
+                            (:td :style "vertical-align:top;"
 
-                            (str (render dash-item :name "reach" :header "Reach"
-                                         :items
-                                         (list
-                                          (list "Followers" "0")
-                                          (list "Links" "0")
-                                          (list "Twitter @ Replies" "0")))))
+                                 (str (render dash-item :name "reach" :header "Reach"
+                                              :items
+                                              (list
+                                               (list "Followers" "0")
+                                               (list "Links" "0")
+                                               (list "Twitter @ Replies" "0")))))
                            
-                           (:td :style "vertical-align:top;"
+                            (:td :style "vertical-align:top;"
 
-                            (str (render dash-item :name "top-10-content" :header "Top 10 Content"
-                                         :items
-                                         (list
-                                          (list "Facebook Posts Kobus" posts)
-                                          (list "WP Post by Kobus" "0")))))
-                           (:td :style "vertical-align:top;"
+                                 (str (render dash-item :name "top-10-content" :header "Top 10 Content"
+                                              :items
+                                              (list
+                                               (list "Facebook Posts Kobus" posts)
+                                               (list "WP Post by Kobus" "0")))))
+                            (:td :style "vertical-align:top;"
 
-                            (str (render dash-item :name "top-10-mentions" :header "Top 10 Mentions"
-                                         :items
-                                         (list
-                                          (list "@ems" "0")
-                                          (list "@ems" "0")))))
-                           (:td :style "vertical-align:top;"
-                            (str (render dash-item :name "top-10-users" :header "Top 10 Users"
-                                         :items
-                                         (list
-                                          (list "Kobus" "0")
-                                          (list "Kobus" "0")))))
-                           (:td :style "vertical-align:top;"
-                            (str (render dash-item :name "published-with-links" :header "Activities Published with Links"
-                                         :content
-                                         "Links in published material"))))))
+                                 (str (render dash-item :name "top-10-mentions" :header "Top 10 Mentions"
+                                              :items
+                                              (list
+                                               (list "@ems" "0")
+                                               (list "@ems" "0"))))))
+                           (:tr
+                            (:td :style "vertical-align:top;"
+                                 (str (render dash-item :name "top-10-users" :header "Top 10 Users"
+                                              :items
+                                              (list
+                                               (list "Kobus" "0")
+                                               (list "Kobus" "0")))))
+                            (:td :style "vertical-align:top;"
+                                 (str (render dash-item :name "published-with-links" :header "Activities Published with Links"
+                                              :content
+                                              "Links in published material")))))))
                   
                     ))))
       )))
