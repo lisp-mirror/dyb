@@ -99,6 +99,57 @@
 
 )))
 
+#|
+(make-instance 'social-mention
+                                                         :id (assoc ':id mention)
+                                                         :title (assoc ':title mention)
+                                                         :link (assoc ':link mention)
+                                                         :time-stamp (assoc ':timestamp mention)
+                                                         :language (assoc ':language mention)
+                                                         :image (assoc ':image mention)
+                                                         :embeded (assoc ':embeded mention)
+                                                         :user (assoc ':user mention)
+                                                         :user-image (assoc ':user_image mention)
+                                                         :user-link (assoc ':user_link mention)
+                                                         :domain (assoc ':domain mention)
+                                                         :source (assoc ':source mention)
+                                                         :favicon (assoc ':favicon mention)
+                                                         :type (assoc ':type mention))
+|#
+
+(defun social-mention-display (doc)
+  (with-html-to-string ()
+    (:div :class "nonboxy-widget"
+          ;; (:div :class "widget-head")
+          (:div :class "widget-content" :style "background:white;"
+                (:table 
+                      :style "width:100%;border-bottom: 1px;border-spacing: 0px;border-bottom-style:solid;border-collapse: collapse;border-color:lightgray;"
+                      (:tr 
+                       (:td :rowspan 1 :style "width:32px;border-width: 0px;padding: 0px;border-style: none;border-color:-moz-border-radius: ;"
+                            (if (get-val doc 'user-image)
+                                (htm
+                                                      
+                                 (:img :style "padding: 3px;height:50%;" :src (get-val doc 'user-image)))
+                                ""))
+                       (:td :style "border-width: 0px;padding: 0px;border-style: none;border-color: gray;-moz-border-radius: ;"
+                            (:a :href (get-val doc 'user-link) (:strong (str (get-val doc 'user))))
+                            (:br)
+                            (str (get-val doc 'time-stamp)))))
+                (cond ((string-equal (get-val doc 'source) "facebook")
+                       (htm (:img :style "float:right;width:16px;height:16px;" 
+                                  :src "/appimg/facebook.png"))))
+                (:span (:string "Title : "))
+                (str (get-val doc 'title))
+                (:br)
+                
+                (str (get-val doc 'description))
+                (if (get-val doc 'image)
+                    (htm
+                     (:img :style "padding: 3px;height:100%;" :src (get-val doc 'image))))
+                (:br)
+                (:a :href (get-val doc 'link) (str "Go to Source")))
+          )))
+
 (defun generic-grid-item-display (doc)
   (if doc
       (typecase doc 
@@ -107,6 +158,9 @@
              (get-val (get-val doc 'user) 'name)))
         (post
          (facebook-post-display doc)
+         )
+        (social-mention
+         (social-mention-display doc)
          ))))
 
 (defun facebook-post-display (doc)
@@ -130,7 +184,8 @@
                             (:strong (str (get-val (get-val doc 'from) 'name)))
                             (:br)
                             (str (get-val doc 'created-time)))))
-                                                  
+                     (:img :style "float:right;width:16px;height:16px;" 
+                                 :src "/appimg/facebook.png")                             
                      (str (if (get-val doc 'message)
                               (get-val doc 'message)
                               (get-val doc 'story)))
@@ -214,6 +269,8 @@
     
     (when (parameter "get-facebook-data")
       (update-facebook-posts-for-users grid))
+    (when (parameter "get-search-stream-data")
+      (update-social-mention-for-searches))
     
     (render (make-widget 'page :name "generic-page")
             :body (with-html-to-string ()
@@ -221,6 +278,10 @@
                            :method :post
                            (:input :type "submit" :name "get-facebook-data" 
                                    :value "Get Facebook Data"))
+                    (:form :name "fetch-data"
+                           :method :post
+                           (:input :type "submit" :name "get-search-stream-data" 
+                                   :value "Get Search Stream Data"))
                     (str (render grid))))))
 
 

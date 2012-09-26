@@ -1,9 +1,11 @@
 (in-package #:ems)
 
 (defclass social-mention (doc)
-  ((id :initarg :id
+  ((mention-id :initarg :mention-id
            :initform nil)
    (title :initarg :title
+           :initform nil)
+   (description :initarg :description
            :initform nil)
    (link :initarg :link)
    (time-stamp :initarg :time-stamp)
