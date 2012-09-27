@@ -152,16 +152,14 @@ Total impressions is <strong>3848</strong>, up <strong>9%</strong> from previous
 <strong>31</strong> Published Activities<br/>
 <strong>52%</strong> up from previous month<br/>
 <strong>100%</strong> of planned activities were published<br/>")))
-                          #| (:td :style "vertical-align:top;"
+                           (:td :style "vertical-align:top;"
 
                             (str (render dash-item :name "engagement" :header "Engagement"
-                                         :items
-                                         (list
-                                          (list "Likes" likes)
-                                          (list "+1's" "0")
-                                          (list "Shares" "0")
-                                          (list "Retweets" "0"))))|#
-                           )
+                                         :content
+                                         "<strong>110</strong> Interactions<br>
+<strong>20%</strong> up from previous month"
+                                         ))
+                            ))
                           #| (:tr
                             (:td :style "vertical-align:top;"
 
@@ -197,8 +195,7 @@ Total impressions is <strong>3848</strong>, up <strong>9%</strong> from previous
                                  (str (render dash-item :name "published-with-links" :header "Activities Published with Links"
                                               :content
                                               "Links in published material"))))
-                          |#
-                          )))
+                          |#)))
                   
                     ))))
       ))
