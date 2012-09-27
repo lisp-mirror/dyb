@@ -101,22 +101,21 @@
 		"none"))
 			
 (defun wrap-tweet (tweet)
-	(let (
-		(pid (get-val tweet 'id-str))
-		(title (get-val tweet 'text))
-		(payload tweet)
-		(type "tweeter")
-		(interaction (get-tw-activity (get-val tweet 'retweet-count)))
-		(created (get-val tweet 'created-at)))
-		(if pid
-				(make-instance 'generic-entry
-					:key pid
-					:pid pid
-					:title title
-					:payload payload
-					:type type
-					:interaction interaction
-					:created created) ())))
+  (let ((pid (get-val tweet 'id-str))
+        (title (get-val tweet 'text))
+        (payload tweet)
+        (type "tweeter")
+        (interaction (get-tw-activity (get-val tweet 'retweet-count)))
+        (created (get-val tweet 'created-at)))
+    (if pid
+        (make-instance 'generic-entry
+                       :key pid
+                       :pid pid
+                       :title title
+                       :payload payload
+                       :type type
+                       :interaction interaction
+                       :created created) ())))
 						
 (defun generic-entry-collection ()
   (get-collection (system-db) "generic-entry"))
@@ -158,8 +157,24 @@
         post)))
       
 (defun populate-generic-db-from-tweet (tweet-list)
-    (dolist (tweet tweet-list) 
-      (persist (wrap-tweet (make-tweet tweet)))))
+  
+  (unless (string-equal (caaar tweet-list) "friends")
+    (dolist (tweet tweet-list)
+      (let ((generic (wrap-tweet (make-tweet tweet))))
+        
+        (if generic
+            (let ((old-generic 
+                   (find-doc (generic-entry-collection)
+                             :test
+                             (lambda (doc)
+                               (typecase  (get-val doc 'payload)
+                                 (tweet
+                                  (if (string-equal (get-val (get-val doc 'payload) 'pid) 
+                                                    (get-val (get-val generic 'payload) 'pid))
+                                      doc))))
+                             )))
+              (unless old-generic
+                (persist generic ))))))))
 
 
 (add-collection (system-db) "generic-entry" 
@@ -169,7 +184,8 @@
 
 (defun make-tw-wrapper-list (tweet-list)
 	(let ((out ()))
-	(dolist (tweet tweet-list) (setf out (append out (list (wrap-tweet (make-tweet tweet)))))) out ))
+	(dolist (tweet tweet-list) 
+          (setf out (append out (list (wrap-tweet (make-tweet tweet)))))) out ))
 
 ;The slot XID is unbound in the object #<GENERIC-ENTRY
 ;                                        {1009539393}>.
@@ -177,4 +193,5 @@
 ;on single tweet it works on list doesn't!
 (defun make-fb-wrapper-list (post-list)
 	(let ((out ()))
-	(dolist (post post-list) (setf out (append out (list (wrap-fb-post (make-post post)))))) out ))
+	(dolist (post post-list) 
+          (setf out (append out (list (wrap-fb-post (make-post post)))))) out ))

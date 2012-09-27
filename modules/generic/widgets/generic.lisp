@@ -146,6 +146,8 @@
 
 (defclass generic-grid (grid)
   ()
+  (:metaclass widget-class)
+  (:include-css "/appcss/posts.css")
   (:default-initargs :edit-inline nil))
 
 (defun get-generic-data (grid &key filter search)

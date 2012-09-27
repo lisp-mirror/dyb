@@ -1,0 +1,99 @@
+.post_window {
+		margin: 0 auto;
+		max-width: 1000px;
+		
+	}
+	.post {
+		border: 0;
+		
+		float:left;
+		min-width:100%;	
+		
+	}
+	.profile_pic {
+		float:left;
+		
+		
+		
+	}
+	.profile_pic img {
+		width:50px;
+		height:50px;
+		float: left;
+		padding:5px;
+		margin-top:15px;
+		margin-left: 5px;
+		margin-right: 5px;
+		border: 1px solid #aaa;
+
+	}                 
+	.post_title {
+		
+	}
+	.post_content { 
+		min-width:100%;
+		margin-left: 75px;
+		
+	}
+	.post_image_thumb {
+		float: right;
+		max-height: 100%;
+		max-height:150px;
+		width:100%;
+		max-width:150px;
+		padding: 10px
+		
+	}
+	.post_image_thumb img{
+		max-width: 100%;
+		
+		
+	}
+	.social_icon {
+		float: left;
+		padding-top: 20px;
+		padding-right: 10px;
+	}
+	.actions {
+		margin-left: 75px;
+	}
+	.like {
+		float:left;
+		padding-right: 2px;
+		padding-bottom: 10px;
+	}
+	.like_count {
+		float:left;
+		padding-right: 10px;
+		padding-bottom: 10px;
+	}
+	.comment {
+		float:left;
+		padding-right: 2px;
+		padding-bottom: 10px;
+	}
+	.comment_count {
+		float:left;
+		padding-right: 10px;
+		padding-bottom: 10px;
+	}
+	.share {
+		float:left;
+		padding-right: 10px;
+		padding-bottom: 10px;
+	}
+	.reply {
+		float:left;
+		padding-right: 10px;
+		padding-bottom: 10px;
+	}
+	.retweet {
+		float:left;
+		padding-right: 10px;
+		padding-bottom: 10px;
+	}
+	.favourites {
+		float:left;
+		padding-right: 10px;
+		padding-bottom: 10px;
+	}

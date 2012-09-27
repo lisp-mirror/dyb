@@ -117,7 +117,52 @@
                                                          :type (assoc ':type mention))
 |#
 
+
 (defun social-mention-display (doc)
+ ;; (break "~A" doc)
+  (with-html-to-string ()
+    (:div :class "nonboxy-widget"
+          ;; (:div :class "widget-head")
+          (:div :class "widget-content" :style "background:white;"
+                (:div :class "post"
+                      (:div :class "post_image_thumb"
+                            (:a :href= "#" :title "Click to view the full size image"
+                                (:img :src (get-val doc 'image))))
+                      (:div :class "profile_pic"
+                            (:a :href (get-val doc'user-link) :title "View ~A\'s Profile"
+                                (:img  :src (if (get-val doc 'user-image)
+                                                (get-val doc 'user-image)
+                                                "/appimg/social-mention.jpg"
+                                                ))))
+                      (:div :class "social_icon"
+                            (:img :src (if (get-val doc 'favicon)
+                                                    (get-val doc 'favicon)
+                                                    "/appimg/social-mention.jpg"))
+                            (cond ((string-equal (get-val doc 'source) "facebook")
+                                   (htm (:img :src "/appimg/facebook.png")))
+                                  ((string-equal (get-val doc 'source) "twitter")
+                                   (htm (:img :src "/appimg/twitter.png")))
+                                  )
+                            )
+                      (:div :class "post_title"
+                            ;;(:h3 (get-val doc 'title))
+                            (str (format-universal-date (get-val doc 'time-stamp)))
+                            
+                            )
+                      (:div :class "post_content"
+                            (str (get-val doc 'title))
+                            (:br)
+                            (str (get-val doc 'description)))
+                      (:div :class "actions"
+                            (:div :class "reply" :title "Go to Source"
+                                  (:a :href (get-val doc 'link) (:img :src "/appimg/twitter-reply.png")))
+                            
+                            
+                            )))
+
+          )))
+
+(defun social-mention-displayx (doc)
   (with-html-to-string ()
     (:div :class "nonboxy-widget"
           ;; (:div :class "widget-head")
@@ -150,12 +195,47 @@
                 (:a :href (get-val doc 'link) (str "Go to Source")))
           )))
 
+
+
+(defun twitter-post-display (doc &key mention)
+
+  (with-html-to-string ()
+    (:div :class "nonboxy-widget"
+          ;; (:div :class "widget-head")
+          (:div :class "widget-content" :style "background:white;"
+                (:div :class "post"
+                      (:div :class "post_image_thumb"
+                            (:a :href= "#" :title "Click to view the full size image"
+                                (:img :src "")))
+                      (:div :class "profile_pic"
+                            (:a :href "#" :title "View ~A\'s Profile"
+                                (:img  :src (if (get-val doc 'user)
+                                                (get-val (get-val doc 'user) 'profile-image-url-https)))))
+                      (:div :class "social_icon"
+                            (if mention
+                                (htm (:img :src "/appimg/social-mention.jpg")))
+                            (:img :src "/appimg/twitter.png"))
+                      (:div :class "post_title"
+                            (:h3 (str (format nil "~A..." (subseq (get-val doc 'text) 0 10)) )))
+                      (:div :class "post_content"
+                            (str (get-val doc 'text)))
+                      (:div :class "actions"
+                            (:div :class "reply" :title "Reply"
+                                  (:a :href "#" (:img :src "/appimg/twitter-reply.png")))
+                            (:div :class "retweet" :title "Retweet"
+                                  (:a :href "#" (:img :src "/appimg/twitter-retweet.png")))
+                            (:div :class "favourites" :title "Add to favourites"
+                                  (:a :href "#" (:img :src "/appimg/twitter-favourite.png")))
+                            )))
+
+          )))
+
 (defun generic-grid-item-display (doc)
   (if doc
       (typecase doc 
         (tweet
-         (if (get-val doc 'user)
-             (get-val (get-val doc 'user) 'name)))
+         (twitter-post-display doc)
+         )
         (post
          (facebook-post-display doc)
          )
@@ -163,7 +243,95 @@
          (social-mention-display doc)
          ))))
 
-(defun facebook-post-display (doc)
+
+(defun facebook-post-display (doc &key mention)
+  ;;(break "~A" doc)
+  (with-html-to-string ()
+    (:div :class "nonboxy-widget"
+          ;; (:div :class "widget-head")
+          (:div :class "widget-content"
+                (:div :class "post"
+                      (:div :class "post_image_thumb"
+                            (:a :href= "#" :title "Click to view the full size image"
+                                (:img :src (get-val doc 'picture))))
+                      (:div :class "profile_pic"
+                            (:a :href "#" :title (format nil "View ~A\'s Profile" 
+                                                         (if (get-val doc 'from)
+                                                             (get-val (get-val doc 'from) 'name)))
+                                (:img :src (if (get-val doc 'from)
+                                          (get-val (get-val doc 'from) 'picture)))))
+                      (:div :class "social_icon"
+                            (if mention
+                                (htm (:img :src "/appimg/social-mention.jpg")))
+                            (:img :src "/appimg/facebook.png"))
+                      (:div :class "post_title"
+                            (:h3 (str (get-val doc 'caption)))
+                            (str (get-val doc 'created-time)))
+                      (:div :class "post_content"
+                            (str (if (get-val doc 'message)
+                              (get-val doc 'message)
+                              (get-val doc 'story))))
+                      (:div :class "actions"
+                            (:div :class "like" :title "Like"
+                                  (:a :href "#" (:img :src "/appimg/facebook-like.png")))
+                            (:div :class "like_count"
+                                  (let ((likes 0))
+                                    (if (get-val doc 'likes)
+                                        (if (string-equal 
+                                             (type-of (make-instance 'likes))
+                                             "LIKES")
+                                                 
+                                            (if (get-val (get-val doc 'likes) 'count)
+                                                (setf likes (get-val (get-val doc 'likes) 'count))))
+                                        )
+                                    (htm (str likes))))
+                            (:div :class "comment" :title "Comment"
+                                  (:a :href "#" :onclick (format nil "$(\"#comments-~A\").toggle();" (get-val doc 'post-id))
+                                      (:img :src "/appimg/facebook-comment.png")))
+                            (:div :class "comment_count"
+                                  (str (if (get-val doc 'comments)
+                                           (if (string-equal 
+                                                (type-of (make-instance 'comments))
+                                                "COMMENTS")
+                                           
+                                               (if (get-val (get-val doc 'comments) 'count)
+                                                   (get-val (get-val doc 'comments) 'count)
+                                                   0))
+                                           0)))
+                            (:div :class "share" :title "Share"
+                                  (:a :href "#" (:img :src "/appimg/facebook-share.png")))
+                            )
+                      (:div :id (format nil "comments-~A" (get-val doc 'post-id)) 
+                           :style "background-color:#F2F2F2;display:none;"
+                           (:br)
+                           (if (get-val doc 'comments)
+                               (if (string-equal 
+                                    (type-of (make-instance 'comments))
+                                    "COMMENTS")
+                                       
+                                   (dolist (comment (get-val (get-val doc 'comments) 'data))
+                                     (htm (:div (str (get-val comment 'message)))))))
+                           (:br)
+
+                           (let ((comment-form 
+                                   (make-widget 'fb-post-comment-form
+                                                :name (format nil 
+                                                              "comments-~A-dialog-form" 
+                                                              (get-val doc 'post-id)))))
+                             ;; (setf (get-val comment-form 'current-post) doc)
+                             (htm (:a :href
+                                      (js-link 
+                                       (js-render comment-form
+                                                  (js-pair "post-id" 
+                                                           (get-val doc 'post-id))
+                                                  (js-pair "action" "comment")))
+                                      (make-icon "card--pencil"
+                                                 :title "Post Comment"))
+                                  (render comment-form))))))
+
+          )))
+
+(defun facebook-post-displayx (doc)
   
   (with-html-to-string ()
     (:div :class "nonboxy-widget"

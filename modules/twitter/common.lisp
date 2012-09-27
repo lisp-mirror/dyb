@@ -1,7 +1,5 @@
 (in-package :ems)
 
-
-
 (setf drakma:*header-stream* *standard-output*)
 
 (defconstant +unix-to-universal-time+ 2208988800)
@@ -252,9 +250,11 @@
 (defun twitter-get-stream (access-token access-secret)
   (let* ((stamp (format nil "~A" (get-unix-time)))
          (nonce (format nil "~A~A" (random 1234567) stamp))
-         )
+         (end-point  "https://userstream.twitter.com/1.1/user.json";;"http://api.twitter.com/1/statuses/home_timeline.json"
+          
+           ))
     
-    (drakma:http-request "https://userstream.twitter.com/1.1/user.json"
+    (drakma:http-request end-point
       
      :method :post
      :additional-headers
@@ -267,7 +267,7 @@
               ,(encode-signature
                 (hmac-sha1
                  (signature-base-string
-                  :uri "https://userstream.twitter.com/1.1/user.json"
+                  :uri end-point 
                   :request-method "POST"
                   :parameters `(;;("oauth_callback" ,*twitter-callback-uri*)
                                 ("oauth_consumer_key" ,*twitter-client-id*)
@@ -292,8 +292,26 @@
       (let ((stream (twitter-get-stream (get-val service-user 'last-access-token) (get-val service-user 'last-token-secret))))
         (when stream
             (loop for i below 200
-               for line = (read-line stream)
-               when (and (> i 0) (> (length line) 2))
+               for line = (read-line stream nil nil) 
+               when (and line (> 1 0) (> (length line) 2))
                do (populate-generic-db-from-tweet (list (json::decode-json-from-string line))))
             (close stream)
-            (values))))))
+            ;;(values)
+            )))))
+
+
+(defun start-twitter-listener (user)
+  (bordeaux-threads:make-thread  
+   (lambda ()
+     (loop
+        ;(sleep 600)
+        (twitter-listener user)))))
+
+(defun listen-twitter-users ()
+  (dolist (user (coerce (service-users) 'list ))
+        (when (and user (string-equal (get-val user 'doc-status) "Active"))
+          ;;TODO: How to get error messages in for users without access tokens.
+          (when (string-equal (get-val user 'service-user-type) "Twitter")
+            (when (get-val user 'last-access-token)
+              (start-twitter-listener user))))))
+

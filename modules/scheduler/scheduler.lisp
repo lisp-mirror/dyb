@@ -1,11 +1,12 @@
 (in-package :ems)
 
-(defun start-scheduler ()
+(defun start-facebook-listener ()
   (bordeaux-threads:make-thread  
    (lambda ()
      (loop
         (sleep 600)
         (update-facebook-posts-for-users)))))
+
 
 
 #|
