@@ -72,9 +72,7 @@
                              (:fieldset
                               (:input :type "hidden" :name "form-id"
                                       :value (get-val widget 'form-id))
-
                               (str content)
-
                               (:div :class "form-actions"
                                     (:button
                                      :class "btn btn-info"
@@ -82,18 +80,20 @@
                                      (format nil
                                              "if($(\"#~a\").valid()){~a}"
                                              (get-val widget 'form-id)
-                                             
-                                             (js-render-form-values  
-                                              widget
-                                              (get-val widget 'form-id)
-                                              
-                                              (js-pair "action" "save")))
+                                              (js-render-form-values  
+                                               widget
+                                               (get-val widget 'form-id)
+                                              (js-pair "action" "save")
+                                              ;(format nil "$(\"#~A\").toggle();" (get-val widget 'form-id))
+                                              ))
                                      "Save")
                                     (:button :class "btn btn-warning"
                                              :onclick
                                              (js-render widget
-                                                        
-                                                        (js-pair "action" "cancel"))                                             "Cancel")))))))))
+                                                        (js-pair "action" "cancel") 
+                                                        ;(format nil "$(\"#~A\").toggle();" (get-val widget 'form-id))
+                                                        ) 
+                                             "Cancel")))))))))
 
 
 (defclass html-framework-form (widget)

@@ -1,7 +1,7 @@
 (in-package #:ems)
 
 
-(defun comment-facebook (post from-user-id comment scheduled-date)
+(defun comment-facebook (post from-user-id comment &key scheduled-date)
   (let* (
          (to-user-id (get-val (get-val post 'from) 'id))
          (action (make-generic-action (get-val post 'post-id) 
@@ -11,10 +11,11 @@
                                           "Comment"
                                           comment
                                           scheduled-date)))
+    
     (unless scheduled-date
       (multiple-value-bind (body)
           (drakma:http-request (format nil "https://graph.facebook.com/~A/comments&access_token=~A"
-                                       (get-val post 'id)
+                                       (get-val post 'post-id)
                                        (get-val (get-service-user-by-user-id from-user-id) 'last-access-token))
                                :method :post
                                :parameters (list (cons "message"  (parameter "comment"))))
@@ -34,15 +35,29 @@
   ((current-post :initarg :current-post)))
 
 (defmethod action-handler ((widget fb-post-comment-form))
-  ;;(comment-facebook (get-val widget 'current-post))
+  ;;
+  ;;(break "?~a" (parameter "action"))
+  (cond ((string-equal (parameter "action") "save")
+         (if (string-equal 
+              (format nil "comments-~A-dialog-form" 
+                      (parameter "post-id"))
+              (name widget))
+             (comment-facebook (get-val widget 'current-post)
+                               (if (get-val (get-val widget 'current-post) 'to)
+                                   (get-val (first (get-val (get-val widget 'current-post) 'to)) 'id)
+                                   (get-val (get-val (get-val widget 'current-post) 'from) 'id))
+                               (parameter "comment"))
+             ))
+        (t
+         nil))
   )
 
-(defmethod render ((widget fb-post-comment-form) &key)
+(defmethod render ((widget fb-post-comment-form) &key form-id)
   (let ((comment-form (make-widget 'html-simple-framework-form 
-                                   :name "fb-post-comment-formsxx"
+                                   :name form-id
                                    :grid-size 12
                                    ;;:header "Comment"
-                                   :form-id "fb-post-comment-form"
+                                   :form-id form-id
                                    ))
         (form-section (make-widget 'form-section
                                    :name "form-section"))
@@ -79,15 +94,7 @@
                                 (parameter "comment")
                                 :required t
                                 :type :textarea)))
-                     (render 
-                      form-section
-                      :label "Scheduled Date"
-                      :input (with-html-to-string ()
-                               (render-edit-field 
-                                "scheduled-date"
-                                (parameter "scheduled-date")
-                                :type :datetime-local)
-                               ))
+                     
                      ))))
       
 
@@ -99,23 +106,6 @@
 
 )))
 
-#|
-(make-instance 'social-mention
-                                                         :id (assoc ':id mention)
-                                                         :title (assoc ':title mention)
-                                                         :link (assoc ':link mention)
-                                                         :time-stamp (assoc ':timestamp mention)
-                                                         :language (assoc ':language mention)
-                                                         :image (assoc ':image mention)
-                                                         :embeded (assoc ':embeded mention)
-                                                         :user (assoc ':user mention)
-                                                         :user-image (assoc ':user_image mention)
-                                                         :user-link (assoc ':user_link mention)
-                                                         :domain (assoc ':domain mention)
-                                                         :source (assoc ':source mention)
-                                                         :favicon (assoc ':favicon mention)
-                                                         :type (assoc ':type mention))
-|#
 
 
 (defun social-mention-display (doc)
@@ -162,38 +152,7 @@
 
           )))
 
-(defun social-mention-displayx (doc)
-  (with-html-to-string ()
-    (:div :class "nonboxy-widget"
-          ;; (:div :class "widget-head")
-          (:div :class "widget-content" :style "background:white;"
-                (:table 
-                      :style "width:100%;border-bottom: 1px;border-spacing: 0px;border-bottom-style:solid;border-collapse: collapse;border-color:lightgray;"
-                      (:tr 
-                       (:td :rowspan 1 :style "width:32px;border-width: 0px;padding: 0px;border-style: none;border-color:-moz-border-radius: ;"
-                            (if (get-val doc 'user-image)
-                                (htm
-                                                      
-                                 (:img :style "padding: 3px;height:50%;" :src (get-val doc 'user-image)))
-                                ""))
-                       (:td :style "border-width: 0px;padding: 0px;border-style: none;border-color: gray;-moz-border-radius: ;"
-                            (:a :href (get-val doc 'user-link) (:strong (str (get-val doc 'user))))
-                            (:br)
-                            (str (get-val doc 'time-stamp)))))
-                (cond ((string-equal (get-val doc 'source) "facebook")
-                       (htm (:img :style "float:right;width:16px;height:16px;" 
-                                  :src "/appimg/facebook.png"))))
-                (:span (:string "Title : "))
-                (str (get-val doc 'title))
-                (:br)
-                
-                (str (get-val doc 'description))
-                (if (get-val doc 'image)
-                    (htm
-                     (:img :style "padding: 3px;height:100%;" :src (get-val doc 'image))))
-                (:br)
-                (:a :href (get-val doc 'link) (str "Go to Source")))
-          )))
+
 
 
 
@@ -230,18 +189,7 @@
 
           )))
 
-(defun generic-grid-item-display (doc)
-  (if doc
-      (typecase doc 
-        (tweet
-         (twitter-post-display doc)
-         )
-        (post
-         (facebook-post-display doc)
-         )
-        (social-mention
-         (social-mention-display doc)
-         ))))
+
 
 
 (defun facebook-post-display (doc &key mention)
@@ -318,7 +266,9 @@
                                                 :name (format nil 
                                                               "comments-~A-dialog-form" 
                                                               (get-val doc 'post-id)))))
-                             ;; (setf (get-val comment-form 'current-post) doc)
+                             
+                             
+                             (setf (get-val comment-form 'current-post) doc)
                              (htm (:a :href
                                       (js-link 
                                        (js-render comment-form
@@ -327,95 +277,26 @@
                                                   (js-pair "action" "comment")))
                                       (make-icon "card--pencil"
                                                  :title "Post Comment"))
-                                  (render comment-form))))))
+                                  (render comment-form :form-id (format nil 
+                                                                        "comments-~A" 
+                                                                        (get-val doc 'post-id))))))))
 
           )))
 
-(defun facebook-post-displayx (doc)
-  
-  (with-html-to-string ()
-    (:div :class "nonboxy-widget"
-          ;; (:div :class "widget-head")
-          (:div :class "widget-content" :style "background:white;"
-                (if (get-val doc 'from)
-                    (htm
-                     (:table 
-                      :style "width:100%;border-bottom: 1px;border-spacing: 0px;border-bottom-style:solid;border-collapse: collapse;border-color:lightgray;"
-                      (:tr 
-                       (:td :rowspan 1 :style "width:32px;border-width: 0px;padding: 0px;border-style: none;border-color:-moz-border-radius: ;"
-                            (if (get-val (get-val doc 'from) 'picture)
-                                (htm
-                                                      
-                                 (:img :style "padding: 3px;height:50%;" :src (get-val (get-val doc 'from) 'picture)))
-                                ""))
-                       (:td :style "border-width: 0px;padding: 0px;border-style: none;border-color: gray;-moz-border-radius: ;"
-                            (:strong (str (get-val (get-val doc 'from) 'name)))
-                            (:br)
-                            (str (get-val doc 'created-time)))))
-                     (:img :style "float:right;width:16px;height:16px;" 
-                                 :src "/appimg/facebook.png")                             
-                     (str (if (get-val doc 'message)
-                              (get-val doc 'message)
-                              (get-val doc 'story)))
-                     (if (get-val doc 'picture)
-                         (htm
-                          (:img :style "padding: 3px;height:100%;" :src (get-val doc 'picture))))
-                     (:br)
-                     (:div :style "width:100%;background-color:white;"
-                           (:span :style "float:right;"
-                                  (str (if (get-val doc 'comments)
-                                           (if (string-equal 
-                                                (type-of (make-instance 'comments))
-                                                "COMMENTS")
-                                           
-                                               (if (get-val (get-val doc 'comments) 'count)
-                                                   (get-val (get-val doc 'comments) 'count)
-                                                   0))
-                                           0)))
-                           (:img :style "float:right; " :src "/appimg/fb-comment.png" 
-                                 :onclick (format nil "$(\"#comments-~A\").toggle();" (get-val doc 'post-id)) )
-                           (:span :style "float:right;"
-                                  (let ((likes 0))
-                                    (if (get-val doc 'likes)
-                                        (if (string-equal 
-                                             (type-of (make-instance 'likes))
-                                             "LIKES")
-                                                 
-                                            (if (get-val (get-val doc 'likes) 'count)
-                                                (setf likes (get-val (get-val doc 'likes) 'count))))
-                                        )
-                                    (htm (str likes))))
-                           (:img :style "float:right;width:16px;height:16px;" 
-                                 :src "/appimg/fb-like.jpeg"))
+(defun generic-grid-item-display (doc)
+  (if doc
+      (typecase doc 
+        (tweet
+         (twitter-post-display doc)
+         )
+        (post
+         (facebook-post-display doc)
+         )
+        (social-mention
+         (social-mention-display doc)
+         ))))
 
-                     (:div :id (format nil "comments-~A" (get-val doc 'post-id)) 
-                           :style "background-color:#F2F2F2;display:none;"
-                           (:br)
-                           (if (get-val doc 'comments)
-                               (if (string-equal 
-                                    (type-of (make-instance 'comments))
-                                    "COMMENTS")
-                                       
-                                   (dolist (comment (get-val (get-val doc 'comments) 'data))
-                                     (htm (:div (str (get-val comment 'message)))))))
-                           (:br)
 
-                           (let ((comment-form 
-                                   (make-widget 'fb-post-comment-form
-                                                :name (format nil 
-                                                              "comments-~A-dialog-form" 
-                                                              (get-val doc 'post-id)))))
-                             ;; (setf (get-val comment-form 'current-post) doc)
-                             (htm (:a :href
-                                      (js-link 
-                                       (js-render comment-form
-                                                  (js-pair "post-id" 
-                                                           (get-val doc 'post-id))
-                                                  (js-pair "action" "comment")))
-                                      (make-icon "card--pencil"
-                                                 :title "Post Comment"))
-                                  (render comment-form)))))
-                "")))))
 
 (define-easy-handler (generic-page :uri "/ems/generic") ()
   (let* ((columns

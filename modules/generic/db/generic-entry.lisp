@@ -17,6 +17,9 @@
 (defun generic-actions-collection ()
   (get-collection (system-db) "generic-actions"))
 
+(defmethod doc-collection ((doc generic-action))
+  (generic-actions-collection))
+
 (defun generic-actions ()
   (docs (generic-actions-collection)))
 
