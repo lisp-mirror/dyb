@@ -11,7 +11,7 @@
                                              :name 'scheduled-date
                                              :header "Scheduled Date"
                                              )))
-         (grid (make-widget 'generic-actions-grid :name "generic-action-gridx"
+         (grid (make-widget 'generic-actions-grid :name "generic-actions-gridx"
                                        ;;:columns columns
                                        :edit-inline nil
                                        :title "Schedule Actions"

@@ -238,6 +238,8 @@
                                      (:li
                                       (:a :href "/ems/all-sorts" "Allsorts"))
                                      (:li
+                                      (:a :href "/ems/manual-updates" "Manual Stream Updates"))
+                                     (:li
                                       (:a :href "/ems/context" "Context"))
                                      ;;(:li
                                      ;; (:a :href "/ems/importer" "Importer"))

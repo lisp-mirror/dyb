@@ -56,7 +56,18 @@
                                              (get-val (get-val 
                                                        (get-val current-doc 'payload) 'to) 'id))))
                       
-                      
+                      (render form-section 
+                              :label "Post To"
+                              :input 
+                              (with-html-to-string ()
+                                (render-edit-field
+                                 "post-type" 
+                                 (get-val row 'post-type)
+                                 :data (list (list "Facebook" "Facebook")
+                                             (list "Twitter" "Twitter")
+                                             )
+                                 :required t
+                                 :type :select)))
                       (render form-section 
                               :label "Post"
                               :input 
@@ -84,7 +95,7 @@
 
 (defmethod handle-action ((grid generic-actions-grid) (action (eql 'save)))
   (setf (error-message grid) nil)
-(break "? ~A" (parameter "form-id"))
+(break "?")
   (when (and (string-equal (parameter "form-id") "schedule-action-form"))
     (let ((from-user (get-facebook-access-token (parameter "from-user-id")))
           (to-user (get-facebook-access-token (parameter "to-user-id"))))
@@ -100,7 +111,8 @@
                                           from-user to-user
                                           (parameter "action-type")
                                           (parameter "action")
-                                          (parameter "scheduled-date")))))
+                                          (parameter "scheduled-date"))))
+        (finish-editing grid))
       (unless (or from-user to-user)
           (setf (error-message grid) "User does not exist.")))))
  
@@ -114,20 +126,25 @@
   (when (and (get-val grid 'current-doc)
              (get-val (get-val grid 'current-doc) 
                       'payload)
-             (get-val (get-val (get-val grid 'current-doc) 
-                      'payload) 
-                      'comments)
-             (get-val (get-val (get-val (get-val grid 'current-doc) 
-                      'payload) 
-                               'comments)
-                      'data))
-    (setf (rows grid)
-          (loop for comment across 
-               (coerce (get-val (get-val (get-val (get-val grid 'current-doc) 
-                                                  'payload) 
-                                         'comments)
-                                'data) 'vector)
-             collect comment))))
+            )
+    (typecase (get-val (get-val grid 'current-doc) 
+                      'payload)
+    (post
+     
+     (when (and  (get-val (get-val (get-val grid 'current-doc) 
+                                   'payload) 
+                          'comments)
+                 (get-val (get-val (get-val (get-val grid 'current-doc) 
+                                            'payload) 
+                                   'comments)
+                          'data))
+       (setf (rows grid)
+             (loop for comment across 
+                  (coerce (get-val (get-val (get-val (get-val grid 'current-doc) 
+                                                     'payload) 
+                                            'comments)
+                                   'data) 'vector)
+                  collect comment)))))))
 
 (defclass generic-grid (grid)
   ()
@@ -270,35 +287,7 @@
                      (setf (get-val comment-grid 'css-span) 9)
                      
                       (render comment-grid)))))
-           (list 
-            "Actions"
-            (with-html-to-string ()
-              (:div :class "section _100" 
-                   (let* ((columns
-                             (list
-                              (make-instance 'grid-column
-                                             :name 'pid
-                                             :header "Post Id"
-                                             )
-                              (make-instance 'grid-column
-                                             :name 'action
-                                             :header "Action")
-                              (make-instance 'grid-column
-                                             :name 'scheduled-date
-                                             :header "Scheduled Date"
-                                             )))
-                           (action-grid (make-widget 'generic-actions-grid 
-                                                      :name "generic-actions-grid"
-                                                      :columns columns
-                                                      :edit-inline nil
-                                                      :title "Actions"
-                                                      :row-object-class 'generic-action)))
-
-                      
-                     (setf (get-val action-grid 'parent-grid) grid)
-                     (setf (get-val action-grid 'current-doc) (editing-row grid))
-                     
-                      (render action-grid)))))
+           
            ))
     (render tab-box)
     ))
@@ -317,7 +306,7 @@
 
 (defmethod handle-action ((grid generic-grid) (action (eql 'save)))
   (setf (error-message grid) nil)
-(break "??")
+
   (when (and (string-equal (parameter "form-id") "post-comment-edit-form"))
     (let ((from-user (get-facebook-access-token (parameter "from-user-id")))
           (to-user (get-facebook-access-token (parameter "to-user-id"))))

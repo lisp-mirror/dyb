@@ -7,7 +7,11 @@
         (sleep 600)
         (update-facebook-posts-for-users)))))
 
+(update-facebook-posts-for-users)
 
+(update-social-mention-for-searches)
+
+(listen-twitter-users)
 
 #|
 (trivial-timers:schedule-timer 
