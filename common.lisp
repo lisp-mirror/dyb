@@ -151,9 +151,7 @@
                      :style (if width
                                 (format nil "width:~A;" width)
                                 (format nil "width:~A;" "300px"))
-                     :class (if required
-                                "date-pick required"
-                                "date-pick")
+                     :id "date-picker"
                      :name name
                      :value (escape value))))
        (t

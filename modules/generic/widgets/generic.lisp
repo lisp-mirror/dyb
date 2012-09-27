@@ -44,6 +44,8 @@
                               :value (get-val 
                                       (get-val 
                                        (get-val current-doc 'payload) 'from) 'id))
+                      (:input :type "hidden" :name "action-type" 
+                              :value "Post")
                       (:input :type "hidden" :name "to-user-id" 
                               :value (if (get-val (get-val current-doc 'payload) 'to)
                                          (if (listp (get-val 
@@ -53,34 +55,17 @@
                                                       (get-val current-doc 'payload) 'to)) 'id)
                                              (get-val (get-val 
                                                        (get-val current-doc 'payload) 'to) 'id))))
-                      (render 
-                       form-section
-                       :label "Post ID"
-                       :input (with-html-to-string ()
-                                (render-edit-field 
-                                 "pid"
-                                 (get-val current-doc 'pid))))
+                      
+                      
                       (render form-section 
-                       :label "Action Type"
-                       :input (with-html-to-string ()
-                                (render-edit-field 
-                                 "action-type" 
-                                 (get-val row 'action-type)
-                                 :data (list (list "Like" "Like")
-                                             (list "Comment" "Comment"))
-                                 :required t
-                                 :blank-allowed t
-                                 :type :select)))
-
-                      (render form-section 
-                              :label "Action"
+                              :label "Post"
                               :input 
                               (with-html-to-string ()
                                 (render-edit-field
                                  "action" 
                                  (get-val row 'action)
                                  :required t
-                                 :type :input)))
+                                 :type :textarea)))
                       (render 
                        form-section
                        :label "Scheduled Date"
@@ -88,7 +73,7 @@
                                 (render-edit-field 
                                  "scheduled-date"
                                  (get-val row 'scheduled-date)
-                                 :type :datetime-local)
+                                 :type :date)
                                 ))
                       
                       ))))
