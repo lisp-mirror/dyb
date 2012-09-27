@@ -7,9 +7,9 @@
         (sleep 600)
         (update-facebook-posts-for-users)))))
 
-(update-facebook-posts-for-users)
+(start-facebook-listener)
 
-(update-social-mention-for-searches)
+;(update-social-mention-for-searches)
 
 (listen-twitter-users)
 
