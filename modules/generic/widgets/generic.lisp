@@ -94,7 +94,7 @@
 
 
 (defmethod handle-action ((grid generic-actions-grid) (action (eql 'save)))
-  (setf (error-message grid) nil)
+  (setf (error-message grid) "shit")
 (break "?")
   (when (and (string-equal (parameter "form-id") "schedule-action-form"))
     (let ((from-user (get-facebook-access-token (parameter "from-user-id")))

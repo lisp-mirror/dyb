@@ -20,12 +20,13 @@
         (coerce docs 'vector))
     (find-docs 'vector
                (lambda (doc)
-                 (if (match-context-entities doc)
-                     (cond (t 
+
+                 (cond (t 
                             (if (not (string-equal 
                                       (get-val doc
                                                'doc-status) "superseded"))
-                                doc)))))
+
+                                doc))))
                (service-users-collection))))
 
 (defmethod get-rows ((grid service-user-grid))
