@@ -39,7 +39,7 @@ var currentNetwork = [[\"2012-07-26\",356],[\"2012-07-27\",356],[\"2012-07-28\",
 
 var plot1 = $.jqplot(\"~A\", [twitFollowers, faceFollowers, linkFollowers, currentNetwork], {
   seriesColors: [\"#00FFFF\", \"#0000FF\",\"#04B45F\", \"#d44703\"],
-  title: 'Engagement',
+  title: '',
   highlighter: {
     show: true,
     sizeAdjust: 1,
