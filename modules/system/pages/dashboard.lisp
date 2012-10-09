@@ -152,12 +152,23 @@ Total impressions is <strong>3848</strong>, up <strong>9%</strong> from previous
 <strong>31</strong> Published Activities<br/>
 <strong>52%</strong> up from previous month<br/>
 <strong>100%</strong> of planned activities were published<br/>")))
+                           )
+                          (:tr
+                           
+                           
                            (:td :style "vertical-align:top;"
 
                             (str (render dash-item :name "engagement" :header "Engagement"
                                          :content
                                          "<strong>110</strong> Interactions<br>
 <strong>20%</strong> up from previous month"
+                                         ))
+                            )
+                           (:td :style "vertical-align:top;"
+
+                            (str (render dash-item :name "published-engagement" :header "Published Activity Receving Engagement"
+                                         :content
+                                         "<strong>100%</strong> Of activity received engagement.<br> There is no data from the previous time period"
                                          ))
                             ))
                           #| (:tr
