@@ -21,9 +21,6 @@
 		height:50px;
 		float: left;
 		padding:5px;
-		margin-top:15px;
-		margin-left: 5px;
-		margin-right: 5px;
 		border: 1px solid #aaa;
 
 	}                 
@@ -55,9 +52,9 @@
 
                 position: absolute;
 
-                margin-left: 45px;
+                margin-left: 40px;
 
-                margin-top: 55px;
+                margin-top: 40px;
 
                 }
 	.actions {
