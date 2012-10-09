@@ -261,7 +261,7 @@
                                             (:a :href "#" (:img :src "/appimg/facebook-share.png")))
                                       )
                                 )
-                               (:td
+                               (:td  :width "150"
                                 (:div :class "post_image_thumb"
                                       (:a :href= "#" :title "Click to view the full size image"
                                           (:img :src (get-val doc 'picture)))))))
