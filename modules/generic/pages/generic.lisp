@@ -89,7 +89,7 @@
                                (render-edit-field
                                 "comment" 
                                 (parameter "comment")
-                                :required nil
+                                :required t
                                 :type :textarea)))
                      
                      ))))
