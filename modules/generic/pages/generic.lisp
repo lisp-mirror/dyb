@@ -96,12 +96,10 @@
       
 
       (defer-js (format nil 
-                        "$('#comments~a-dialog-form').dialog('open')"
+                        "$('#comments-~a-dialog-form').dialog('open')"
                         (get-val current-post 'post-id)))
-      (defer-js (format nil "$('#comments~a-dialog-form').dialog({autoOpen: false, width: 900, height: 590})"
-                        (get-val current-post 'post-id)))
-
-)))
+      (defer-js (format nil "$('#comments-~a-dialog-form').dialog({autoOpen: false, width: 900, height: 590})"
+                        (get-val current-post 'post-id))))))
 
 
 
