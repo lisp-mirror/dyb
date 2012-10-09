@@ -118,14 +118,10 @@
                               (:tr
                                (:td :width "82"
                                 (:div :class "profile_pic"
-                                      (:a :href (get-val doc'user-link) :title "Go to Content"
+                                      (:a :href (get-val doc 'user-link) :title "Go to Content"
                                           (:img  :src "/appimg/social-mention.jpg")))
                                 (:div :class "social_icon"
-                                      (cond ((string-equal (get-val doc 'source) "facebook")
-                                             (htm (:img :src "/appimg/facebook.png")))
-                                            ((string-equal (get-val doc 'source) "twitter")
-                                             (htm (:img :src "/appimg/twitter.png")))
-                                            )
+                                      (htm (:img :src (get-val doc 'favicon)))
                                       ))
                                (:td 
                                 (:div :class "post_title"
@@ -221,8 +217,10 @@
                                       (:a :href "#" :title (format nil "View ~A\'s Profile" 
                                                                    (if (get-val doc 'from)
                                                                        (get-val (get-val doc 'from) 'name)))
+                                          ;;TODO: image parsing is broken????
                                           (:img :src (if (get-val doc 'from)
-                                                         (get-val (get-val doc 'from) 'picture)))))
+                                                         (if (get-val (get-val doc 'from) 'picture)
+                                                             (rest (assoc "url" (rest (assoc "data" (get-val (get-val doc 'from) 'picture)  :test #'string-equal))  :test #'string-equal)))))))
                                 (:div :class "social_icon" (:img :src "/appimg/facebook.png")))
                                (:td
                                 (:div :class "post_title"
