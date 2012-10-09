@@ -175,7 +175,13 @@
                                 (htm (:img :src "/appimg/social-mention.jpg")))
                             (:img :src "/appimg/twitter.png"))
                       (:div :class "post_title"
-                            (:h3 (str (format nil "~A..." (subseq (get-val doc 'text) 0 10)) )))
+
+                            (:h3 (str 
+                                  (if (> (length (get-val doc 'text)) 10)
+                                              (format nil "~A..."                           
+                                                      (subseq (get-val doc 'text) 0 10))
+                                              (get-val doc 'text))
+                                   )))
                       (:div :class "post_content"
                             (str (get-val doc 'text)))
                       (:div :class "actions"
@@ -394,6 +400,10 @@
       (update-social-mention-for-searches))
     (when (parameter "schedule-actions")
       (post-facebook-scheduled-actions))
+    (when (parameter "get-twitter-old")
+      (fetch-twitter-users-old))
+
+    
 
     (render page :body
             (with-html-to-string ()
@@ -408,5 +418,9 @@
               (:form :name "fetch-data"
                      :method :post
                      (:input :type "submit" :name "schedule-actions" 
-                             :value "Schedule Actions"))))))
+                             :value "Schedule Actions"))
+              (:form :name "fetch-data"
+                     :method :post
+                     (:input :type "submit" :name "schedule-actions" 
+                             :value "Get Tweets"))))))
 

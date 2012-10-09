@@ -18,7 +18,7 @@
 
 ;(update-social-mention-for-searches)
 
-;;(listen-twitter-users)
+(listen-twitter-users)
 
 #|
 (trivial-timers:schedule-timer 

@@ -639,7 +639,9 @@
 
 (defun make-contributors-list (contributors)
    (let ((out ()))
-   (dolist (cont contributors) (setf out (append out (list (make-contributors cont))))) out ))
+   (dolist (cont contributors) 
+     (setf out (append out (list (make-contributors cont))))) out )
+   )
 
 (defun make-current-user-retweet (current-user-retweet)
    (let (
@@ -716,147 +718,157 @@
 ;; version 1 needs status builder and maybe more
 
 (defun make-tweet-user (user)
-    (let (
-            (profile-image-url-https (get-user-profile-image-url-https user))
-            (utc-offset (get-user-utc-offset user))
-            (profile-background-image-url (get-user-profile-background-image-url user))
-            (statuses-count (get-user-statuses-count user))
-	    (status (get-user-status user))
-            (id (get-user-id user))
-            (location (get-user-location user))
-            (profile-text-color (get-user-profile-text-color user))
-            (show-all-inline-media (get-user-show-all-inline-media user))
-            (id-str (get-user-id-str user))
-            (name (get-user-name user))
-            (profile-use-background-image (get-user-profile-use-background-image user))
-            (protected (get-user-protected user))
-            (friends-count (get-user-friends-count user))
-            (profile-image-url (get-user-profile-image-url user))
-            (followers-count (get-user-followers-count user))
-            (profile-sidebar-fill-color (get-user-profile-sidebar-fill-color user))
-            (description (get-user-description user))
-            (time-zone (get-user-time-zone user))
-            (profile-background-tile (get-user-profile-background-tile user))
-            (following (get-user-following user))
-            (is-translator (get-user-is-translator user))
-            (profile-background-color (get-user-profile-background-color user))
-            (default-profile (get-user-default-profile user))
-            (profile-link-color (get-user-profile-link-color user))
-            (lang (get-user-lang user))
-            (listed-count (get-user-listed-count user))
-            (created-at (get-user-created-at user))
-            (default-profile-image (get-user-default-profile-image user))
-            (contributors-enabled (get-user-contributors-enabled user))
-            (verified (get-user-verified user))
-            (geo-enabled (get-user-geo-enabled user))
-            (profile-sidebar-border-color (get-user-profile-sidebar-border-color user))
-            (url (get-user-url user))
-            (screen-name (get-user-screen-name user))
-            (follow-request-sent (get-user-follow-request-sent user))
-            (notifications (get-user-notifications user))
-            (profile-background-image-url-https (get-user-profile-background-image-url-https user))
-            (favourites-count (get-user-id user)))
-      (if status (setf status (make-tweet status)))
-      (if (or profile-image-url-https utc-offset profile-background-image-url statuses-count status id location profile-text-color show-all-inline-media id-str name profile-use-background-image protected friends-count profile-image-url followers-count profile-sidebar-fill-color description time-zone profile-background-tile following is-translator profile-background-color default-profile profile-link-color lang listed-count created-at default-profile-image contributors-enabled verified geo-enabled profile-sidebar-border-color url screen-name follow-request-sent notifications profile-background-image-url-https favourites-count) (make-instance 'tw-user 
-								:profile-image-url-https profile-image-url-https
-								:utc-offset utc-offset
-								:profile-background-image-url profile-background-image-url
-								:statuses-count statuses-count
-								:status status
-								:pid id
-								:location location
-								:profile-text-color profile-text-color
-								:show-all-inline-media show-all-inline-media
-								:id-str id-str
-								:name name
-								:profile-use-background-image profile-use-background-image
-								:protected protected
-								:friends-count friends-count
-								:profile-image-url profile-image-url
-								:followers-count followers-count
-								:profile-sidebar-fill-color profile-sidebar-fill-color
-								:description description
-								:time-zone time-zone
-								:profile-background-tile profile-background-tile
-								:following following
-								:is-translator is-translator
-								:profile-background-color profile-background-color
-								:default-profile default-profile
-								:profile-link-color profile-link-color
-								:lang lang
-								:listed-count listed-count
-								:created-at created-at
-								:default-profile-image default-profile-image
-								:contributors-enabled contributors-enabled
-								:verified verified
-								:geo-enabled geo-enabled
-								:profile-sidebar-border-color profile-sidebar-border-color
-								:url url
-								:screen-name screen-name
-								:follow-request-sent follow-request-sent
-								:notifications notifications
-								:profile-background-image-url-https profile-background-image-url-https
-								:favourites-count favourites-count) ())))
+  (let (
+        (profile-image-url-https (get-user-profile-image-url-https user))
+        (utc-offset (get-user-utc-offset user))
+        (profile-background-image-url (get-user-profile-background-image-url user))
+        (statuses-count (get-user-statuses-count user))
+        (status (get-user-status user))
+        (id (get-user-id user))
+        (location (get-user-location user))
+        (profile-text-color (get-user-profile-text-color user))
+        (show-all-inline-media (get-user-show-all-inline-media user))
+        (id-str (get-user-id-str user))
+        (name (get-user-name user))
+        (profile-use-background-image (get-user-profile-use-background-image user))
+        (protected (get-user-protected user))
+        (friends-count (get-user-friends-count user))
+        (profile-image-url (get-user-profile-image-url user))
+        (followers-count (get-user-followers-count user))
+        (profile-sidebar-fill-color (get-user-profile-sidebar-fill-color user))
+        (description (get-user-description user))
+        (time-zone (get-user-time-zone user))
+        (profile-background-tile (get-user-profile-background-tile user))
+        (following (get-user-following user))
+        (is-translator (get-user-is-translator user))
+        (profile-background-color (get-user-profile-background-color user))
+        (default-profile (get-user-default-profile user))
+        (profile-link-color (get-user-profile-link-color user))
+        (lang (get-user-lang user))
+        (listed-count (get-user-listed-count user))
+        (created-at (get-user-created-at user))
+        (default-profile-image (get-user-default-profile-image user))
+        (contributors-enabled (get-user-contributors-enabled user))
+        (verified (get-user-verified user))
+        (geo-enabled (get-user-geo-enabled user))
+        (profile-sidebar-border-color (get-user-profile-sidebar-border-color user))
+        (url (get-user-url user))
+        (screen-name (get-user-screen-name user))
+        (follow-request-sent (get-user-follow-request-sent user))
+        (notifications (get-user-notifications user))
+        (profile-background-image-url-https (get-user-profile-background-image-url-https user))
+        (favourites-count (get-user-id user)))
+    (if status 
+        (setf status (make-tweet status)))
+    (if (or profile-image-url-https utc-offset profile-background-image-url statuses-count status id location profile-text-color show-all-inline-media id-str name profile-use-background-image protected friends-count profile-image-url followers-count profile-sidebar-fill-color description time-zone profile-background-tile following is-translator profile-background-color default-profile profile-link-color lang listed-count created-at default-profile-image contributors-enabled verified geo-enabled profile-sidebar-border-color url screen-name follow-request-sent notifications profile-background-image-url-https favourites-count) 
+        (make-instance 'tw-user 
+                       :profile-image-url-https profile-image-url-https
+                       :utc-offset utc-offset
+                       :profile-background-image-url profile-background-image-url
+                       :statuses-count statuses-count
+                       :status status
+                       :pid id
+                       :location location
+                       :profile-text-color profile-text-color
+                       :show-all-inline-media show-all-inline-media
+                       :id-str id-str
+                       :name name
+                       :profile-use-background-image profile-use-background-image
+                       :protected protected
+                       :friends-count friends-count
+                       :profile-image-url profile-image-url
+                       :followers-count followers-count
+                       :profile-sidebar-fill-color profile-sidebar-fill-color
+                       :description description
+                       :time-zone time-zone
+                       :profile-background-tile profile-background-tile
+                       :following following
+                       :is-translator is-translator
+                       :profile-background-color profile-background-color
+                       :default-profile default-profile
+                       :profile-link-color profile-link-color
+                       :lang lang
+                       :listed-count listed-count
+                       :created-at created-at
+                       :default-profile-image default-profile-image
+                       :contributors-enabled contributors-enabled
+                       :verified verified
+                       :geo-enabled geo-enabled
+                       :profile-sidebar-border-color profile-sidebar-border-color
+                       :url url
+                       :screen-name screen-name
+                       :follow-request-sent follow-request-sent
+                       :notifications notifications
+                       :profile-background-image-url-https profile-background-image-url-https
+                       :favourites-count favourites-count) ())))
 
 ;; status is tweet - now need geo stuff to finish
 
-(defun make-tweet (tweet)
-  (let (
-   (contributors (make-contributors-list (get-contributors tweet)))
-   (geo (get-geo tweet))
-   (coordinates (make-coordinates (get-coordinates tweet)))
-   (created-at (get-created-at tweet))
-   (current-user-retweet (make-current-user-retweet (get-current-user-retweet tweet)))
-   (entities (make-entities (get-entities tweet)))
-   (favorited (get-favorited tweet))
-   (id (get-id tweet))
-   (id-str (get-id-str tweet))
-   (in-reply-to-screen-name (get-in-reply-to-screen-name tweet))
-   (in-reply-to-status-id (get-in-reply-to-status-id tweet))
-   (in-reply-to-status-id-str (get-in-reply-to-status-id-str tweet))
-   (in-reply-to-user-id (get-in-reply-to-user-id tweet))
-   (in-reply-to-user-id-str (get-in-reply-to-user-id-str tweet))
-   (place (make-places (get-tweet-place tweet)))
-   (possibly-sensitive (get-possibly-sensitive tweet))
-   (retweet-count (get-retweet-count tweet))
-   (retweeted (get-retweeted tweet))
-   (source (get-tweet-source tweet))
-   (text (get-text tweet))
-   (truncated (get-truncated tweet))
-   (user (get-tweet-user tweet))
-   (retweeted-status (get-retweeted-status tweet))
-   (withheld-copyright (get-withheld-copyright tweet))
-   (withheld-in-countries (get-withheld-in-countries tweet))
-   (withheld-scope (get-withheld-scope tweet))
-   )
-      (if retweeted-status (setf retweeted-status (make-tweet retweeted-status)))
-      (if user (setf user (make-tweet-user user)))
-      (if (or contributors geo coordinates created-at current-user-retweet entities favorited id id-str in-reply-to-screen-name in-reply-to-status-id in-reply-to-status-id-str in-reply-to-user-id in-reply-to-user-id-str place possibly-sensitive retweet-count retweeted source text truncated user retweeted-status withheld-copyright withheld-in-countries withheld-scope) 
-   (make-instance 'tweet 
-                  :contributors contributors
-                  :geo geo
-                  :coordinates coordinates
-                  :created-at created-at
-                  :current-user-retweet current-user-retweet
-                  :entities entities
-                  :favorited favorited
-                  :pid id
-                  :key id
-                  :id-str id-str
-                  :in-reply-to-screen-name in-reply-to-screen-name
-                  :in-reply-to-status-id in-reply-to-status-id
-                  :in-reply-to-status-id-str in-reply-to-status-id-str
-                  :in-reply-to-user-id in-reply-to-user-id
-                  :in-reply-to-user-id-str in-reply-to-user-id-str
-                  :place place
-                  :possibly-sensitive possibly-sensitive
-                  :retweet-count retweet-count
-                  :retweeted retweeted
-                  :source source
-                  :text text
-                  :truncated truncated
-                  :user user
-                  :retweeted-status retweeted-status
-                  :withheld-copyright withheld-copyright
-                  :withheld-in-countries withheld-in-countries
-                  :withheld-scope withheld-scope) ())))
+(defun make-tweet (tweetx)
+  ;;(break "~A" (get-text (car tweetx))  )
+  
+  (let* ((tweet (if (not (get-text tweetx))
+                    (car tweetx)
+                    tweetx))
+        (contributors (get-contributors tweet) ;;
+          ;;(make-contributors-list (get-contributors tweet))
+          )
+        (geo (get-geo tweet))
+        (coordinates (get-coordinates tweet) ;;(make-coordinates (get-coordinates tweet))
+          )
+        (created-at (get-created-at tweet))
+        (current-user-retweet (make-current-user-retweet (get-current-user-retweet tweet)))
+        (entities (make-entities (get-entities tweet)))
+        (favorited (get-favorited tweet))
+        (id (get-id tweet))
+        (id-str (get-id-str tweet))
+        (in-reply-to-screen-name (get-in-reply-to-screen-name tweet))
+        (in-reply-to-status-id (get-in-reply-to-status-id tweet))
+        (in-reply-to-status-id-str (get-in-reply-to-status-id-str tweet))
+        (in-reply-to-user-id (get-in-reply-to-user-id tweet))
+        (in-reply-to-user-id-str (get-in-reply-to-user-id-str tweet))
+        (place (make-places (get-tweet-place tweet)))
+        (possibly-sensitive (get-possibly-sensitive tweet))
+        (retweet-count (get-retweet-count tweet))
+        (retweeted (get-retweeted tweet))
+        (source (get-tweet-source tweet))
+        (text (get-text tweet))
+        (truncated (get-truncated tweet))
+        (user (get-tweet-user tweet))
+        (retweeted-status (get-retweeted-status tweet))
+        (withheld-copyright (get-withheld-copyright tweet))
+        (withheld-in-countries (get-withheld-in-countries tweet))
+        (withheld-scope (get-withheld-scope tweet))
+        )
+    (if retweeted-status (setf retweeted-status (make-tweet retweeted-status)))
+    (if user (setf user (make-tweet-user user)))
+
+    (if (or contributors geo coordinates created-at current-user-retweet entities favorited id id-str in-reply-to-screen-name in-reply-to-status-id in-reply-to-status-id-str in-reply-to-user-id in-reply-to-user-id-str place possibly-sensitive retweet-count retweeted source text truncated user retweeted-status withheld-copyright withheld-in-countries withheld-scope) 
+        (make-instance 'tweet 
+                       :contributors contributors
+                       :geo geo
+                       :coordinates coordinates
+                       :created-at created-at
+                       :current-user-retweet current-user-retweet
+                       :entities entities
+                       :favorited favorited
+                       :pid id
+                       :key id
+                       :id-str id-str
+                       :in-reply-to-screen-name in-reply-to-screen-name
+                       :in-reply-to-status-id in-reply-to-status-id
+                       :in-reply-to-status-id-str in-reply-to-status-id-str
+                       :in-reply-to-user-id in-reply-to-user-id
+                       :in-reply-to-user-id-str in-reply-to-user-id-str
+                       :place place
+                       :possibly-sensitive possibly-sensitive
+                       :retweet-count retweet-count
+                       :retweeted retweeted
+                       :source source
+                       :text text
+                       :truncated truncated
+                       :user user
+                       :retweeted-status retweeted-status
+                       :withheld-copyright withheld-copyright
+                       :withheld-in-countries withheld-in-countries
+                       :withheld-scope withheld-scope) ())))

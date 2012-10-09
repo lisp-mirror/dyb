@@ -112,24 +112,25 @@
         post)))
       
 (defun populate-generic-db-from-tweet (tweet-list)
-  
-  (unless (string-equal (caaar tweet-list) "friends")
-    (dolist (tweet tweet-list)
-      (let ((generic (wrap-tweet (make-tweet tweet))))
+
+  (unless   (string-equal (caaar tweet-list) "friends")
+      (dolist (tweet tweet-list)
+;;(break "~A" (make-tweet tweet))
+        (let ((generic (wrap-tweet (make-tweet tweet))))
         
-        (if generic
-            (let ((old-generic 
-                   (find-doc (generic-entry-collection)
-                             :test
-                             (lambda (doc)
-                               (typecase  (get-val doc 'payload)
-                                 (tweet
-                                  (if (string-equal (get-val (get-val doc 'payload) 'pid) 
-                                                    (get-val (get-val generic 'payload) 'pid))
-                                      doc))))
-                             )))
-              (unless old-generic
-                (persist generic ))))))))
+          (if generic
+              (let ((old-generic 
+                     (find-doc (generic-entry-collection)
+                               :test
+                               (lambda (doc)
+                                 (typecase  (get-val doc 'payload)
+                                   (tweet
+                                    (if (equal (get-val (get-val doc 'payload) 'pid) 
+                                               (get-val (get-val generic 'payload) 'pid))
+                                        doc))))
+                               )))
+                (unless old-generic
+                  (persist generic ))))))))
 
 
 (add-collection (system-db) "generic-entry" 

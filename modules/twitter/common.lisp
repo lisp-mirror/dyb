@@ -285,6 +285,58 @@
              ("oauth_version" "1.0")))))
     :want-stream t)))
 
+(defun twitter-get-stream-old (access-token access-secret)
+  (let* ((stamp (format nil "~A" (get-unix-time)))
+         (nonce (format nil "~A~A" (random 1234567) stamp))
+         (end-point  "http://api.twitter.com/1.1/statuses/home_timeline.json"
+          
+           ))
+    
+    (drakma:http-request end-point
+      
+     :method :get
+     :additional-headers
+     `(("Authorization"
+        ,@(build-auth-string
+           `(;;("oauth_callback" ,*twitter-callback-uri*)
+             ("oauth_consumer_key" ,*twitter-client-id*)
+             ("oauth_nonce" ,nonce)
+             ("oauth_signature"
+              ,(encode-signature
+                (hmac-sha1
+                 (signature-base-string
+                  :uri end-point 
+                  :request-method "GET"
+                  :parameters `(;;("oauth_callback" ,*twitter-callback-uri*)
+                                ("oauth_consumer_key" ,*twitter-client-id*)
+                                ("oauth_nonce" ,nonce)
+                                ("oauth_signature_method" "HMAC-SHA1")
+                                ("oauth_timestamp" ,stamp)
+                                ("oauth_token" ,access-token)
+                                ("oauth_version" "1.0")))
+                 (hmac-key  *twitter-client-secret* 
+                            access-secret))
+                nil))
+             ("oauth_signature_method" "HMAC-SHA1")
+             ("oauth_timestamp" ,stamp)
+             ("oauth_token" ,access-token)
+             ("oauth_version" "1.0")))))
+    :want-stream nil)))
+
+
+(defun twitter-listener-old (service-user)
+  (when service-user
+    (when (get-val service-user 'last-access-token)
+      (let ((result (twitter-get-stream-old (get-val service-user 'last-access-token) (get-val service-user 'last-token-secret))))
+        (populate-generic-db-from-tweet (json::decode-json-from-string (flexi-streams:octets-to-string result)))))))
+
+(defun fetch-twitter-users-old ()
+  (dolist (user (coerce (service-users) 'list ))
+        (when (and user (string-equal (get-val user 'doc-status) "Active"))
+          ;;TODO: How to get error messages in for users without access tokens.
+          (when (string-equal (get-val user 'service-user-type) "Twitter")
+            (when (get-val user 'last-access-token)
+              (twitter-listener-old user))))))
 
 (defun twitter-listener (service-user)
   (when service-user
