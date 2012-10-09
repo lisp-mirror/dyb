@@ -27,7 +27,7 @@
                                       (get-val doc
                                                'doc-status) "superseded"))
 
-                                (break "~A" doc))))))
+                                doc)))))
                (service-users-collection))))
 
 (defmethod get-rows ((grid service-user-grid))

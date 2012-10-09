@@ -74,14 +74,15 @@
                                 (with-html-to-string ()
                                   (render service-user))))
 
-                      
+                
                       (render form-section 
                               :label "Post"
                               :input 
                               (with-html-to-string ()
                                 (render-edit-field
                                  "action-content" 
-                                 (or (parameter "action-content") (get-val row 'action-content))
+                                 (or (parameter "action-content") 
+                                     (get-val row 'action-content))
                                  :required t
                                  :type :textarea)))
                       (render 
@@ -90,8 +91,29 @@
                        :input (with-html-to-string ()
                                 (render-edit-field 
                                  "scheduled-date"
-                                 (get-val row 'scheduled-date)
-                                 :type :date)
+                                 (or (parameter "scheduled-date")
+                                     (if (get-val row 'scheduled-date)
+                                         (format-universal-date 
+                                          (get-val row 'scheduled-date))))
+                                 :type :date
+                                 :required t)
+                                ))
+                      (render 
+                       form-section
+                       :label "Scheduled Time"
+                       :input (with-html-to-string ()
+                                (render-edit-field 
+                                 "scheduled-time"
+                                 (or (parameter "scheduled-time")
+                                     (if (get-val row 'scheduled-date)
+                                         (multiple-value-bind 
+                                               (second minute hour day month year)
+                                             (decode-universal-time 
+                                              (get-val row 'scheduled-date))
+                                           (declare (ignore second day month year))
+                                           (format nil "~2,'0d:~2,'0d" hour minute))))
+                                 :type :date
+                                 :required t)
                                 ))
                       
                       ))))
@@ -109,21 +131,35 @@
                          (get-facebook-access-token-by-user (parameter "service-user"))))
           (to-user nil))
       (when (or from-user to-user)
+        (let ((date-time nil))
+          (multiple-value-bind (year month day)
+                (decode-date-string (parameter "scheduled-date"))
+            (multiple-value-bind (second minute hour)
+                (decode-time-string (format nil "~A:00" (parameter "scheduled-time")))
+              (when second
+                  (setf date-time 
+                        (encode-universal-time second minute hour day month year))
+                  (if (xid (editing-row grid))
+                      (let ((new-doc (editing-row grid))
+                            (old-doc (copy (editing-row grid))))
+                        (synq-edit-data new-doc)
+                        (setf (get-val new-doc 'post-type) (parameter "service"))
+                        (setf (get-val new-doc 'from-user-id) (parameter "service-user"))
+                        (setf (get-val new-doc 'scheduled-date) date-time)
+                (persist new-doc :old-object old-doc))
+              (persist (make-generic-action  nil
+                                             (parameter "service")
+                                             (parameter "service-user") 
+                                             to-user
+                                             (parameter "action-type")
+                                             (parameter "action-content")
+                                             date-time
+                                             )))
+                  )
+              (unless second
+                (setf (error-message grid) minute))))
 
-        (if (xid (editing-row grid))
-            (let ((new-doc (editing-row grid))
-                  (old-doc (copy (editing-row grid))))
-              (synq-edit-data new-doc)
-              (setf (get-val new-doc 'post-type) (parameter "service"))
-              (setf (get-val new-doc 'from-user-id) (parameter "service-user"))
-              (persist new-doc :old-object old-doc))
-            (persist (make-generic-action  nil
-                                          (parameter "service")
-                                          (parameter "service-user") 
-                                          to-user
-                                          (parameter "action-type")
-                                          (parameter "action-content")
-                                          (parameter "scheduled-date"))))
+          )
         (finish-editing grid))
       (unless (or from-user to-user)
           (setf (error-message grid) "User does not exist.")))))

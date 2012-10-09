@@ -392,6 +392,9 @@
       (update-facebook-posts-for-users))
     (when (parameter "get-search-stream-data")
       (update-social-mention-for-searches))
+    (when (parameter "schedule-actions")
+      (post-facebook-scheduled-actions))
+
     (render page :body
             (with-html-to-string ()
               (:form :name "fetch-data"
@@ -401,5 +404,9 @@
               (:form :name "fetch-data"
                      :method :post
                      (:input :type "submit" :name "get-search-stream-data" 
-                             :value "Get Search Stream Data"))))))
+                             :value "Get Search Stream Data"))
+              (:form :name "fetch-data"
+                     :method :post
+                     (:input :type "submit" :name "schedule-actions" 
+                             :value "Schedule Actions"))))))
 
