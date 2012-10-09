@@ -442,6 +442,7 @@ if (okToRefresh)
 	$(function() {
 		$( \"#date-picker\" ).datepicker();
 	})\";")
+
        (:script "$(\"#inline-datepicker\").datepicker({
    onSelect: function(dateText, inst) { 
       var dateAsString = dateText; //the first parameter of this function

@@ -14,7 +14,9 @@
       (let ((rel
              (get-relationship-tree-item-by-id
               (car (wfx:data tree)) 
-              (parse-integer (parameter "add-entity-click") :junk-allowed t))))
+              (parse-integer (or (parameter "add-entity-click")
+                                 (parameter "delete-entity-click"))
+                             :junk-allowed t))))
 
         (setf (selected-nodes tree) rel))
       ))
@@ -28,13 +30,13 @@
           (:form :id (format nil "add-entity-~A" (get-val (wfx:data tree-node) 'xid))  :method "post"
                  (:input :type "hidden" :name "add-entity-click" 
                          :value (get-val (wfx:data tree-node) 'xid))
-                 (:img :src "/appimgadd-ex-small.png" 
+                 (:img :src "/appimg/add-ex-small.png" 
                        :onclick (format nil "javascript:document.getElementById(\"add-entity-~A\").submit();" (get-val (wfx:data tree-node) 'xid)))))
     (:div :style "display:table-cell; vertical-align:middle"
           (:form :id (format nil "delete-entity-~A" (get-val (wfx:data tree-node) 'xid)) :method "post"
                  (:input :type "hidden" :name "delete-entity-click" 
                          :value (get-val (wfx:data tree-node) 'xid))
-                 (:img :src "/appimgdelete-ex-small.png" 
+                 (:img :src "/appimg/delete-ex-small.png" 
                        :onclick (format nil "javascript:document.getElementById(\"delete-entity-~A\").submit();" (get-val (wfx:data tree-node) 'xid))))) ))
 
 (defmethod render-tree-node ((tree entities-edit-tree) &key data leaf-p)
@@ -63,6 +65,7 @@
     (rec tree-data))))
 
 (defmethod render ((tree entities-edit-tree) &key)
+
   (with-html
     (:div :class "entity-tree"
           (:ul
@@ -81,43 +84,50 @@
 (defmethod action-handler ((widget entities))
   
   (when (parameter "add-entity")
-    (let ((root (copy (car (wfx:data (tree widget)))))
-          (entity (if (parameter "entity")
-                      (get-entity (parameter "entity")))))
+    (let* ((root (car (wfx:data (tree widget))))
+           (entity (if (and (parameter "entity-select") 
+                            (not (string-equal (parameter "entity-select") "")))
+                       (get-entity-by-id (parse-integer (parameter "entity-select"))))))
 
-      (setf (get-val root 'xdb2::id) (next-id (entity-relationships-collection)))
-      (setf (get-val root 'xdb2::written) nil)
-      (setf (get-val root 'doc-status) "Active")
-
-      (when (and (parameter "new-entity") 
-                 (not (string-equal (parameter "new-entity") "")))
-        (setf entity (make-entity 
-                      (get-val (get-entity-type-by-id 
-                                (parse-integer (parameter "entity-type-select"))) 
-                               'entity-type-name)
-                      (parameter "new-entity"))))
-
-      (persist entity)
-
-      (add-relationship-child (if (get-val (selected-nodes (tree widget)) 'parent)
-                                   (selected-nodes (tree widget))
-                                   root) 
-                              (make-entity-relationship    
-                               root 
-                               (if (get-val (selected-nodes (tree widget)) 'parent)
-                                   (selected-nodes (tree widget))
-                                   root) 
-                               entity
-                               nil))
-
-      (persist root)))
+      ;;    (setf (get-val root 'xdb2::id) (next-id (entity-relationships-collection)))
+      ;;    (setf (get-val root 'xdb2::written) nil)
+      ;;    (setf (get-val root 'doc-status) "Active")
+      (unless entity
+        (when (and (parameter "new-entity") 
+                   (not (string-equal (parameter "new-entity") "")))
+          (setf entity (make-entity 
+                        (get-val (get-entity-type-by-id 
+                                  (parse-integer (parameter "entity-type-select"))) 
+                                 'entity-type-name)
+                        (parameter "new-entity")))))
+      (when entity
+        (persist entity)
+        (add-relationship-child  (if (get-val (selected-nodes (tree widget)) 'parent)
+                                     (selected-nodes (tree widget))
+                                     root) 
+                                 (make-entity-relationship    
+                                  root 
+                                  (if (get-val (selected-nodes (tree widget)) 'parent)
+                                      (selected-nodes (tree widget))
+                                      root) 
+                                  entity
+                                  nil))
+        (persist root))))
   
   (when (parameter "delete-entity-click")
-    (remove-relationship-tree-child
-     (car (wfx:data (tree widget)))
-     (selected-nodes (tree widget)))
-    )
-)
+
+    (let* ((root (car (wfx:data (tree widget))))
+           (old-root (copy root)))
+      (remove-relationship-tree-child  
+       root
+       (selected-nodes (tree widget)))
+      
+      (when (get-val (selected-nodes (tree widget)) 'parent)
+        
+        (persist (get-relationship-tree-item 
+                  root 
+                  (xid (get-val (selected-nodes (tree widget)) 'parent)))))
+      (persist root :old-object old-root))))
 
 (defmethod render ((widget entities) &key)
   (let ((root (make-widget 'select :name "root-select"))
@@ -127,7 +137,6 @@
     
     (setf (on-change root)
           (js-render widget (js-value root)))
-
     (setf (items root)
           (if (super-user-p user)
               (loop for entity-rel across (entity-relationships)
@@ -160,9 +169,9 @@
               (when (parameter "add-entity-click")
                 (let ((entity-select (make-widget 'select :name "entity-select"))
                       (entity-type-select (make-widget 'select :name "entity-type-select"))
-                      (edit-box (make-widget 'html-framework-box :name "edit-box")))
+                      (edit-box (make-widget 'peach-box :name "edit-box")))
 
-                  (setf (items entity-select) (entity-list))
+                  (setf (items entity-select) (entity-list-no-context))
                   (setf (items entity-type-select) (entity-type-list))
                   (setf (value entity-select) nil)
                   (setf (content edit-box)

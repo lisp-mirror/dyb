@@ -189,6 +189,14 @@
                                   :serial t
                                   :components
                                   ((:file "scheduler")
+                                   (:module "db"
+                                            :serial t
+                                            :components
+                                            ((:file "generic-scheduler")))
+                                   (:module "widgets"
+                                            :serial t
+                                            :components
+                                            ((:file "generic-scheduler")))
                                    (:module "pages"
                                             :serial t
                                             :components

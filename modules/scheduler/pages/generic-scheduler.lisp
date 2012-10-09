@@ -5,7 +5,7 @@
                              (list
                               
                               (make-instance 'grid-column
-                                             :name 'action
+                                             :name 'action-content
                                              :header "Post")
                               (make-instance 'grid-column
                                              :name 'scheduled-date

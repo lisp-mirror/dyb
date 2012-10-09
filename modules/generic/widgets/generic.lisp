@@ -187,6 +187,12 @@
                         (return-from get-facebook-access-token doc)))))
 
 
+(defun get-facebook-access-token-by-user (fb-user)
+  (find-doc (service-users-collection)
+            :test (lambda (doc)
+                    (if (string-equal (get-val doc 'service-user-name) fb-user)
+                        doc))))
+
 
 (defmethod handle-action ((grid generic-grid) (action (eql 'save)))
   (setf (error-message grid) nil)

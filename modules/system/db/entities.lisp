@@ -32,7 +32,7 @@
 
 
 (add-collection (system-db) "entity-types" 
-                :collection-class 'ems-collection
+                :collection-class 'xpacks-collection
                 :load-from-file-p t)
 
 (when (= (length (entity-types)) 0)
@@ -67,11 +67,8 @@
   (entities-collection))
 
 (defun make-entity (entity-type entity-name)
-(when (string-equal entity-name "Xstrata")
-  ;(break "~A" entity-name)
-  )
   (make-instance 'entity :key entity-name :doc-type "entity" 
-             
+                 
                  :entity-type (get-entity-type entity-type) 
                  :entity-name entity-name))
 
@@ -92,15 +89,35 @@
   )
 
 (defmethod match-context-entities (doc)
-  (if (get-val doc 'entity)
+  (when (typep (get-val doc 'entity) 'entity)
       (find (xid (get-val doc 'entity)) (context))))
 
-(defun entity-list ()
+
+(defun entity-list-no-context ()
   (let ((e-list))
     (dolist (doc (coerce (entities) 'list))
       (if (not (string-equal (get-val doc 'doc-status) "superseded"))
           (setf e-list (append e-list (list (list (get-val doc 'xid) 
                                                   (get-val doc 'entity-name)))))))
+    e-list))
+
+(defun entity-list ()
+  (let ((e-list))
+    (dolist (doc (coerce (entities) 'list))
+      (if (and (not (string-equal (get-val doc 'doc-status) "superseded"))
+               (find (xid doc) (context)))
+          (setf e-list (append e-list (list (list (get-val doc 'xid) 
+                                                  (get-val doc 'entity-name)))))))
+    e-list))
+
+(defun entity-mine-list ()
+  (let ((e-list))
+    (dolist (doc (coerce (entities) 'list))
+      (if (and (not (string-equal (get-val doc 'doc-status) "superseded"))
+               (find (xid doc) (context)))
+          (if (string-equal (get-val (entity-type doc) 'entity-type-name)  "Mine")
+              (setf e-list (append e-list (list (list (get-val doc 'xid) 
+                                                      (get-val doc 'entity-name))))))))
     e-list))
 
 (defun entity-type-list ()
@@ -118,7 +135,7 @@
     e-list))
 
 (add-collection (system-db) "entities" 
-                :collection-class 'ems-collection
+                :collection-class 'xpacks-collection
                 :load-from-file-p t)
 
 

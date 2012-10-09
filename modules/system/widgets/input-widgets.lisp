@@ -414,28 +414,32 @@ Please select a legal one"
        (entities)))
 
 
-
-(defclass supplier-branch-select (chained-select)
+(defclass service-user-select (chained-select)
   ()
   (:metaclass widget-class)
-  (:default-initargs :select-names '(supplier branch)))
+  (:default-initargs :select-names '(service service-user)))
 
-(defun get-all-suppliers ()
-  (map 'list (lambda (doc)
-               (list (get-val doc 'xid) 
-                     (get-val doc 'supplier-name)))
-       (suppliers)))
+(defun get-all-services ()
+  (list (list "Facebook" "Facebook")
+        (list "Twitter" "Twitter")))
 
-(defun get-branches (supplier)
-  (let ((sup (get-supplier-by-id (ensure-parse-integer supplier))))
-    (mapcar #'branch-name (get-val sup 'branches))))
+(defun get-service-users (service)
+  (remove-duplicates (loop for doc across (docs (service-users-collection))
+                        when (lambda (doc)
+                               (if (string-equal (get-val doc 'service-user-type) service)
+                                   (if (get-val doc 'service-user-name)
+                                       (get-val doc 'service-user-name))))
+                        collect (get-val doc 'service-user-name))
+                     :test #'string-equal)
 
-(defmethod retrieve-values ((chain-select supplier-branch-select) select values)
-  (destructuring-bind (&optional supplier) values
+  )
+
+(defmethod retrieve-values ((chain-select service-user-select) select values)
+  (destructuring-bind (&optional service) values
    (let ((position (position select (selects chain-select))))
      (case position
-       (0 (get-all-suppliers))
-       (1 (get-branches supplier))))))
+       (0 (get-all-services))
+       (1 (get-service-users service))))))
 
 
 (defun get-project-description (eid classification-type)
