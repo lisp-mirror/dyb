@@ -4,10 +4,9 @@
 		
 	}
 	.post {
-		border: 0;
-		
+		border: 1px solid #aaa;
+		min-width:100%;
 		float:left;
-		min-width:100%;	
 		
 	}
 	.profile_pic {
@@ -17,23 +16,21 @@
 		
 	}
 	.profile_pic img {
-		width:50px;
-		height:50px;
-		float: left;
-		padding:5px;
-		margin-top:15px;
-		margin-left: 5px;
-		margin-right: 5px;
-		border: 1px solid #aaa;
-
+	width:50px;
+	height:50px;
+	float: left;
+	padding:5px;
+	margin-top:0px;
+	margin-left: 0px;
+	margin-right: 0px;
+	border: 1px solid #aaa;
 	}                 
 	.post_title {
 		
 	}
-	.post_content { 
-		min-width:100%;
-		margin-left: 75px;
-		
+	.post_content {
+	min-width:100%;
+	margin-left: 0px;		
 	}
 	.post_image_thumb {
 		float: right;
@@ -50,29 +47,21 @@
 		
 	}
 	.social_icon {
-		float: left;
-		padding-top: 20px;
-		padding-right: 10px;
+	float: left;
+	position: absolute;
+	margin-left: 40px;
+	margin-top: 40px;
 	}
 	.actions {
-		margin-left: 75px;
+	margin-left: 0px;
+	margin-top: 5px;
 	}
 	.like {
-		float:left;
-		padding-right: 2px;
-		padding-bottom: 10px;
-	}
-	.like_count {
 		float:left;
 		padding-right: 10px;
 		padding-bottom: 10px;
 	}
 	.comment {
-		float:left;
-		padding-right: 2px;
-		padding-bottom: 10px;
-	}
-	.comment_count {
 		float:left;
 		padding-right: 10px;
 		padding-bottom: 10px;
@@ -94,6 +83,22 @@
 	}
 	.favourites {
 		float:left;
+		padding-right: 10px;
+		padding-bottom: 10px;
+	}
+	.post td{
+		vertical-align:top;
+	}
+    .social_icon img {
+		width: 20px;
+	}
+	.like_count {
+		float: left;
+		padding-right: 10px;
+		padding-bottom: 10px;
+	}
+	.comment_count {
+		float: left;
 		padding-right: 10px;
 		padding-bottom: 10px;
 	}
