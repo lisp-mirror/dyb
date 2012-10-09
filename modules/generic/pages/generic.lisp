@@ -116,7 +116,7 @@
 
                       (:table :cellpadding "10" 
                               (:tr
-                               (:td
+                               (:td :width "82"
                                 (:div :class "profile_pic"
                                       (:a :href (get-val doc'user-link) :title "Go to Content"
                                           (:img  :src "/appimg/social-mention.jpg")))
@@ -165,7 +165,7 @@
                 (:div :class "post"
                       (:table :cellpadding "10"
                               (:tr
-                               (:td
+                               (:td :width "82"
                                 (:div :class "profile_pic"
                                       (:a :href "#" :title "View ~A\'s Profile"
                                           (:img  :src (if (get-val doc 'user)
@@ -216,7 +216,7 @@
 
                       (:table :cellpadding "10" 
                               (:tr
-                               (:td
+                               (:td :width "82"
                                 (:div :class "profile_pic"
                                       (:a :href "#" :title (format nil "View ~A\'s Profile" 
                                                                    (if (get-val doc 'from)
