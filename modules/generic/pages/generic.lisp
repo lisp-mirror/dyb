@@ -145,7 +145,7 @@
                             
                                       )
                                 )
-                               (:td :widht "150"
+                               (:td :width "150"
                                     (:div :class "post_image_thumb"
                                           (:a :href= "#" :title "Click to view the full size image"
                                               (:img :src (get-val doc 'image))))))))))))

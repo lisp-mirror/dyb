@@ -49,11 +49,17 @@
 		
 		
 	}
-	.social_icon {
-		float: left;
-		padding-top: 20px;
-		padding-right: 10px;
-	}
+.social_icon {
+
+                float: left;
+
+                position: absolute;
+
+                margin-left: 45px;
+
+                margin-top: 55px;
+
+                }
 	.actions {
 		
 	}

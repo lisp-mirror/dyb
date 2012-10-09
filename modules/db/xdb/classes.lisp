@@ -13,9 +13,6 @@
 (defmethod next-xid ((col ems-collection))
   (next-sequence (list (xdb2::name col) 'xid)))
 
-(defmethod next-id ((col ems-collection))
-  (next-sequence (list (xdb2::name col) 'id)))
-
 (defclass date-doc ()
   ((start-date :initarg :start-date
                :initform nil
@@ -79,25 +76,29 @@
 
 (defgeneric doc-collection (doc))
 
+(defvar *inhibit-change-marking* nil)
+
 (defun supersede (object old-object)
-  (setf (doc-status old-object) "superseded"
-        (effective-date old-object) (stamp-date object))
-  (push old-object (old-versions object)))
+  (let ((*inhibit-change-marking* t))
+    (setf (doc-status old-object) "superseded"
+          (effective-date old-object) (stamp-date object))
+    (push old-object (old-versions object))))
 
 (defmethod load-from-file ((collection ems-collection) file)
   (when (probe-file file)
     (load-data collection file
                (lambda (object &key copy)
-                 (cond ((not (typep object 'doc))
-                        (when (not (typep object 'storable-object))
-                          (vector-push-extend object (docs collection))))
-                       (copy
-                        (supersede object copy))
-                       ((top-level object)
-                        (setf (collection object) collection)
-                        (vector-push-extend object (docs collection)))
-                       (t
-                        (setf (collection object) collection))))
+                 (let ((*inhibit-change-marking* t))
+                  (cond ((not (typep object 'doc))
+                         (when (not (typep object 'storable-object))
+                           (vector-push-extend object (docs collection))))
+                        (copy
+                         (supersede object copy))
+                        ((top-level object)
+                         (setf (collection object) collection)
+                         (vector-push-extend object (docs collection)))
+                        (t
+                         (setf (collection object) collection)))))
                (lambda (object)
                  (alexandria:deletef (docs collection) object)))))
 
@@ -106,30 +107,45 @@
     (alexandria:deletef (docs collection) object)
     (delete-doc collection object)))
 
-(defmethod update-doc ((object storable-object) old-object &key (set-time t))
+(defmethod update-doc ((object storable-object) &key (set-time t))
   (when set-time
     (setf (stamp-date object) (get-universal-time)))
-  (incf (version object))
-  (when old-object
-    (supersede object old-object))
   (serialize-doc (collection object) object))
 
-(defmethod persist ((doc storable-object) &key old-object (set-time t))
-  (let ((collection (doc-collection doc)))
-    (when (not (get-val doc 'xdb2::id))
+(defmethod persist ((doc storable-object) &key old-object (set-time t)
+                                               (top-level t))
+  (declare (ignore old-object))
+  (let ((collection (doc-collection doc)))    
+    (when (not (get-val doc 'xdb2::id)) 
       (setf (version doc) 0
             (xid doc) (or (xid doc)
-                          (next-id collection))
-            (doc-status doc) "active"
-            (log-action doc) "inserted"
-            (user doc) (and (current-user)
-                            (slot-val (current-user) 'email))
-            (collection doc) collection
-            (top-level doc) t)
-      (vector-push-extend doc (docs collection)))
-    (update-doc doc old-object :set-time set-time))
-    
+                          (next-xid collection))
+            (doc-status doc) (or (doc-status doc) "active")
+            (log-action doc) (or (log-action doc) "inserted")
+           
+            (top-level doc) top-level)
+      (when top-level
+        (vector-push-extend doc (docs collection))))
+    (setf (collection doc) collection)
+    ;;Doing or because conversion is not run where session is available.
+    (setf (user doc) (or (and (current-user)
+                              (email (current-user)))
+                         "admin@ems.co.za"))
+    (update-doc doc :set-time set-time))
   doc)
+
+(defmethod (setf slot-value-using-class)
+    (new-value (class storable-class) (object doc) slotd)
+  (when (and (not *inhibit-change-marking*)
+             (slot-boundp-using-class class object slotd)
+             (written object))
+    (let ((current-value (slot-value-using-class class object slotd))
+          (*inhibit-change-marking* t))
+      (unless (equal new-value current-value)
+        (setf (written object) nil)
+        (supersede object (copy object))
+        (incf (version object)))))
+  (call-next-method))
 
 ;;;
 
@@ -183,7 +199,6 @@
   (setf (doc-status doc) "Invalidated")
   (persist doc))
 
-
 ;;Find the last doc that matches to get the lastest version
 (defmethod get-doc ((collection ems-collection) value  
                     &key (element 'key) (test #'equal) (ignore-superseded-p t))
@@ -210,7 +225,7 @@
                    (when (funcall test doc)
                      (setf found-doc doc)))
                (when (funcall test doc)
-                     (setf found-doc doc) )))
+                     (setf found-doc doc))))
          collection))
     found-doc))
 
