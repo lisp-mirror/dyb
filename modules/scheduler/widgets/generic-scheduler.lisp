@@ -112,7 +112,7 @@
                                               (get-val row 'scheduled-date))
                                            (declare (ignore second day month year))
                                            (format nil "~2,'0d:~2,'0d" hour minute))))
-                                 :type :date
+                                 :type :text
                                  :required t)
                                 ))
                       
