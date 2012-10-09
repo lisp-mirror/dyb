@@ -11,12 +11,8 @@
           (:div :class "widget-head" 
                 (:h5 (esc header)))
           (:div :class "widget-content"
-                (:table (:tr (:td :style "vertical-align:top;"
-                                  (:img  :style "padding :10px;" :src "/appimg/save.png"))
-                             (:td  :style "width:100%;padding :10px"
-                              
-                              (str content)
-                              )))
+                (:div :style "width:95%")
+                (str content)
                 
                 ))))
 
@@ -130,7 +126,7 @@
                   (let ((dash-item (make-widget 'dashboard-item :name "dash-item"))
                         (dash-item-full (make-widget 'dashboard-item-full :name "dash-item-full")))
                     (htm 
-                     (str (render dash-item-full :name "ave-engagement" :header "Ave Engagement By Publication"
+                     (str (render dash-item-full :name "ave-engagement" :header "Current Network Size"
                                   ;;TODO: Graph
                                   :content (render-to-string (make-widget 'line-graph :name "chart6"))
                                   ))
