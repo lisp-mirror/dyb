@@ -83,17 +83,11 @@
                                               (js-render-form-values  
                                                widget
                                                (get-val widget 'form-id)
-                                              (js-pair "action" "save")
+                                              (js-pair "action" "post")
                                               ;(format nil "$(\"#~A\").toggle();" (get-val widget 'form-id))
                                               ))
-                                     "Save")
-                                    (:button :class "btn btn-warning"
-                                             :onclick
-                                             (js-render widget
-                                                        (js-pair "action" "cancel") 
-                                                        ;(format nil "$(\"#~A\").toggle();" (get-val widget 'form-id))
-                                                        ) 
-                                             "Cancel")))))))))
+                                     "Post")
+                                    ))))))))
 
 
 (defclass html-framework-form (widget)

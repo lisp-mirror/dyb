@@ -30,7 +30,8 @@
 
 
 (defclass fb-post-comment-form (ajax-widget)
-  ((current-post :initarg :current-post)))
+  ((current-post :initarg :current-post)
+   (inner-id :initarg :inner-id)))
 
 (defmethod action-handler ((widget fb-post-comment-form))
   ;;
@@ -49,17 +50,19 @@
         (t
          nil)))
 
-(defmethod render ((widget fb-post-comment-form) &key form-id)
+(defmethod render ((widget fb-post-comment-form) &key )
+
   (let ((comment-form (make-widget 'html-simple-framework-form 
-                                   :name form-id
+                                   :name (get-val widget 'inner-id)
                                    :grid-size 12
                                    ;;:header "Comment"
-                                   :form-id form-id
+                                  ; :form-id form-id
                                    ))
         (form-section (make-widget 'form-section
                                    :name "form-section"))
         (current-post (if (parameter "post-id")
                           (get-post-by-post-id (parameter "post-id")))))
+    (setf (get-val comment-form 'form-id) (get-val widget 'inner-id))
     (with-html 
       
       (if (parameter "action")
@@ -288,6 +291,11 @@
                              
                              
                              (setf (get-val comment-form 'current-post) doc)
+
+                             (setf (get-val comment-form 'inner-id) (format nil 
+                                                                        "comments-~A" 
+                                                                        (get-val doc 'post-id)))
+
                              (htm (:a :href
                                       (js-link 
                                        (js-render comment-form
@@ -296,9 +304,7 @@
                                                   (js-pair "action" "comment")))
                                       (make-icon "card--pencil"
                                                  :title "Post Comment"))
-                                  (render comment-form :form-id (format nil 
-                                                                        "comments-~A" 
-                                                                        (get-val doc 'post-id))))))))
+                                  (render comment-form ))))))
 
           )))
 
