@@ -140,7 +140,7 @@
                                       (str (get-val doc 'description)))
                                 (:div :class "actions"
                                       (:div :class "go-to-content" :title "Go to Source"
-                                            (:a :href (get-val doc 'link) (:img :src "social-source.png")))
+                                            (:a :href (get-val doc 'link) (:img :src "/appimg/social-source.png")))
                             
                             
                                       )
@@ -235,7 +235,16 @@
                                 (:div :class "actions"
                                       (:div :class "like" :title "Like"
                                             (:a :href "#" (:img :src "/appimg/facebook-like.png")))
-                            
+                                      (:div :class "like_count"
+                                            (let ((likes 0))
+                                              (if (get-val doc 'likes)
+                                                  (if (string-equal 
+                                                       (type-of (make-instance 'likes))
+                                                       "LIKES")
+                                                      (if (get-val (get-val doc 'likes) 'count)
+                                                          (setf likes (get-val (get-val doc 'likes) 'count)))))
+
+                                              (htm (str likes))))
                                       (:div :class "comment" :title "Comment"
                                             (:a :href "#" :onclick (format nil "$(\"#comments-~A\").toggle();" (get-val doc 'post-id))
                                                 (:img :src "/appimg/facebook-comment.png")))
