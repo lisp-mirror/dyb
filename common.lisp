@@ -151,9 +151,10 @@
                      :style (if width
                                 (format nil "width:~A;" width)
                                 (format nil "width:~A;" "300px"))
-                     :id "date-picker"
+                     :class "datepicker"
                      :name name
-                     :value (escape value))))
+                     :value (escape value)))
+        (defer-js "$('.datepicker').datepicker({dateFormat: 'dd M yy'})"))
        (t
         (htm
          (:div (:input :type type
