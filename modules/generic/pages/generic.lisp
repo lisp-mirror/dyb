@@ -299,8 +299,7 @@
                                                   (js-pair "post-id" 
                                                            (get-val doc 'post-id))
                                                   (js-pair "action" "comment")))
-                                      (make-icon "card--pencil"
-                                                 :title "Post Comment"))
+                                      "Post Comment")
                                   (render comment-form ))))))
 
           )))
