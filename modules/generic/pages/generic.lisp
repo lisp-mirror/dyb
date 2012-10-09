@@ -2,13 +2,7 @@
 
 (defun comment-facebook (post from-user-id comment &key scheduled-date)
   (let* ((to-user-id (get-val (get-val post 'from) 'id))
-         (action (make-generic-action (get-val post 'post-id) 
-                                          "Facebook Comment" 
-                                          from-user-id 
-                                          to-user-id
-                                          "Comment"
-                                          comment
-                                          scheduled-date)))
+         )
     
     (unless scheduled-date
       (multiple-value-bind (body)
@@ -18,15 +12,16 @@
                                :method :post
                                :parameters (list (cons "message"  (parameter "comment"))))
 
-        (let ((error-message (get-facebook-error body) ))           
+        #|(let ((error-message (get-facebook-error body) ))           
           (when error-message
             (setf (get-val action 'action-status) "Error")
             (setf (get-val action 'action-log) (cdr (car (rest error-message)))))
 
           (unless error-message 
             (setf (get-val action 'action-status) "Completed")
-            (setf (get-val action 'action-log) "Posted comment successfully.")))))
-    (persist action)))
+            (setf (get-val action 'action-log) "Posted comment successfully.")))|#
+        ))
+    ))
 
 
 (defclass fb-post-comment-form (ajax-widget)
@@ -35,13 +30,15 @@
 
 (defmethod action-handler ((widget fb-post-comment-form))
   ;;
-  ;;(break "?~a" (parameter "action"))
-  (cond ((string-equal (parameter "action") "save")
-         (if (string-equal 
-              (format nil "comments-~A-dialog-form" 
-                      (parameter "post-id"))
-              (name widget))
-             (comment-facebook (get-val widget 'current-post)
+  
+  (cond ((string-equal (parameter "action") "post")
+         
+         (when (string-equal 
+                (format nil "comments-~A-dialog-form" 
+                        (parameter "post-id"))
+                (name widget))
+              ;; (break "?~A ~a" (parameter "action") (parameter "post-id"))
+               (comment-facebook (get-val widget 'current-post)
                                (if (get-val (get-val widget 'current-post) 'to)
                                    (get-val (first (get-val (get-val widget 'current-post) 'to)) 'id)
                                    (get-val (get-val (get-val widget 'current-post) 'from) 'id))
@@ -92,7 +89,7 @@
                                (render-edit-field
                                 "comment" 
                                 (parameter "comment")
-                                :required t
+                                :required nil
                                 :type :textarea)))
                      
                      ))))
@@ -249,9 +246,9 @@
                                                 (:img :src "/appimg/facebook-comment.png")))
                                       (:div :class "comment_count"
                                             (str (if (get-val doc 'comments)
-                                                     (if (string-equal 
-                                                          (type-of (make-instance 'comments))
-                                                          "COMMENTS")
+                                                     (if (typep
+                                                          (get-val doc 'comments)
+                                                          'comments)
                                            
                                                          (if (get-val (get-val doc 'comments) 'count)
                                                              (get-val (get-val doc 'comments) 'count)
@@ -271,9 +268,9 @@
                            :style "background-color:#F2F2F2;display:none;"
                            (:br)
                            (if (get-val doc 'comments)
-                               (if (string-equal 
-                                    (type-of (make-instance 'comments))
-                                    "COMMENTS")
+                               (if (typep 
+                                    (make-instance 'comments)
+                                    'comments)
                                    ;;TODO: WTF how did the crap get into the comments?
                                    (if (listp (get-val (get-val doc 'comments) 'data))
                                        (dolist (comment (get-val (get-val doc 'comments) 'data))
@@ -293,7 +290,7 @@
                              (setf (get-val comment-form 'current-post) doc)
 
                              (setf (get-val comment-form 'inner-id) (format nil 
-                                                                        "comments-~A" 
+                                                                        "form-comments-~A" 
                                                                         (get-val doc 'post-id)))
 
                              (htm (:a :href
