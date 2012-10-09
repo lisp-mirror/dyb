@@ -262,6 +262,7 @@
                                (if (string-equal 
                                     (type-of (make-instance 'comments))
                                     "COMMENTS")
+                                   ;;TODO: WTF how did the crap get into the comments?
                                    (if (listp (get-val (get-val doc 'comments) 'data))
                                        (dolist (comment (get-val (get-val doc 'comments) 'data))
                                          (typecase comment
@@ -424,6 +425,6 @@
                              :value "Schedule Actions"))
               (:form :name "fetch-data"
                      :method :post
-                     (:input :type "submit" :name "schedule-actions" 
+                     (:input :type "submit" :name "get-twitter-old" 
                              :value "Get Tweets"))))))
 

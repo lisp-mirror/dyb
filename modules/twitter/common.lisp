@@ -331,11 +331,15 @@
         (populate-generic-db-from-tweet (json::decode-json-from-string (flexi-streams:octets-to-string result)))))))
 
 (defun fetch-twitter-users-old ()
+;;(break "fuck")
   (dolist (user (coerce (service-users) 'list ))
+;;(break "?F ~A" (string-equal (get-val user 'doc-status) "Active"))
         (when (and user (string-equal (get-val user 'doc-status) "Active"))
           ;;TODO: How to get error messages in for users without access tokens.
+;;(break "?")
           (when (string-equal (get-val user 'service-user-type) "Twitter")
             (when (get-val user 'last-access-token)
+;;(break "??")
               (twitter-listener-old user))))))
 
 (defun twitter-listener (service-user)
