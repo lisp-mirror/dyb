@@ -555,6 +555,8 @@ divided by char."
            (values nil "Time can not be more than 24 hours."))
           (t (values second minute hour)))))
 
+
+
 (defun decode-date (date)
   (etypecase date
     (simple-date:date

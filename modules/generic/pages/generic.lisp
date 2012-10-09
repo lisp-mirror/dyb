@@ -262,9 +262,12 @@
                                (if (string-equal 
                                     (type-of (make-instance 'comments))
                                     "COMMENTS")
-                                       
-                                   (dolist (comment (get-val (get-val doc 'comments) 'data))
-                                     (htm (:div (str (get-val comment 'message)))))))
+                                   (if (listp (get-val (get-val doc 'comments) 'data))
+                                       (dolist (comment (get-val (get-val doc 'comments) 'data))
+                                         (typecase comment
+                                           (comment
+                                            (htm (:div (str (get-val comment 'message)))))
+                                           )))))
                            (:br)
 
                            (let ((comment-form 
