@@ -86,12 +86,8 @@
                                               (js-pair "action" "post")
                                               
                                               ;(format nil "$(\"#~A\").toggle();" (get-val widget 'form-id))
-                                              )
-                                             )
-                                    
-                                     "Post")
-                                    (defer-js (format nil "$(\"#~a\").dialog(\"close\");" (get-val widget 'form-id)))
-                                    ))))))))
+                                              ))
+                                     "Post")))))))))
 
 
 (defclass html-framework-form (widget)

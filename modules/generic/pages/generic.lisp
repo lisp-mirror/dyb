@@ -30,22 +30,18 @@
 
 (defmethod action-handler ((widget fb-post-comment-form))
   ;;
-  
-  (cond ((string-equal (parameter "action") "post")
-         
-         (when (string-equal 
-                (format nil "comments-~A-dialog-form" 
-                        (parameter "post-id"))
-                (name widget))
-              ;; (break "?~A ~a" (parameter "action") (parameter "post-id"))
-               (comment-facebook (get-val widget 'current-post)
-                               (if (get-val (get-val widget 'current-post) 'to)
-                                   (get-val (first (get-val (get-val widget 'current-post) 'to)) 'id)
-                                   (get-val (get-val (get-val widget 'current-post) 'from) 'id))
-                               (parameter "comment"))
-             ))
-        (t
-         nil)))
+  (when (and (string-equal (parameter "action") "post")
+             (string-equal 
+              (format nil "comments-~A-dialog-form" 
+                      (parameter "post-id"))
+              (name widget)))
+    ;; (break "?~A ~a" (parameter "action") (parameter "post-id"))
+    (comment-facebook (get-val widget 'current-post)
+                      (if (get-val (get-val widget 'current-post) 'to)
+                          (get-val (first (get-val (get-val widget 'current-post) 'to)) 'id)
+                          (get-val (get-val (get-val widget 'current-post) 'from) 'id))
+                      (parameter "comment"))
+    (defer-js (format nil "$('#~a').dialog('close')" (name widget)))))
 
 (defmethod render ((widget fb-post-comment-form) &key )
 
