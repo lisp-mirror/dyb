@@ -21,12 +21,13 @@
     (find-docs 'vector
                (lambda (doc)
 
-                 (cond (t 
+                 (if (match-context-entities doc)
+                     (cond (t 
                             (if (not (string-equal 
                                       (get-val doc
                                                'doc-status) "superseded"))
 
-                                doc))))
+                                (break "~A" doc))))))
                (service-users-collection))))
 
 (defmethod get-rows ((grid service-user-grid))

@@ -1,12 +1,12 @@
 (in-package #:ems)
 
-(defparameter *dbs* (make-instance 'dbs :base-path "~/xdb2/"))
+(defparameter *dbs-ems* (make-instance 'dbs :base-path "~/xdb2/"))
 
 (defun system-db ()
-  (get-db *dbs* (list "ems" "system")))
+  (get-db *dbs-ems* (list "ems" "system")))
 
 
-(add-db *dbs* '("ems" "system") :load-from-file-p nil)
+(add-db *dbs-ems* '("ems" "system") :load-from-file-p nil)
 
 (xdb2::enable-sequences (system-db))
 
@@ -14,15 +14,15 @@
   (xdb2::next-sequence (system-db) name))
 
 
-(defparameter *database* nil
+(defparameter *database-ems* nil
   "Special holding the current database. Most functions and macros
 operating on a database assume this contains a connected database.")
 
 
 (defmacro with-connection (spec &body body)
   "Locally establish a database connection, and bind *database* to it."
-  `(let ((*database* (apply #'connect ,spec)))
+  `(let ((*database-ems* (apply #'connect ,spec)))
     (unwind-protect (progn ,@body)
-      (disconnect *database*))))
+      (disconnect *database-ems*))))
 
 
