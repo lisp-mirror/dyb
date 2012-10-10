@@ -138,7 +138,7 @@
                                          "Total Reach of <strong>974</strong><br/>
 <strong>12%</strong> up from previous month<br/>
 Current Network is <strong>373</strong>, up <strong>5%</strong> from previous month<br/>
-Total impressions is <strong>3848</strong>, up <strong>9%</strong> from previous month<br/>")))
+Total impressions is <strong>3848</strong>, up <strong>9%</strong> from previous month<br/><br/>")))
                            (:td :style "vertical-align:top;"
 
                             (str (render dash-item :name "analisys" :header "Activity"

@@ -82,19 +82,19 @@ var plot1 = $.jqplot(\"~A\", [twitFollowers, faceFollowers, linkFollowers, curre
 series: [
 {
 //fill: true,
-label: 'TW Followers',
+label: 'TW',
 markerOptions: { style:'dimaond' }
 },
 {
-label: 'FB Followers',
+label: 'FB',
  markerOptions: { style:\"filledSquare\", size:10 }
 },
 {
-label: 'LNK Followers',
+label: 'LNK',
  markerOptions: { style:\"circle\" }
 },
 {
-label: 'Cur Network',
+label: 'Network',
 showLine:false,
 markerOptions: { size: 7, style:\"x\" }
 
@@ -118,7 +118,7 @@ angle: -30,
 textColor: '#dddddd'
 },
 min: \"2012-07-26\",
-max: \"2012-9-26\",
+max: \"2012-9-20\",
 tickInterval: \"7 days\",
 drawMajorGridlines: false
 },
