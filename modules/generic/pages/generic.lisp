@@ -108,35 +108,23 @@
                 
                 (:div :class "post"
 
-                      (:table
-                              (:tr
-                               (:td 
-                                (:a
-                                 :class "post-title"
-                                 :href (or (gpv doc :user--link)
-                                           (gpv doc :link))
-                                 (str (gpv doc :title)))
-                                (if (gpv doc :user)
-                                    (htm
-                                     (:span :class "twitter-user" (:a :href (gpv doc :user--link) (gpv doc :user)))))
-                                (:span :class "timestamp"
-                                       (str (format-universal-date-time  
-                                                (unix-time-to-universal 
-                                                 (gpv doc :timestamp)))))
-                                (:span :class "post-content"
-                                       (str (gpv doc :description)))
-                                (:span :class "twitter-actions"
-                                       (:span :class "action-icon" :title "Go to Content"
-                                              (:a :href (gpv doc :link) (:img :src "/appimg/go-to-content.png")))))
-  
-                               (:td :class "center"
-                                    (if (gpv doc :image)
-                                        (htm
-                                         (:div :class "post-image-thumb"
-                                               (:a :href= (gpv doc :image) :title "Click to view the full size image"
-                                                   (:img :src (gpv doc :image))
-                                                   ))))
-                                )))
+                      (:a
+                       :class "post-title"
+                       :href (or (gpv doc :user--link)
+                                 (gpv doc :link))
+                       (str (gpv doc :title)))
+                      (if (gpv doc :user)
+                          (htm
+                           (:span :class "twitter-user" (:a :href (gpv doc :user--link) (gpv doc :user)))))
+                      (:span :class "timestamp"
+                             (str (format-universal-date-time  
+                                   (unix-time-to-universal 
+                                    (gpv doc :timestamp)))))
+                      (:span :class "post-content"
+                             (str (gpv doc :description)))
+                      (:span :class "twitter-actions"
+                             (:span :class "action-icon" :title "Go to Content"
+                                    (:a :href (gpv doc :link) (:img :src "/appimg/go-to-content.png"))))
 
                       )))))
 
@@ -154,35 +142,25 @@
 
                 (:div :class "post"
 
-                      (:table
-                              (:tr
-                               (:td 
-                                (:a
-                                 :class "post-title"
-                                 :href (format nil "http://www.twitter.com/~A" (gpv doc :user :id))
-                                 (str (gpv doc :user :name)))
-                                (:span :class "twitter-user" (:a :href (format nil "http://www.twitter.com/~A" (gpv doc :user :screen-name))))
-                                (:span :class "timestamp"
-                                       (str (gpv doc :created-at)))
-                                (:span :class "post-content"
-                                       (str (gpv doc :text)))
-                                (:span :class "twitter-actions"
-                                       (:span :class "action-icon" :title "Reply"
-                                              (:a :href "#" (:img :src "/appimg/twitter-reply.png")))
+                      (:a
+                       :class "post-title"
+                       :href (format nil "http://www.twitter.com/~A" (gpv doc :user :id))
+                       (str (gpv doc :user :name)))
+                      (:span :class "twitter-user" (:a :href (format nil "http://www.twitter.com/~A" (gpv doc :user :screen-name))))
+                      (:span :class "timestamp"
+                             (str (gpv doc :created-at)))
+                      (:span :class "post-content"
+                             (str (gpv doc :text)))
+                      (:span :class "twitter-actions"
+                             (:span :class "action-icon" :title "Reply"
+                                    (:a :href "#" (:img :src "/appimg/twitter-reply.png")))
                                        
-                                       (:span :class "action-icon" :title "Retweet"
-                                              (:a :href "#" (:img :src "/appimg/twitter-retweet.png")))
+                             (:span :class "action-icon" :title "Retweet"
+                                    (:a :href "#" (:img :src "/appimg/twitter-retweet.png")))
                                        
-                                       (:span :class "action-icon" :title "Add to favourites"
-                                              (:a :href "#" (:img :src "/appimg/twitter-favourite.png")))
-                                       ))
-  
-                               (:td :class "center"
-                                (:div :class "post-image-thumb"
-                                      (:a :href= "#" :title "Click to view the full size image"
-                                          ;;(:img :src "")
-                                          ))
-                                )))
+                             (:span :class "action-icon" :title "Add to favourites"
+                                    (:a :href "#" (:img :src "/appimg/twitter-favourite.png")))
+                             )
 
                       )
 
@@ -199,70 +177,59 @@
           (:div :class "widget-content"
                 (:div :class "post"
 
-                      (:table
-                              (:tr
-                               (:td 
-                                (:a
-                                 :class "post-title"
-                                 :href (format nil "http://www.facebook.com/~A" (gpv doc :from :id))
-                                 (str (gpv doc :from :name)))
-                                (:span :class "timestamp"
-                                       (str (gpv doc 'created--time)))
-                                (:span :class "post-content"
-                                       (str (or (gpv doc :message) (gpv doc :story))))
-                                (:span :class "twitter-actions"
-                                       (:span :class "action-icon" :title "Like"
-                                              (:a :href "#" (:img :src "/appimg/fb-like.png")))
-                                       (:span :class "action-icon" (str (if (gpv doc :likes :count)
-                                                                            (gpv doc :likes :count)
-                                                                            0)))
-                                       (:span :class "action-icon" :title "Comment"
-                                              (:a :href "#" 
-                                                  :onclick (format nil "$(\"#comments-~A\").toggle();"  (gpv doc :id))
-                                                  (:img :src "/appimg/fb-comment.png")))
-                                       (:span :class "action-icon" (str (gpv doc :comments :count)))
-                                       (:span :class "action-icon" :title "Share"
-                                              (:a :href "#" (:img :src "/appimg/fb-share.png")))
-                                       ))
-  
-                               (:td :class "center"
-                                    (if (gpv doc :picture)
-                                        (htm
-                                         (:div :class "post-image-thumb"
-                                               (:a :href= "#" :title "Click to view the full size image"
-                                          
-                                                   (:img :src (gpv doc :picture)))))))))
+                      (:a
+                       :class "post-title"
+                       :href (format nil "http://www.facebook.com/~A" (gpv doc :from :id))
+                       (str (gpv doc :from :name)))
+                      (:span :class "timestamp"
+                             (str (gpv doc 'created--time)))
+                      (:span :class "post-content"
+                             (str (or (gpv doc :message) (gpv doc :story))))
+                      (:span :class "twitter-actions"
+                             (:span :class "action-icon" :title "Like"
+                                    (:a :href "#" (:img :src "/appimg/fb-like.png")))
+                             (:span :class "action-icon" (str (if (gpv doc :likes :count)
+                                                                  (gpv doc :likes :count)
+                                                                  0)))
+                             (:span :class "action-icon" :title "Comment"
+                                    (:a :href "#" 
+                                        :onclick (format nil "$(\"#comments-~A\").toggle();"  (gpv doc :id))
+                                        (:img :src "/appimg/fb-comment.png")))
+                             (:span :class "action-icon" (str (gpv doc :comments :count)))
+                             (:span :class "action-icon" :title "Share"
+                                    (:a :href "#" (:img :src "/appimg/fb-share.png")))
+                             )
 
 
                       (:div :id (format nil "comments-~A" (gpv doc :id)) 
-                           :style "background-color:#F2F2F2;display:none;"
-                           (:br)
+                            :style "background-color:#F2F2F2;display:none;"
+                            (:br)
                            
-                           (dolist (comment (gpv doc :comments :data))
-                             (htm (:div (str (gpv comment :message)))))
-                           (:br)
+                            (dolist (comment (gpv doc :comments :data))
+                              (htm (:div (str (gpv comment :message)))))
+                            (:br)
 
-                           (let ((comment-form 
+                            (let ((comment-form 
                                    (make-widget 'fb-post-comment-form
                                                 :name (format nil 
                                                               "comments-~A-dialog-form" 
                                                               (gpv doc :id)))))
                              
                              
-                             (setf (get-val comment-form 'current-post) doc)
+                              (setf (get-val comment-form 'current-post) doc)
 
-                             (setf (get-val comment-form 'inner-id) (format nil 
-                                                                        "form-comments-~A" 
-                                                                        (gpv doc :id)))
+                              (setf (get-val comment-form 'inner-id) (format nil 
+                                                                             "form-comments-~A" 
+                                                                             (gpv doc :id)))
 
-                             (htm (:a :href
-                                      (js-link 
-                                       (js-render comment-form
-                                                  (js-pair "post-id" 
-                                                           (gpv doc :id))
-                                                  (js-pair "action" "comment")))
-                                      "Post Comment")
-                                  (render comment-form ))))))
+                              (htm (:a :href
+                                       (js-link 
+                                        (js-render comment-form
+                                                   (js-pair "post-id" 
+                                                            (gpv doc :id))
+                                                   (js-pair "action" "comment")))
+                                       "Post Comment")
+                                   (render comment-form ))))))
 
           )))
 
@@ -299,7 +266,7 @@
                            )
             (make-instance 'grid-column
                            :name 'payload
-                           :header "Profile Pic"
+                           :header "Pic"
                            :printer (lambda (payload)
                                       (cond ((gpv payload :id--str)
                                              (with-html-to-string ()
@@ -318,14 +285,47 @@
                                                (:span :class "post-source" (:img :src "/appimg/user-thumb.png"))
                                                ))
                                             ))
-;;<span class="user-thumb"><img src="img/user-thumb.png" width="40" height="40" alt="User"></span>
+
                            )
+            
             (make-instance 
              'grid-column
              :name 'payload
              :header "Post"
              :width "100%"
-             :printer #'generic-grid-item-display)))
+             :printer #'generic-grid-item-display)
+            (make-instance 'grid-column
+                           :name 'payload
+                           :header "Image"
+                           :printer (lambda (payload)
+                                      (cond ((gpv payload :id--str)
+                                             (with-html-to-string ()
+                                               (:div :class "post-image-thumb"
+                                                     (:a :href= "#" :title "Click to view the full size image"
+                                                         ;;(:img :src "")
+                                                         ))
+                                               ))
+                                            ((gpv payload :favicon)
+                                             (with-html-to-string ()
+                                               (if (gpv payload :image)
+                                                   (htm
+                                                    (:div :class "post-image-thumb"
+                                                          (:a :href= (gpv payload :image) :title "Click to view the full size image"
+                                                              (:img :src (gpv payload :image))
+                                                              ))))
+                                               ))
+                                            (t
+                                             (with-html-to-string ()
+                                               (if (gpv payload :picture)
+                                                   (htm
+                                                    (:div :class "post-image-thumb"
+                                                          (:a :href= "#" :title "Click to view the full size image"
+                                                              
+                                                              (:img :src (gpv payload :picture))))))
+                                               ))
+                                            ))
+
+                           )))
 
            
          (grid (make-widget 'generic-grid :name "generic-post-gridxx"
