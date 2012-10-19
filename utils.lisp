@@ -203,14 +203,14 @@ is replaced with replacement."
       (multiple-value-bind (a b c day month year)
           (decode-universal-time (or universal-date (get-universal-time)))
         (declare (ignore a b c))
-        (build-date year month day))))
+        (format-date year month day))))
 
 (defun format-universal-date-time (universal-date)  
   (if (stringp universal-date)
       universal-date
       (multiple-value-bind (sec min hour day month year)
           (decode-universal-time (or universal-date (get-universal-time)))
-        (build-date-time year month day hour min sec))))
+        (format-date-time year month day hour min sec))))
 
 
 (defun format-date (year month day)
