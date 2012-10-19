@@ -106,32 +106,180 @@
               :body 
               (with-html-to-string ()
 
+                (:div :class "dashboard-widget"
+                      (:div :class "row-fluid"
+                            (:div :class "span2"
+                                  (:div :class "dashboard-wid-wrap"
+                                        (:div :class "dashboard-wid-content"
+                                              (:a :href "/ems/generic"
+                                                     (:i :class "dashboard-icons mail_blk")
+                                                     (:span :class "dasboard-icon-title"
+                                                            "Inbox")))))
+                            (:div :class "span2"
+                                  (:div :class "dashboard-wid-wrap"
+                                        (:div :class "dashboard-wid-content"
+                                              (:a :href "/ems/generic-scheduler"
+                                                     (:i :class "dashboard-icons month_calendar_blk")
+                                                     (:span :class "dasboard-icon-title"
+                                                            "Scheduler")))))
+                            (:div :class "span2"
+                                  (:div :class "dashboard-wid-wrap"
+                                        (:div :class "dashboard-wid-content"
+                                              (:a :href "/ems/search-stream"
+                                                     (:i :class "dashboard-icons magnifying_glass_blk")
+                                                     (:span :class "dasboard-icon-title"
+                                                            "Search Streams")))))
+                            (:div :class "span2"
+                                  (:div :class "dashboard-wid-wrap"
+                                        (:div :class "dashboard-wid-content"
+                                              (:a :href "/ems/search-stream"
+                                                     (:i :class "dashboard-icons graph_blk")
+                                                     (:span :class "dasboard-icon-title"
+                                                            "Reporting (Coming Soon)")))))
+                            (:div :class "span2"
+                                  (:div :class "dashboard-wid-wrap"
+                                        (:div :class "dashboard-wid-content"
+                                              (:a :href "/ems/service-users"
+                                                     (:i :class "dashboard-icons cog_2_blk")
+                                                     (:span :class "dasboard-icon-title"
+                                                            "Settings")))))
+                            (:div :class "span2"
+                                  (:div :class "dashboard-wid-wrap"
+                                        (:div :class "dashboard-wid-content"
+                                              (:a :href "#"
+                                                     (:i :class "dashboard-icons help_blk")
+                                                     (:span :class "dasboard-icon-title"
+                                                            "Help"))))))
 
-                (let ((dash-item (make-widget 'dashboard-item :name "dash-item"))
-                      (dash-item-full (make-widget 'dashboard-item-full 
-                                                   :name "dash-item-full")))
-                    (htm 
-                     (str (render dash-item-full :name "report-summary" 
-                                  :header "Report Summary"
+                      (let ((dash-item (make-widget 'dashboard-item :name "dash-item"))
+                            (dash-item-full (make-widget 'dashboard-item-full 
+                                                         :name "dash-item-full")))
+                        (htm 
+                         (str (render dash-item-full :name "ave-engagement" 
+                                      :header "Current Network Size"
+                                      :content (render-to-string (make-widget 'line-graph :name "chart6"))))
+                         (str (render dash-item-full :name "report-summary" 
+                                      :header "Report Summary"
                                  
-                                  :content (with-html-to-string ()
-                                             (:div 
-                                                   (:p "Community Growth")
-                                                   (:p "Activity" 
-                                                       (str (length (posts-scheduled 7))))
-                                                   (:p "Engagement" 
-                                                       (str (+ (fb-comments-made 7)
-                                                               (fb-likes-made 7))))
-                                                   (:p "Impressions"
-                                                       (str (twitter-retweets 7)))
-                                                   (:p "Clicks"
-                                                       "0")))
-                                  ))
-                     (str (render dash-item-full :name "audience-demographics" 
-                                  :header "Audience Demographics"
+                                      :content (with-html-to-string ()
+                                                 (:div 
+                                                  (:p "Community Growth")
+                                                  (:p "Activity" 
+                                                      (str (length (posts-scheduled 7))))
+                                                  (:p "Engagement" 
+                                                      (str (+ (fb-comments-made 7)
+                                                              (fb-likes-made 7))))
+                                                  (:p "Impressions"
+                                                      (str (twitter-retweets 7)))
+                                                  (:p "Clicks"
+                                                      "0")))
+                                      ))
+                         (str (render dash-item-full :name "audience-demographics" 
+                                      :header "Audience Demographics"
                                  
-                                  :content "Eish"
-                                  ))
-                     
-                     )))))))
+                                      :content "Eish"
+                                      ))
+                         )
+                        )
+                      (:div :class "row-fluid"
+                            (:div :class "span2"
+                                  (:div :class "stat-block"
+                                        (:ul
+                                         (:li
+                                          (:i :class "dashboard-icons-colors current_work_sl"))
+                                         (:li :class "stat-count"
+                                              (:span "Total Reach")
+                                              (:span 974)
+                                              (:br)
+                                              (:br))
+                                         (:li :class "stat-percent"
+                                              (:span (:img :scr "/appimg/green-arrow.png"
+                                                           :height "20"
+                                                           :width "20"
+                                                           :alt "Increased"))
+                                              (:span :class "label-green"
+                                                     "12%")))))
+                            (:div :class "span2"
+                                  (:div :class "stat-block"
+                                        (:ul
+                                         (:li
+                                          (:i :class "dashboard-icons-colors current_work_sl"))
+                                         (:li :class "stat-count"
+                                              (:span "Current Network")
+                                              (:span 373)
+                                              (:br))
+                                         (:li :class "stat-percent"
+                                              (:span (:img :scr "/appimg/green-arrow.png"
+                                                           :height "20"
+                                                           :width "20"
+                                                           :alt "Increased"))
+                                              (:span :class "label-green"
+                                                     "5%")))))
+                            (:div :class "span2"
+                                  (:div :class "stat-block"
+                                        (:ul
+                                         (:li
+                                          (:i :class "dashboard-icons-colors current_work_sl"))
+                                         (:li :class "stat-count"
+                                              (:span "Total Impressions")
+                                              (:span 3873)
+                                              (:br))
+                                         (:li :class "stat-percent"
+                                              (:span (:img :scr "/appimg/green-arrow.png"
+                                                           :height "20"
+                                                           :width "20"
+                                                           :alt "Increased"))
+                                              (:span :class "label-green"
+                                                     "9%")))))
+                            (:div :class "span2"
+                                  (:div :class "stat-block"
+                                        (:ul
+                                         (:li
+                                          (:i :class "dashboard-icons-colors current_work_sl"))
+                                         (:li :class "stat-count"
+                                              (:span "Planned Activities")
+                                              (:span 32)
+                                              (:br))
+                                         (:li :class "stat-percent"
+                                              (:span (:img :scr "/appimg/green-arrow.png"
+                                                           :height "20"
+                                                           :width "20"
+                                                           :alt "Increased"))
+                                              (:span :class "label-green"
+                                                     "53%")))))
+                            (:div :class "span2"
+                                  (:div :class "stat-block"
+                                        (:ul
+                                         (:li
+                                          (:i :class "dashboard-icons-colors current_work_sl"))
+                                         (:li :class "stat-count"
+                                              (:span "Published Activities")
+                                              (:span 31)
+                                              (:br))
+                                         (:li :class "stat-percent"
+                                              (:span (:img :scr "/appimg/green-arrow.png"
+                                                           :height "20"
+                                                           :width "20"
+                                                           :alt "Increased"))
+                                              (:span :class "label-green"
+                                                     "52%")))))
+                            (:div :class "span2"
+                                  (:div :class "stat-block"
+                                        (:ul
+                                         (:li
+                                          (:i :class "dashboard-icons-colors current_work_sl"))
+                                         (:li :class "stat-count"
+                                              (:span "Planned Activities Published")
+                                              (:span 11)
+                                              )
+                                         (:li :class "stat-percent"
+                                              (:span (:img :scr "/appimg/green-arrow.png"
+                                                           :height "20"
+                                                           :width "20"
+                                                           :alt "Increased"))
+                                              (:span :class "label-green"
+                                                     "42%"))))))
+                      
+
+                      ))))))
 
