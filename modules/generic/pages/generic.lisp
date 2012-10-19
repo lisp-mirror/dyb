@@ -108,39 +108,37 @@
                 
                 (:div :class "post"
 
-                      (:table :cellpadding "10" 
+                      (:table
                               (:tr
-                               (:td :width "82"
-                                (:div :class "profile_pic"
-                                      (:a :href (or (gpv doc :link)
-                                                    (gpv doc :user--link)) 
-                                          :title "Go to Content"
-                                          (:img  :src "/appimg/social-mention.jpg")))
-                                (:div :class "social_icon"
-                                      (htm (:img :src (gpv doc :favicon)))
-                                      ))
                                (:td 
-                                (:div :class "post_title"
-                                      (:h3 (gpv doc :title)))
-                                (:div :class "date" 
-                                      (:p (str (format-universal-date-time  
+                                (:a
+                                 :class "post-title"
+                                 :href (or (gpv doc :user--link)
+                                           (gpv doc :link))
+                                 (str (gpv doc :title)))
+                                (if (gpv doc :user)
+                                    (htm
+                                     (:span :class "twitter-user" (:a :href (gpv doc :user--link) (gpv doc :user)))))
+                                (:span :class "timestamp"
+                                       (str (format-universal-date-time  
                                                 (unix-time-to-universal 
-                                                 (gpv doc :timestamp))))))
-                                (:div :class "post_content"
-                                      (str (gpv doc :description)))
-                                (:div :class "actions"
-                                      (:div :class "go-to-content" :title "Go to Source"
-                                            (:a :href (gpv doc :link) 
-                                                (:img :src "/appimg/social-source.png")))
-                            
-                            
-                                      )
-                                )
-                               (:td :width "150"
-                                    (:div :class "post_image_thumb"
-                                          (:a :href= "#" 
-                                              :title "Click to view the full size image"
-                                              (:img :src (gpv doc :image))))))))))))
+                                                 (gpv doc :timestamp)))))
+                                (:span :class "post-content"
+                                       (str (gpv doc :description)))
+                                (:span :class "twitter-actions"
+                                       (:span :class "action-icon" :title "Go to Content"
+                                              (:a :href (gpv doc :link) (:img :src "/appimg/go-to-content.png")))))
+  
+                               (:td :class "center"
+                                    (if (gpv doc :image)
+                                        (htm
+                                         (:div :class "post-image-thumb"
+                                               (:a :href= (gpv doc :image) :title "Click to view the full size image"
+                                                   (:img :src (gpv doc :image))
+                                                   ))))
+                                )))
+
+                      )))))
 
 
 
@@ -155,43 +153,38 @@
 
 
                 (:div :class "post"
-                      (:table :cellpadding "10"
-                              (:tr
-                               (:td :width "82"
-                                (:div :class "profile_pic"
-                                     
-                                      (:a :href "#" :title (format nil "View ~A s Profile" (gpv doc :user :name))
-                                          (:img  :src (gpv doc :user :profile--image--url--https))))
-                                (:div :class "social_icon"
-                                      (:img :src "/appimg/twitter.png")
-                                      )
-                                (:td
-                                 (:div :class "post_title"
 
-                                       (:h3 (str (gpv doc :user :name))))
-                                 (:div :class "date"
-                                       (:p (str (gpv doc :created--at))))
-                                 (:div :class "post_content"
+                      (:table
+                              (:tr
+                               (:td 
+                                (:a
+                                 :class "post-title"
+                                 :href (format nil "http://www.twitter.com/~A" (gpv doc :user :id))
+                                 (str (gpv doc :user :name)))
+                                (:span :class "twitter-user" (:a :href (format nil "http://www.twitter.com/~A" (gpv doc :user :screen-name))))
+                                (:span :class "timestamp"
+                                       (str (gpv doc :created-at)))
+                                (:span :class "post-content"
                                        (str (gpv doc :text)))
-                                 (:div :class "actions"
-                                       (:div :class "reply" :title "Reply"
-                                             (:a :href "#" (:img :src "/appimg/twitter-reply.png")))
-                                       (:div :class "retweet" :title "Retweet"
-                                             (:a :href "#" (:img :src "/appimg/twitter-retweet.png")))
-                                       (:div :class "favourites" :title "Add to favourites"
-                                             (:a :href "#" (:img :src "/appimg/twitter-favourite.png")))
-                                       )
-                                 )
-                                (:td :width "150"
-                                     (:div :class "post_image_thumb"
-                                           (:a :href= "#" :title "Click to view the full size image"
-                                               (:img :src ""))))))
-                      
-                      
-                      
-                      
-                      
-                      ))
+                                (:span :class "twitter-actions"
+                                       (:span :class "action-icon" :title "Reply"
+                                              (:a :href "#" (:img :src "/appimg/twitter-reply.png")))
+                                       
+                                       (:span :class "action-icon" :title "Retweet"
+                                              (:a :href "#" (:img :src "/appimg/twitter-retweet.png")))
+                                       
+                                       (:span :class "action-icon" :title "Add to favourites"
+                                              (:a :href "#" (:img :src "/appimg/twitter-favourite.png")))
+                                       ))
+  
+                               (:td :class "center"
+                                (:div :class "post-image-thumb"
+                                      (:a :href= "#" :title "Click to view the full size image"
+                                          ;;(:img :src "")
+                                          ))
+                                )))
+
+                      )
 
           ))))
 
@@ -206,39 +199,39 @@
           (:div :class "widget-content"
                 (:div :class "post"
 
-                      (:table :cellpadding "10" 
+                      (:table
                               (:tr
-                               (:td :width "82"
-                                (:div :class "profile_pic"
-                                      (:a :href "#" :title (format nil "View ~A\'s Profile" 
-                                                                   (assoc-path doc :from :name))
-                                          ;;TODO: When to fetch profile pic and where to store it?
-                                          (:img :src "")))
-                                (:div :class "social_icon" (:img :src "/appimg/facebook.png")))
-                               (:td
-                                (:div :class "post_title"
-                                      (:h3 (str (get-val doc 'caption))))
-                                (:div :class "date" (str (get-val doc 'created-time)))
-                                (:div :class "post_content"
-                                      (str (or (gpv doc :message) (gpv doc :story))))
-                                (:div :class "actions"
-                                      (:div :class "like" :title "Like"
-                                            (:a :href "#" (:img :src "/appimg/facebook-like.png")))
-                                      (:div :class "like_count"
-                                            (str (gpv doc :likes :count)))
-                                      (:div :class "comment" :title "Comment"
-                                            (:a :href "#" :onclick (format nil "$(\"#comments-~A\").toggle();" (gpv doc :id))
-                                                (:img :src "/appimg/facebook-comment.png")))
-                                      (:div :class "comment_count"
-                                            (str (gpv doc :comments :count)))
-                                      (:div :class "share" :title "Share"
-                                            (:a :href "#" (:img :src "/appimg/facebook-share.png")))
-                                      )
-                                )
-                               (:td  :width "150"
-                                (:div :class "post_image_thumb"
-                                      (:a :href= "#" :title "Click to view the full size image"
-                                          (:img :src (gpv doc :picture)))))))
+                               (:td 
+                                (:a
+                                 :class "post-title"
+                                 :href (format nil "http://www.facebook.com/~A" (gpv doc :from :id))
+                                 (str (gpv doc :from :name)))
+                                (:span :class "timestamp"
+                                       (str (gpv doc 'created--time)))
+                                (:span :class "post-content"
+                                       (str (or (gpv doc :message) (gpv doc :story))))
+                                (:span :class "twitter-actions"
+                                       (:span :class "action-icon" :title "Like"
+                                              (:a :href "#" (:img :src "/appimg/fb-like.png")))
+                                       (:span :class "action-icon" (str (if (gpv doc :likes :count)
+                                                                            (gpv doc :likes :count)
+                                                                            0)))
+                                       (:span :class "action-icon" :title "Comment"
+                                              (:a :href "#" 
+                                                  :onclick (format nil "$(\"#comments-~A\").toggle();"  (gpv doc :id))
+                                                  (:img :src "/appimg/fb-comment.png")))
+                                       (:span :class "action-icon" (str (gpv doc :comments :count)))
+                                       (:span :class "action-icon" :title "Share"
+                                              (:a :href "#" (:img :src "/appimg/fb-share.png")))
+                                       ))
+  
+                               (:td :class "center"
+                                    (if (gpv doc :picture)
+                                        (htm
+                                         (:div :class "post-image-thumb"
+                                               (:a :href= "#" :title "Click to view the full size image"
+                                          
+                                                   (:img :src (gpv doc :picture)))))))))
 
 
                       (:div :id (format nil "comments-~A" (gpv doc :id)) 
@@ -287,6 +280,46 @@
 (define-easy-handler (generic-page :uri "/ems/generic") ()
   (let* ((columns
            (list
+            (make-instance 'grid-column
+                           :name 'post-type
+                           :header "Source"
+                           :printer (lambda (source)
+                                      (cond ((equal source 'twitter)
+                                             (with-html-to-string ()
+                                               (:span :class "post-source" (:img :src "/appimg/twitter-bird-white-on-blue.png"))
+                                               ))
+                                            ((equal source 'facebook)
+                                             (with-html-to-string ()
+                                               (:span :class "post-source" (:img :src "/appimg/Facebook_Light_Logo.png"))
+                                               ))
+                                            ((equal source 'social-mention)
+                                             (with-html-to-string ()
+                                               (:span :class "post-source" (:img :src "/appimg/social-mention.png"))
+                                               ))))
+                           )
+            (make-instance 'grid-column
+                           :name 'payload
+                           :header "Profile Pic"
+                           :printer (lambda (payload)
+                                      (cond ((gpv payload :id--str)
+                                             (with-html-to-string ()
+                                               (:span :class "post-source" (:img :src (if (gpv payload :user :profile--image--url--https)
+                                                                                          (gpv payload :user :profile--image--url--https)
+                                                                                          "/appimg/user-thumb.png")))
+                                               ))
+                                            ((gpv payload :favicon)
+                                             (with-html-to-string ()
+                                               (:span :class "user-thumb" (:img :src (if (gpv payload :user--image)
+                                                                                          (gpv payload :user--image)
+                                                                                          "/appimg/user-thumb.png")))
+                                               ))
+                                            (t
+                                             (with-html-to-string ()
+                                               (:span :class "post-source" (:img :src "/appimg/user-thumb.png"))
+                                               ))
+                                            ))
+;;<span class="user-thumb"><img src="img/user-thumb.png" width="40" height="40" alt="User"></span>
+                           )
             (make-instance 
              'grid-column
              :name 'payload

@@ -103,3 +103,45 @@
 	.post table {
 	width: 100%;
 	}
+
+.user-thumb {
+	background:#e4e4e4;
+	padding:5px;
+	height:40px;
+	width:40px;
+	display:block;
+	margin:auto;
+}
+.twitter-user {
+font-size:10px;
+}
+.post-title {
+font-size:14px;
+font-weight:bold;
+}
+.post-content {
+display: block;
+}
+.timestamp {
+float: right;
+}
+.twitter-actions {
+display: block;
+}
+.action-icon {
+padding:0 10px 0 0;
+}
+.post-image-thumb img{
+max-height: 150px;
+}
+.post-source {
+background: #E4E4E4;
+padding: 5px;
+height: 40px;
+width: 40px;
+display: block;
+margin: auto;
+}
+.social-mention-url {
+font-size:10px;
+}
