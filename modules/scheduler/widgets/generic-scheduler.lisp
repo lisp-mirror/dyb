@@ -87,6 +87,52 @@
                                  :type :textarea)))
                       (render 
                        form-section
+                       :label "Image"
+                       :input (with-html-to-string ()
+                                (render-edit-field 
+                                 "image-url"
+                                 (or (parameter "image-url")
+                                     (get-val row 'image-url))
+                                 
+                                 :required t)
+                                (:form :action ""
+                                       :method "post"
+                                       :enctype "multipart/form-data"
+                                       (:input :type "hidden" :name "form-id" :value "upload-file-form")
+                                       (:label :for "file" "Select file")
+                                       (:input :type "file" :name "file" :id "file"
+                                               :style "display: inline-block;")
+                                       (:input :type "submit" :value "Upload"
+                                               :style "display: inline-block;")
+                                       (:button :class "red"
+                                                :onclick
+                                                ""
+                      "Cancel"))
+                                ))
+                      (render 
+                       form-section
+                       :label "Post Url"
+                       :input (with-html-to-string ()
+                                (render-edit-field 
+                                 "post-url"
+                                 (or (parameter "post-url")
+                                     (get-val row 'post-url))
+                                 
+                                 :required t)
+                                ))
+                      (render 
+                       form-section
+                       :label "Short Url"
+                       :input (with-html-to-string ()
+                                (render-edit-field 
+                                 "short-url"
+                                 (or (parameter "short-url")
+                                     (get-val row 'short-url))
+                                 :type :span
+                                 )
+                                ))
+                      (render 
+                       form-section
                        :label "Scheduled Date"
                        :input (with-html-to-string ()
                                 (render-edit-field 
