@@ -126,7 +126,7 @@
                                   :serial t
                                   :components
                                   ((:file "parser")
-                                   (:file "oauth")
+                                   
                                    (:file "common")
                                    (:file "end-points")
                                    (:file "listener")
