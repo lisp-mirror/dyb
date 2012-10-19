@@ -193,7 +193,7 @@
                                               (:br)
                                               (:br))
                                          (:li :class "stat-percent"
-                                              (:span (:img :scr "/appimg/green-arrow.png"
+                                              (:span (:img :src "/appimg/green-arrow.png"
                                                            :height "20"
                                                            :width "20"
                                                            :alt "Increased"))
@@ -209,7 +209,7 @@
                                               (:span 373)
                                               (:br))
                                          (:li :class "stat-percent"
-                                              (:span (:img :scr "/appimg/green-arrow.png"
+                                              (:span (:img :src "/appimg/green-arrow.png"
                                                            :height "20"
                                                            :width "20"
                                                            :alt "Increased"))
@@ -225,7 +225,7 @@
                                               (:span 3873)
                                               (:br))
                                          (:li :class "stat-percent"
-                                              (:span (:img :scr "/appimg/green-arrow.png"
+                                              (:span (:img :src "/appimg/green-arrow.png"
                                                            :height "20"
                                                            :width "20"
                                                            :alt "Increased"))
@@ -241,7 +241,7 @@
                                               (:span 32)
                                               (:br))
                                          (:li :class "stat-percent"
-                                              (:span (:img :scr "/appimg/green-arrow.png"
+                                              (:span (:img :src "/appimg/green-arrow.png"
                                                            :height "20"
                                                            :width "20"
                                                            :alt "Increased"))
@@ -257,7 +257,7 @@
                                               (:span 31)
                                               (:br))
                                          (:li :class "stat-percent"
-                                              (:span (:img :scr "/appimg/green-arrow.png"
+                                              (:span (:img :src "/appimg/green-arrow.png"
                                                            :height "20"
                                                            :width "20"
                                                            :alt "Increased"))
@@ -273,7 +273,7 @@
                                               (:span 11)
                                               )
                                          (:li :class "stat-percent"
-                                              (:span (:img :scr "/appimg/green-arrow.png"
+                                              (:span (:img :src "/appimg/green-arrow.png"
                                                            :height "20"
                                                            :width "20"
                                                            :alt "Increased"))
