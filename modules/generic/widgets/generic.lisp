@@ -36,6 +36,9 @@
   (:include-css "/appcss/posts.css")
   (:default-initargs :edit-inline nil))
 
+
+
+
 (defun get-generic-data (grid &key filter search)
   (declare (ignore grid search))
   (find-docs 'vector
@@ -56,7 +59,7 @@
 
 ; as it says 
 (defmethod render-row-editor ((grid generic-grid) row)
-
+#|
   (let ((form (make-widget 'html-framework-form :name "p-formx"
                                        :grid-size 12
                                        :header "Posts"
@@ -174,7 +177,8 @@
            
            ))
     (render tab-box)
-    ))
+    )|#
+)
 
 
 (defun get-facebook-error (json-string)

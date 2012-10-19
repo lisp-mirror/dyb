@@ -334,6 +334,7 @@
                                        :title "Inbox"
                                        :row-object-class 'generic-post)))
     (setf (get-val grid 'columns) columns)
+    (setf (get-val grid 'grid-links) (list (list "edit" "Eish")))
     (setf (sort-direction grid) :descending)
     (setf (sort-key-function grid)
           (lambda (doc)

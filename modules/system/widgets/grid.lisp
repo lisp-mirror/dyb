@@ -407,6 +407,28 @@ document.getElementById(\"~A\").submit();"
               (setf col (append col (list (slot-val object param))))))
         col)))
 
+(defgeneric render-ajax-button (grid row-id action title))
+
+(defmethod render-ajax-buttion ((grid grid) row-id action title)
+  (with-html (:a :href
+                 (js-link 
+                  (js-render (editor grid)
+                             (js-pair "grid-name" (name grid))
+                             (js-pair "action" action)
+                             (js-pair "row_id" row-id)))
+
+                 title)))
+
+(defmethod render-ajax-buttonx (grid row-id action title)
+  (with-html (:a :href
+                 (js-link 
+                  (js-render (editor grid)
+                             (js-pair "grid-name" (name grid))
+                             (js-pair "action" action)
+                             (js-pair "row_id" row-id)))
+
+                 (str title))))
+
 (defun render-ajax-edit-button (grid row-id)
   (with-html
     
@@ -693,8 +715,25 @@ document.getElementById(\"~A\").submit();"
            for id from start
            collect (append row
                            (list (with-html-string
-                                   (render-ajax-edit-button grid id)
-                                   (render-ajax-delete-button grid id)))))
+                                   (:div :class "btn-group pull-right"
+                                         (:button :data-toggle "dropdown" :class "btn dropdown-toggle" 
+                                                  (:i :class "icon-cog"
+                                                      (:span :class "caret")))
+                                         (:ul :class "dropdown-menu"
+                                              (when (get-val grid 'grid-links)
+                                                (dolist (link (get-val grid 'grid-links))
+                                                 (htm 
+                                                  (:li (render-ajax-buttonx 
+                                                        grid id 
+                                                        (first link)
+                                                        (second link))))))
+                                              (unless (get-val grid 'grid-links)
+                                                (htm
+                                                 (:li
+                                                  (render-ajax-edit-button grid id))
+                                                 (:li
+                                                  (render-ajax-delete-button grid id))))
+                                              ))))))
      data-length)))
 
 (defun sort-direction-function (grid)
