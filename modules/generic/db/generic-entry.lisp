@@ -1,153 +1,107 @@
 (in-package #:ems)
 
-(defclass generic-entry (doc)
-   (
-	(pid :accessor generic-entry-pid :initarg :pid)
-	(title :accessor generic-entry-title :initarg :title)
-	(payload :accessor generic-entry-payload :initarg :payload)
-	(type :accessor generic-entry-type :initarg :type)
-	(interaction :accessor generic-entry-interaction :initarg :interaction)
-	(created :accessor generic-entry-created :initarg :created))
-	(:metaclass storable-class))
+(defclass generic-post (doc)
+  ((post-type 
+    :accessor post-type :initarg :post-type
+    :documentation "Twitter,Facebook,LinkedIn,Wordpress")
+   (payload 
+    :accessor payload :initarg :payload
+    :documentation "Usually the raw json or xml retrieved in an foreign api call")
+   (payload-type 
+    :accessor payload-type :initarg :payload-type
+    :documentation "Subtype of post, it might influence how to parse payload.")
+   (payload-source 
+    :accessor payload-source :initarg :payload-source
+    :documentation "There are differences between streams and rest calls for the same type of post. Once again this could influence the parsing of the payload.")
+   (payload-parser-version 
+    :accessor payload-parser-version :initarg :payload-parser-version
+    :documentation "As api's change over time we need to be able to select the correct version of the parser.")
+   (created-date 
+    :accessor created-date :initarg :created-date
+    :documentation "The creation date of the post. (Not the retrieval date that is the stamp).")
+   (last-change-date 
+    :accessor last-change-date :initarg :last-change-date
+    :documentation "The last time the post was changed. This should be used to sort inbox latest post activity. IE if a post has a new comment or something it should be brought to the users attetion."))
+  (:metaclass storable-class))
 
-(defun get-msg-or-story (post)
-	(let (
-		(msg (get-val post 'message))
-		(story (get-val post 'story))
-		)
-	(if msg msg story)))
+(defun generic-post-collection ()
+  (get-collection (system-db) "generic-post"))
 
-(defun get-fb-activity (post)
-	(let (
-		(comment-count (get-val (get-val post 'comments) 'count))
-		(likes-count (get-val (get-val post 'likes) 'count))
-		)
-	  (unless likes-count (setf likes-count 0))
-	(cond ((zerop (+ comment-count likes-count)) "none")
-			((= 1 (+ comment-count likes-count)) "low")
-			((= 2 (+ comment-count likes-count)) "medium")
-			(t "high"))))
+(defun generic-posts ()
+  (docs (generic-post-collection)))
 
-(defun wrap-fb-post (fb-post)
-  (when (get-val fb-post 'post-id)
-      (let* ((post (get-generic-entry-by-post-id (get-val fb-post 'post-id)))
-            (old-post (if post
-                          (copy post))))
-        (unless post
-          (setf post (make-instance 'generic-entry
-                                    :key (get-val fb-post 'post-id)
-                                    :pid (get-val fb-post 'post-id)
-                                    :title (get-msg-or-story fb-post)
-                                    :payload fb-post
-                                    :type "Facebook"
-                                    :interaction (get-fb-activity fb-post)
-                                    :created (get-val fb-post 'created-time))))
-        (if (and old-post (xid old-post))
-            (persist post :old-object old-post)
-            (persist post)))))
-
-; NIL protection
-(defun get-tw-activity (count)
-	(if count 
-	(cond ((zerop count) "none")
-			((= 1 count) "low")
-			((= 2 count) "medium")
-			(t "high"))
-		"none"))
-			
-(defun wrap-tweet (tweet)
-  (let ((pid (get-val tweet 'id-str))
-        (title (get-val tweet 'text))
-        (payload tweet)
-        (type "tweeter")
-        (interaction (get-tw-activity (get-val tweet 'retweet-count)))
-        (created (get-val tweet 'created-at)))
-    (if pid
-        (make-instance 'generic-entry
-                       :key pid
-                       :pid pid
-                       :title title
-                       :payload payload
-                       :type type
-                       :interaction interaction
-                       :created created) ())))
-						
-(defun generic-entry-collection ()
-  (get-collection (system-db) "generic-entry"))
-
-(defun generic-entries ()
-  (docs (generic-entry-collection)))
-
-(defun get-generic-entry-by-id (id)
-  (get-doc (generic-entry-collection) id
+(defun get-generic-post-by-id (id)
+  (get-doc (generic-post-collection) id
            :element 'id))
 
-(defun get-generic-entry-by-post-id (id)
-  (get-doc (generic-entry-collection) id
+(defun get-generic-post-by-post-id (id)
+  (get-doc (generic-post-collection) id
            :element 'pid))
 
-(defmethod doc-collection ((doc generic-entry))
-  (generic-entry-collection))
+(defmethod doc-collection ((doc generic-post))
+  (generic-post-collection))
 
-;(defun populate-post-db-from-json (post-list)
-;    (dolist (post post-list) 
-;      (persist-doc (make-post post))))
+(defun make-generic-post (post-type payload payload-source created-date 
+                          &key payload-type last-change-date payload-parser-version)
+  (make-instance 'generic-post
+                 :key (list post-type (raw-post-id payload post-type))
+                 :post-type post-type
+                 :payload payload
+                 :payload-source payload-source
+                 :created-date created-date
+                 :payload-type payload-type
+                 :last-change-date last-change-date
+                 :payload-parser-version payload-parser-version))
 
-(defun populate-generic-db-from-post (post-list)
-  
-  (dolist (post post-list)
-    
-    
-    (if (listp post)
-        (if (get-post-id post)
-            (let* ((old-post (get-post-by-post-id (get-post-id post)))
-                   (new-post (make-post post)))
-
-              (if (and old-post (xid old-post))
-          
-                  (persist new-post :old-object (copy old-post))
-                  (persist new-post))
-
-              (wrap-fb-post new-post)))
-        post)))
-      
-(defun populate-generic-db-from-tweet (tweet-list)
-
-  (unless   (string-equal (caaar tweet-list) "friends")
-      (dolist (tweet tweet-list)
-;;(break "~A" (make-tweet tweet))
-        (let ((generic (wrap-tweet (make-tweet tweet))))
-        
-          (if generic
-              (let ((old-generic 
-                     (find-doc (generic-entry-collection)
-                               :test
-                               (lambda (doc)
-                                 (typecase  (get-val doc 'payload)
-                                   (tweet
-                                    (if (equal (get-val (get-val doc 'payload) 'pid) 
-                                               (get-val (get-val generic 'payload) 'pid))
-                                        doc))))
-                               )))
-                (unless old-generic
-                  (persist generic ))))))))
-
-
-(add-collection (system-db) "generic-entry" 
+(add-collection (system-db) "generic-post" 
                 :collection-class 'ems-collection
                 :load-from-file-p t)
-; to see what is serialized
 
-(defun make-tw-wrapper-list (tweet-list)
-	(let ((out ()))
-	(dolist (tweet tweet-list) 
-          (setf out (append out (list (wrap-tweet (make-tweet tweet)))))) out ))
+(defgeneric gpkv (post &rest keys))
 
-;The slot XID is unbound in the object #<GENERIC-ENTRY
-;                                        {1009539393}>.
-;   [Condition of type UNBOUND-SLOT]
-;on single tweet it works on list doesn't!
-(defun make-fb-wrapper-list (post-list)
-	(let ((out ()))
-	(dolist (post post-list) 
-          (setf out (append out (list (wrap-fb-post (make-post post)))))) out ))
+(defmethod gpkv (post &rest keys)
+  (apply #'assoc-path post (flatten keys)))
+
+(defmethod gpkv ((post generic-post) &rest keys)
+  (apply #'assoc-path (payload post) (flatten keys)))
+
+(defgeneric gpv (post &rest keys))
+
+(defmethod gpv (post &rest keys)
+  (cdr (gpkv post keys)))
+
+(defgeneric post-id (generic-post))
+
+(defmethod post-id ((post generic-post))
+  (raw-post-id post (post-type post)))
+
+(defgeneric post-text (generic-post))
+
+(defmethod post-text ((post generic-post))
+  (raw-post-text post (post-type post)))
+
+(defgeneric post-user (generic-post))
+
+(defmethod post-user ((post generic-post))
+  (raw-post-user post (post-type post)))
+
+(defgeneric post-user-name (generic-post))
+
+(defmethod post-user-name ((post generic-post))
+  (raw-post-user-name post (post-type post)))
+
+(defgeneric post-user-id (generic-post))
+
+(defmethod post-user-id ((post generic-post))
+  (raw-post-user-id post (post-type post)))
+
+(defgeneric raw-post-id (post post-type))
+
+(defgeneric raw-post-text (post post-type))
+
+(defgeneric raw-user (post post-type))
+
+(defgeneric raw-user-name (post post-type))
+
+(defgeneric raw-user-id (post post-type))
+

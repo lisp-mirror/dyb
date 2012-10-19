@@ -1,9 +1,7 @@
 (in-package :ems)
 
-
 (defclass dashboard-item-full (widget)
-  (
-   ))
+  ())
 
 (defmethod render ((widget dashboard-item-full) &key header content)
   (with-html-to-string ()
@@ -12,13 +10,10 @@
                 (:h5 (esc header)))
           (:div :class "widget-content"
                 (:div :style "width:95%")
-                (str content)
-                
-                ))))
+                (str content)))))
 
 (defclass dashboard-item (widget)
-  (
-   ))
+  ())
 
 (defmethod render ((widget dashboard-item) &key header content)
   (with-html-to-string ()
@@ -30,87 +25,78 @@
                                   (:img  :style "padding :10px;" :src "/appimg/save.png"))
                              (:td 
                               (:div :style "padding :10px"
-                                    (str content))
-                              )))
-                
-                ))))
+                                    (str content)))))))))
 
 
-(defun get-facebook-user (fb-user-id)
-  (find-doc (service-users)
-            :test (lambda (doc)
-                    (if (string-equal (get-val doc 'user-id) fb-user-id)
-                        (return-from get-facebook-user doc)))))
+(defun interval-days (days)
+  (* days 24 60 60))
 
-(defun get-fb-post-from (generic-entry)
-  (get-val (get-val (get-val generic-entry 'payload) 'from) 'id))
+(defun within-date-range (interval date)
+  (and (>
+        date
+        (- (get-universal-time) (interval-days interval) ))
+       (<
+        date
+        (+ (get-universal-time) (interval-days interval) ))))
 
-(defun get-fb-post-to (generic-entry)
-  (if (get-val (get-val generic-entry 'payload) 'to)
-      (get-val (get-val generic-entry 'payload) 'to)))
 
-(defun get-fb-likes-count (generic-entry)
-  (if (get-val (get-val generic-entry 'payload) 'likes)
-      (if (get-val (get-val (get-val generic-entry 'payload) 'likes) 'count)
-          (get-val (get-val (get-val generic-entry 'payload) 'likes) 'count)
-          0)
+(defun posts-scheduled (interval)
+  (find-docs 'vector 
+             (lambda (doc)
+               (if (match-entities doc (context))
+                   (within-date-range interval (get-val doc 'scheduled-date))))
+             (generic-actions-collection)))
+
+
+(defun fb-comment-dates-count (interval payload)
+  (let ((count 0))
+    
+    (dolist (comment  (gpv payload :comments :data))
+      (when (within-date-range 
+             interval 
+             (parse-facebook-created-at (gpv comment :created--time)))
+        (incf count)))
+    count))
+
+(defun fb-comments-made (interval)
+  (let ((count 0))
+    (loop for post across (generic-posts) 
+       ;;when (match-entities post (context))
+       do (incf count (fb-comment-dates-count 
+                       interval 
+                       (get-val post 'payload))))
+    count))
+
+(defun fb-likes-dates-count (interval payload)
+  (if (gpv payload :likes :count)
+      (gpv payload :likes :count)
       0))
 
-(defun get-fb-comments-count (generic-entry)
-  
-  (if (get-val (get-val generic-entry 'payload) 'comments)
-      (if (get-val (get-val (get-val generic-entry 'payload) 'comments) 'count)
-          (get-val (get-val (get-val generic-entry 'payload) 'comments) 'count)
-          0)
+(defun fb-likes-made (interval)
+  (let ((count 0))
+    (loop for post across (generic-posts) 
+       ;;when (match-entities post (context))
+         when (equal (post-type post) 'facebook)
+       do (incf count (fb-likes-dates-count 
+                       interval 
+                       (get-val post 'payload))))
+    count))
+
+
+(defun twitter-retweets-dates-count (interval payload)
+  (if (gpv payload :retweet--count)
+      (gpv payload :retweet--count)
       0))
 
-(defun fb-count-posts-from ()
-  (let ((count 0)
-        (likes 0)
-        (comments 0))
-    (loop 
-       for doc across (generic-entries) 
-        do (if (not (string-equal 
-                    (get-val doc
-                             'doc-status) "superseded"))
-              (loop 
-                 for user across (service-users)
-                    do (when (match-context-entities user)  
-                         (typecase (get-val doc 'payload)
-                           (post
-                            (when (string-equal (format nil "~A" (get-val user 'user-id)) (get-fb-post-from doc))
-                              (incf count)
-                              (incf likes (get-fb-likes-count doc)) 
-                              (incf comments (get-fb-comments-count doc)))
-                            (when (string-equal (format nil "~A" (get-val user 'user-id)) (get-fb-post-from doc))
-                              (incf count)
-                              (incf likes (get-fb-likes-count doc)) 
-                              (incf comments (get-fb-comments-count doc)))))))))
-    (values count likes comments)))
-
-(defun fb-count-posts-to ()
-  (let ((count 0)
-        (likes 0)
-        (comments 0))
-    (loop 
-       for doc across (generic-entry-collection) 
-        do (if (not (string-equal 
-                    (get-val doc
-                             'doc-status) "superseded"))
-              (loop 
-                 for user across (service-users)
-                    do (if (match-context-entities user)
-                          (let ((to-user-id (if (get-val (get-val doc 'payload) 'to)
-                                                (if (listp (get-val (get-val doc 'payload) 'to))
-                                                    (get-val (first (get-val (get-val doc 'payload) 'to)) 'id)
-                                                    (get-val (get-val (get-val doc 'payload) 'to) 'id)))))                                    
-                            (when (not (string-equal (get-val user 'user-id) to-user-id))
-                                (incf count)
-                                (if (get-val (get-val doc 'payload) 'likes)
-                                    (incf likes (get-val (get-val (get-val doc 'payload) 'likes) 'count)))
-                                (if (get-val (get-val doc 'payload) 'comments)
-                                    (incf comments (get-val (get-val (get-val doc 'payload) 'comments) 'count)))))))))
-    (values count likes comments)))
+(defun twitter-retweets (interval)
+  (let ((count 0))
+    (loop for post across (generic-posts) 
+       ;;when (match-entities post (context))
+       when (equal (post-type post) 'twitter)
+       do (incf count (twitter-retweets-dates-count 
+                       interval 
+                       (get-val post 'payload))))
+    count))
 
 (define-easy-handler (dashboard-page :uri "/ems/dashboard") ()
   
@@ -121,152 +107,31 @@
               (with-html-to-string ()
 
 
-                (multiple-value-bind (posts likes comments)
-                    (fb-count-posts-from)
-                  (let ((dash-item (make-widget 'dashboard-item :name "dash-item"))
-                        (dash-item-full (make-widget 'dashboard-item-full :name "dash-item-full")))
+                (let ((dash-item (make-widget 'dashboard-item :name "dash-item"))
+                      (dash-item-full (make-widget 'dashboard-item-full 
+                                                   :name "dash-item-full")))
                     (htm 
-                     (str (render dash-item-full :name "ave-engagement" :header "Current Network Size"
-                                  ;;TODO: Graph
-                                  :content (render-to-string (make-widget 'line-graph :name "chart6"))
+                     (str (render dash-item-full :name "report-summary" 
+                                  :header "Report Summary"
+                                 
+                                  :content (with-html-to-string ()
+                                             (:div 
+                                                   (:p "Community Growth")
+                                                   (:p "Activity" 
+                                                       (str (length (posts-scheduled 7))))
+                                                   (:p "Engagement" 
+                                                       (str (+ (fb-comments-made 7)
+                                                               (fb-likes-made 7))))
+                                                   (:p "Impressions"
+                                                       (str (twitter-retweets 7)))
+                                                   (:p "Clicks"
+                                                       "0")))
                                   ))
-                     (:table :style "width:100%"
-                          (:tr
-                           (:td :style "vertical-align:top;"
-                            (str (render dash-item :name "analisys" :header "Total Reach"
-                                         :content
-                                         "Total Reach of <strong>974</strong><br/>
-<strong>12%</strong> up from previous month<br/>
-Current Network is <strong>373</strong>, up <strong>5%</strong> from previous month<br/>
-Total impressions is <strong>3848</strong>, up <strong>9%</strong> from previous month<br/><br/>")))
-                           (:td :style "vertical-align:top;"
+                     (str (render dash-item-full :name "audience-demographics" 
+                                  :header "Audience Demographics"
+                                 
+                                  :content "Eish"
+                                  ))
+                     
+                     )))))))
 
-                            (str (render dash-item :name "analisys" :header "Activity"
-                                         :content
-                                         "<strong>31</strong> Planned Activities<br/>
-<strong>52%</strong> up from previous month<br/>
-<strong>31</strong> Published Activities<br/>
-<strong>52%</strong> up from previous month<br/>
-<strong>100%</strong> of planned activities were published<br/>")))
-                           )
-                          (:tr
-                           
-                           
-                           (:td :style "vertical-align:top;"
-
-                            (str (render dash-item :name "engagement" :header "Engagement"
-                                         :content
-                                         "<strong>110</strong> Interactions<br>
-<strong>20%</strong> up from previous month"
-                                         ))
-                            )
-                           (:td :style "vertical-align:top;"
-
-                            (str (render dash-item :name "published-engagement" :header "Published Activity Receving Engagement"
-                                         :content
-                                         "<strong>100%</strong> Of activity received engagement.<br> There is no data from the previous time period"
-                                         ))
-                            ))
-                          #| (:tr
-                            (:td :style "vertical-align:top;"
-
-                                 (str (render dash-item :name "reach" :header "Reach"
-                                              :items
-                                              (list
-                                               (list "Followers" "0")
-                                               (list "Links" "0")
-                                               (list "Twitter @ Replies" "0")))))
-                           
-                            (:td :style "vertical-align:top;"
-
-                                 (str (render dash-item :name "top-10-content" :header "Top 10 Content"
-                                              :items
-                                              (list
-                                               (list "Facebook Posts Kobus" posts)
-                                               (list "WP Post by Kobus" "0")))))
-                            (:td :style "vertical-align:top;"
-
-                                 (str (render dash-item :name "top-10-mentions" :header "Top 10 Mentions"
-                                              :items
-                                              (list
-                                               (list "@ems" "0")
-                                               (list "@ems" "0"))))))
-                           (:tr
-                            (:td :style "vertical-align:top;"
-                                 (str (render dash-item :name "top-10-users" :header "Top 10 Users"
-                                              :items
-                                              (list
-                                               (list "Kobus" "0")
-                                               (list "Kobus" "0")))))
-                            (:td :style "vertical-align:top;"
-                                 (str (render dash-item :name "published-with-links" :header "Activities Published with Links"
-                                              :content
-                                              "Links in published material"))))
-                          |#)))
-                  
-                    ))))
-      ))
-
-
-#|
-
-(multiple-value-bind (posts likes comments)
-                    (fb-count-posts-from)
-                    (let ((dash-item (make-widget 'dashboard-item :name "dash-item"))) 
-                      (str (render dash-item :name "analisys" :header "Summary"
-                                   :items
-                                   (list
-                                    (list "Posts" posts)
-                                    (list "Likes" likes)
-                                    (list "Comments" comments))))
-
-                      (str (render dash-item :name "analisys" :header "Analysis"
-                                   :items
-                                   (list
-                                    (list "Brand Awareness" "0")
-                                    (list "Customer Services" "0"))))
-
-                      (str (render dash-item :name "engagement" :header "Engagement"
-                                   :items
-                                   (list
-                                    (list "Likes" likes)
-                                    (list "+1's" "0")
-                                    (list "Shares" "0")
-                                    (list "Retweets" "0"))))
-
-                      (str (render dash-item :name "reach" :header "Reach"
-                                   :items
-                                   (list
-                                    (list "Followers" "0")
-                                    (list "Links" "0")
-                                    (list "Twitter @ Replies" "0"))))
-
-                      (str (render dash-item :name "ave-engagement" :header "Ave Engagement By Publication"
-                                   ;;TODO: Graph
-                                   ))
-
-                      (str (render dash-item :name "top-10-content" :header "Top 10 Content"
-                                   :items
-                                   (list
-                                    (list "Facebook Posts by Piet Snot" posts)
-                                    (list "WP Post by Piet Snot" "0"))))
-
-                      (str (render dash-item :name "top-10-mentions" :header "Top 10 Mentions"
-                                   :items
-                                   (list
-                                    (list "@pietsnot" "0")
-                                    (list "@sannie koekemoer" "0"))))
-                      (str (render dash-item :name "top-10-users" :header "Top 10 Users"
-                                   :items
-                                   (list
-                                    (list "Piet Snot" "0")
-                                    (list "Gert Gieter" "0"))))
-                      (str (render dash-item :name "published-with-links" :header "Activities Published with Links"
-                                   :items
-                                   (list
-                                    (list "Links in published material" "0")
-                                    (list "Links to home WWW in published material" "0"))))
-                  
-                      ))
-
-|#

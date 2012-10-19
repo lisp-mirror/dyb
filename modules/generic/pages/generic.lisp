@@ -112,33 +112,35 @@
                               (:tr
                                (:td :width "82"
                                 (:div :class "profile_pic"
-                                      (:a :href (get-val doc 'user-link) :title "Go to Content"
+                                      (:a :href (or (gpv doc :link)
+                                                    (gpv doc :user--link)) 
+                                          :title "Go to Content"
                                           (:img  :src "/appimg/social-mention.jpg")))
                                 (:div :class "social_icon"
-                                      (htm (:img :src (get-val doc 'favicon)))
+                                      (htm (:img :src (gpv doc :favicon)))
                                       ))
                                (:td 
                                 (:div :class "post_title"
-                                      (:h3 (get-val doc 'user))
-                                      
-                            
-                                      )
-                                (:div :class "date" (:p (str (format-universal-date (get-val doc 'time-stamp)))))
+                                      (:h3 (gpv doc :title)))
+                                (:div :class "date" 
+                                      (:p (str (format-universal-date-time  
+                                                (unix-time-to-universal 
+                                                 (gpv doc :timestamp))))))
                                 (:div :class "post_content"
-                                      (str (get-val doc 'title))
-                                      (:br)
-                                      (str (get-val doc 'description)))
+                                      (str (gpv doc :description)))
                                 (:div :class "actions"
                                       (:div :class "go-to-content" :title "Go to Source"
-                                            (:a :href (get-val doc 'link) (:img :src "/appimg/social-source.png")))
+                                            (:a :href (gpv doc :link) 
+                                                (:img :src "/appimg/social-source.png")))
                             
                             
                                       )
                                 )
                                (:td :width "150"
                                     (:div :class "post_image_thumb"
-                                          (:a :href= "#" :title "Click to view the full size image"
-                                              (:img :src (get-val doc 'image))))))))))))
+                                          (:a :href= "#" 
+                                              :title "Click to view the full size image"
+                                              (:img :src (gpv doc :image))))))))))))
 
 
 
@@ -157,20 +159,20 @@
                               (:tr
                                (:td :width "82"
                                 (:div :class "profile_pic"
-                                      (:a :href "#" :title "View ~A\'s Profile"
-                                          (:img  :src (if (get-val doc 'user)
-                                                          (get-val (get-val doc 'user) 'profile-image-url-https)))))
+                                     
+                                      (:a :href "#" :title (format nil "View ~A s Profile" (gpv doc :user :name))
+                                          (:img  :src (gpv doc :user :profile--image--url--https))))
                                 (:div :class "social_icon"
                                       (:img :src "/appimg/twitter.png")
                                       )
                                 (:td
                                  (:div :class "post_title"
 
-                                       (:h3 (str (get-val (get-val doc 'user) 'name))))
+                                       (:h3 (str (gpv doc :user :name))))
                                  (:div :class "date"
-                                       (:p (str (get-val doc 'created-at))))
+                                       (:p (str (gpv doc :created--at))))
                                  (:div :class "post_content"
-                                       (str (get-val doc 'text)))
+                                       (str (gpv doc :text)))
                                  (:div :class "actions"
                                        (:div :class "reply" :title "Reply"
                                              (:a :href "#" (:img :src "/appimg/twitter-reply.png")))
@@ -209,47 +211,26 @@
                                (:td :width "82"
                                 (:div :class "profile_pic"
                                       (:a :href "#" :title (format nil "View ~A\'s Profile" 
-                                                                   (if (get-val doc 'from)
-                                                                       (get-val (get-val doc 'from) 'name)))
-                                          ;;TODO: image parsing is broken????
-                                          (:img :src (if (get-val doc 'from)
-                                                         (if (get-val (get-val doc 'from) 'picture)
-                                                             (rest (assoc "url" (rest (assoc "data" (get-val (get-val doc 'from) 'picture)  :test #'string-equal))  :test #'string-equal)))))))
+                                                                   (assoc-path doc :from :name))
+                                          ;;TODO: When to fetch profile pic and where to store it?
+                                          (:img :src "")))
                                 (:div :class "social_icon" (:img :src "/appimg/facebook.png")))
                                (:td
                                 (:div :class "post_title"
                                       (:h3 (str (get-val doc 'caption))))
                                 (:div :class "date" (str (get-val doc 'created-time)))
                                 (:div :class "post_content"
-                                      (str (if (get-val doc 'message)
-                                               (get-val doc 'message)
-                                               (get-val doc 'story))))
+                                      (str (or (gpv doc :message) (gpv doc :story))))
                                 (:div :class "actions"
                                       (:div :class "like" :title "Like"
                                             (:a :href "#" (:img :src "/appimg/facebook-like.png")))
                                       (:div :class "like_count"
-                                            (let ((likes 0))
-                                              (if (get-val doc 'likes)
-                                                  (if (string-equal 
-                                                       (type-of (make-instance 'likes))
-                                                       "LIKES")
-                                                      (if (get-val (get-val doc 'likes) 'count)
-                                                          (setf likes (get-val (get-val doc 'likes) 'count)))))
-
-                                              (htm (str likes))))
+                                            (str (gpv doc :likes :count)))
                                       (:div :class "comment" :title "Comment"
-                                            (:a :href "#" :onclick (format nil "$(\"#comments-~A\").toggle();" (get-val doc 'post-id))
+                                            (:a :href "#" :onclick (format nil "$(\"#comments-~A\").toggle();" (gpv doc :id))
                                                 (:img :src "/appimg/facebook-comment.png")))
                                       (:div :class "comment_count"
-                                            (str (if (get-val doc 'comments)
-                                                     (if (typep
-                                                          (get-val doc 'comments)
-                                                          'comments)
-                                           
-                                                         (if (get-val (get-val doc 'comments) 'count)
-                                                             (get-val (get-val doc 'comments) 'count)
-                                                             0))
-                                                     0)))
+                                            (str (gpv doc :comments :count)))
                                       (:div :class "share" :title "Share"
                                             (:a :href "#" (:img :src "/appimg/facebook-share.png")))
                                       )
@@ -257,61 +238,49 @@
                                (:td  :width "150"
                                 (:div :class "post_image_thumb"
                                       (:a :href= "#" :title "Click to view the full size image"
-                                          (:img :src (get-val doc 'picture)))))))
+                                          (:img :src (gpv doc :picture)))))))
 
 
-                      (:div :id (format nil "comments-~A" (get-val doc 'post-id)) 
+                      (:div :id (format nil "comments-~A" (gpv doc :id)) 
                            :style "background-color:#F2F2F2;display:none;"
                            (:br)
-                           (if (get-val doc 'comments)
-                               (if (typep 
-                                    (make-instance 'comments)
-                                    'comments)
-                                   ;;TODO: WTF how did the crap get into the comments?
-                                   (if (listp (get-val (get-val doc 'comments) 'data))
-                                       (dolist (comment (get-val (get-val doc 'comments) 'data))
-                                         (typecase comment
-                                           (comment
-                                            (htm (:div (str (get-val comment 'message)))))
-                                           )))))
+                           
+                           (dolist (comment (gpv doc :comments :data))
+                             (htm (:div (str (gpv comment :message)))))
                            (:br)
 
                            (let ((comment-form 
                                    (make-widget 'fb-post-comment-form
                                                 :name (format nil 
                                                               "comments-~A-dialog-form" 
-                                                              (get-val doc 'post-id)))))
+                                                              (gpv doc :id)))))
                              
                              
                              (setf (get-val comment-form 'current-post) doc)
 
                              (setf (get-val comment-form 'inner-id) (format nil 
                                                                         "form-comments-~A" 
-                                                                        (get-val doc 'post-id)))
+                                                                        (gpv doc :id)))
 
                              (htm (:a :href
                                       (js-link 
                                        (js-render comment-form
                                                   (js-pair "post-id" 
-                                                           (get-val doc 'post-id))
+                                                           (gpv doc :id))
                                                   (js-pair "action" "comment")))
                                       "Post Comment")
                                   (render comment-form ))))))
 
           )))
 
-(defun generic-grid-item-display (doc)
-  (if doc
-      (typecase doc 
-        (tweet
-         (twitter-post-display doc)
-         )
-        (post
-         (facebook-post-display doc)
-         )
-        (social-mention
-         (social-mention-display doc)
-         ))))
+(defun generic-grid-item-display (payload)
+  (if payload
+      (cond ((gpv payload :id--str)
+             (twitter-post-display payload))
+            ((gpv payload :favicon)
+             (social-mention-display payload))
+            (t
+             (facebook-post-display payload)))))
 
 
 
@@ -330,16 +299,13 @@
                                        ;;:columns columns
                                        :edit-inline nil
                                        :title "Inbox"
-                                       :row-object-class 'generic-entry)))
+                                       :row-object-class 'generic-post)))
     (setf (get-val grid 'columns) columns)
     (setf (sort-direction grid) :descending)
     (setf (sort-key-function grid)
           (lambda (doc)
             (format nil "~A"  
-                    
-                    (get-val doc 'created))))
-    
-
+                    (get-val doc 'created-date))))
     
     (render (make-widget 'page :name "generic-page")
             :body (with-html-to-string ()
@@ -406,13 +372,13 @@
   (let ((page (make-widget 'html-framework-page
                            :name "ajax-test")))
     (when (parameter "get-facebook-data")
-      (update-facebook-posts-for-users))
+      (facebook-refresh-feeds))
     (when (parameter "get-search-stream-data")
-      (update-social-mention-for-searches))
+      (social-mention-refresh-searches))
     (when (parameter "schedule-actions")
       (post-facebook-scheduled-actions))
     (when (parameter "get-twitter-old")
-      (fetch-twitter-users-old))
+      (twitter-refresh-home-timelines))
 
     
 

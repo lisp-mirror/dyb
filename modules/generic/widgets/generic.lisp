@@ -46,7 +46,7 @@
                           (t 
                            (if (not (string-equal (get-val doc 'doc-status) "superseded"))
                                doc))))
-              (generic-entry-collection)))
+              (generic-post-collection)))
 
 (defmethod get-rows ((grid generic-grid))
   (setf (rows grid)

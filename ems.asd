@@ -27,6 +27,7 @@
                )
   :serial t
   :components ((:file "packages")
+               (:file "utils")
                (:file "common")
                (:file "requests")
                (:file "ini")
@@ -124,7 +125,11 @@
                          (:module "search-streams"
                                   :serial t
                                   :components
-                                  ((:file "common")
+                                  ((:file "parser")
+                                   (:file "oauth")
+                                   (:file "common")
+                                   (:file "end-points")
+                                   (:file "listener")
                                    (:module "db"
                                             :serial t
                                             :components
@@ -142,7 +147,11 @@
                          (:module "facebook"
                                   :serial t
                                   :components
-                                  (
+                                  ((:file "parser")
+                                   (:file "oauth")
+                                   (:file "common")
+                                   (:file "end-points")
+                                   (:file "listener")
                                    (:module "db"
                                             :serial t
                                             :components
@@ -155,17 +164,21 @@
                                             :serial t
                                             :components
                                             ((:file "facebook")))
-                                   (:file "facebook-parser")
-                                   (:file "common")))
+                                   
+                                   ))
+
                          (:module "twitter"
                                   :serial t
                                   :components
-                                  ((:file "twitter-parser")
+                                  ((:file "parser")
+                                   (:file "oauth")
                                    (:file "common")
+                                   (:file "end-points")
+                                   (:file "listener")
                                    (:module "db"
                                             :serial t
                                             :components
-                                            ((:file "twitter-classes")))
+                                            ((:file "twitter")))
                    
                                    ))
                          

@@ -135,6 +135,12 @@ showMark: false
 }
 }
 });
+//var w = parseInt($(\".jqplot-yaxis\").width(), 10) + parseInt(plot1.width(), 10);
+//var h = parseInt($(\".jqplot-title\").height(), 10) + parseInt($(\".jqplot-xaxis\").height(), 10) + parseInt(plot1.height(), 10);
+//plot1.width(w).height(h);
+//plot1.replot();
+//plot1.onresize = \"alert(this); \"
+//plot1.onresize = \"$(var w = parseInt($('.jqplot-yaxis').width(), 10) + parseInt(this.width(), 10);var h = parseInt($('.jqplot-title').height(), 10) + parseInt($('.jqplot-xaxis').height(), 10) + parseInt(this.height(), 10);this.width(w).height(h);this.replot();)\"
 "
         (name widget))))
 
