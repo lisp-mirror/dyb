@@ -192,7 +192,7 @@
 (defun day (date)
   (nth-value 2 (decode-date date)))
 
-(defun format-date (date)
+(defun format-datex (date)
   (if (integerp date)
       (format-universal-date date)
       date))

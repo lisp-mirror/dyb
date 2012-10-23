@@ -197,13 +197,7 @@ is replaced with replacement."
     (when position
       (1+ position))))
 
-(defun format-universal-date (universal-date)  
-  (if (stringp universal-date)
-      universal-date
-      (multiple-value-bind (a b c day month year)
-          (decode-universal-time (or universal-date (get-universal-time)))
-        (declare (ignore a b c))
-        (format-date year month day))))
+
 
 
 (defun format-date (year month day)
@@ -215,6 +209,13 @@ is replaced with replacement."
   (format nil "~d ~a ~d ~@{~2,'0d~^:~}"
           day (short-month-name month) year hour min sec))
 
+(defun format-universal-date (universal-date)  
+  (if (stringp universal-date)
+      universal-date
+      (multiple-value-bind (a b c day month year)
+          (decode-universal-time (or universal-date (get-universal-time)))
+        (declare (ignore a b c))
+        (format-date   year month day))))
 
 (defun format-universal-date-time (universal-date)  
   (if (stringp universal-date)

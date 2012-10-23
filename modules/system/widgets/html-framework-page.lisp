@@ -427,6 +427,30 @@ if (okToRefresh)
        <![endif]-->"
 
 
+
+
+       (str bottom-java-script)
+
+       (:script "$(\"#inline-datepicker\").datepicker({
+   onSelect: function(dateText, inst) { 
+      var dateAsString = dateText; //the first parameter of this function
+      var dateAsObject = $(this).datepicker( 'getDate' ); //the getDate method
+      //alert (dateText);
+      //$(\"#inline-datepicker\").submit();
+      window.location.replace(\"/ems/generic-scheduler\");
+
+   }
+});
+")
+       
+       (:script :defer t :src "/appjs/ajax.js")       
+       (:script (str (deferred-js)))
+
+       )
+
+       " <script src=\"/js/respond.min.js\"></script>
+         <script src=\"/js/ios-orientationchange-fix.js\"></script>"
+
 "<script>
 
 $(function(){
@@ -598,28 +622,6 @@ $(function(){
   );
 });
 </script>"
-
-       (str bottom-java-script)
-       (:script "$(\"#inline-datepicker\").datepicker({
-   onSelect: function(dateText, inst) { 
-      var dateAsString = dateText; //the first parameter of this function
-      var dateAsObject = $(this).datepicker( 'getDate' ); //the getDate method
-      //alert (dateText);
-      //$(\"#inline-datepicker\").submit();
-      window.location.replace(\"/ems/generic-scheduler\");
-
-   }
-});
-")
-       
-       (:script :defer t :src "/appjs/ajax.js")       
-       (:script (str (deferred-js)))
-
-       )
-
-       " <script src=\"/js/respond.min.js\"></script>
-         <script src=\"/js/ios-orientationchange-fix.js\"></script>"
-
 
       "</html>")))
 

@@ -155,7 +155,7 @@
 (defun parse-parameters (parameters values)
   (if (and parameters (listp parameters))
       (build-parameters parameters values)
-      (if (nbl-p parameters)
+      (if (blank-p parameters)
           (format t "&pass-param=~A" parameters)
           "")))
 
@@ -409,7 +409,7 @@ document.getElementById(\"~A\").submit();"
 
 (defgeneric render-ajax-button (grid row-id action title))
 
-(defmethod render-ajax-buttion ((grid grid) row-id action title)
+(defmethod render-ajax-button ((grid grid) row-id action title)
   (with-html (:a :href
                  (js-link 
                   (js-render (editor grid)
