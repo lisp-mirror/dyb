@@ -186,7 +186,7 @@
 		
 	</div>
 	<div class=\"row-fluid\">
-		<div class=\"span3\">
+		<div class=\"span4\">
         	<div class=\"graph-wrap\">
 				<div class=\"chart-block\">
 					<div id=\"chart4\">
@@ -194,7 +194,7 @@
 				</div>
             </div>
 		</div>
-		<div class=\"span7\">
+		<div class=\"span6\">
 			<div class=\"index-graph\">
 				<div class=\"chart-block\">
 					<div id=\"chart1\"> </div>
@@ -226,7 +226,7 @@
 			<div class=\"board-stats\">
 				<div class=\"statistics-wrap\">
 					<div class=\"statistics-block\">
-						<div class=\"stat-chart bar-chart\">1,0,2,3,0,1,2,1,0,2,0,0,-1,2,1,0,2,3,0,1,2,1,0,2,0,0,-1,2,1,4</div>
+						<div class=\"stat-chart bar-chart\">1,0,2,3,0,1,2,1,0,2,0,0,-1,2,1,0,2,3,0</div>
 						<div class=\"stat-info\"><span class=\"black-icons facebook_like\"></span> New Likes</div>
 					</div>
 				</div>
@@ -237,7 +237,7 @@
 			<div class=\"board-stats\">
 				<div class=\"statistics-wrap\">
 					<div class=\"statistics-block\">
-						<div class=\"stat-chart bar-chart\">10,12,15,9,8,5,14,12,4,20,25,26,17,10,9,9,10,7,13,13,5,4,8,9,10,16,20,26,24,19</div>
+						<div class=\"stat-chart bar-chart\">10,12,15,9,8,5,14,12,4,20,25,26,17,10,9,9,10,7,13</div>
 						<div class=\"stat-info\"><span class=\"black-icons documents\"></span> Page Impressions</div>
 					</div>
 				</div>
@@ -248,7 +248,7 @@
 			<div class=\"board-stats\">
 				<div class=\"statistics-wrap\">
 					<div class=\"statistics-block\">
-						<div class=\"stat-chart bar-chart\">306,307,307,307,307,307,307,307,308,308,308,308,308,308,308,308,308,308,309,309,309,309,309,309,309,309,309,309,309,309</div>
+						<div class=\"stat-chart bar-chart\">306,307,307,307,307,307,307,307,308,308,308,308,308,308,308,308,308,308</div>
 						<div class=\"stat-info\"><span class=\"black-icons users\"></span> Total Fans</div>
 					</div>
 				</div>
@@ -276,7 +276,7 @@
 			<div class=\"board-stats\">
 				<div class=\"statistics-wrap\">
 					<div class=\"statistics-block\">
-						<div class=\"stat-chart bar-chart\">1,0,2,3,0,1,2,1,0,2,0,0,-1,2,1,0,2,3,0,1,2,1,0,2,0,0,-1,2,1,4</div>
+						<div class=\"stat-chart bar-chart\">1,0,2,3,0,1,2,1,0,2,0,0,-1,2,1,0,2,3</div>
 						<div class=\"stat-info\"><span class=\"black-icons facebook_like\"></span> New Followers</div>
 					</div>
 				</div>
@@ -287,7 +287,7 @@
 			<div class=\"board-stats\">
 				<div class=\"statistics-wrap\">
 					<div class=\"statistics-block\">
-						<div class=\"stat-chart bar-chart\">10,12,15,9,8,5,14,12,4,20,25,26,17,10,9,9,10,7,13,13,5,4,8,9,10,16,20,26,24,19</div>
+						<div class=\"stat-chart bar-chart\">10,12,15,9,8,5,14,12,4,20,25,26,17,10,9,9,10</div>
 						<div class=\"stat-info\"><span class=\"black-icons documents\"></span> Page Impressions</div>
 					</div>
 				</div>
@@ -298,7 +298,7 @@
 			<div class=\"board-stats\">
 				<div class=\"statistics-wrap\">
 					<div class=\"statistics-block\">
-						<div class=\"stat-chart bar-chart\">37,38,38,38,38,38,38,38,39,40,39,39,39,40,40,41,41,41,41,41,41,42,42,42,41,42,42,42,42,42</div>
+						<div class=\"stat-chart bar-chart\">37,38,38,38,38,38,38,38,39,40,39,39,39,40,40</div>
 						<div class=\"stat-info\"><span class=\"black-icons users\"></span> Total Followers</div>
 					</div>
 				</div>
@@ -329,7 +329,7 @@
 			<div class=\"board-stats\">
 				<div class=\"statistics-wrap\">
 					<div class=\"statistics-block\">
-						<div class=\"stat-chart bar-chart\">1,0,2,3,0,1,2,1,0,2,0,0,-1,2,1,0,2,3,0,1,2,1,0,2,0,0,-1,2,1,4</div>
+						<div class=\"stat-chart bar-chart\">1,0,2,3,0,1,2,1,0,2,0,0,-1,2,1</div>
 						<div class=\"stat-info\"><span class=\"black-icons facebook_like\"></span> New Followers</div>
 					</div>
 				</div>
@@ -340,7 +340,7 @@
 			<div class=\"board-stats\">
 				<div class=\"statistics-wrap\">
 					<div class=\"statistics-block\">
-						<div class=\"stat-chart bar-chart\">10,12,15,9,8,5,14,12,4,20,25,26,17,10,9,9,10,7,13,13,5,4,8,9,10,16,20,26,24,19</div>
+						<div class=\"stat-chart bar-chart\">10,12,15,9,8,5,14,12,4,20,25,26,17,10,9,9,10,7</div>
 						<div class=\"stat-info\"><span class=\"black-icons documents\"></span> Page Impressions</div>
 					</div>
 				</div>
@@ -351,7 +351,7 @@
 			<div class=\"board-stats\">
 				<div class=\"statistics-wrap\">
 					<div class=\"statistics-block\">
-						<div class=\"stat-chart bar-chart\">17,18,18,18,18,18,18,18,19,20,19,19,19,20,20,21,21,21,20,20,20,20,21,21,21,22,21,23,22,22</div>
+						<div class=\"stat-chart bar-chart\">17,18,18,18,18,18,18,18,19,20,19,19,19,20,20,21</div>
 						<div class=\"stat-info\"><span class=\"black-icons users\"></span> Total Followers</div>
 					</div>
 				</div>
