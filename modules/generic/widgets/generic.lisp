@@ -198,6 +198,9 @@
                         doc))))
 
 
+(defmethod handle-action (grid (action (eql 'like)))
+ (break "?") )
+
 (defmethod handle-action ((grid generic-grid) (action (eql 'save)))
   (setf (error-message grid) nil)
 
@@ -216,3 +219,4 @@
                 (setf (error-message grid) (cdr (car (rest error-message))))
                 (setf (error-message grid) "Posted comment successfully."))))
           (setf (error-message grid) "User does not exist.")))))
+

@@ -431,6 +431,178 @@ if (okToRefresh)
        <![endif]-->"
 
 
+"<script>
+
+$(function(){
+  var line1=[['26-Jul-12', 295], ['2-Aug-12', 296], ['9-Aug-12', 295], ['16-Aug-12', 294],
+      ['23-Aug-12', 291], ['30-Aug-12', 291], ['6-Sep-12', 310], ['13-Sep-12', 309],
+      ['20-Sep-12', 309]];
+  var line2=[['26-Jul-12', 356], ['2-Aug-12', 357], ['9-Aug-12', 359], ['16-Aug-12', 358],
+      ['23-Aug-12', 355], ['30-Aug-12', 355], ['6-Sep-12', 374], ['13-Sep-12', 373],
+      ['20-Sep-12', 373]];
+  var line3=[['26-Jul-12', 39], ['2-Aug-12', 39], ['9-Aug-12', 42], ['16-Aug-12', 42],
+      ['23-Aug-12', 42], ['30-Aug-12', 42], ['6-Sep-12', 42], ['13-Sep-12', 42],
+      ['20-Sep-12', 42]];
+  var line4=[['26-Jul-12', 22], ['2-Aug-12', 22], ['9-Aug-12', 22], ['16-Aug-12', 22],
+      ['23-Aug-12', 22], ['30-Aug-12', 22], ['6-Sep-12', 22], ['13-Sep-12', 22],
+      ['20-Sep-12', 22]];
+  var plot1 = $.jqplot('chart1', [line1,line2,line3,line4], {
+	  seriesColors: [\"#054f79\", \"#d44703\", \"#4BB2C5\", \"#04B45F\"],
+      title:'CURRENT NETWORK SIZE',
+      axes:{
+        xaxis:{
+          renderer:$.jqplot.DateAxisRenderer,
+          tickOptions:{
+            formatString:'%b&nbsp;%#d'
+          }
+        },
+        yaxis:{
+          tickOptions:{
+            formatString:''
+            }
+        }
+      },
+	  seriesDefaults: {
+        show: true,     // wether to render the series.
+        xaxis: 'xaxis', // either 'xaxis' or 'x2axis'.
+        yaxis: 'yaxis', // either 'yaxis' or 'y2axis'.
+              // CSS color spec to use for the line.  Determined automatically.
+        lineWidth: 3, // Width of the line in pixels.
+        shadow: false  // show shadow or not.
+	  },
+      highlighter: {
+        show: true,
+        sizeAdjust: 7.5
+      },
+	  legend: {
+            show: true,
+            placement: 'inside'
+        },
+	   grid: {
+            background: '#fff',
+            drawBorder: false,
+            shadow: false,
+            gridLineColor: '#ccc',
+            gridLineWidth: 1
+        },
+      cursor: {
+        show: false
+      },
+	  
+	  series: [
+            {
+				
+                label: 'Facebook'
+            },
+            {
+                label: 'Total'
+            },
+			{
+                label: 'Twitter'
+            },
+			{
+                label: 'LinkedIn'
+            }
+        ]
+		
+  });
+  
+});
+	$(function() {
+		var date = new Date();
+		var d = date.getDate();
+		var m = date.getMonth();
+		var y = date.getFullYear();
+		$('#calendar-widget').fullCalendar({
+			header: {
+				left: 'prev,next today',
+				center: 'title',
+				right: 'month,agendaWeek,agendaDay'
+			},
+			buttonText: {
+			prev: 'Prev',
+			next: 'Next',
+			today: 'Today',
+			month: 'Month',
+			week: 'Week',
+			day: 'Day'
+		},
+			editable: true,
+			events: [
+				{
+					title: 'All Day Event',
+					start: new Date(y, m, 1)
+				},
+				{
+					title: 'Long Event',
+					start: new Date(y, m, d-5),
+					end: new Date(y, m, d-2)
+				},
+				{
+					id: 999,
+					title: 'Repeating Event',
+					start: new Date(y, m, d-3, 16, 0),
+					allDay: false
+				},
+				{
+					id: 999,
+					title: 'Repeating Event',
+					start: new Date(y, m, d+4, 16, 0),
+					allDay: false
+				},
+				{
+					title: 'Meeting',
+					start: new Date(y, m, d, 10, 30),
+					allDay: false
+				},
+				{
+					title: 'Lunch',
+					start: new Date(y, m, d, 12, 0),
+					end: new Date(y, m, d, 14, 0),
+					allDay: false
+				},
+				{
+					title: 'Birthday Party',
+					start: new Date(y, m, d+1, 19, 0),
+					end: new Date(y, m, d+1, 22, 30),
+					allDay: false
+				},
+				{
+					title: 'Click for Google',
+					start: new Date(y, m, 28),
+					end: new Date(y, m, 29),
+					url: 'http://google.com/'
+				}
+			]
+		});
+	});
+	$(function(){
+  plot2 = jQuery.jqplot('chart4',
+    [[['Likes', 9],['Clicks', 2], ['Comments', 1],
+    ['Manual Retweets', 0.1],['Native Retweets', 0.1], ['Replies', 0.1], ['Mentions', 2], ['Direct Messages', 0.1]]],
+    {
+      title: 'ENGAGEMENT BY TYPE',
+      seriesDefaults: {
+        shadow: false,
+        renderer: jQuery.jqplot.PieRenderer,
+        rendererOptions: {
+          startAngle: 180,
+          sliceMargin: 4,
+          showDataLabels: true }
+      },
+	grid: {
+            background: '#fff',
+            drawBorder: false,
+            shadow: false,
+            gridLineColor: '#ccc',
+            gridLineWidth: 1
+        },
+      legend: { show:true, location: 'w' }
+    }
+  );
+});
+</script>"
+
        (str bottom-java-script)
        (:script "$(\"#inline-datepicker\").datepicker({
    onSelect: function(dateText, inst) { 

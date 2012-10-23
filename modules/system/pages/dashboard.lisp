@@ -106,6 +106,272 @@
               :body 
               (with-html-to-string ()
 
+                "<div class=\"container-fluid\">
+	<div class=\"page-header\">
+      <h1>Dashboard</h1>
+	</div>
+    <ul class=\"breadcrumb\">
+      <li><a href=\"#\">Home</a><span class=\"divider\">&raquo;</span></li>
+      <li class=\"active\">Dashboard</li>
+    </ul>
+    <div class=\"dashboard-widget\">
+      <div class=\"row-fluid\">
+        <div class=\"span2\">
+          <div class=\"dashboard-wid-wrap\">
+            <div class=\"dashboard-wid-content\"> <a href=\"inbox.html\"> <i class=\"dashboard-icons mail_blk\"></i> <span class=\"dasboard-icon-title\">Inbox</span> </a> </div>
+          </div>
+        </div>
+        <div class=\"span2\">
+          <div class=\"dashboard-wid-wrap\">
+            <div class=\"dashboard-wid-content\"> <a href=\"#\"> <i class=\"dashboard-icons month_calendar_blk\"></i> <span class=\"dasboard-icon-title\">Scheduler</span> </a> </div>
+          </div>
+        </div>
+        <div class=\"span2\">
+          <div class=\"dashboard-wid-wrap\">
+            <div class=\"dashboard-wid-content\"> <a href=\"#\"> <i class=\"dashboard-icons magnifying_glass_blk\"></i> <span class=\"dasboard-icon-title\">Search Streams</span> </a> </div>
+          </div>
+        </div>
+        <div class=\"span2\">
+          <div class=\"dashboard-wid-wrap\">
+            <div class=\"dashboard-wid-content\"> <a href=\"#\"> <i class=\"dashboard-icons graph_blk\"></i> <span class=\"dasboard-icon-title\">Reporting</span> </a> </div>
+          </div>
+        </div>
+        <div class=\"span2\">
+          <div class=\"dashboard-wid-wrap\">
+            <div class=\"dashboard-wid-content\"> <a href=\"#\"> <i class=\"dashboard-icons cog_2_blk\"></i> <span class=\"dasboard-icon-title\">Settings</span> </a> </div>
+          </div>
+        </div>
+        <div class=\"span2\">
+          <div class=\"dashboard-wid-wrap\">
+            <div class=\"dashboard-wid-content\"> <a href=\"#\"> <i class=\"dashboard-icons help_blk\"></i> <span class=\"dasboard-icon-title\">Help</span> </a> </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+	
+	
+    <div class=\"page-header\">
+      <h3>OVERVIEW</h3>
+	</div>
+	<div class=\"row-fluid\">
+		<div class=\"span3 \">
+        <div class=\"stat-block\">
+          <ul>
+            <li class=\"stat-graph\" id=\"new-visits\">50,80,100,120,110,150,180</li>
+            <li class=\"stat-count\"><span>Reach</span><span>+20</span></li>
+            <li class=\"stat-percent\"><span><img src=\"img/green-arrow.png\" width=\"20\" height=\"20\" alt=\"Increase\"></span><span class=\"label-green\">20</span></li>
+          </ul>
+        </div>
+		</div>
+		<div class=\"span3 \">
+        <div class=\"stat-block\">
+          <ul>
+            <li class=\"stat-graph\" id=\"unique-visits\">3,4,6,5,15,40</li>
+            <li class=\"stat-count\"><span>Activity</span><span>+25</span></li>
+            <li class=\"stat-percent\"><span><img src=\"img/green-arrow.png\" width=\"20\" height=\"20\" alt=\"Increased\"></span><span class=\"label-green\">25%</span></li>
+          </ul>
+        </div>
+		</div>
+		<div class=\"span3 \">
+		<div class=\"stat-block\">
+          <ul>
+            <li class=\"stat-graph\" id=\"weekly-sales\">90,85,90,100,115,126</li>
+            <li class=\"stat-count\"><span>Engagement</span><span>126</span></li>
+            <li class=\"stat-percent\"><span><img src=\"img/green-arrow.png\" width=\"20\" height=\"20\" alt=\"Increased\"></span><span class=\"label-green\">5%</span></li>
+          </ul>
+        </div>
+		</div>
+		
+		
+	</div>
+	<div class=\"row-fluid\">
+		<div class=\"span3\">
+        	<div class=\"graph-wrap\">
+				<div class=\"chart-block\">
+					<div id=\"chart4\">
+					</div>
+				</div>
+            </div>
+		</div>
+		<div class=\"span7\">
+			<div class=\"index-graph\">
+				<div class=\"chart-block\">
+					<div id=\"chart1\"> </div>
+				</div>
+			</div>
+		</div>
+		<div class=\"span2\">
+        <div class=\"summary\">
+			<h4>CURRENT COMMUNITY SIZE</h4>
+			</br>
+          <ul>
+            <li><span class=\"summary-icon\"><img src=\"img/user-accounts.png\" width=\"36\" height=\"36\" alt=\"All Accounts\"></span><span class=\"count\">373</span><span class=\"summary-title\"> All Accounts</span></li>
+            <li><span style=\"width: 36px;height: 36px;float: left;margin-right: 10px;padding: 6px;\"><img src=\"img/Facebook_Light_Logo.png\" width=\"36\" height=\"36\" alt=\"New Items\"></span><span class=\"count\">309</span><span class=\"summary-title\"> Facebook</span></li>
+            <li><span style=\"width: 36px;height: 36px;float: left;margin-right: 10px;padding: 6px;\"><img src=\"img/twitter-bird-white-on-blue.png\" width=\"36\" height=\"36\" alt=\"New Posts\"></span><span class=\"count\">42</span><span class=\"summary-title\"> Twitter</span></li>
+            <li><span style=\"width: 36px;height: 36px;float: left;margin-right: 10px;padding: 6px;\"><img src=\"img/linkedin-icon.png\" width=\"36\" height=\"36\" alt=\"New Orders\"></span><span class=\"count\">22</span><span class=\"summary-title\"> LinkedIn</span></li>
+            
+          </ul>
+        </div>
+      </div>
+      
+    </div>
+	<div class=\"page-header\">
+            <h3><span class=\"black-icons facebook\" style=\"margin-top:1px;\"></span> FACEBOOK</h3>
+        </div>
+	<div class=\"row-fluid\">
+		
+		
+		<div class=\"span3\">
+			<div class=\"board-stats\">
+				<div class=\"statistics-wrap\">
+					<div class=\"statistics-block\">
+						<div class=\"stat-chart bar-chart\">1,0,2,3,0,1,2,1,0,2,0,0,-1,2,1,0,2,3,0,1,2,1,0,2,0,0,-1,2,1,4</div>
+						<div class=\"stat-info\"><span class=\"black-icons facebook_like\"></span> New Likes</div>
+					</div>
+				</div>
+    
+			</div>
+		</div>
+		<div class=\"span3\">
+			<div class=\"board-stats\">
+				<div class=\"statistics-wrap\">
+					<div class=\"statistics-block\">
+						<div class=\"stat-chart bar-chart\">10,12,15,9,8,5,14,12,4,20,25,26,17,10,9,9,10,7,13,13,5,4,8,9,10,16,20,26,24,19</div>
+						<div class=\"stat-info\"><span class=\"black-icons documents\"></span> Page Impressions</div>
+					</div>
+				</div>
+    
+			</div>
+		</div>
+		<div class=\"span3\">
+			<div class=\"board-stats\">
+				<div class=\"statistics-wrap\">
+					<div class=\"statistics-block\">
+						<div class=\"stat-chart bar-chart\">306,307,307,307,307,307,307,307,308,308,308,308,308,308,308,308,308,308,309,309,309,309,309,309,309,309,309,309,309,309</div>
+						<div class=\"stat-info\"><span class=\"black-icons users\"></span> Total Fans</div>
+					</div>
+				</div>
+    
+			</div>
+		</div>
+		<div class=\"span2\">
+			<div class=\"board-stats\">
+				<div class=\"statistics-wrap\">
+					<div class=\"statistics-block\">
+						<div class=\"stat-chart pie-chart\">170,139</div>
+						<div class=\"stat-info\"><span class=\"black-icons male_contour\"></span><span class=\"black-icons female_contour\"></span> Demographics</div>
+					</div>
+				</div>
+    
+			</div>
+		</div>
+		
+	</div>
+	<div class=\"page-header\">
+            <h3><span class=\"black-icons twitter\" style=\"margin-top:1px;\"></span> TWITTER</h3>
+      </div>
+    <div class=\"row-fluid\">
+	    <div class=\"span3\">
+			<div class=\"board-stats\">
+				<div class=\"statistics-wrap\">
+					<div class=\"statistics-block\">
+						<div class=\"stat-chart bar-chart\">1,0,2,3,0,1,2,1,0,2,0,0,-1,2,1,0,2,3,0,1,2,1,0,2,0,0,-1,2,1,4</div>
+						<div class=\"stat-info\"><span class=\"black-icons facebook_like\"></span> New Followers</div>
+					</div>
+				</div>
+    
+			</div>
+		</div>
+		<div class=\"span3\">
+			<div class=\"board-stats\">
+				<div class=\"statistics-wrap\">
+					<div class=\"statistics-block\">
+						<div class=\"stat-chart bar-chart\">10,12,15,9,8,5,14,12,4,20,25,26,17,10,9,9,10,7,13,13,5,4,8,9,10,16,20,26,24,19</div>
+						<div class=\"stat-info\"><span class=\"black-icons documents\"></span> Page Impressions</div>
+					</div>
+				</div>
+    
+			</div>
+		</div>
+		<div class=\"span3\">
+			<div class=\"board-stats\">
+				<div class=\"statistics-wrap\">
+					<div class=\"statistics-block\">
+						<div class=\"stat-chart bar-chart\">37,38,38,38,38,38,38,38,39,40,39,39,39,40,40,41,41,41,41,41,41,42,42,42,41,42,42,42,42,42</div>
+						<div class=\"stat-info\"><span class=\"black-icons users\"></span> Total Followers</div>
+					</div>
+				</div>
+    
+			</div>
+		</div>
+		<div class=\"span2\">
+			<div class=\"board-stats\">
+				<div class=\"statistics-wrap\">
+					<div class=\"statistics-block\">
+						<div class=\"stat-chart pie-chart\">170,139</div>
+						<div class=\"stat-info\"><span class=\"black-icons male_contour\"></span><span class=\"black-icons female_contour\"></span> Demographics</div>
+					</div>
+				</div>
+    
+			</div>
+		</div>
+      
+      
+    </div>
+	
+	<div class=\"page-header\">
+            <h3><img src=\"img/linkedin-icon1.png\" style=\"margin-top:-6px;\"> LINKEDIN</h3>
+      </div>
+	
+	<div class=\"row-fluid\">
+		<div class=\"span3\">
+			<div class=\"board-stats\">
+				<div class=\"statistics-wrap\">
+					<div class=\"statistics-block\">
+						<div class=\"stat-chart bar-chart\">1,0,2,3,0,1,2,1,0,2,0,0,-1,2,1,0,2,3,0,1,2,1,0,2,0,0,-1,2,1,4</div>
+						<div class=\"stat-info\"><span class=\"black-icons facebook_like\"></span> New Followers</div>
+					</div>
+				</div>
+    
+			</div>
+		</div>
+		<div class=\"span3\">
+			<div class=\"board-stats\">
+				<div class=\"statistics-wrap\">
+					<div class=\"statistics-block\">
+						<div class=\"stat-chart bar-chart\">10,12,15,9,8,5,14,12,4,20,25,26,17,10,9,9,10,7,13,13,5,4,8,9,10,16,20,26,24,19</div>
+						<div class=\"stat-info\"><span class=\"black-icons documents\"></span> Page Impressions</div>
+					</div>
+				</div>
+    
+			</div>
+		</div>
+		<div class=\"span3\">
+			<div class=\"board-stats\">
+				<div class=\"statistics-wrap\">
+					<div class=\"statistics-block\">
+						<div class=\"stat-chart bar-chart\">17,18,18,18,18,18,18,18,19,20,19,19,19,20,20,21,21,21,20,20,20,20,21,21,21,22,21,23,22,22</div>
+						<div class=\"stat-info\"><span class=\"black-icons users\"></span> Total Followers</div>
+					</div>
+				</div>
+    
+			</div>
+		</div>
+		<div class=\"span2\">
+			<div class=\"board-stats\">
+				<div class=\"statistics-wrap\">
+					<div class=\"statistics-block\">
+						<div class=\"stat-chart pie-chart\">170,139</div>
+						<div class=\"stat-info\"><span class=\"black-icons male_contour\"></span><span class=\"black-icons female_contour\"></span> Demographics</div>
+					</div>
+				</div>
+    
+			</div>
+		</div>
+      
+    </div>"
+#|
                 (:div :class "dashboard-widget"
                       (:div :class "row-fluid"
                             (:div :class "span2"
@@ -281,5 +547,8 @@
                                                      "42%"))))))
                       
 
-                      ))))))
+                      )
+|#
+
+)))))
 

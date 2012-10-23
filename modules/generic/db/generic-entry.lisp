@@ -35,8 +35,11 @@
            :element 'id))
 
 (defun get-generic-post-by-post-id (id)
-  (get-doc (generic-post-collection) id
-           :element 'pid))
+  (find-doc  
+   (generic-post-collection)
+    :test (lambda (doc)
+            (string-equal id (or (gpv doc :id--str) (gpv doc :id)))) 
+            ))
 
 (defmethod doc-collection ((doc generic-post))
   (generic-post-collection))

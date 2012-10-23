@@ -41,7 +41,8 @@
                           (get-val (first (get-val (get-val widget 'current-post) 'to)) 'id)
                           (get-val (get-val (get-val widget 'current-post) 'from) 'id))
                       (parameter "comment"))
-    (defer-js (format nil "$('#~a').dialog('close')" (name widget)))))
+    (defer-js (format nil "$('#~a').dialog('close')" (name widget)))
+    (finish-editing  widget)))
 
 (defmethod render ((widget fb-post-comment-form) &key )
 
@@ -54,7 +55,7 @@
         (form-section (make-widget 'form-section
                                    :name "form-section"))
         (current-post (if (parameter "post-id")
-                          (get-post-by-post-id (parameter "post-id")))))
+                          (get-generic-post-by-post-id (parameter "post-id")))))
     (setf (get-val comment-form 'form-id) (get-val widget 'inner-id))
     (with-html 
       
@@ -66,15 +67,11 @@
                     (:div 
                            
                      (:input :type "hidden" :name "post-id" 
-                             :value (get-val current-post 'post-id))
+                             :value (gpv current-post :id--str))
                      (:input :type "hidden" :name "from-user-id" 
-                             :value (get-val (get-val current-post 'from) 'id))
+                             :value (gpv current-post :from :id))
                      (:input :type "hidden" :name "to-user-id" 
-                             :value (if (get-val current-post 'to)
-                                        (if (listp (get-val 
-                                                    current-post 'to))
-                                            (get-val (first (get-val current-post 'to)) 'id)
-                                            (get-val (get-val current-post 'to) 'id))))
+                             :value (gpv current-post :to :id))
                      (:input :type "hidden" :name "action-type" 
                              :value "Facebook Comment")
 
@@ -93,9 +90,9 @@
 
       (defer-js (format nil 
                         "$('#comments-~a-dialog-form').dialog('open')"
-                        (get-val current-post 'post-id)))
+                        (gpv current-post :id--str)))
       (defer-js (format nil "$('#comments-~a-dialog-form').dialog({autoOpen: false, width: 900, height: 590})"
-                        (get-val current-post 'post-id))))))
+                        (gpv current-post :id--str))))))
 
 
 
@@ -187,7 +184,9 @@
                              (str (or (gpv doc :message) (gpv doc :story))))
                       (:span :class "twitter-actions"
                              (:span :class "action-icon" :title "Like"
-                                    (:a :href "#" (:img :src "/appimg/fb-like.png")))
+                                    (:a :href (js-link 
+                                               (js-render nil (js-pair "action" "like"))) 
+                                        (:img :src "/appimg/fb-like.png")))
                              (:span :class "action-icon" (str (if (gpv doc :likes :count)
                                                                   (gpv doc :likes :count)
                                                                   0)))
