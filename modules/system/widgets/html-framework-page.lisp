@@ -520,6 +520,11 @@ if (okToRefresh)
                               "Scheduler")
                           )
                          (:li
+                          (:a :href "/ems/tasks"
+                              (:span :class "white-icons month_calendar")
+                              "Tasks")
+                          )
+                         (:li
                           (:a :href "/ems/search-stream"
                               (:span :class "white-icons magnifying_glass")
                               "Search Streams")

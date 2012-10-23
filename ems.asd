@@ -217,11 +217,19 @@
                                    
                    
                                    ))
-                         
-
-                         )
-                        )
-               
-
-
-               ))
+                         (:module "tasks"
+                                  :serial t
+                                  :components
+                                  (
+                                   (:module "db"
+                                            :serial t
+                                            :components
+                                            ((:file "tasks")))
+                                   (:module "widgets"
+                                            :serial t
+                                            :components
+                                            ((:file "tasks")))
+                                   (:module "pages"
+                                            :serial t
+                                            :components
+                                            ((:file "tasks")))))))))

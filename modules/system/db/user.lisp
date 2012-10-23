@@ -112,3 +112,12 @@
 ;;Don't remove this, but change the default password regularly
 (persist (make-user "admin@ems.co.za" "admin"
                         :super-user-p t))
+
+(defun user-list ()
+  (let ((u-list))
+    (dolist (doc (coerce (users) 'list))
+      ;;TODO: Match entities
+      (when (not (string-equal (get-val doc 'doc-status) "superseded"))
+            (setf u-list (append u-list (list (list (get-val doc 'email) 
+                                                    (get-val doc 'email)))))))
+    u-list))
