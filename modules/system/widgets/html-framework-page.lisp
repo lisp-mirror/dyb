@@ -396,12 +396,6 @@ if (okToRefresh)
     <script src=\"/js/excanvas.min.js\"></script>
 
 
-
-<script src=\"/js/custom-script.js\"></script>"
-
-   
-  #|
-
     <script src=\"/js/jquery.jqplot.min.js\"></script>
     <script src=\"/js/chart/jqplot.highlighter.min.js\"></script>
     <script src=\"/js/chart/jqplot.cursor.min.js\"></script>
@@ -414,7 +408,9 @@ if (okToRefresh)
     <script src=\"/js/chart/jqplot.logAxisRenderer.min.js\"></script>
     <script src=\"/js/chart/jqplot.canvasTextRenderer.min.js\"></script>
     <script src=\"/js/chart/jqplot.canvasAxisTickRenderer.min.js\"></script> 
-|#
+
+<script src=\"/js/custom-script.js\"></script>"
+
 
 (page-include-js)
 

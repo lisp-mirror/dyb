@@ -160,7 +160,7 @@
           <ul>
             <li class=\"stat-graph\" id=\"new-visits\">50,80,100,120,110,150,180</li>
             <li class=\"stat-count\"><span>Reach</span><span>+20</span></li>
-            <li class=\"stat-percent\"><span><img src=\"img/green-arrow.png\" width=\"20\" height=\"20\" alt=\"Increase\"></span><span class=\"label-green\">20</span></li>
+            <li class=\"stat-percent\"><span><img src=\"/appimg/green-arrow.png\" width=\"20\" height=\"20\" alt=\"Increase\"></span><span class=\"label-green\">20</span></li>
           </ul>
         </div>
 		</div>
@@ -169,7 +169,7 @@
           <ul>
             <li class=\"stat-graph\" id=\"unique-visits\">3,4,6,5,15,40</li>
             <li class=\"stat-count\"><span>Activity</span><span>+25</span></li>
-            <li class=\"stat-percent\"><span><img src=\"img/green-arrow.png\" width=\"20\" height=\"20\" alt=\"Increased\"></span><span class=\"label-green\">25%</span></li>
+            <li class=\"stat-percent\"><span><img src=\"/appimg/green-arrow.png\" width=\"20\" height=\"20\" alt=\"Increased\"></span><span class=\"label-green\">25%</span></li>
           </ul>
         </div>
 		</div>
@@ -178,7 +178,7 @@
           <ul>
             <li class=\"stat-graph\" id=\"weekly-sales\">90,85,90,100,115,126</li>
             <li class=\"stat-count\"><span>Engagement</span><span>126</span></li>
-            <li class=\"stat-percent\"><span><img src=\"img/green-arrow.png\" width=\"20\" height=\"20\" alt=\"Increased\"></span><span class=\"label-green\">5%</span></li>
+            <li class=\"stat-percent\"><span><img src=\"/appimg/green-arrow.png\" width=\"20\" height=\"20\" alt=\"Increased\"></span><span class=\"label-green\">5%</span></li>
           </ul>
         </div>
 		</div>
@@ -206,10 +206,10 @@
 			<h4>CURRENT COMMUNITY SIZE</h4>
 			</br>
           <ul>
-            <li><span class=\"summary-icon\"><img src=\"img/user-accounts.png\" width=\"36\" height=\"36\" alt=\"All Accounts\"></span><span class=\"count\">373</span><span class=\"summary-title\"> All Accounts</span></li>
-            <li><span style=\"width: 36px;height: 36px;float: left;margin-right: 10px;padding: 6px;\"><img src=\"img/Facebook_Light_Logo.png\" width=\"36\" height=\"36\" alt=\"New Items\"></span><span class=\"count\">309</span><span class=\"summary-title\"> Facebook</span></li>
-            <li><span style=\"width: 36px;height: 36px;float: left;margin-right: 10px;padding: 6px;\"><img src=\"img/twitter-bird-white-on-blue.png\" width=\"36\" height=\"36\" alt=\"New Posts\"></span><span class=\"count\">42</span><span class=\"summary-title\"> Twitter</span></li>
-            <li><span style=\"width: 36px;height: 36px;float: left;margin-right: 10px;padding: 6px;\"><img src=\"img/linkedin-icon.png\" width=\"36\" height=\"36\" alt=\"New Orders\"></span><span class=\"count\">22</span><span class=\"summary-title\"> LinkedIn</span></li>
+            <li><span class=\"summary-icon\"><img src=\"/appimg/user-accounts.png\" width=\"36\" height=\"36\" alt=\"All Accounts\"></span><span class=\"count\">373</span><span class=\"summary-title\"> All Accounts</span></li>
+            <li><span style=\"width: 36px;height: 36px;float: left;margin-right: 10px;padding: 6px;\"><img src=\"/appimg/Facebook_Light_Logo.png\" width=\"36\" height=\"36\" alt=\"New Items\"></span><span class=\"count\">309</span><span class=\"summary-title\"> Facebook</span></li>
+            <li><span style=\"width: 36px;height: 36px;float: left;margin-right: 10px;padding: 6px;\"><img src=\"/appimg/twitter-bird-white-on-blue.png\" width=\"36\" height=\"36\" alt=\"New Posts\"></span><span class=\"count\">42</span><span class=\"summary-title\"> Twitter</span></li>
+            <li><span style=\"width: 36px;height: 36px;float: left;margin-right: 10px;padding: 6px;\"><img src=\"/appimg/linkedin-icon.png\" width=\"36\" height=\"36\" alt=\"New Orders\"></span><span class=\"count\">22</span><span class=\"summary-title\"> LinkedIn</span></li>
             
           </ul>
         </div>
@@ -321,7 +321,7 @@
     </div>
 	
 	<div class=\"page-header\">
-            <h3><img src=\"img/linkedin-icon1.png\" style=\"margin-top:-6px;\"> LINKEDIN</h3>
+            <h3><img src=\"/appimg/linkedin-icon1.png\" style=\"margin-top:-6px;\"> LINKEDIN</h3>
       </div>
 	
 	<div class=\"row-fluid\">
