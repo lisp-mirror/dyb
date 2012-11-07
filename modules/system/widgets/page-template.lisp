@@ -260,13 +260,13 @@
                                   (:li 
                                    (:a :href "/ems/system-users" "System Users"))
                                   (:li 
-                                   (:a :href "/ems/service-users" "Twitter Users"))
+                                   (:a :href "/ems/channel-users" "Twitter Users"))
                                   (:li 
-                                   (:a :href "/ems/service-users" "Facebook Users"))
+                                   (:a :href "/ems/channel-users" "Facebook Users"))
                                   (:li 
-                                   (:a :href "/ems/service-users" "Google Users"))
+                                   (:a :href "/ems/channel-users" "Google Users"))
                                   (:li 
-                                   (:a :href "/ems/service-users" "Google Analytics Users"))))))
+                                   (:a :href "/ems/channel-users" "Google Analytics Users"))))))
                      )
                
                (:div :id "nav_sub")

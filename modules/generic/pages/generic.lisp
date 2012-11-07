@@ -8,7 +8,7 @@
       (multiple-value-bind (body)
           (drakma:http-request (format nil "https://graph.facebook.com/~A/comments&access_token=~A"
                                        (get-val post 'post-id)
-                                       (get-val (get-service-user-by-user-id from-user-id) 'last-access-token))
+                                       (get-val (get-channel-user-by-user-id from-user-id) 'last-access-token))
                                :method :post
                                :parameters (list (cons "message"  (parameter "comment"))))
 
@@ -216,6 +216,7 @@
 
 
 (defun facebook-post-display (doc &key mention)
+;;(break "~A" doc)
   (with-html-to-string ()
     (:div 
      :class "nonboxy-widget"

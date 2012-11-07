@@ -3,7 +3,7 @@
 (defun post-to-facebook (action)
   (when action
     (unless (string-equal (get-val action 'action-status) "Completed"))
-    (let ((from-user (get-service-user-by-user-name (get-val action 'from-user-id))))
+    (let ((from-user (get-channel-user-by-user-name (get-val action 'from-user-id))))
       (multiple-value-bind (body)
           (drakma:http-request 
            (format nil "https://graph.facebook.com/~A/feed&access_token=~A"

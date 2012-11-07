@@ -36,7 +36,7 @@
 
       (unless user
 
-        (make-service-user  (current-client) 'twitter (parameter "email") (parameter "nick"))
+        (make-channel-user  (current-client) 'twitter (parameter "email") (parameter "nick"))
         (setf user (get-twitter-user (current-client) (parameter "email")))
         )
       (when user
@@ -59,7 +59,7 @@
               :body 
               (with-html-output-to-string (*standard-output*)
 
-                (let ((box (make-widget 'html-framework-form :name "service-user-form"))
+                (let ((box (make-widget 'html-framework-form :name "channel-user-form"))
                       (form-section (make-widget 'form-section :name "row")))
                   (setf (header box) "Twitter User")
                   (str (render box

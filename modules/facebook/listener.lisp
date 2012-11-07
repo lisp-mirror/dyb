@@ -1,11 +1,11 @@
 (in-package :ems)
 
 (defun facebook-refresh-feeds ()
-  (dolist (user (coerce (service-users) 'list ))
+  (dolist (user (coerce (channel-users) 'list ))
         
     (when (and user (string-equal (get-val user 'doc-status) "Active"))
       ;;TODO: How to get error messages in for users without access tokens.
-      (when (string-equal (get-val user 'service-user-type) "Facebook")
+      (when (string-equal (get-val user 'channel-user-type) "Facebook")
         (when (get-val user 'last-access-token)
 
           (multiple-value-bind (posts error)

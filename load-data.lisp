@@ -8,9 +8,9 @@
   (unless user
     (make-system-user "DX" "haragx@gmail.com" "" ""  "")))
 
-(let ((user (get-service-user "DX" "haragx@gmail.com" 'twitter)))
+(let ((user (get-channel-user "DX" "haragx@gmail.com" 'twitter)))
   (unless user
-    (make-service-user "DX" 'twitter "haragx@gmail.com" "haragx")))
+    (make-channel-user "DX" 'twitter "haragx@gmail.com" "haragx")))
 
 (add-collection (system-db*) "services" :load-from-file-p nil)
 

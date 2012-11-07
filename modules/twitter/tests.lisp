@@ -3,17 +3,17 @@
 
 (defparameter xxx "")
 
-(defun twitter-listener-x (service-user)
-  (when service-user
-    (when (get-val service-user 'last-access-token)
+(defun twitter-listener-x (channel-user)
+  (when channel-user
+    (when (get-val channel-user 'last-access-token)
       (let ((result (twitter-home-timeline 
-                     (get-val service-user 'last-access-token) 
-                     (get-val service-user 'last-token-secret))))
+                     (get-val channel-user 'last-access-token) 
+                     (get-val channel-user 'last-token-secret))))
         (json::decode-json-from-string (flexi-streams:octets-to-string result))))))
 
-;;(setf xxx (twitter-listener-x (elt (service-users) 0)))
+;;(setf xxx (twitter-listener-x (elt (channel-users) 0)))
 
-;;(twitter-refresh-home-timeline (elt (service-users) 0))
+;;(twitter-refresh-home-timeline (elt (channel-users) 0))
 
 
 ;;"Tue Oct 16 19:53:59 +0000 2012"

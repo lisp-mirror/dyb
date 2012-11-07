@@ -218,7 +218,7 @@
                                      (:li 
                                       (:a :href "/ems/companies" "Companies"))                     
                                      (:li 
-                                      (:a :href "/ems/service-users" "Service Users"))
+                                      (:a :href "/ems/channel-users" "Channel Users"))
                                      (:li
                                       (:a :href "/ems/users" "Users"))
                                     ;; (:li

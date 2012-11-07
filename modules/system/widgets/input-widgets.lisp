@@ -414,32 +414,32 @@ Please select a legal one"
        (entities)))
 
 
-(defclass service-user-select (chained-select)
+(defclass channel-user-select (chained-select)
   ()
   (:metaclass widget-class)
-  (:default-initargs :select-names '(service service-user)))
+  (:default-initargs :select-names '(service channel-user)))
 
 (defun get-all-services ()
   (list (list "Facebook" "Facebook")
         (list "Twitter" "Twitter")))
 
-(defun get-service-users (service)
-  (remove-duplicates (loop for doc across (docs (service-users-collection))
+(defun get-channel-users (service)
+  (remove-duplicates (loop for doc across (docs (channel-users-collection))
                         when (lambda (doc)
-                               (if (string-equal (get-val doc 'service-user-type) service)
-                                   (if (get-val doc 'service-user-name)
-                                       (get-val doc 'service-user-name))))
-                        collect (get-val doc 'service-user-name))
+                               (if (string-equal (get-val doc 'channel-user-type) service)
+                                   (if (get-val doc 'channel-user-name)
+                                       (get-val doc 'channel-user-name))))
+                        collect (get-val doc 'channel-user-name))
                      :test #'string-equal)
 
   )
 
-(defmethod retrieve-values ((chain-select service-user-select) select values)
+(defmethod retrieve-values ((chain-select channel-user-select) select values)
   (destructuring-bind (&optional service) values
    (let ((position (position select (selects chain-select))))
      (case position
        (0 (get-all-services))
-       (1 (get-service-users service))))))
+       (1 (get-channel-users service))))))
 
 
 (defun get-project-description (eid classification-type)

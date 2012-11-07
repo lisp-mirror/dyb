@@ -185,16 +185,16 @@
   (assoc ':error  (json::decode-json-from-string json-string)))
 
 (defun get-facebook-access-token (fb-id)
-  (find-doc (service-users-collection)
+  (find-doc (channel-users-collection)
             :test (lambda (doc)
                     (if (string-equal (get-val doc 'user-id) fb-id)
                         (return-from get-facebook-access-token doc)))))
 
 
 (defun get-facebook-access-token-by-user (fb-user)
-  (find-doc (service-users-collection)
+  (find-doc (channel-users-collection)
             :test (lambda (doc)
-                    (if (string-equal (get-val doc 'service-user-name) fb-user)
+                    (if (string-equal (get-val doc 'channel-user-name) fb-user)
                         doc))))
 
 

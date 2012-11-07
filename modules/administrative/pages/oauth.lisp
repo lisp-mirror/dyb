@@ -24,8 +24,8 @@
     
       (when request-token
         (let ((user (if (string-equal (get-val social-channel 'auth-type) "OAuth2")
-                        (get-service-user-by-user-id  verification-code)
-                        (get-service-user-by-auth-token (parameter "oauth_token"))) )
+                        (get-channel-user-by-user-id  verification-code)
+                        (get-channel-user-by-auth-token (parameter "oauth_token"))) )
               (access-token-end (get-end-point social-channel "Access Token")))
 
           
@@ -88,8 +88,8 @@
                            ((string-equal (get-val access-token-end 'return-type) "XML")
                             ))
                      (if (string-equal *installation* "Live Serve")
-                         (redirect "http://app.digyourbrand.co.za/ems/service-users")
-                         (redirect "http://local.dataxware.co.za/ems/service-users")))
+                         (redirect "http://app.digyourbrand.co.za/ems/channel-users")
+                         (redirect "http://local.dataxware.co.za/ems/channel-users")))
                     ((equal status 401)
                      (setf error-description body))))
             (persist user))))

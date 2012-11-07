@@ -405,7 +405,7 @@
                             (:div :class "span2"
                                   (:div :class "dashboard-wid-wrap"
                                         (:div :class "dashboard-wid-content"
-                                              (:a :href "/ems/service-users"
+                                              (:a :href "/ems/channel-users"
                                                      (:i :class "dashboard-icons cog_2_blk")
                                                      (:span :class "dasboard-icon-title"
                                                             "Settings")))))

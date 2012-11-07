@@ -138,7 +138,7 @@
                    (make-instance 'uri-parameter
                                   :parameter-name "scope"
                                   :url-encode-p nil
-                                  :default-value "publish_stream,read_stream,read_insights,read_mailbox")
+                                  :default-value "user_about_me,friends_about_me,email,user_location,friends_location,user_questions,friends_questions,publish_stream,read_stream,read_insights,read_mailbox,manage_notifications,manage_pages")
                    (make-instance 'uri-parameter
                                   :parameter-name "redirect_uri"
                                   :url-encode-p nil

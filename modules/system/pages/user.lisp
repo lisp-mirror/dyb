@@ -58,10 +58,10 @@
                                                            :value (or (parameter "password") (get-val user 'surname)))))))))))))))
 
 
-(define-easy-handler (service-users-page :uri "/ems/service-users") ()
+(define-easy-handler (channel-users-page :uri "/ems/channel-users") ()
   (setf (session-value 'current-client) "DX")
 
-  (let ((page (make-widget 'ems-page :name "service-users-page"))
+  (let ((page (make-widget 'ems-page :name "channel-users-page"))
         (user (if (parameter "email") 
                   (get-twitter-user    (current-client) (parameter "email")))))
 
@@ -69,7 +69,7 @@
 
       (unless user
 
-        (make-service-user  (current-client) 'twitter (parameter "email") (parameter "nick"))
+        (make-channel-user  (current-client) 'twitter (parameter "email") (parameter "nick"))
         (setf user (get-twitter-user (current-client) (parameter "email")))
         )
       (when user
@@ -92,7 +92,7 @@
               :body 
               (with-html-output-to-string (*standard-output*)
 
-                (let ((box (make-widget 'html-framework-form :name "service-user-form"))
+                (let ((box (make-widget 'html-framework-form :name "channel-user-form"))
                       (form-section (make-widget 'form-section :name "row")))
                   (setf (header box) "User")
                   (str (render box

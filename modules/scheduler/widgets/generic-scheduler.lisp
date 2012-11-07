@@ -32,8 +32,8 @@
         (form-section (make-widget 'form-section
                                    :name "form-section"))
         (current-doc (get-val grid 'current-doc))
-        (service-users (make-widget 'service-user-select 
-                                    :name "service-user-select-dropown")))
+        (channel-users (make-widget 'channel-user-select 
+                                    :name "channel-user-select-dropown")))
     
     (render comment-form
                     :grid grid
@@ -56,12 +56,12 @@
                                                        (get-val current-doc 'payload) 'to) 'id))))
                       
 
-                      (destructuring-bind (service service-user)
-                          (selects service-users)
-                        (render service-users)
+                      (destructuring-bind (service channel-user)
+                          (selects channel-users)
+                        (render channel-users)
                         (setf (value service) (or (parameter "service")
                                                   (get-val row 'post-type)))
-                        (setf (value service-user) (or (parameter "service-user")
+                        (setf (value channel-user) (or (parameter "channel-user")
                                                         (get-val row 'from-user-id)))
                         (render form-section
                                 :label "Post To"
@@ -69,10 +69,10 @@
                                 (with-html-to-string ()
                                   (render service)))
                         (render form-section
-                                :label "Service User"
+                                :label "Channel User"
                                 :input
                                 (with-html-to-string ()
-                                  (render service-user))))
+                                  (render channel-user))))
 
                 
                       (render form-section 
@@ -173,8 +173,8 @@
 
   (when (and (string-equal (parameter "form-id") "schedule-action-form"))
     (let ((from-user (if (and (string-equal (parameter "service") "facebook")
-                              (parameter "service-user"))
-                         (get-facebook-access-token-by-user (parameter "service-user"))))
+                              (parameter "channel-user"))
+                         (get-facebook-access-token-by-user (parameter "channel-user"))))
           (to-user nil))
       (when (or from-user to-user)
         (let ((date-time nil))
@@ -190,12 +190,12 @@
                             (old-doc (copy (editing-row grid))))
                         (synq-edit-data new-doc)
                         (setf (get-val new-doc 'post-type) (parameter "service"))
-                        (setf (get-val new-doc 'from-user-id) (parameter "service-user"))
+                        (setf (get-val new-doc 'from-user-id) (parameter "channel-user"))
                         (setf (get-val new-doc 'scheduled-date) date-time)
                 (persist new-doc :old-object old-doc))
               (persist (make-generic-action  nil
                                              (parameter "service")
-                                             (parameter "service-user") 
+                                             (parameter "channel-user") 
                                              to-user
                                              (parameter "action-type")
                                              (parameter "action-content")

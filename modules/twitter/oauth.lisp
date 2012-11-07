@@ -19,7 +19,7 @@
 ;; (format nil "~A&~A=~A" *twitter-oauth-authorize-uri* "oauth_token" user-oauth)
 
 
-;; administration/service-users.lisp save handler
+;; administration/channel-users.lisp save handler
 
 
        

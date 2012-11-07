@@ -97,7 +97,7 @@
                                              (:file "address")
                                              (:file "companies")
                                              (:file "social-channels")
-                                             (:file "service-users")
+                                             (:file "channel-users")
                                              (:file "periods")
                                              ))
 
@@ -107,7 +107,7 @@
                                             ((:file "address")
                                              (:file "companies")
                                              (:file "country-town")
-                                             (:file "service-users")
+                                             (:file "channel-users")
                                              (:file "periods")
                                              (:file "clients")))
 
@@ -117,7 +117,7 @@
                                             ((:file "address")
                                              (:file "companies")
                                              (:file "country-town")
-                                             (:file "service-users")
+                                             (:file "channel-users")
                                              (:file "periods")
                                              (:file "clients")
                                              (:file "oauth")
