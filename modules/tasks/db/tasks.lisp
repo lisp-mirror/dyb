@@ -1,4 +1,4 @@
-(in-package #:ems)
+(in-package :dyb)
 
 (defclass task (doc)
   ((entity :initarg :entity)
@@ -47,5 +47,5 @@
                  :completed-date completed-date
                                  ))
 (add-collection (system-db) "tasks" 
-                :collection-class 'ems-collection
+                :collection-class 'dyb-collection
                 :load-from-file-p t)

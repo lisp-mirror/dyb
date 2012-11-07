@@ -61,7 +61,7 @@
   (find (get-val doc 'xid) channel-users))
 
 (add-collection (system-db) "channel-users"
-                :collection-class 'ems-collection
+                :collection-class 'dyb-collection
                 :load-from-file-p t)
 
 (defun get-channel-user-by-auth-token (auth-token)

@@ -32,7 +32,7 @@
 
 
 (add-collection (system-db) "entity-types" 
-                :collection-class 'ems-collection
+                :collection-class 'dyb-collection
                 :load-from-file-p t)
 
 (when (= (length (entity-types)) 0)
@@ -135,7 +135,7 @@
     e-list))
 
 (add-collection (system-db) "entities" 
-                :collection-class 'ems-collection
+                :collection-class 'dyb-collection
                 :load-from-file-p t)
 
 

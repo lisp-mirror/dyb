@@ -51,6 +51,6 @@
   (find (get-val doc 'xid) xpack-imports))
 
 (add-collection (system-db) "xpack-imports" 
-                :collection-class 'ems-collection
+                :collection-class 'dyb-collection
                 :load-from-file-p t)
 

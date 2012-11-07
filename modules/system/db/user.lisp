@@ -102,11 +102,11 @@
       (users)))
 
 (add-collection (system-db) "users" 
-                :collection-class 'ems-collection 
+                :collection-class 'dyb-collection 
                 :load-from-file-p t)
 
 (add-collection (system-db) "permissions" 
-                :collection-class 'ems-collection 
+                :collection-class 'dyb-collection 
                 :load-from-file-p t)
 
 ;;Don't remove this, but change the default password regularly

@@ -1,16 +1,16 @@
 (in-package :dyb)
 
-(defclass ems-collection (collection)
+(defclass dyb-collection (collection)
   ())
 
 (defgeneric max-xid (collection))
 
-(defmethod max-xid ((col ems-collection))
+(defmethod max-xid ((col dyb-collection))
   (max-val col :element 'xid))
 
 (defgeneric next-xid (collection))
 
-(defmethod next-xid ((col ems-collection))
+(defmethod next-xid ((col dyb-collection))
   (next-sequence (list (xdb2::name col) 'xid)))
 
 (defclass date-doc ()
@@ -84,7 +84,7 @@
           (effective-date old-object) (stamp-date object))
     (push old-object (old-versions object))))
 
-(defmethod load-from-file ((collection ems-collection) file)
+(defmethod load-from-file ((collection dyb-collection) file)
   (when (probe-file file)
     (load-data collection file
                (lambda (object &key copy)
@@ -130,7 +130,7 @@
     ;;Doing or because conversion is not run where session is available.
     (setf (user doc) (or (and (current-user)
                               (email (current-user)))
-                         "admin@ems.co.za"))
+                         "admin@dyb.co.za"))
     (update-doc doc :set-time set-time))
   doc)
 
@@ -175,7 +175,7 @@
 
 ;;TODO: Make sure the docs are sorted in stamp oder before searching! 
 ;;We want to find the most relevant duplicate document not just any duplicate document.
-(defmethod find-duplicate-doc ((collection ems-collection) doc 
+(defmethod find-duplicate-doc ((collection dyb-collection) doc 
                                &key function
                                (ignore-superseded-p t))
   (let ((test (or function #'duplicate-doc-p))
@@ -200,7 +200,7 @@
   (persist doc))
 
 ;;Find the last doc that matches to get the lastest version
-(defmethod get-doc ((collection ems-collection) value  
+(defmethod get-doc ((collection dyb-collection) value  
                     &key (element 'key) (test #'equal) (ignore-superseded-p t))
   (map-docs
      nil
@@ -214,7 +214,7 @@
      collection))
 
 ;;Find the last doc that matches to get the lastest version
-(defmethod find-doc ((collection ems-collection) &key test (ignore-superseded-p t))
+(defmethod find-doc ((collection dyb-collection) &key test (ignore-superseded-p t))
   (let ((found-doc))
     (if test
         (map-docs

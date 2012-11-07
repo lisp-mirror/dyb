@@ -95,6 +95,6 @@
   (find (get-val doc 'xid) country-towns))
 
 (add-collection (system-db) "country-towns" 
-                :collection-class 'ems-collection
+                :collection-class 'dyb-collection
                 :load-from-file-p t)
 

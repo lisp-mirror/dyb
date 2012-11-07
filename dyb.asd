@@ -1,5 +1,5 @@
 
-(defsystem ems
+(defsystem dyb
   :version "0.2"
   :depends-on (wfx
                hunchentoot

@@ -1,4 +1,4 @@
-(defpackage #:ems
+(defpackage #:dyb
   (:use :cl
         :sb-mop
         :wfx
@@ -236,14 +236,4 @@
    :feedback-date
    :meeting))
 
-(defpackage #:ems-quickview
-  (:use :cl
-        :sb-mop
-        :wfx
-        :cl-who
-        :hunchentoot
-        :xdb2
-        :ems)
-  (:shadowing-import-from :ems
-   :define-easy-handler :data)
-  (:shadow :text :document))
+

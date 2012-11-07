@@ -1,4 +1,4 @@
-(in-package #:ems)
+(in-package :dyb)
 
 (defun comment-facebook (post from-user-id comment &key scheduled-date)
   (let* ((to-user-id (get-val (get-val post 'from) 'id))

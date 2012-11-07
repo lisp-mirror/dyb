@@ -38,7 +38,7 @@
   (find (get-val doc 'xid) companies))
 
 (add-collection (system-db) "companies" 
-                :collection-class 'ems-collection
+                :collection-class 'dyb-collection
                 :load-from-file-p t)
 
 

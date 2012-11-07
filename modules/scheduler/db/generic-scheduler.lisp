@@ -1,4 +1,4 @@
-(in-package #:ems)
+(in-package :dyb)
 
 (defclass generic-action (doc)
   ((pid :initarg :pid :accessor generic-entry-pid)
@@ -49,5 +49,5 @@
                  :action-status "Pending"
                  ))
 (add-collection (system-db) "generic-actions" 
-                :collection-class 'ems-collection
+                :collection-class 'dyb-collection
                 :load-from-file-p t)

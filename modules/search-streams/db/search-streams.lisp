@@ -1,4 +1,4 @@
-(in-package #:ems)
+(in-package :dyb)
 
 (defclass search-stream (doc)
   (
@@ -43,5 +43,5 @@
                  :search-stream-status "Active"
                  ))
 (add-collection (system-db) "search-streams" 
-                :collection-class 'ems-collection
+                :collection-class 'dyb-collection
                 :load-from-file-p t)

@@ -140,7 +140,7 @@
       (docs (entity-relationships-collection))))
 
 (add-collection (system-db) "entity-relationships" 
-                :collection-class 'ems-collection
+                :collection-class 'dyb-collection
                 :load-from-file-p t)
 
 (defun get-root (eid) 

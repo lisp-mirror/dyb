@@ -1,4 +1,4 @@
-(in-package #:ems)
+(in-package :dyb)
 
 (defun social-mention-refresh-searches ()
   (dolist (search (coerce (search-streams) 'list ))

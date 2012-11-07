@@ -1,4 +1,4 @@
-(in-package #:ems)
+(in-package :dyb)
 
 (defclass generic-post (doc)
   ((post-type 
@@ -57,7 +57,7 @@
                  :payload-parser-version payload-parser-version))
 
 (add-collection (system-db) "generic-post" 
-                :collection-class 'ems-collection
+                :collection-class 'dyb-collection
                 :load-from-file-p t)
 
 (defgeneric gpkv (post &rest keys))

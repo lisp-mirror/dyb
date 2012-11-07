@@ -62,7 +62,7 @@
 
 
 (add-collection (system-db) "social-channels" 
-                :collection-class 'ems-collection
+                :collection-class 'dyb-collection
                 :load-from-file-p nil)
 
 (defun get-channels-list ()

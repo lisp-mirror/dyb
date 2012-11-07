@@ -99,7 +99,7 @@
   (find (get-val doc 'xid) allsorts))
 
 (add-collection (system-db) "allsorts" 
-                :collection-class 'ems-collection
+                :collection-class 'dyb-collection
                 :load-from-file-p t)
 (when (= (length (allsorts)) 0)
   (persist (make-allsort "Accredited" "Yes" :description "Yes" :extended-description ""))

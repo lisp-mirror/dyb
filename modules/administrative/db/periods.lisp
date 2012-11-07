@@ -62,6 +62,6 @@
   (find (get-val doc 'xid) periods))
 
 (add-collection (system-db) "periods" 
-                :collection-class 'ems-collection
+                :collection-class 'dyb-collection
                 :load-from-file-p t)
 
