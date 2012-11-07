@@ -1,4 +1,4 @@
-(in-package :ems)
+(in-package :dyb)
 
 ;;; -*- Mode:Lisp; Syntax:ANSI-Common-Lisp; Coding:utf-8 -*-
 ;; Generic (shallow) object copying for CLOS

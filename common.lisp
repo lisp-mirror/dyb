@@ -1,4 +1,4 @@
-(in-package :ems)
+(in-package :dyb)
 
 (defvar *public-dir* "/var/www/dyb.co.za/public/")
 

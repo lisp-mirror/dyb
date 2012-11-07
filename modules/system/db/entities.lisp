@@ -1,4 +1,4 @@
-(in-package :ems)
+(in-package :dyb)
 
 (defclass entity-type (doc)
   ((entity-type-name :initarg :entity-type-name

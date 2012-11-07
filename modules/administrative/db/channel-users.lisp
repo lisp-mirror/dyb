@@ -1,4 +1,4 @@
-(in-package :ems)
+(in-package :dyb)
 
 (defclass channel-user (doc)
   ((entity :initarg :entity

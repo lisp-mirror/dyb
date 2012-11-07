@@ -1,4 +1,4 @@
-(in-package :ems)
+(in-package :dyb)
 
 (defun facebook-refresh-feeds ()
   (dolist (user (coerce (channel-users) 'list ))

@@ -1,4 +1,4 @@
-(in-package :ems)
+(in-package :dyb)
 
 (defmethod raw-post-id (post (post-type (eql 'social-mention)))
   (gpv post :id))
