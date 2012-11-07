@@ -6,7 +6,6 @@
   (normalize-uri (puri:parse-uri uri)))
 
 (defmethod normalize-uri ((uri puri:uri))
-  "9.1.2"
   (let ((*print-case* :downcase) ; verify that this works!!
         (scheme (puri:uri-scheme uri))
         (host (puri:uri-host uri))
@@ -26,8 +25,7 @@
            "")
           (t
            (concatenate 'string ":" (princ-to-string port))))
-        path)
-      )))
+        path))))
 
 (defun url-encode (string &optional (external-format +utf-8+))
   "URL-encodes a string using the external format EXTERNAL-FORMAT."
@@ -60,12 +58,11 @@
                                    parameters)
   (format nil "~:@(~a~)&~a&~a"
           request-method
-          (url-encode (normalize-uri uri));;(url-encode uri);;(url-encode (normalize-uri uri))
+          (url-encode (normalize-uri uri))
           (url-encode (build-query-thingy
                        parameters))))
 
 (defun hmac-key (consumer-secret &optional token-secret)
-  "9.2"
   (concatenate 'string (url-encode consumer-secret) "&" (url-encode (or token-secret ""))))
 
 (defun hmac-sha1 (s key)
@@ -76,7 +73,6 @@
     (ironclad:hmac-digest hmac)))
 
 (defun encode-signature (octets url-encode-p)
-  "9.2.1"
   (let ((base64 (cl-base64:usb8-array-to-base64-string octets)))
     (if url-encode-p
       (url-encode base64)
@@ -153,19 +149,31 @@
               ,(encode-signature
                 (hmac-sha1
                  (signature-base-string
-                  :uri (format nil "~A?scope=~A" (get-val end-point 'uri)
-                               (replace-all scope " " "+" ))
+                  :uri (if scope
+                           (format nil "~A?scope=~A" (get-val end-point 'uri)
+                                   (replace-all scope " " "+" ))
+                           (get-val end-point 'uri))
                   :request-method "POST"
-                  :parameters `(("oauth_callback" ,callback)
-                                ("oauth_consumer_key" ,(get-val channel 'app-id))
-                                ("oauth_nonce" ,nonce)
+                  :parameters 
+                  (if scope
+                      `(("oauth_callback" ,callback)
+                        ("oauth_consumer_key" ,(get-val channel 'app-id))
+                        ("oauth_nonce" ,nonce)
                                 
-                                ("oauth_signature_method" "HMAC-SHA1")
-                                ("oauth_timestamp" ,stamp)
-                                ("oauth_version" "1.0")
-                                ,(if scope
-                                    `("scope" ,scope)
-                                    "")))
+                        ("oauth_signature_method" "HMAC-SHA1")
+                        ("oauth_timestamp" ,stamp)
+                        ("oauth_version" "1.0")
+                        ,(if scope
+                             `("scope" ,scope)
+                             ))
+                      `(("oauth_callback" ,callback)
+                        ("oauth_consumer_key" ,(get-val channel 'app-id))
+                        ("oauth_nonce" ,nonce)
+                                
+                        ("oauth_signature_method" "HMAC-SHA1")
+                        ("oauth_timestamp" ,stamp)
+                        ("oauth_version" "1.0")
+                        )))
                  (hmac-key  (get-val channel 'app-secret)
                             ""))
                 nil))

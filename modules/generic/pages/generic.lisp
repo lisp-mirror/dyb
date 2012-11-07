@@ -69,6 +69,7 @@
                            
                      (:input :type "hidden" :name "post-id" 
                              :value post-id)
+
                      (:input :type "hidden" :name "from-user-id" 
                              :value (gpv current-post :from :id))
                      (:input :type "hidden" :name "to-user-id" 
