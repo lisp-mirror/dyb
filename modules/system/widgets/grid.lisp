@@ -707,38 +707,43 @@ document.getElementById(\"~A\").submit();"
 
 (defun get-data-table-rows (grid &key (start 0)
                                       length)
+  
   (let* ((data (grid-filtered-rows grid))
          (data-length (length data))
          (start (max 0 (min start (1- data-length))))
          (cut (subseq data start (and length
                                       (min data-length
                                            (+ start length))))))
+
     (values 
      (loop for row in (expand-all-columns grid cut)
            for id from start
-           collect (append row
-                           (list (with-html-string
-                                   (:div :class "btn-group pull-right"
-                                         (:button :data-toggle "dropdown" :class "btn dropdown-toggle" 
-                                                  (:i :class "icon-cog"
-                                                      (:span :class "caret")))
-                                         (:ul :class "dropdown-menu"
-                                              (when (get-val grid 'grid-links)
-                                                (dolist (link (get-val grid 'grid-links)
-                                                         )
-                                                  (if (equal (first link) (get-val (elt cut id) 'post-type))
-                                                      (htm 
-                                                       (:li (render-ajax-buttonx 
-                                                             grid id 
-                                                             (second link)
-                                                             (third link)))))))
-                                              (unless (get-val grid 'grid-links)
-                                                (htm
-                                                 (:li
-                                                  (render-ajax-edit-button grid id))
-                                                 (:li
-                                                  (render-ajax-delete-button grid id))))
-                                              ))))))
+           collect 
+          (append row
+                  (list (with-html-string
+                          (:div :class "btn-group pull-right"
+                                (:button :data-toggle "dropdown" 
+                                         :class "btn dropdown-toggle" 
+                                         (:i :class "icon-cog"
+                                             (:span :class "caret")))
+                                (:ul :class "dropdown-menu"
+                                     (when (get-val grid 'grid-links)
+                                       (dolist (link (get-val grid 'grid-links))
+                                         (if (equal (first link) 
+                                                    (get-val (elt cut (- id start)) 
+                                                             'post-type))
+                                             (htm 
+                                              (:li (render-ajax-buttonx 
+                                                    grid id 
+                                                    (second link)
+                                                    (third link)))))))
+                                     (unless (get-val grid 'grid-links)
+                                       (htm
+                                        (:li
+                                         (render-ajax-edit-button grid id))
+                                        (:li
+                                         (render-ajax-delete-button grid id))))
+                                     ))))))
      data-length)))
 
 (defun sort-direction-function (grid)
