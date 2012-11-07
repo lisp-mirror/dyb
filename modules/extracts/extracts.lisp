@@ -2,7 +2,7 @@
 
 (create-static-file-dispatcher-and-handler     
                                 
-                                "/ems/eish.csv" 
+                                "/dyb/eish.csv" 
 "/var/www/ems.co.za/extracts/phil@dataxware.co.za/biographical.csv")
 
 (defun extract-dir ()
@@ -11,7 +11,7 @@
     dir))
 
 (defun build-extract-virtual-path (file-name)
-  (format nil "/ems/extracts/~A/~A" (email (current-user)) file-name))
+  (format nil "/dyb/extracts/~A/~A" (email (current-user)) file-name))
 
 (defun build-extract-path (file-name)
   (format nil "~A~A" (extract-dir) file-name))
@@ -211,7 +211,7 @@
     (funcall dispatch-fn request)))
 
 ;;/var/www/ems.co.za/extracts/phil@dataxware.co.za/biographical.csv 
-;;--- /ems/extracts/biographical.csv
+;;--- /dyb/extracts/biographical.csv
 
 (defun register-extract-file (file-name)
   (push (authorized-dispatcher (create-static-file-dispatcher-and-handler 
@@ -256,7 +256,7 @@
               (get-val doc 'date-of-birth)))))
 
 
-(define-easy-handler (extracts :uri "/ems/extract-data")
+(define-easy-handler (extracts :uri "/dyb/extract-data")
     ()
   (render (make-widget 'page :name "extracts-page"
                        :title "Extracts")

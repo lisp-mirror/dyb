@@ -1,6 +1,6 @@
 (in-package :ems)
 
-(define-easy-handler (period-page :uri "/ems/reporting-periods") ()
+(define-easy-handler (period-page :uri "/dyb/reporting-periods") ()
   (let* ((columns
            (list
             

@@ -295,7 +295,7 @@
 
 
 
-(define-easy-handler (generic-page :uri "/ems/generic") ()
+(define-easy-handler (generic-page :uri "/dyb/generic") ()
   (let* ((columns
           (list
            (make-instance 
@@ -444,7 +444,7 @@
                     (str (render grid))))))
 
 
-(define-easy-handler (scheduled-page :uri "/ems/scheduled") ()
+(define-easy-handler (scheduled-page :uri "/dyb/scheduled") ()
   (let* ((columns
                              (list
                               (make-instance 'grid-column
@@ -482,7 +482,7 @@
     (with-html :href
                (fmt "Hello ~a" (parameter "some-param")))))
 
-(define-easy-handler (ajax-widget-page :uri "/ems/test-ajax") ()
+(define-easy-handler (ajax-widget-page :uri "/dyb/test-ajax") ()
   (let ((page (make-widget 'html-framework-page
                            :name "ajax-test"))
         (widget (make-widget 'some-widget :name "eish")))
@@ -499,7 +499,7 @@
               (render widget)))))
 
 
-(define-easy-handler (manual-updates-page :uri "/ems/manual-updates") ()
+(define-easy-handler (manual-updates-page :uri "/dyb/manual-updates") ()
   (let ((page (make-widget 'html-framework-page
                            :name "ajax-test")))
     (when (parameter "get-facebook-data")

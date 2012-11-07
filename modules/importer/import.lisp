@@ -197,7 +197,7 @@
                           "Mapping can't contain duplicate entries.")))
                 (new-mapping
                  (setf (mapping upload) new-mapping)
-                 (redirect "/ems/import")))
+                 (redirect "/dyb/import")))
           (htm
            (:form
             :action ""
@@ -282,9 +282,9 @@
             :initform nil
             :accessor mapping)))
 
-(define-easy-handler (import-map :uri "/ems/import-map") (file)
+(define-easy-handler (import-map :uri "/dyb/import-map") (file)
   (unless file
-    (redirect "/ems/import"))
+    (redirect "/dyb/import"))
   (let ((selected (uploaded-file file)))
     (with-html-to-string (:prologue t)
       (:html :xmlns "http://www.w3.org/1999/xhtml" :lang "en"
@@ -297,13 +297,13 @@
                     (t
                      (htm (:h4 (fmt "File ~a not found" file))))))))))
 
-(define-easy-handler (import-data :uri "/ems/import") (file process)
+(define-easy-handler (import-data :uri "/dyb/import") (file process)
   (when (consp file)
     (handle-upload file)
-    (redirect "/ems/import"))
+    (redirect "/dyb/import"))
   (when process
     (process-file process)
-    (redirect "/ems/import"))
+    (redirect "/dyb/import"))
   (with-html-to-string (:prologue t)
     (:html :xmlns "http://www.w3.org/1999/xhtml" :lang "en"
            (:head (:title "Import")
@@ -322,12 +322,12 @@
                (:ul
                 (loop for file in *uploaded-files*
                       do (htm (:li (str (name file))
-                                   (:a :href (conc "/ems/import-map?file="
+                                   (:a :href (conc "/dyb/import-map?file="
                                                    (name file))
                                        "Edit mapping")
                                    (when (mapping file)
                                      (htm
-                                      (:a :href (conc "/ems/import?process="
+                                      (:a :href (conc "/dyb/import?process="
                                                       (name file))
                                           "Process")))))))))))))
 

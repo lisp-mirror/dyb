@@ -1,6 +1,6 @@
 (in-package #:ems)
 
-(define-easy-handler (tasks-page :uri "/ems/tasks") ()
+(define-easy-handler (tasks-page :uri "/dyb/tasks") ()
   (let* ((columns
           (list
                               

@@ -1,6 +1,6 @@
 (in-package #:ems)
 
-(define-easy-handler (generic-scheduler-page :uri "/ems/generic-scheduler") ()
+(define-easy-handler (generic-scheduler-page :uri "/dyb/generic-scheduler") ()
   (let* ((columns
                              (list
                               

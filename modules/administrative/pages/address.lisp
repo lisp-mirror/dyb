@@ -1,6 +1,6 @@
 (in-package :ems)
 
-(define-easy-handler (addresses-pagexx :uri "/ems/bio-addresses") ()
+(define-easy-handler (addresses-pagexx :uri "/dyb/bio-addresses") ()
   (let* ((columns
           (list
            (make-instance 'grid-column

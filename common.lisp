@@ -1,8 +1,8 @@
 (in-package :ems)
 
-(defvar *public-dir* "/var/www/ems.co.za/public/")
+(defvar *public-dir* "/var/www/dyb.co.za/public/")
 
-(defparameter *extract-dir* "/var/www/ems.co.za/extracts")
+(defparameter *extract-dir* "/var/www/dyb.co.za/extracts")
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (defvar *indent-code* t))
@@ -51,7 +51,6 @@
 (defun ensure-render (ensure body)
   (and ensure
        body))
-
 
 (defun render-edit-field (name value
                           &key data-element required 
@@ -119,7 +118,7 @@
          (:div :style "display:none;"
                :name (format nil "validate-~A" name)
                :id (format nil "validate-~A" name)
-               (:img :src "/appimgq-icon.png"))))))))
+               (:img :src "/appimg/q-icon.png"))))))))
 
 (defun translate-possible-date-slot (slot-name value)
   (cond ((or (string-equal slot-name "start-date")
@@ -149,36 +148,6 @@
   (dolist (dup docs-list)
     (if (equal (get-val doc element) (get-val dup element))
         (return-from find-duplicate-doc-list dup))))
-
-
-#|(defmacro render-row-edit (form-name object &key validation-list save-disabled-p body  )
-  `(let* ((form
-           (make-widget 'grid-edit-form
-                        :name ,(format nil "~A-edit-form" form-name))))
-     (setf (data form) (list ,object))
-     (setf (edit-form grid) form)
-     (setf (save-disabled-p form) ,save-disabled-p)
-
-     (setf (validation-list form) ,validation-list)
-
-
-     (with-html
-       (:div :class "grid_6"
-             (:div :class "box"
-                   (:div :class "header"
-                         (:img :src "img/icons/packs/fugue/16x16/application-form.png" :alt "" :width "16" :height "16")
-                         (:h3 "")
-                         (:span)
-                         )
-
-                   (render form
-                                :body
-                                (with-html-to-string ()
-                                  (str
-                                   ,body))))))
-     ))|#
-
-
 
 
 (defun year (date)

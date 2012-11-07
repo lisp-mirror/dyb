@@ -34,7 +34,7 @@
                       (doc (get-twitter-user-by-id (parse-integer id))))
                  (setf (get-val doc 'access-token) access-token)
                  (persist doc)
-                 (redirect "/ems/preview")))))))
+                 (redirect "/dyb/preview")))))))
   "Could not get access token.")
 
 
@@ -47,7 +47,7 @@
 
 
 
-(define-easy-handler (ems-authx :uri "/ems/twitauth") ()
+(define-easy-handler (ems-authx :uri "/dyb/twitauth") ()
  
   (let* ((twitter-service *app*;(get-twitter-service (current-client) "Test App")
            )
@@ -68,7 +68,7 @@
           (str "Could not get request token check logs.")
           (:br)))))
 
-(define-easy-handler (emsx :uri "/ems/twit") ()
+(define-easy-handler (emsx :uri "/dyb/twit") ()
   (with-html-output-to-string (*standard-output*)
     ;;TODO:select a user first and then get the token
     (let ((service (get-twitter-service (current-client) "DX"))

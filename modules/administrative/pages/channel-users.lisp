@@ -1,6 +1,6 @@
 (in-package :ems)
 
-(define-easy-handler (channel-user-page :uri "/ems/channel-users") ()
+(define-easy-handler (channel-user-page :uri "/dyb/channel-users") ()
   (let* ((columns
            (list
             

@@ -1,6 +1,6 @@
 (in-package :ems)
 
-(define-easy-handler (root-entities-page :uri "/ems/root-entities") ()
+(define-easy-handler (root-entities-page :uri "/dyb/root-entities") ()
   (let* ((columns
            (list
             (make-instance 'grid-column

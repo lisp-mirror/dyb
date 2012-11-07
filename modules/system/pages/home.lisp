@@ -1,6 +1,6 @@
 (in-package #:ems)
 
-(define-easy-handler (home-page :uri "/ems/home") ()
+(define-easy-handler (home-page :uri "/dyb/home") ()
 
   (let ((page (make-widget 'ems-page :name "home" )))
     (with-html-output-to-string (*standard-output*)
@@ -25,7 +25,7 @@
               ))))
 
 
-(define-easy-handler (preview :uri "/ems/preview") ()
+(define-easy-handler (preview :uri "/dyb/preview") ()
   (setf (session-value 'current-client) "DX")
 
   (let ((page (make-widget 'ems-page :name "preview"))
@@ -49,7 +49,7 @@
         (when (and (get-val user 'identifier) (not (equal (get-val user 'identifier) -1)))
 
           (unless (and (get-val user 'access-token) (not (equal (get-val user 'access-token) "")))
-              (redirect "/ems/twitauth")
+              (redirect "/dyb/twitauth")
               )
           (persist user))))
     

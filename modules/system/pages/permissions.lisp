@@ -89,7 +89,7 @@
           (wfx:data editor) (list row))
     (render editor)))
 
-(define-easy-handler (permissions-page :uri "/ems/permissions") ()
+(define-easy-handler (permissions-page :uri "/dyb/permissions") ()
   (let ((columns (list (make-instance 'grid-column :name 'name))))
     (render (make-widget 'page :name "permissions"
                                :title "Permissions")

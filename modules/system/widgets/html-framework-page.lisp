@@ -212,34 +212,34 @@
                                     (:b :class "caret"))
                                 (:ul :class "dropdown-menu"
                                      (:li
-                                      (:a :href "/ems/dashboard" "Dashboard"))
+                                      (:a :href "/dyb/dashboard" "Dashboard"))
                                      (:li 
-                                      (:a :href "/ems/clients" "Clients"))
+                                      (:a :href "/dyb/clients" "Clients"))
                                      (:li 
-                                      (:a :href "/ems/companies" "Companies"))                     
+                                      (:a :href "/dyb/companies" "Companies"))                     
                                      (:li 
-                                      (:a :href "/ems/channel-users" "Channel Users"))
+                                      (:a :href "/dyb/channel-users" "Channel Users"))
                                      (:li
-                                      (:a :href "/ems/users" "Users"))
+                                      (:a :href "/dyb/users" "Users"))
                                     ;; (:li
-                                    ;;  (:a :href "/ems/country-town" "Country/Town"))
+                                    ;;  (:a :href "/dyb/country-town" "Country/Town"))
                                      (:li
-                                      (:a :href "/ems/permissions" "Permissions"))
+                                      (:a :href "/dyb/permissions" "Permissions"))
                                     ;; (:li
-                                    ;;  (:a :href "/ems/root-entities" "Root Entities"))
+                                    ;;  (:a :href "/dyb/root-entities" "Root Entities"))
                                      (:li
-                                      (:a :href "/ems/entities" "Entities"))
+                                      (:a :href "/dyb/entities" "Entities"))
                                      (:li
-                                      (:a :href "/ems/all-sorts" "Allsorts"))
+                                      (:a :href "/dyb/all-sorts" "Allsorts"))
                                      (:li
-                                      (:a :href "/ems/manual-updates" "Manual Stream Updates"))
+                                      (:a :href "/dyb/manual-updates" "Manual Stream Updates"))
                                      (:li
-                                      (:a :href "/ems/context" "Context"))
+                                      (:a :href "/dyb/context" "Context"))
                                      ;;(:li
-                                     ;; (:a :href "/ems/importer" "Importer"))
+                                     ;; (:a :href "/dyb/importer" "Importer"))
                                      (:li :class "divider")
                                      (:li
-                                      (:a :href "/ems/logout"
+                                      (:a :href "/dyb/logout"
                                           (:i :class "icon-off")
                                           (str "Logout")))))))))))
 
@@ -437,7 +437,7 @@ if (okToRefresh)
       var dateAsObject = $(this).datepicker( 'getDate' ); //the getDate method
       //alert (dateText);
       //$(\"#inline-datepicker\").submit();
-      window.location.replace(\"/ems/generic-scheduler\");
+      window.location.replace(\"/dyb/generic-scheduler\");
 
    }
 });
@@ -678,38 +678,38 @@ $(function(){
                     
                     (:ul :class "side-nav accordion_mnu collapsible"
                          (:li 
-                          (:a :href "/ems/dashboard"
+                          (:a :href "/dyb/dashboard"
                               (:span :class "white-icons computer_imac")
                               (str "Dashboard")))
                          
                          (:li
-                          (:a :href "/ems/generic"
+                          (:a :href "/dyb/generic"
                               (:span :class "white-icons mail")
                               "Inbox")
                           )
                          (:li
-                          (:a :href "/ems/generic-scheduler"
+                          (:a :href "/dyb/generic-scheduler"
                               (:span :class "white-icons month_calendar")
                               "Scheduler")
                           )
                          (:li
-                          (:a :href "/ems/tasks"
+                          (:a :href "/dyb/tasks"
                               (:span :class "white-icons month_calendar")
                               "Tasks")
                           )
                          (:li
-                          (:a :href "/ems/search-stream"
+                          (:a :href "/dyb/search-stream"
                               (:span :class "white-icons magnifying_glass")
                               "Search Streams")
                          #| (:ul :class "acitem" :style "display:none;"
 
                                (:li
-                                (:a :href "/ems/search-stream" "Search Streams"))
+                                (:a :href "/dyb/search-stream" "Search Streams"))
                        
                                
                        
                                (:li
-                                (:a :href "/ems/search-stream-feedback" "Search Stream Data"))
+                                (:a :href "/dyb/search-stream-feedback" "Search Stream Data"))
                                )|#
                           )
                          )

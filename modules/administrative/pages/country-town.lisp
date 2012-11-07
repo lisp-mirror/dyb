@@ -1,6 +1,6 @@
 (in-package :ems)
 
-(define-easy-handler (country-town-page :uri "/ems/country-town") ()
+(define-easy-handler (country-town-page :uri "/dyb/country-town") ()
   (let* ((columns
           (list
            (make-instance 'grid-column

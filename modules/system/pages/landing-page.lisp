@@ -20,7 +20,7 @@
   (log-login "Login" (get-val login 'email) "Passed" "Login passed.")
   (set-cookie "expanded" :value "" :path "/")
 
-  (redirect "/ems/dashboard"))
+  (redirect "/dyb/dashboard"))
 
 (defmethod on-failure ((login login) &key)
   (log-login "Login" (get-val login 'email) "Failed" "User name or password incorrect."))
@@ -42,6 +42,6 @@
      :body
      (render-to-string (make-widget 'login :name "login")))))
 
-(define-easy-handler (login :uri "/ems/login"
+(define-easy-handler (login :uri "/dyb/login"
                             :for-everyone t) ()
   (render (make-widget 'landing-page :name "special-login-page")))

@@ -98,7 +98,7 @@
                        (get-val post 'payload))))
     count))
 
-(define-easy-handler (dashboard-page :uri "/ems/dashboard") ()
+(define-easy-handler (dashboard-page :uri "/dyb/dashboard") ()
   
   (let ((page (make-widget 'page :name "dashboard-page")))
     (with-html
@@ -377,35 +377,35 @@
                             (:div :class "span2"
                                   (:div :class "dashboard-wid-wrap"
                                         (:div :class "dashboard-wid-content"
-                                              (:a :href "/ems/generic"
+                                              (:a :href "/dyb/generic"
                                                      (:i :class "dashboard-icons mail_blk")
                                                      (:span :class "dasboard-icon-title"
                                                             "Inbox")))))
                             (:div :class "span2"
                                   (:div :class "dashboard-wid-wrap"
                                         (:div :class "dashboard-wid-content"
-                                              (:a :href "/ems/generic-scheduler"
+                                              (:a :href "/dyb/generic-scheduler"
                                                      (:i :class "dashboard-icons month_calendar_blk")
                                                      (:span :class "dasboard-icon-title"
                                                             "Scheduler")))))
                             (:div :class "span2"
                                   (:div :class "dashboard-wid-wrap"
                                         (:div :class "dashboard-wid-content"
-                                              (:a :href "/ems/search-stream"
+                                              (:a :href "/dyb/search-stream"
                                                      (:i :class "dashboard-icons magnifying_glass_blk")
                                                      (:span :class "dasboard-icon-title"
                                                             "Search Streams")))))
                             (:div :class "span2"
                                   (:div :class "dashboard-wid-wrap"
                                         (:div :class "dashboard-wid-content"
-                                              (:a :href "/ems/search-stream"
+                                              (:a :href "/dyb/search-stream"
                                                      (:i :class "dashboard-icons graph_blk")
                                                      (:span :class "dasboard-icon-title"
                                                             "Reporting (Coming Soon)")))))
                             (:div :class "span2"
                                   (:div :class "dashboard-wid-wrap"
                                         (:div :class "dashboard-wid-content"
-                                              (:a :href "/ems/channel-users"
+                                              (:a :href "/dyb/channel-users"
                                                      (:i :class "dashboard-icons cog_2_blk")
                                                      (:span :class "dasboard-icon-title"
                                                             "Settings")))))

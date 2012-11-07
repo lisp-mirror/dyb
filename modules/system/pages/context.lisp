@@ -58,7 +58,7 @@
                            (render entities))))))))
       (render box))))
 
-(define-easy-handler (context-page :uri "/ems/context") ()
+(define-easy-handler (context-page :uri "/dyb/context") ()
   (render (make-widget 'page :title "Context")
           :body
           (render-to-string (make-widget 'context))))

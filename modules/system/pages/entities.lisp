@@ -203,7 +203,7 @@
                              (render edit-box)))))))
       (render box))))
 
-(define-easy-handler (entities-page :uri "/ems/entities") ()
+(define-easy-handler (entities-page :uri "/dyb/entities") ()
   (render (make-widget 'page :name "all-users"
                          :title "Entities")
             :body

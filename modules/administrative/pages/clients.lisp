@@ -1,6 +1,6 @@
 (in-package :ems)
 
-(define-easy-handler (clients-page :uri "/ems/clients") ()
+(define-easy-handler (clients-page :uri "/dyb/clients") ()
   (let* ((columns
            (list
             (make-instance 'grid-column

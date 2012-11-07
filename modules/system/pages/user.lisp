@@ -1,7 +1,7 @@
 (in-package :ems)
 
 
-(define-easy-handler (system-users-page :uri "/ems/system-users") ()
+(define-easy-handler (system-users-page :uri "/dyb/system-users") ()
   (setf (session-value 'current-client) "DX")
 
   (let ((page (make-widget 'ems-page :name "systems-users-page"))
@@ -58,7 +58,7 @@
                                                            :value (or (parameter "password") (get-val user 'surname)))))))))))))))
 
 
-(define-easy-handler (channel-users-page :uri "/ems/channel-users") ()
+(define-easy-handler (channel-users-page :uri "/dyb/channel-users") ()
   (setf (session-value 'current-client) "DX")
 
   (let ((page (make-widget 'ems-page :name "channel-users-page"))
@@ -82,7 +82,7 @@
         (when (and (get-val user 'identifier) (not (equal (get-val user 'identifier) -1)))
 
           (unless (and (get-val user 'access-token) (not (equal (get-val user 'access-token) "")))
-              (redirect "/ems/twitauth")
+              (redirect "/dyb/twitauth")
               )
           (persist user))))
     

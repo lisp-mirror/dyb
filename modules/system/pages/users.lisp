@@ -246,7 +246,7 @@
                  (setf (wfx:data entities) (list root-entity))
                  (render entities))))))))
 
-(define-easy-handler (users-page :uri "/ems/users") ()
+(define-easy-handler (users-page :uri "/dyb/users") ()
   (let ((columns (list (make-instance 'grid-column :name 'email))))
     (render (make-widget 'page :name "all-users"
                                :title "Users")

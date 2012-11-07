@@ -1,6 +1,6 @@
 (in-package #:ems)
 
-(define-easy-handler (search-stream-page :uri "/ems/search-stream") ()
+(define-easy-handler (search-stream-page :uri "/dyb/search-stream") ()
   (let* ((columns
           (list
            (make-instance 'grid-column

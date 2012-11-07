@@ -26,7 +26,7 @@
                                    (:br)
                                    (:br)))))
 
-(define-easy-handler (importer-two :uri "/ems/input/importer-two")
+(define-easy-handler (importer-two :uri "/dyb/input/importer-two")
     ()
   (let ((page (make-widget 'page :name "importer-two" :title "Importer Map"))
         (body (make-widget 'importer-two-class)))

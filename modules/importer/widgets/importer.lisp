@@ -44,7 +44,7 @@
 (defmethod make-auth-dispathcer (file-name)
   (push
    (authorized-dispatcher (create-static-file-dispatcher-and-handler
-                           (format nil "/ems/imports/~A" file-name)
+                           (format nil "/dyb/imports/~A" file-name)
                                         ;(format nil "~A~A" *upload-directory* file-name)
                            (format nil "/home/phil/hunchentoot-upload/~A" file-name)
                            ))

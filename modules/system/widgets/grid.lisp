@@ -605,7 +605,7 @@ document.getElementById(\"~A\").submit();"
                                        )
                                  (:div :class "widget-control pull-left"
                                        (:button :onclick
-                                                (format nil "window.open(\"/ems/export-csv?grid=~a&script-name=~a\")"
+                                                (format nil "window.open(\"/dyb/export-csv?grid=~a&script-name=~a\")"
                                                         (name grid)
                                                         (script-name*))
                                                 "Export CSV"))))
@@ -663,7 +663,7 @@ document.getElementById(\"~A\").submit();"
 'oLanguage': {
             'sLengthMenu': \"<span class='lenghtMenu'> _MENU_</span><span class='lengthLabel'>Entries per page:</span>\",
         },
-'sAjaxSource': '/ems/ajax/TABLE?script-name=~a&id=~a',
+'sAjaxSource': '/dyb/ajax/TABLE?script-name=~a&id=~a',
 'sDom': '<\"tbl-searchbox clearfix\"flr,<\"clear\">>,<\"table_content\"t>,<\"widget-bottom\"ip<\"clear\">>',
 
 ~:[~;'aoColumnDefs': [{'bSortable': false, 'aTargets': [~a]}]~]

@@ -2,7 +2,7 @@
 
 
 
-(define-easy-handler (dybcallback :uri "/ems/oauthcallback") (channel)
+(define-easy-handler (dybcallback :uri "/dyb/oauthcallback") (channel)
   (when channel
     (let* ((social-channel (get-social-channel channel))
            (error-code (parameter (get-system-parameter-name 
@@ -88,8 +88,8 @@
                            ((string-equal (get-val access-token-end 'return-type) "XML")
                             ))
                      (if (string-equal *installation* "Live Serve")
-                         (redirect "http://app.digyourbrand.co.za/ems/channel-users")
-                         (redirect "http://local.dataxware.co.za/ems/channel-users")))
+                         (redirect "http://app.digyourbrand.co.za/dyb/channel-users")
+                         (redirect "http://local.dataxware.co.za/dyb/channel-users")))
                     ((equal status 401)
                      (setf error-description body))))
             (persist user))))

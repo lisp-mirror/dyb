@@ -144,8 +144,8 @@
                                   :url-encode-p nil
                                   :default-value 
                                   (if (string-equal *installation* "Live Serve")
-                                      "http://app.digyourbrand.co.za/ems/oauthcallback?channel=facebook"
-                                      "http://local.dataxware.co.za/ems/oauthcallback?channel=facebook"))
+                                      "http://app.digyourbrand.co.za/dyb/oauthcallback?channel=facebook"
+                                      "http://local.dataxware.co.za/dyb/oauthcallback?channel=facebook"))
                    (make-instance 'uri-parameter
                                   :parameter-name "state"
                                   :url-encode-p nil
@@ -187,8 +187,8 @@
                                   :url-encode-p nil
                                   :default-value 
                                   (if (string-equal *installation* "Live Serve")
-                                      "http://app.digyourbrand.co.za/ems/oauthcallback?channel=facebook"
-                                      "http://local.dataxware.co.za/ems/oauthcallback?channel=facebook"))
+                                      "http://app.digyourbrand.co.za/dyb/oauthcallback?channel=facebook"
+                                      "http://local.dataxware.co.za/dyb/oauthcallback?channel=facebook"))
                    (make-instance 'uri-parameter
                                   :parameter-name "client_secret"
                                   :url-encode-p nil
@@ -282,8 +282,8 @@
                :url-encode-p nil
                :default-value 
                (if (string-equal *installation* "Live Serve")
-                   "http://app.digyourbrand.co.za/ems/oauthcallback?channel=twitter"
-                   "http://local.dataxware.co.za/ems/oauthcallback?channel=twitter"))
+                   "http://app.digyourbrand.co.za/dyb/oauthcallback?channel=twitter"
+                   "http://local.dataxware.co.za/dyb/oauthcallback?channel=twitter"))
               (make-instance 'uri-parameter
                              :parameter-name "oauth_consumer_key"
                              :url-encode-p nil
@@ -447,8 +447,8 @@
                :url-encode-p nil
                :default-value 
                (if (string-equal *installation* "Live Serve")
-                   "http://app.digyourbrand.co.za/ems/oauthcallback?channel=LinkedIn"
-                   "http://local.dataxware.co.za/ems/oauthcallback?channel=LinkedIn"))
+                   "http://app.digyourbrand.co.za/dyb/oauthcallback?channel=LinkedIn"
+                   "http://local.dataxware.co.za/dyb/oauthcallback?channel=LinkedIn"))
               (make-instance 'uri-parameter
                              :parameter-name "oauth_consumer_key"
                              :url-encode-p nil

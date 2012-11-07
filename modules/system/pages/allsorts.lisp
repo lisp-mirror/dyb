@@ -1,6 +1,6 @@
 (in-package :ems)
 
-(define-easy-handler (all-sorts :uri "/ems/all-sorts") ()
+(define-easy-handler (all-sorts :uri "/dyb/all-sorts") ()
   (let* ((columns
            (list
             (make-instance 'grid-column

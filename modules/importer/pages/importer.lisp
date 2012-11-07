@@ -1,6 +1,6 @@
 (in-package :ems)
 
-(define-easy-handler (importer-page :uri "/ems/importer") ()
+(define-easy-handler (importer-page :uri "/dyb/importer") ()
   (let* ((columns
            (list
             (make-instance 'grid-column
@@ -17,7 +17,7 @@
                            :header "File Name"
                            :printer (lambda (file-name)
                                       (with-html-to-string ()
-                                        (:a :href (format nil "/ems/imports/~A" file-name) (str file-name)))))
+                                        (:a :href (format nil "/dyb/imports/~A" file-name) (str file-name)))))
             (make-instance 'grid-column
                            :name 'user
                            :header "User")

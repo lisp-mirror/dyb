@@ -145,7 +145,7 @@ showMark: false
         (name widget))))
 
 
-(define-easy-handler (ajax-graph-page :uri "/ems/test-graph-ajax") ()
+(define-easy-handler (ajax-graph-page :uri "/dyb/test-graph-ajax") ()
   (let ((page (make-widget 'html-framework-page
                            :name "ajax-graph-test"))
         (widget (make-widget 'line-graph :name "chart6")))

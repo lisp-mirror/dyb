@@ -3,15 +3,15 @@
 (defvar *debug-errors* t)
 (defvar *logging* nil)
 
-(defclass ems-acceptor (easy-acceptor)
+(defclass dyb-acceptor (easy-acceptor)
   ((started :initarg :started
             :initform nil
             :accessor started)))
 
-(defmethod start :after ((acceptor ems-acceptor))
+(defmethod start :after ((acceptor dyb-acceptor))
   (setf (started acceptor) t))
 
-(defmethod acceptor-log-access :around ((acceptor ems-acceptor)
+(defmethod acceptor-log-access :around ((acceptor dyb-acceptor)
                                         &key &allow-other-keys)
   (when *logging*
     (call-next-method)))
@@ -97,8 +97,8 @@
   `(call-with-permissions
     (lambda () ,@body)))
 
-(defmethod handle-request :before ((acceptor ems-acceptor) request)
-  (unless (equal (script-name*) "/ems/login")
+(defmethod handle-request :before ((acceptor dyb-acceptor) request)
+  (unless (equal (script-name*) "/dyb/login")
     (unless (equal (session-value 'current-uri) (request-uri*))
       (setf (session-value 'previous-uri) (session-value 'current-uri)
             (session-value 'previous-page) (session-value 'current-page)))
@@ -107,9 +107,9 @@
 
 (defvar *widget-parameters*)
 
-(defmethod handle-request :around ((acceptor ems-acceptor) request)
+(defmethod handle-request :around ((acceptor dyb-acceptor) request)
   (cond ((or (current-user)
-             (equal (script-name request) "/ems/login"))
+             (equal (script-name request) "/dyb/login"))
          (let (*print-pretty*
                (*widget-parameters* nil))
            (with-error-handling
@@ -119,5 +119,5 @@
          (setf (session-value 'redirect-after-login)
                (script-name*))
 
-         (redirect "/ems/login")))) 
+         (redirect "/dyb/login")))) 
 

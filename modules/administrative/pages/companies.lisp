@@ -1,6 +1,6 @@
 (in-package :ems)
 
-(define-easy-handler (companies-page :uri "/ems/companies") ()
+(define-easy-handler (companies-page :uri "/dyb/companies") ()
   (let* ((columns
            (list
             (make-instance 'grid-column

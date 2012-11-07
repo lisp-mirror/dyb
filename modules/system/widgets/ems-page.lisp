@@ -26,7 +26,8 @@
 (defmethod render ((widget page) &key body)
   (let ( ;;(menu (make-widget 'tree-menu :name "menu"))
 	(title (or (title widget) (name widget)))
-        (html-framework-page (make-widget 'html-framework-page :name (widgy-name widget "html-framework-page")))
+        (html-framework-page (make-widget 'html-framework-page 
+                                          :name (widgy-name widget "html-framework-page")))
         (page-alert-box (make-instance 'alert-box :name "page-alert-box")))
 
     (setf (slot-value html-framework-page 'info-panel) (info-panel widget))

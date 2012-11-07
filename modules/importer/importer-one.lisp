@@ -101,7 +101,7 @@
                                    (:input :type "submit" :name "upload" :value "Upload File") (:br)))
 ;;;;;;;;;
       (:div
-       (:form :method "post" :action "/ems/importer-two"
+       (:form :method "post" :action "/dyb/importer-two"
               (:table :id "importer" :class "table_class"
                       (:tr
                        (:th "Original File Name")
@@ -118,10 +118,10 @@
                           ;<a href=" " onClick="alert('Message goes here');return false;">Simple Text Link for Alert</a>
                           ;<a href="http://somewhere_else" onclick="return confirm()">
                          ; (:input :type "submit" :name "save-post":value "Save" :onClick "alert(\"Your article has been saved\")")
-                          (:td (format nil "/ems/importer-one?import-id=~A&button-type=delete"  
+                          (:td (format nil "/dyb/importer-one?import-id=~A&button-type=delete"  
                                                  (ffr 'id row)) 
                                (:input :type "submit" :name "delete" :value "Delete File"))
-                          (:td (format nil "/ems/importer-one?import-id=~A&button-type=map"  
+                          (:td (format nil "/dyb/importer-one?import-id=~A&button-type=map"  
                                            (ffr 'id row))
                                (:input :type "submit" :name "map" :value "Map File")))))))
        ))))
@@ -129,7 +129,7 @@
 
 
 
-(define-easy-handler (importer-one :uri "/ems/importer-one")
+(define-easy-handler (importer-one :uri "/dyb/importer-one")
     ()
   (let ((page (make-widget 'page :name "importer-one" :title "Importer"))
         (page-body (make-widget 'importer-class)))

@@ -25,14 +25,14 @@
             (set-cookie "expanded" :value "" :path "/")
 
 	    (redirect (or redirect
-			  "/ems/home"))))
+			  "/dyb/home"))))
 
 (defmethod on-failure ((login login) &key)
 ;;  (log-login "Login" (get-val login 'email) "Failed" "User name or password incorrect.")
 )
 
 
-(define-easy-handler (landing-page :uri "/ems/index") ()
+(define-easy-handler (landing-page :uri "/dyb/index") ()
   (let ((page (make-widget 'page :name "index-page"))
         (login (make-widget 'login :name "login-ems")))
 
