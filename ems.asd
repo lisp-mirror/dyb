@@ -184,7 +184,7 @@
                                             ((:file "twitter")))
                    
                                    ))
-                         (:module "twitter"
+                         (:module "linkedin"
                                   :serial t
                                   :components
                                   ((:file "parser")
