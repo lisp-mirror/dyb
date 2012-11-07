@@ -242,7 +242,8 @@
                                                    0)))
               (:span :class "action-icon" :title "Comment"
                      (:a :href "#" 
-                         :onclick (format nil "$(\"#comments-~A\").toggle();"  (gpv doc :id))
+                         :onclick (format nil "$(\"#comments-~A\").toggle(); return false;"
+                                          (gpv doc :id))
                          (:img :src "/appimg/fb-comment.png")))
               (:span :class "action-icon" (str (gpv doc :comments :count)))
               (:span :class "action-icon" :title "Share"
