@@ -29,7 +29,7 @@ function fetchURI(uri, callback, parameters) {
 }
 
 function ajax_call(func, callback, args, widget_args) {
-    var uri = '/ems/ajax/' + encodeURIComponent(func);
+    var uri = '/dyb/ajax/' + encodeURIComponent(func);
     var post_parameters = '';
     var i;
     if (args.length > 0) {

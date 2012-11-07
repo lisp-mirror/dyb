@@ -110,7 +110,7 @@
                 :load-from-file-p t)
 
 ;;Don't remove this, but change the default password regularly
-(persist (make-user "admin@ems.co.za" "admin"
+(persist (make-user "admin@dyb.co.za" "admin"
                         :super-user-p t))
 
 (defun user-list ()

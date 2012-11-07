@@ -64,7 +64,7 @@ function makeMenuLink(description, linkId)
     var title = description[2];
 
     if (url)
-        url = "/ems/" + url;
+        url = "/dyb/" + url;
     else
         url = "#";
 

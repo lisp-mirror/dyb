@@ -3,7 +3,7 @@
 (create-static-file-dispatcher-and-handler     
                                 
                                 "/dyb/eish.csv" 
-"/var/www/ems.co.za/extracts/phil@dataxware.co.za/biographical.csv")
+"/var/www/dyb.co.za/extracts/phil@dataxware.co.za/biographical.csv")
 
 (defun extract-dir ()
   (let ((dir (format nil "~A/" *extract-dir*)))
@@ -210,7 +210,7 @@
     ;;TODO: Add security check.
     (funcall dispatch-fn request)))
 
-;;/var/www/ems.co.za/extracts/phil@dataxware.co.za/biographical.csv 
+;;/var/www/dyb.co.za/extracts/phil@dataxware.co.za/biographical.csv 
 ;;--- /dyb/extracts/biographical.csv
 
 (defun register-extract-file (file-name)
