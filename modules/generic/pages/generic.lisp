@@ -46,16 +46,17 @@
 
 (defmethod render ((widget fb-post-comment-form) &key )
 
-  (let ((comment-form (make-widget 'html-simple-framework-form 
-                                   :name (get-val widget 'inner-id)
-                                   :grid-size 12
-                                   ;;:header "Comment"
-                                  ; :form-id form-id
-                                   ))
-        (form-section (make-widget 'form-section
-                                   :name "form-section"))
-        (current-post (if (parameter "post-id")
-                          (get-generic-post-by-post-id (parameter "post-id")))))
+  (let* ((comment-form (make-widget 'html-simple-framework-form 
+                                    :name (get-val widget 'inner-id)
+                                    :grid-size 12
+                                    ;;:header "Comment"
+                                        ; :form-id form-id
+                                    ))
+         (form-section (make-widget 'form-section
+                                    :name "form-section"))
+         (current-post (if (parameter "post-id")
+                           (get-generic-post-by-post-id (parameter "post-id"))))
+         (post-id (gpv current-post :id)))
     (setf (get-val comment-form 'form-id) (get-val widget 'inner-id))
     (with-html 
       
@@ -67,7 +68,7 @@
                     (:div 
                            
                      (:input :type "hidden" :name "post-id" 
-                             :value (gpv current-post :id--str))
+                             :value post-id)
                      (:input :type "hidden" :name "from-user-id" 
                              :value (gpv current-post :from :id))
                      (:input :type "hidden" :name "to-user-id" 
@@ -83,16 +84,15 @@
                                 "comment" 
                                 (parameter "comment")
                                 :required t
-                                :type :textarea)))
-                     
-                     ))))
-      
-
-      ;;(defer-js (format nil 
-      ;;                  "$('#comments-~a-dialog-form').dialog('open')"
-       ;;                 (gpv current-post :id--str)))
-      (defer-js (format nil "$('#comments-~a-dialog-form').dialog({autoOpen: false, width: 900, height: 500})"
-                        (gpv current-post :id--str))))))
+                                :type :textarea)))))))
+      (defer-js
+          (format nil 
+                  "$('#comments-~a-dialog-form').dialog('open')"
+                  post-id))
+      (defer-js
+          (format nil
+                  "$('#comments-~a-dialog-form').dialog({autoOpen: false, width: 900, height: 500})"
+                  post-id)))))
 
 
 
