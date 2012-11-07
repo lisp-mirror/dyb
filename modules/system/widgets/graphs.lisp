@@ -28,8 +28,29 @@
 (defclass line-graph (graph)
   ((series :initarg :series
            :initform nil
-           :accessor series))
+           :accessor series)
+   (x-options :initarg :x-options
+              :initform nil
+              :accessor x-options)
+   (y-options :initarg :y-options
+              :initform nil
+              :accessor y-options))
   (:metaclass widget-class))
+
+(defun json-getf (plist key &optional json-key)
+  (let ((value (getf plist key)))
+    (when value
+     (json:encode-object-member (or json-key key)
+                                value))))
+
+(defun json-encode-key (key value)
+  (when value
+     (json:encode-object-member key value)))
+
+(defun json-encode-literal-key (key value)
+  (when value
+     (json:as-object-member (key)
+       (princ value json:*json-output*))))
 
 (defun format-graph-series (series)
   (with-output-to-string (json:*json-output*)
@@ -38,22 +59,25 @@
             do
             (json:as-array-member ()
               (json:with-object ()
-                (destructuring-bind (&key label
-                                          fill
-                                          style
-                                          size
-                                     &allow-other-keys)
-                    options
-                  (when label
-                    (json:encode-object-member "label" label))
-                  (when fill
-                    (json:encode-object-member "fill" fill))
-                  (json:as-object-member ("markerOptions")
-                    (json:with-object ()
-                      (when style
-                        (json:encode-object-member "style" style))
-                      (when size
-                        (json:encode-object-member "size" size)))))))))))
+                (json-getf options :label)
+                (json-getf options :fill)
+                (json:as-object-member ("markerOptions")
+                  (json:with-object ()
+                    (json-getf options :style)
+                    (json-getf options :size)))))))))
+
+(defparameter *graph-renderer-types*
+  '(:date "$.jqplot.DateAxisRenderer"
+    :log "$.jqplot.LogAxisRenderer"))
+
+(defun format-graph-axis-options (options)
+  (with-output-to-string (json:*json-output*)
+    (json:with-object ()
+      (json-encode-literal-key "renderer"
+                               (getf *graph-renderer-types* (getf options :type)))
+      (json-getf options :min)
+      (json-getf options :max)
+      (json-getf options :tick-interval))))
 
 (defmethod render ((widget line-graph) &key)
   (defer-js
@@ -114,32 +138,7 @@ baselineColor: '#444444',
 drawBaseline: false
 }
 },
-axes: {
-xaxis: {
-renderer: $.jqplot.DateAxisRenderer,
-tickRenderer: $.jqplot.CanvasAxisTickRenderer,
-tickOptions: {
-formatString: \"%b %e\",
-angle: -30,
-textColor: '#dddddd'
-},
-min: \"2012-07-26\",
-max: \"2012-9-20\",
-tickInterval: \"7 days\",
-drawMajorGridlines: false
-},
-yaxis: {
-renderer: $.jqplot.LogAxisRenderer,
-pad: 0,
-rendererOptions: {
-minorTicks: 1
-},
-tickOptions: {
-formatString: \"%'d\",
-showMark: false
-}
-}
-}
+axes: {xaxis: ~a,yaxis: ~a }
 });
 //var w = parseInt($(\".jqplot-yaxis\").width(), 10) + parseInt(plot1.width(), 10);
 //var h = parseInt($(\".jqplot-title\").height(), 10) + parseInt($(\".jqplot-xaxis\").height(), 10) + parseInt(plot1.height(), 10);
@@ -153,7 +152,9 @@ showMark: false
               (title widget)
               (json:encode-json-to-string (mapcar (lambda (x) (getf x :color))
                                                   (series widget)))
-              (format-graph-series (series widget)))))
+              (format-graph-series (series widget))
+              (format-graph-axis-options (x-options widget))
+              (format-graph-axis-options (y-options widget)))))
 
 (defparameter *graph-data*
   '((("2012-07-26" 39) ("2012-07-27" 39) ("2012-07-28" 39) ("2012-07-29" 39)
@@ -220,7 +221,8 @@ showMark: false
      ("2012-09-16" 373) ("2012-09-17" 373) ("2012-09-18" 373) ("2012-09-19" 373)
      ("2012-09-20" 373) ("2012-09-21" 373) ("2012-09-22" 373) ("2012-09-23" 374)
      ("2012-09-24" 374) ("2012-09-25" 374) ("2012-09-26" 374))))
-["#00FFFF", "#0000FF","#04B45F", "#d44703"],
+
+
 (define-easy-handler (ajax-graph-page :uri "/dyb/test-graph-ajax") ()
   (let ((page (make-widget 'html-framework-page
                            :name "ajax-graph-test"))
@@ -241,8 +243,14 @@ showMark: false
             (:color "#d44703"
              :label "Network"
              :style "x")))
-    (setf (title widget)
-          "Foo")
+    (setf (title widget) "Foo")
+    (setf (x-options widget)
+          '(:type :date
+            :min "2012-07-26"
+            :max "2012-9-20"
+            :tick-interval "7 days"))
+    (setf (y-options widget)
+          '(:type :log))
     (render page
             :body
             (with-html-string 
