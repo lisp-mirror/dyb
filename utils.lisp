@@ -166,6 +166,14 @@ is replaced with replacement."
         while value
         finally (return value)))
 
+(defun parse-query-string (query-string)
+  (let ((pairs (split-string query-string #\&))
+        (out))
+    (dolist (pair pairs)
+      (let* ((split-pair (split-string pair #\=)))
+        (setf out (append out (list (cons (first split-pair) (second split-pair)))))))
+    out))
+
 (defconstant +unix-to-universal-time+ 2208988800)
 
 (defun get-unix-time (&optional (ut (get-universal-time)))

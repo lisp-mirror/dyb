@@ -1,7 +1,5 @@
 (in-package :ems)
 
-
-
 (defvar *public-dir* "/var/www/ems.co.za/public/")
 
 (defparameter *extract-dir* "/var/www/ems.co.za/extracts")

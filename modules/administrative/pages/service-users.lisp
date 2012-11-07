@@ -13,7 +13,7 @@
                            :header "User Name")
             (make-instance 'grid-column
                            :name 'service-user-type
-                           :header "User Type")
+                           :header "Social Channel")
             (make-instance 'grid-column
                            :name 'user-id
                            :header "User Id" )))

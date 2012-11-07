@@ -88,13 +88,15 @@
                          (:module "administrative"
                                   :serial t
                                   :components
-                                  ((:module "db"
+                                  ((:file "common")
+                                   (:module "db"
                                             :serial t
                                             :components
                                             ((:file "country-town")
                                              (:file "contacts")
                                              (:file "address")
                                              (:file "companies")
+                                             (:file "social-channels")
                                              (:file "service-users")
                                              (:file "periods")
                                              ))
@@ -118,6 +120,7 @@
                                              (:file "service-users")
                                              (:file "periods")
                                              (:file "clients")
+                                             (:file "oauth")
                                              ))))
                  
                  
@@ -148,7 +151,7 @@
                                   :serial t
                                   :components
                                   ((:file "parser")
-                                   (:file "oauth")
+                                  ;; (:file "oauth")
                                    (:file "common")
                                    (:file "end-points")
                                    (:file "listener")
@@ -171,7 +174,7 @@
                                   :serial t
                                   :components
                                   ((:file "parser")
-                                   (:file "oauth")
+                                 ;;  (:file "oauth")
                                    (:file "common")
                                    (:file "end-points")
                                    (:file "listener")
@@ -179,6 +182,17 @@
                                             :serial t
                                             :components
                                             ((:file "twitter")))
+                   
+                                   ))
+                         (:module "twitter"
+                                  :serial t
+                                  :components
+                                  ((:file "parser")
+                     
+
+                                   (:file "end-points")
+                                   (:file "listener")
+                                   
                    
                                    ))
                          

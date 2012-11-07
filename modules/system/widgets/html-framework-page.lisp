@@ -451,6 +451,10 @@ if (okToRefresh)
        " <script src=\"/js/respond.min.js\"></script>
          <script src=\"/js/ios-orientationchange-fix.js\"></script>"
 
+
+      "</html>")))
+
+#|
 "<script>
 
 $(function(){
@@ -622,8 +626,7 @@ $(function(){
   );
 });
 </script>"
-
-      "</html>")))
+|#
 
 (defclass html-framework-page (widget)
   ((title :initarg :title

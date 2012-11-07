@@ -18,7 +18,8 @@
    (request-token :initarg :request-token
                       :initform nil)
    (request-secret :initarg :request-secret
-                      :initform nil))
+                      :initform nil)
+   (access-token-expiry-date :initarg :access-token-expiry-date))
   (:metaclass storable-class)
   (:default-initargs :doc-type "service-user"))
 

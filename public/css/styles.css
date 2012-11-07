@@ -1806,6 +1806,7 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#7abcff', end
 .dataTables_info {
 	width: 40%;
 	float: left;
+/*        color:red;*/
 }
 .dataTables_paginate {
 	float: right;
@@ -1917,6 +1918,7 @@ td.details {
 }
 .example_alt_pagination div.dataTables_info {
 	width: 40%;
+        
 }
 .paging_full_numbers {
 	width: 400px;

@@ -602,6 +602,8 @@ document.getElementById(\"~A\").submit();"
                          :body (with-html-string
                                  (:div :class "widget-control"
                                        (render filter)
+                                       )
+                                 (:div :class "widget-control pull-left"
                                        (:button :onclick
                                                 (format nil "window.open(\"/ems/export-csv?grid=~a&script-name=~a\")"
                                                         (name grid)
@@ -662,7 +664,8 @@ document.getElementById(\"~A\").submit();"
             'sLengthMenu': \"<span class='lenghtMenu'> _MENU_</span><span class='lengthLabel'>Entries per page:</span>\",
         },
 'sAjaxSource': '/ems/ajax/TABLE?script-name=~a&id=~a',
-'sDom': '<\"tbl-searchbox clearfix\"flr,<\"clear\">>,<\"table_content\"t>,<\"widget-bottom\"p<\"clear\">>',
+'sDom': '<\"tbl-searchbox clearfix\"flr,<\"clear\">>,<\"table_content\"t>,<\"widget-bottom\"ip<\"clear\">>',
+
 ~:[~;'aoColumnDefs': [{'bSortable': false, 'aTargets': [~a]}]~]
 })"
                   (sub-name grid "table")

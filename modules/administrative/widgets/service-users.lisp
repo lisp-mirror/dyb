@@ -83,17 +83,17 @@
                        :input (with-html-to-string ()
                                 (render-edit-field 
                                  "service-user-name" 
-                                 (get-val row 'service-user-name)
+                                 (or (parameter "service-user-name") 
+                                     (get-val row 'service-user-name))
                                  :required t)))
 
                (render form-section 
-                       :label "Service"
+                       :label "Social Channel"
                        :input (with-html-to-string ()
                                 (render-edit-field 
                                  "service-user-type" 
                                  (get-val row 'service-user-type)
-                                 :data (list (list "Facebook" "Facebook")
-                                             (list "Twitter" "Twitter"))
+                                 :data (get-channels-list)
                                  :required t
                                  :blank-allowed t
                                  :type :select)))
@@ -113,139 +113,110 @@
                (if (xid row)
                    (render form-section
                            :label "Get Id and Oauth"
-                           :input (with-html-to-string ()
-                                    (cond ((string-equal 
-                                            (if (get-val row 'service-user-type)
-                                                (get-val row 'service-user-type)
-                                                (parameter "service-user-type")) 
-                                            "Facebook")
-                                           (htm (:a :href  (facebook-oauth-uri row)  
-                                                    (str "Authenticate using >> ")) (str (facebook-oauth-uri row))))
-                                          ((string-equal 
-                                            (if (get-val row 'service-user-type)
-                                                (get-val row 'service-user-type)
-                                                (parameter "service-user-type")) 
-                                            "Twitter")
-                                           (htm (:a :href  (twitter-authorize-uri (get-val row 'request-token))  
-                                                    (str "Authenticate using >> ")) (str (twitter-authorize-uri (get-val row 'request-token)))))))))))))
+                           :input 
+                           (with-html-to-string ()
+                             (let* ((channel (get-social-channel
+                                              (or (parameter "service-user-type") 
+                                                                 (get-val row 'service-user-type))))
+                                    (url (oauth-request-token-url 
+                                         channel
+                                         "Request Token"
+                                         (if (string-equal (get-val channel 'channel-name)
+                                                           "facebook")
+                                             (list (cons 'user-id (get-val row 'user-id)))
+                                             (list (cons 'request-token
+                                                         (get-val row 'request-token)))))))
+
+                               (htm (:a :href url  
+                                        (str "Authenticate using >> "))
+                                    (str url))))))))))
 
 
-
-
-
-
-
-
-
-
-(defun get-twitter-id (username)
-  (multiple-value-bind (body)
-                (drakma:http-request 
-                 (format nil "http://api.twitter.com/1/users/lookup.json?screen_name=~A" username))
-    (if body
-        (let ((decoded-body (json::decode-json-from-string (babel:octets-to-string body))))
+(defun get-social-user-id (channel user-name)
+  (let ((url (end-point-url channel "User ID" (list (cons 'user-name user-name)))))
+    (when url
+      (multiple-value-bind (body)
+          (drakma:http-request 
+           url :preserve-uri t)
+        (if body
+            (let ((decoded-body (if (stringp body)
+                                    (json::decode-json-from-string body)
+                                    (json::decode-json-from-string 
+                                     (babel:octets-to-string body)))))
           
-          (if (or (stringp (first (first decoded-body)))
-                  (string-equal (type-of  (first (first decoded-body))) "keyword"))
-              (if (string-equal (first (first decoded-body)) "ERRORS")
-                
-                  (car (second (first decoded-body))))
-              (if (assoc ':id (first decoded-body))
-                  (cdr (assoc ':id (first decoded-body)))
-                  (second (first decoded-body))))))))
+              (if (consp (caar decoded-body))
+                  (setf decoded-body (car decoded-body)))
 
-(defun get-facebook-id (username)
-  (multiple-value-bind (body)
-                (drakma:http-request 
-                 (format nil "https://graph.facebook.com/~A" username))
-    (if body
-        (let ((decoded-body (json::decode-json-from-string body)))
           
-          (if (string-equal (first (first decoded-body)) "ERROR")
-              (cdr (second (first decoded-body)))
-              (if (assoc ':id decoded-body)
-                  (cdr (assoc ':id decoded-body))
-                  (cdr (second (first decoded-body)))))))))
+          
+              (if (or (assoc-path (first (cdr (assoc-path  decoded-body :errors))) 
+                                  :message) 
+                      (assoc-path  decoded-body :error :message))
+                  (values nil 
+                          (cdr 
+                           (or 
+                            (assoc-path 
+                             (first (cdr (assoc-path  decoded-body :errors))) :message) 
+                            (assoc-path  decoded-body :error :message))))
+                  (values  (cdr (assoc-path decoded-body :id) ) nil))))))))
 
 (defmethod handle-action ((grid service-user-grid) (action (eql 'save)))
-  
-
   (when (string-equal (parameter "entity") "")
     (setf (error-message grid) "Select an Entity."))
 
   (when (string-equal (parameter "service-user-type") "")
     (setf (error-message grid) "Select a Service."))
 
-  (when (and (not (string-equal (parameter "entity") ""))
-             (not (string-equal (parameter "service-user-type") "")))
+  (when (and (or (blank-p (parameter "entity"))
+                 (blank-p (parameter "entity-xid")))
+             (blank-p (parameter "service-user-type")))
  
-    (when (and (parameter "service-user-name") (not (string-equal (parameter "service-user-name") "")))
-
-      (cond ((string-equal (parameter "service-user-type") "facebook") 
-             (let ((facebook-user-id (get-facebook-id (parameter "service-user-name"))))
-               (if (find #\# facebook-user-id)
-                   (setf (error-message grid) facebook-user-id)
-                   (unless (string-equal (parameter "entity") "")
-                     (let ((new-doc (editing-row grid))
-                           (old-doc (copy (editing-row grid))))
-                       (synq-edit-data new-doc)
+    (when (and (parameter "service-user-name") 
+               (not (string-equal (parameter "service-user-name") "")))
+      
+      (let ((channel (get-social-channel
+                      (parameter "service-user-type"))))
         
-                       (unless (parameter "entity-xid") 
-                         (setf (get-val new-doc 'entity) 
-                               (get-entity-by-id 
-                                (if (stringp (parameter "entity"))
-                                    (parse-integer 
-                                     (parameter "entity"))
-                                    (parameter "entity")))))
-
-                       (setf (key new-doc) (list (xid (get-val new-doc 'entity))
-                                                 (parameter "service-user-type")
-                                                 (parameter "service-user-name")))
-                       (setf (get-val new-doc 'user-id) facebook-user-id)
-                       (if (xid old-doc)
-                           (persist new-doc :old-object old-doc)
-                           (persist new-doc))
-
-                       (finish-editing grid))))))
-            ((string-equal (parameter "service-user-type") "twitter")
-             (let ((twitter-user-id (get-twitter-id (parameter "service-user-name")))
-                   ;;(request-result (get-auth-pair (twitter-oauth xid)));;no xid yet
-                  )
-               (if (or (consp twitter-user-id) (listp twitter-user-id))
-                   (setf (error-message grid) (cdr twitter-user-id))
-                   (unless (string-equal (parameter "entity") "")
-                     (let ((new-doc (editing-row grid))
-                           (old-doc (copy (editing-row grid))))
-                       (synq-edit-data new-doc)
+        (multiple-value-bind (id error)
+            (get-social-user-id channel (parameter "service-user-name"))
+          
+          (unless (string-equal (parameter "service-user-type") "LinkedIn")
+            (unless id
+              (setf (error-message grid) 
+                    (format nil "User could not be found on Social Channel.~%ERROR: ~A"
+                            error))))
+          (when (or (string-equal (parameter "service-user-type") "LinkedIn")
+                    id)
+            (let ((new-doc (editing-row grid)))
+              (synq-edit-data new-doc)
         
-                       (unless (parameter "entity-xid") 
-                         (setf (get-val new-doc 'entity) 
-                               (get-entity-by-id 
-                                (if (stringp (parameter "entity"))
-                                    (parse-integer 
-                                     (parameter "entity"))
-                                    (parameter "entity")))))
+              (unless (parameter "entity-xid") 
+                (setf (get-val new-doc 'entity) 
+                      (get-entity-by-id 
+                       (if (stringp (parameter "entity"))
+                           (parse-integer 
+                            (parameter "entity"))
+                           (parameter "entity")))))
 
-                       (setf (key new-doc) (list (xid (get-val new-doc 'entity))
-                                                 (parameter "service-user-type")
-                                                 (parameter "service-user-name")))
-                       (setf (get-val new-doc 'user-id) twitter-user-id)
-		      
-		       (let ((auth-pair (get-auth-pair (twitter-oauth (get-val new-doc 'xid)))))
+              (setf (key new-doc) (list (xid (get-val new-doc 'entity))
+                                        (parameter "service-user-type")
+                                        (parameter "service-user-name")))
+              (setf (get-val new-doc 'user-id) id)
+              
+              (when (string-equal (get-val channel 'auth-type) "OAuth1")
+                
+                (let* ((response (parse-query-string (oauth1-request channel)))
+                       )
+                  
+                  (setf (get-val new-doc 'request-token)
+                        (cdr (assoc-path response "oauth_token")))
+                  (setf (get-val new-doc 'request-secret)
+                        (cdr (assoc-path response "oauth_token_secret")))))
+              (persist new-doc)
 
-			 (setf (get-val new-doc 'request-token) (first auth-pair))
-			 (setf (get-val new-doc 'request-secret) (second auth-pair)))
-                       
-                       
-                       (if (xid old-doc)
-                           (persist new-doc :old-object old-doc)
-                           (persist new-doc))
+              (finish-editing grid))))
 
-                       (finish-editing grid)))))
-             )))))
-
-
-
+        ))))
 
 (defmethod export-csv ((grid service-user-grid))
   (let* ((data (grid-filtered-rows grid)))
