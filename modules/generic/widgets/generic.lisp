@@ -36,8 +36,20 @@
   (:include-css "/appcss/posts.css")
   (:default-initargs :edit-inline nil))
 
+(defclass grid-action (ajax-widget)
+  ((grid :initarg :grid
+         :initform nil
+         :accessor grid))
+  (:metaclass widget-class))
 
+(defmethod render ((widget grid-action) &key )
+  (with-html
+    "Grid Action")
+  (open-dialog widget (grid widget)))
 
+(defmethod handle-action ((grid generic-grid) (action (eql 'block-user)))
+  (setf (action-widget grid)
+        (make-widget 'grid-action :grid grid :name "XXX")))
 
 (defun get-generic-data (grid &key filter search)
   (declare (ignore grid search))

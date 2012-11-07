@@ -72,7 +72,10 @@
                 :accessor parent-grid)
    (css-span :initarg :css-span
           :initform nil
-          :accessor css-span)))
+          :accessor css-span)
+   (action-widget :initarg :action-widget
+                  :initform nil
+                  :accessor action-widget)))
 
 (defclass grid-column ()
   ((header :initarg :header
@@ -534,10 +537,22 @@ document.getElementById(\"~A\").submit();"
      (defer-js (fmt "updateTable('~a-table')" (name parent))))
   (defer-js (fmt "updateTable('~a-table')" (name grid))))
 
+(defun open-dialog (widget grid)
+  (defer-js (format nil "$('#~a').dialog('open')"
+                    (name widget)))
+  (defer-js (format nil "$('#~a').dialog({autoOpen: false, width: 900, height: 500,~@
+                                           close: function(){~a}})"
+                    (name widget)
+                    (js-render (editor grid)
+                               (js-pair "grid-name" (name grid))
+                               (js-pair "action" "cancel")))))
+
 (defmethod render ((editor grid-editor) &key (modal-p t))
   (let* ((grid (grid editor))
          (editing-row (editing-row grid)))
-    (cond ((and (not (edit-inline grid))
+    (cond ((action-widget grid)
+           (render (action-widget grid)))
+          ((and (not (edit-inline grid))
                 editing-row)
            (with-html
              (when (error-message grid)
@@ -546,14 +561,7 @@ document.getElementById(\"~A\").submit();"
                       (esc (error-message grid)))))
              (render-row-editor grid editing-row)
              (cond (modal-p
-                    (defer-js (format nil "$('#~a').dialog('open')"
-                                      (name editor)))
-                    (defer-js (format nil "$('#~a').dialog({autoOpen: false, width: 900, height: 500,~@
-                                           close: function(){~a}})"
-                                      (name editor)
-                                      (js-render (editor grid)
-                                                 (js-pair "grid-name" (name grid))
-                                                 (js-pair "action" "cancel")))))
+                    (open-dialog editor grid))
                    (t
                     
                     (defer-js (scroll-to editor)))))
@@ -805,7 +813,8 @@ document.getElementById(\"~A\").submit();"
   (setf (error-message grid) nil)
   (when (edit-form grid)
     (setf (error-message (edit-form grid)) nil))
-  (setf (editing-row grid) nil))
+  (setf (editing-row grid) nil)
+  (setf (action-widget grid) nil))
 
 (defmethod render ((form grid-edit-form) &key body)
   (let ((name (widgy-name form "edit-form")))

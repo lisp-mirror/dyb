@@ -262,7 +262,7 @@
              (:br)
 
              (let ((comment-form 
-                    (make-widget 'fb-post-comment-form
+                     (make-widget 'fb-post-comment-form
                                  :name (format nil 
                                                "comments-~A-dialog-form" 
                                                (gpv doc :id)))))
