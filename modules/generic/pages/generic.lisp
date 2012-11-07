@@ -88,10 +88,10 @@
                      ))))
       
 
-      (defer-js (format nil 
-                        "$('#comments-~a-dialog-form').dialog('open')"
-                        (gpv current-post :id--str)))
-      (defer-js (format nil "$('#comments-~a-dialog-form').dialog({autoOpen: false, width: 900, height: 590})"
+      ;;(defer-js (format nil 
+      ;;                  "$('#comments-~a-dialog-form').dialog('open')"
+       ;;                 (gpv current-post :id--str)))
+      (defer-js (format nil "$('#comments-~a-dialog-form').dialog({autoOpen: false, width: 900, height: 500})"
                         (gpv current-post :id--str))))))
 
 
@@ -255,7 +255,8 @@
              (:br)
                            
              (dolist (comment (gpv doc :comments :data))
-               (htm (:div (str (gpv comment :message)))))
+               (htm (:div :style "border-bottom:thin solid #ffffff;" 
+                          (str (gpv comment :message)))))
              (:br)
 
              (let ((comment-form 
