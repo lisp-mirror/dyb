@@ -82,26 +82,14 @@
                                     (:button
                                      :class "btn btn-info"
                                      :onclick
-                                     (js-render-form-values  
-                                      widget
-                                      (get-val widget 'form-id)
-                                      (js-pair "action" 
-                                               (get-val widget 'action)))
-                                     
-                                    #|
                                      (format nil
                                              "if($(\"#~a\").valid()){~a};"
                                              (get-val widget 'form-id)
                                              (js-render-form-values  
-                                               widget
-                                               (get-val widget 'form-id)
-                                              (js-pair "action" (get-val widget 'action))
-                                              
-                                             
-                                              ))
-                                     |#
+                                              widget
+                                              (get-val widget 'form-id)
+                                              (js-pair "action" (get-val widget 'action))))
                                      (str (get-val widget 'action-title)))))))))))
-
 
 (defclass html-framework-form (widget)
   ((grid-size :initarg :grid-size
