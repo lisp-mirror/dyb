@@ -208,7 +208,8 @@
                                             :serial t
                                             :components
                                             ((:file "generic")
-                                             (:file "facebook-actions")))
+                                             (:file "facebook-actions")
+                                             (:file "twitter-actions")))
                                    (:module "pages"
                                             :serial t
                                             :components

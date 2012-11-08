@@ -39,7 +39,7 @@
              ("oauth_version" "1.0")
              
              ))))
-    :want-stream t
+    :want-stream nil
     :preserve-uri t)))
 
 (defun twitter-user-stream (access-token access-secret)
