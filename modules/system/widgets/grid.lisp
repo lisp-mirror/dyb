@@ -494,9 +494,7 @@ document.getElementById(\"~A\").submit();"
   (defer-js (fmt "updateTable('~a-table')" (name grid))))
 
 (defun open-dialog (widget grid)
-  (defer-js (format nil "$('#~a').dialog('open')"
-                    (name widget)))
-  (defer-js (format nil "$('#~a').dialog({autoOpen: false, width: 900, height: 500,~@
+  (defer-js (format nil "$('#~a').dialog({width: 900, height: 500,~@
                                            close: function(){~a}})"
                     (name widget)
                     (js-render (editor grid)
