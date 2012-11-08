@@ -31,7 +31,7 @@
 
 (dolist (update (gpv updates :values))
     
-    (break "~A" update)
+    
     (let ((dup
            (find-doc (generic-post-collection)
                      :test
