@@ -73,3 +73,9 @@
 (defun get-channel-user-by-user-name (user-id)
   (get-doc (channel-users-collection) user-id :element 'channel-user-name))
   
+(defun get-channel-users-list (channel-name users)
+  (loop for user across (channel-users)
+       when (string-equal (get-val user 'channel-user-type) channel-name)
+       ;;when (find (get-val user 'user-id) users)
+       collect (list (get-val user 'user-id)
+                     (get-val user 'channel-user-name))))

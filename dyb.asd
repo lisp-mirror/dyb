@@ -207,7 +207,8 @@
                                    (:module "widgets"
                                             :serial t
                                             :components
-                                            ((:file "generic")))
+                                            ((:file "generic")
+                                             (:file "facebook-actions")))
                                    (:module "pages"
                                             :serial t
                                             :components
