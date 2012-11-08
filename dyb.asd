@@ -223,11 +223,13 @@
                                    (:module "widgets"
                                             :serial t
                                             :components
-                                            ((:file "generic-scheduler")))
+                                            ((:file "generic-scheduler")
+                                             ))
                                    (:module "pages"
                                             :serial t
                                             :components
-                                            ((:file "generic-scheduler")))
+                                            ((:file "generic-scheduler")
+                                             (:file "manual-scheduler")))
                                    
                    
                                    ))

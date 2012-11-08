@@ -53,6 +53,10 @@
               :accessor grid-size)
    (header :initarg :header
            :accessor header)
+   (action :initarg :action
+           :accessor action)
+   (action-title :initarg :action-title
+           :accessor action-title)
    (form-id :initarg :form-id
             :accessor form-id)))
 
@@ -73,21 +77,30 @@
                               (:input :type "hidden" :name "form-id"
                                       :value (get-val widget 'form-id))
                               (str content)
+
                               (:div :class "form-actions"
                                     (:button
                                      :class "btn btn-info"
                                      :onclick
+                                     (js-render-form-values  
+                                      widget
+                                      (get-val widget 'form-id)
+                                      (js-pair "action" 
+                                               (get-val widget 'action)))
+                                     
+                                    #|
                                      (format nil
                                              "if($(\"#~a\").valid()){~a};"
                                              (get-val widget 'form-id)
                                              (js-render-form-values  
                                                widget
                                                (get-val widget 'form-id)
-                                              (js-pair "action" "post")
+                                              (js-pair "action" (get-val widget 'action))
                                               
-                                              ;(format nil "$(\"#~A\").toggle();" (get-val widget 'form-id))
+                                             
                                               ))
-                                     "Post")))))))))
+                                     |#
+                                     (str (get-val widget 'action-title)))))))))))
 
 
 (defclass html-framework-form (widget)

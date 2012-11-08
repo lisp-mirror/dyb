@@ -87,6 +87,9 @@
    (printer :initarg :printer
             :initform nil
             :accessor printer)
+   (special-printer :initarg :special-printer
+            :initform nil
+            :accessor special-printer)
    (style :initarg :style
           :initform nil
           :accessor style)
@@ -349,53 +352,6 @@ document.getElementById(\"~A\").submit();"
       (when (editable widget)
         (htm (:th)))))))
 
-(defgeneric grid-present (value name type &key &allow-other-keys))
-
-(defmethod grid-present (value name (type (eql :text)) &key init-values)
-  (let ((text
-          (make-widget 'text :id name :name name :css-class (first init-values)
-                             :style (second init-values))))
-    (setf (value text) value)
-    (render text)))
-
-(defmethod grid-present (value name (type (eql :checkbox)) &key init-values)
-  (let ((checkbox
-         (make-widget 'checkbox :id name :name name :css-class (first init-values)
-                              :style (second init-values))))
-    (setf (value checkbox) value)
-    (render checkbox)))
-
-(defmethod grid-present (value name (type (eql :select)) &key init-values)
-  (let ((select (make-widget 'select :id name :name name
-                             :items init-values
-                             :first-item "")))
-    (setf (value select) value)
-    (render select)))
-
-(defun render-editing-row (row row-id columns &key (save-button t))
-  (with-html
-    (loop for column in columns
-          for column-id from 0
-          for name = (slot-val row (name column))
-          for text = (if (printer column)
-                         (funcall (printer column) name)
-                         name)
-          for widget-name = (format nil "cell~d:~d" row-id column-id)
-          do
-          (htm (:td
-                (grid-present text widget-name
-                              (editor-type column)
-                              :init-values (editor-init-values column)))))
-    (when save-button
-      (htm
-       (:td (:input :type "hidden" :name "action" :value "save")
-            (:input :type "image" :src "/appimgsave-small.png"))))))
-
-
-(defgeneric apply-grid-link-rules (grid link row-object))
-
-(defmethod apply-grid-link-rules ((grid grid) (link grid-link) row-object)
-  t)
 
 (defun test-allowed-action (allowed-actions action)
   (if allowed-actions
@@ -682,25 +638,28 @@ document.getElementById(\"~A\").submit();"
                   (editable grid)
                   (length (columns grid)))))))
 
-(defun column-text (row column)
+(defun column-text (grid row column &key row-id)
   (let ((value (slot-val row (name column))))
-    (if (printer column)
-        (funcall (printer column) value)
-        (princ-to-string value))))
+    (if (special-printer column)
+        (funcall (special-printer column) grid row value row-id )
+        (if (printer column)
+            (funcall (printer column) value)
+            (princ-to-string value)))))
 
-(defun expand-columns (grid row)
+(defun expand-columns (grid row row-id)
   (loop for column in (columns grid)
-        collect (column-text row column)))
+        collect (column-text grid row column :row-id row-id)))
 
 (defun search-columns (grid row)
   (loop with term = (search-term grid)
         for column in (columns grid)
-        thereis (search term (column-text row column)
+        thereis (search term (column-text grid row column )
                         :test #'equalp)))
 
 (defun expand-all-columns (grid rows)
   (loop for row being the elements of rows
-        collect (expand-columns grid row)))
+     for row-id = (if row-id (incf row-id) 0)
+     collect (expand-columns grid row row-id)))
 
 (defun grid-filtered-rows (grid)
   (let ((filtered (apply-grid-filter grid
@@ -765,8 +724,8 @@ document.getElementById(\"~A\").submit();"
           :key (if (equal (sort-column grid) 0) 
                    (if (sort-key-function grid)
                        (sort-key-function grid)
-                       (lambda (row) (column-text  row column)))
-                   (lambda (row) (column-text  row column))))))
+                       (lambda (row) (column-text grid row column)))
+                   (lambda (row) (column-text grid row column))))))
 
 (defmethod process-data-table ((grid grid))
   (print (get-parameters*))

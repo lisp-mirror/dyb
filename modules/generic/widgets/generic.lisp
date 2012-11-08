@@ -1,35 +1,5 @@
 (in-package :dyb)
 
-(defclass generic-comments-grid (grid)
-  ((parent-grid :initarg :parent-grid)
-   (current-doc :initarg nil))
-  (:default-initargs :edit-inline nil))
-
-(defmethod get-rows ((grid generic-comments-grid))
-  
-  (when (and (get-val grid 'current-doc)
-             (get-val (get-val grid 'current-doc) 
-                      'payload)
-            )
-    (typecase (get-val (get-val grid 'current-doc) 
-                      'payload)
-    (post
-     
-     (when (and  (get-val (get-val (get-val grid 'current-doc) 
-                                   'payload) 
-                          'comments)
-                 (get-val (get-val (get-val (get-val grid 'current-doc) 
-                                            'payload) 
-                                   'comments)
-                          'data))
-       (setf (rows grid)
-             (loop for comment across 
-                  (coerce (get-val (get-val (get-val (get-val grid 'current-doc) 
-                                                     'payload) 
-                                            'comments)
-                                   'data) 'vector)
-                  collect comment)))))))
-
 (defclass generic-grid (grid)
   ()
   (:metaclass widget-class)
@@ -69,166 +39,93 @@
                           :filter (grid-filter grid)  
                           :search (search-term grid))))
 
-; as it says 
-(defmethod render-row-editor ((grid generic-grid) row)
-#|
-  (let ((form (make-widget 'html-framework-form :name "p-formx"
-                                       :grid-size 12
-                                       :header "Posts"
-                                       :form-id "generic-edit-form"
-                                       :grid-name (name grid)))
-        
-        (form-section (make-widget 'form-section
-                                   :name "form-section"))
-        (tab-box (make-widget 'html-framework-tab-box
-                              :name "post-tab-box"
-                              :header "Posts"
-                              :icon "card--pencil")))
+(defclass grid-action (ajax-widget)
+  ((grid :initarg :grid
+         :initform nil
+         :accessor grid))
+  (:metaclass widget-class))
 
-    (setf (get-val tab-box 'header)
-          (format nil "Post (~A)" 
-                  (get-val row 'pid)))
-    (setf (tabs tab-box)
-          (list 
-           (list
-            "Post"
-            (with-html-to-string ()
-              (:div :class "section _100"
-                    (render form  
-                            :grid grid
-                            :content
-                            (with-html-to-string ()
-                              (render 
-                               form-section
-                               :label "Post ID"
-                               :input (with-html-to-string ()
-                                        (render-edit-field 
-                                         "pid"
-                                         (get-val row 'pid))))
-                              (render 
-                               form-section
-                               :label "Title"
-                               :input (with-html-to-string ()
-                                        (render-edit-field 
-                                         "title"
-                                         (get-val row 'title)
-                                         :type :textarea)))
-                              
-                              (cond ((string-equal (get-val row 'type) "facebook")
-                                     (if (get-val (get-val (get-val row 'payload) 'likes) 'count)
-                                         (render 
-                                          form-section
-                                          :label "Likes"
-                                          :input (with-html-to-string ()
-                                                   (render-edit-field 
-                                                    "Count"
-                                                    (if (get-val (get-val row 'payload) 'likes)
-                                                        (get-val (get-val (get-val row 'payload) 'likes) 'count))
-                                                    :type :textarea)))))
-                                    ((string-equal (get-val row 'type) "facebook")
-                                     (if (get-val (get-val row 'payload) 'retweet-count)
-                                         (render 
-                                          form-section
-                                          :label "Retweets"
-                                          :input (with-html-to-string ()
-                                                   (render-edit-field 
-                                                    "Count"
-                                                    (write-to-string (get-val (get-val row 'payload) 'retweet-count))
-                                                    :type :textarea))))))
-                              (if (string= (get-val row 'type) "facebook")
-                                  (dolist (com (get-val (get-val (get-val row 'payload) 'comments) 'data))
-                                    (render 
-                                     form-section
-                                     :label "Comment"
-                                     :input (with-html-to-string ()
-                                              (render-edit-field 
-                                               "Story"
-                                               (get-val com 'message)
+(defmethod render ((widget grid-action) &key )
+  (with-html
+    "Grid Action")
+  (open-dialog widget (grid widget)))
 
-                                               :type :textarea)))))
-			 (render 
-                          form-section
-                          :label "Created"
-                          :input (with-html-to-string ()
-                                   (render-edit-field 
-                                    "Created"
-                                    (get-val row 'created)
-                                    :type :datetime)))
-                         )))))
-           (list 
-            "Comments"
-            (with-html-to-string ()
-              (:div :class "section _100" 
-                   (let* ((columns
-                             (list
-                              (make-instance 'grid-column
-                                             :name 'from
-                                             :header "From"
-                                             :printer (lambda (from)
-                                                        (get-val from 'name)))
-                              (make-instance 'grid-column
-                                             :name 'message
-                                             :header "Comment")
-                              (make-instance 'grid-column
-                                             :name 'likes
-                                             :header "Likes"
-                                             )))
-                           (comment-grid (make-widget 'generic-comments-grid 
-                                                      :name "generic-comment-gridxx"
-                                                      :columns columns
-                                                      :edit-inline nil
-                                                      :title "Comments"
-                                                      :row-object-class 'comment)))
-
-                      
-                     (setf (get-val comment-grid 'parent-grid) grid)
-                     (setf (get-val comment-grid 'current-doc) (editing-row grid))
-                     (setf (get-val comment-grid 'css-span) 9)
-                     
-                      (render comment-grid)))))
-           
-           ))
-    (render tab-box)
-    )|#
-)
+(defmethod handle-action ((grid generic-grid) (action (eql 'block-user)))
+  (setf (action-widget grid)
+        (make-widget 'grid-action :grid grid :name "XXX")))
 
 
-(defun get-facebook-error (json-string)
-  (assoc ':error  (json::decode-json-from-string json-string)))
-
-(defun get-facebook-access-token (fb-id)
-  (find-doc (channel-users-collection)
-            :test (lambda (doc)
-                    (if (string-equal (get-val doc 'user-id) fb-id)
-                        (return-from get-facebook-access-token doc)))))
+(defclass fb-post-comment-form (ajax-widget)
+  ((grid :initarg :grid
+         :initform nil
+         :accessor grid))
+  (:metaclass widget-class))
 
 
-(defun get-facebook-access-token-by-user (fb-user)
-  (find-doc (channel-users-collection)
-            :test (lambda (doc)
-                    (if (string-equal (get-val doc 'channel-user-name) fb-user)
-                        doc))))
+(defmethod render ((widget fb-post-comment-form) &key )
+  (let* ((comment-form (make-widget 'html-simple-framework-form 
+                                    :name "facebook-post-comment-form"
+                                    :grid-size 12
+                                    :form-id "facebook-post-comment-form"
+                                    :action "post-facebook-comment"
+                                    :action-title "Comment"))
+         (form-section (make-widget 'form-section
+                                    :name "form-section"))
+         (current-post (editing-row (get-val widget 'grid)))
+         (post-id (gpv current-post :id)))
+
+    (with-html 
+      (if (parameter "action")
+          (render comment-form
+                  :content
+                  (with-html-to-string ()
+                    (:div 
+                     (:input :type "hidden" :name "post-id" 
+                             :value post-id)
+                     (:input :type "hidden" :name "from-user-id" 
+                             :value (gpv current-post :from :id))
+                     (:input :type "hidden" :name "to-user-id" 
+                             :value (gpv current-post :to :id))
+                     (:input :type "hidden" :name "action-type" 
+                             :value "Facebook Comment")
+
+                     (render form-section 
+                             :label "Comment"
+                             :input 
+                             (with-html-to-string ()
+                               (render-edit-field
+                                "comment" 
+                                (parameter "comment")
+                                :required t
+                                :type :textarea))))))))
+    (open-dialog widget (grid widget))))
+
+(defmethod action-handler ((widget fb-post-comment-form))
+
+  (when (string-equal (parameter "action") "post-facebook-comment")
+   (break "~A" (parameter "action"))
+    #|
+    (comment-facebook (get-val widget 'current-post)
+                      (if (get-val (get-val widget 'current-post) 'to)
+                          (get-val (first (get-val (get-val widget 'current-post) 'to)) 'id)
+                          (get-val (get-val (get-val widget 'current-post) 'from) 'id))
+                      (parameter "comment"))
+    |#
+    (defer-js (format nil "$('#~a').dialog('close')" (name widget)))
+    ))
+
+(defmethod handle-action ((grid generic-grid) (action (eql 'post-facebook-comment)))
+  (break "fuck"))
+(defmethod handle-action ((grid generic-grid) (action (eql 'facebook-comment)))
+
+  (setf (action-widget grid)
+        (make-widget 'fb-post-comment-form 
+                     :grid grid 
+                     :name "facebook-comment-form")))
+
 
 
 (defmethod handle-action (grid (action (eql 'like)))
  (break "?") )
 
-(defmethod handle-action ((grid generic-grid) (action (eql 'save)))
-  (setf (error-message grid) nil)
-
-  (when (and (string-equal (parameter "form-id") "post-comment-edit-form"))
-    (let ((from-user (get-facebook-access-token (parameter "from-user-id")))
-          (to-user (get-facebook-access-token (parameter "to-user-id"))))
-      (if (or from-user to-user)
-          (multiple-value-bind (body)
-              (drakma:http-request (format nil "https://graph.facebook.com/~A/comments&access_token=~A"
-                                           (parameter "pid")
-                                           (get-val (or from-user to-user) 'last-access-token))
-                                   :method :post
-                                   :parameters (list (cons "message"  (parameter "comment"))))
-            (let ((error-message (get-facebook-error body) ))           
-              (if error-message
-                (setf (error-message grid) (cdr (car (rest error-message))))
-                (setf (error-message grid) "Posted comment successfully."))))
-          (setf (error-message grid) "User does not exist.")))))
 

@@ -29,22 +29,26 @@
        (parse-trim-integer (sixth split))))))
 
 (defun parse-tweets (tweets stream-type)
-  (dolist (tweet tweets)
+  (if (not (gpv tweets :errors))
+  
+    (dolist (tweet tweets)
 
-    (let ((dup
-           (find-doc (generic-post-collection)
-                     :test
-                     (lambda (doc)
-                       (equal (raw-post-id tweet 'twitter) (raw-post-id doc 'twitter))))))
-      (when dup
-        ;;TODO: Update changed-date? 
-        (setf (payload dup) tweet)
-        (persist dup))
-      (unless dup
-        (persist (make-generic-post 'twitter
-                                    tweet
-                                    stream-type
-                                    (parse-twitter-created-at (gpv tweet :created--at))
-                                    ;;TODO: last-change-date
-                                    ))
-        ))))
+      (let ((dup
+             (find-doc (generic-post-collection)
+                       :test
+                       (lambda (doc)
+                         (equal (raw-post-id tweet 'twitter) (raw-post-id doc 'twitter))))))
+        (when dup
+          ;;TODO: Update changed-date? 
+          (setf (payload dup) tweet)
+          (persist dup))
+        (unless dup
+          (persist (make-generic-post 'twitter
+                                      tweet
+                                      stream-type
+                                      (parse-twitter-created-at (gpv tweet :created--at))
+                                      ;;TODO: last-change-date
+                                      ))
+          ))
+      )
+    (gpv tweets :errors :message)))

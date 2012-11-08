@@ -18,12 +18,16 @@
          'home-timeline)))))
 
 (defun twitter-refresh-home-timelines ()
-  (dolist (user (coerce (channel-users) 'list ))
-        (when (and user (string-equal (get-val user 'doc-status) "Active"))
-          ;;TODO: How to get error messages in for users without access tokens.
-          (when (string-equal (get-val user 'channel-user-type) "Twitter")
-            (when (get-val user 'last-access-token)
-              (twitter-refresh-home-timeline user))))))
+  (let ((result))
+    (dolist (user (coerce (channel-users) 'list ))
+      (when (and user (string-equal (get-val user 'doc-status) "Active"))
+        ;;TODO: How to get error messages in for users without access tokens.
+        (when (string-equal (get-val user 'channel-user-type) "Twitter")
+          (when (get-val user 'last-access-token)
+            (let ((result (twitter-refresh-home-timeline user))) 
+              (if result
+                  (return-from twitter-refresh-home-timelines result))
+              )))))))
 
 (defun twitter-user-stream-listener (channel-user)
   (when channel-user
