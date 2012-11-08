@@ -419,18 +419,16 @@ Please select a legal one"
   (:metaclass widget-class)
   (:default-initargs :select-names '(service channel-user)))
 
-(defun get-all-services ()
-  (list (list "Facebook" "Facebook")
-        (list "Twitter" "Twitter")))
+
 
 (defun get-channel-users (service)
-  (remove-duplicates (loop for doc across (docs (channel-users-collection))
-                        when (lambda (doc)
-                               (if (string-equal (get-val doc 'channel-user-type) service)
+  (loop for doc across (docs (channel-users-collection))
+                        when (if (string-equal (get-val doc 'channel-user-type) service)
+
                                    (if (get-val doc 'channel-user-name)
-                                       (get-val doc 'channel-user-name))))
+                                       (get-val doc 'channel-user-name)
+                                       ))
                         collect (get-val doc 'channel-user-name))
-                     :test #'string-equal)
 
   )
 
@@ -438,7 +436,7 @@ Please select a legal one"
   (destructuring-bind (&optional service) values
    (let ((position (position select (selects chain-select))))
      (case position
-       (0 (get-all-services))
+       (0 (get-channels-list))
        (1 (get-channel-users service))))))
 
 
