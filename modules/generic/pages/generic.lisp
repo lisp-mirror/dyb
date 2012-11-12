@@ -186,23 +186,28 @@
                               (gpv col-val :update-content :person :current-share :comment)))
                          ((string-equal (gpv col-val :update-type) "CMPY")
                           (gpv col-val :update-content :company-status-update :share :comment)))))
+       
        (:span :class "twitter-actions"
-              (:span :class "action-icon" :title "Like"
-                     (:a :href "#" "Like"))
+              (if (gpv col-val :is-likeable)
+                  (htm (:span :class "action-icon" :title "Like"
+                              (:a :href (js-link 
+                                         (js-render (editor grid)
+                                                    (js-pair "grid-name" (name grid))
+                                                    (js-pair "action" "like-linkedin-form")
+                                                    (js-pair "row_id" row-id))) 
+                                  ;;(:img :src "/appimg/fb-like.png")
+                                  (str "Like")
+                                  ))))
                                        
-              (:span :class "action-icon" :title "Comment"
-                     (:a :href "#" "Comment"))
-                                       
-              (:span :class "action-icon" :title "Share"
-                     (:a :href "#" "Share"))
-              )
-
-       )
-
-      ))))
-
-
-
+              (if (gpv col-val :is-commentable)
+                  (htm (:span :class "action-icon" :title "Comment"
+                              (:a :href (js-link 
+                                         (js-render (editor grid)
+                                                    (js-pair "grid-name" (name grid))
+                                                    (js-pair "action" "comment-linkedin-form")
+                                                    (js-pair "row_id" row-id))) 
+                                  ;;(:img :src "/appimg/fb-like.png")
+                                  (str "Comment")))))))))))
 
 
 (defun generic-grid-item-display (grid row payload row-id)
@@ -346,7 +351,7 @@
     (setf (get-val grid 'columns) columns)
     (setf (get-val grid 'grid-links) (list (list 'twitter "delete" "Delete")
                                            (list 'twitter "unfollow" "Unfollow")
-                                           (list 'twitter "direct-messaeg" "Direct Message")
+                                           (list 'twitter "direct-message" "Direct Message")
                                            (list 'twitter "assign-task" "Assign Task")
                                            (list 'twitter "highlight" "Highlight")
                                            (list 'facebook "delete" "Delete")
@@ -354,6 +359,8 @@
                                            (list 'facebook "direct-messaeg" "Direct Message")
                                            (list 'facebook "assign-task" "Assign Task")
                                            (list 'facebook "highlight" "Highlight")
+                                           (list 'linkedin "delete" "Delete")
+                                           (list 'linkedin "highlight" "Highlight")
                                            (list 'social-mention "delete" "Delete")))
     (setf (sort-direction grid) :descending)
     (setf (sort-key-function grid)

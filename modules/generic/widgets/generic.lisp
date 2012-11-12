@@ -163,6 +163,33 @@
     (values result error)))
 
 
+(defun post-linkedin (user-id message)
+  (let* ((result)
+         (error)
+         (user (get-channel-user-by-user-name user-id))
+         (channel (if user (get-social-channel (get-val user 'channel-user-type)))) )
+
+    (when (and user channel)
+
+      (when (get-val user 'last-access-token)
+        (setf result
+              (linkedin-share 
+               (get-val channel 'app-id)
+               (get-val channel 'app-secret)
+               (get-val user 'last-access-token)
+               (get-val user 'last-token-secret)
+               message))
+        (when result
+          (if (stringp result)
+              (setf result (json::decode-json-from-string  (babel:octets-to-string result)))
+              (setf result (json::decode-json-from-string  result))
+              ))
+ 
+        (when (assoc-path result :error)
+          (setf result nil)
+          (setf error (cdr (assoc-path result :error :message))))))
+    (values result error)))
+
 (defmethod action-handler ((widget post-form))
   
   (when (string-equal (parameter "action") "post-to-channel")  
@@ -178,6 +205,16 @@
           ((string-equal (parameter "service") "twitter")
            (multiple-value-bind (result error-message)
                (post-twitter 
+                (parameter "channel-user")
+                (parameter "post-status"))
+      
+             (if error-message
+                 (setf (get-val widget 'message) error-message)
+                 (defer-js (format nil "$('#~a').dialog('close')" (name widget))))))
+          ((string-equal (parameter "service") "LinkedIn")
+
+           (multiple-value-bind (result error-message)
+               (post-linkedin 
                 (parameter "channel-user")
                 (parameter "post-status"))
       
