@@ -1,5 +1,7 @@
 (in-package :dyb)
 
+(setf *random-state* (make-random-state t))
+
 (setf hunchentoot:*catch-errors-p* nil)
 
 (defvar *dyb-acceptor* (make-instance 'dyb-acceptor :port 8090))
