@@ -190,7 +190,7 @@
                                   ((:file "parser")
 
                                    (:file "end-points")
-                                   (:file "linkedin-actions")
+                                   
                                    (:file "listener")
                                    
                    
@@ -209,7 +209,8 @@
                                             :components
                                             ((:file "generic")
                                              (:file "facebook-actions")
-                                             (:file "twitter-actions")))
+                                             (:file "twitter-actions")
+                                             (:file "linkedin-actions")))
                                    (:module "pages"
                                             :serial t
                                             :components
