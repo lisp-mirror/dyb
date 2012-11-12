@@ -39,7 +39,7 @@
     (render comment-form
             :grid grid
             :content
-            (with-html-to-string ()
+            (with-html-string
               (:input :type "hidden" :name "from-user-id" 
                       :value (get-val 
                               (get-val 
@@ -67,19 +67,19 @@
                 (render form-section
                         :label "Post To"
                         :input
-                        (with-html-to-string ()
+                        (with-html-string
                           (render service)))
                 (render form-section
                         :label "Channel User"
                         :input
-                        (with-html-to-string ()
+                        (with-html-string
                           (render channel-user))))
 
                 
               (render form-section 
                       :label "Post"
                       :input 
-                      (with-html-to-string ()
+                      (with-html-string
                         (render-edit-field
                          "action-content" 
                          (or (parameter "action-content") 
@@ -89,7 +89,7 @@
               (render 
                form-section
                :label "Image"
-               :input (with-html-to-string ()
+               :input (with-html-string
                         ;; (render-edit-field 
                         ;;  "image-url"
                         ;;  (or (parameter "image-url")
@@ -98,36 +98,33 @@
                         ;;  :required t)
                         (when (image-url row)
                           (htm (:div (:img :src (format nil "/dyb/images/~a" (file-namestring  (image-url row)))
-                                      :width 250
-                                      :height 250))))
+                                           :width 250
+                                           :height 250))))
                         (:input :type "file" :name "file" :id "file"
                                 :style "display: inline-block;")))
               (render 
                form-section
                :label "Post Url"
-               :input (with-html-to-string ()
+               :input (with-html-string
                         (render-edit-field 
                          "post-url"
                          (or (parameter "post-url")
                              (get-val row 'post-url))
                                  
-                         :required t)
-                        ))
+                         :required t)))
               (render 
                form-section
                :label "Short Url"
-               :input (with-html-to-string ()
+               :input (with-html-string
                         (render-edit-field 
                          "short-url"
-                         (or (parameter "short-url")
-                             (get-val row 'short-url))
-                         :type :span
-                         )
-                        ))
+                         (when (short-url row)
+                           (format-short-url (short-url row)))
+                         :type :span)))
               (render 
                form-section
                :label "Scheduled Date"
-               :input (with-html-to-string ()
+               :input (with-html-string
                         (render-edit-field 
                          "scheduled-date"
                          (or (parameter "scheduled-date")
@@ -140,7 +137,7 @@
               (render 
                form-section
                :label "Scheduled Time"
-               :input (with-html-to-string ()
+               :input (with-html-string
                         (render-edit-field 
                          "scheduled-time"
                          (or (parameter "scheduled-time")
@@ -152,10 +149,7 @@
                                    (declare (ignore second day month year))
                                    (format nil "~2,'0d:~2,'0d" hour minute))))
                          :type :text
-                         :required t)
-                        ))
-                      
-              ))))
+                         :required t)))))))
 
 (defparameter *tmp-directory* #p"~/hunchentoot-upload/")
 
@@ -172,17 +166,18 @@
    *dispatch-table*))
 
 (defun handle-upload (parameters)
-  (destructuring-bind (path name application-type) parameters
-    (declare (ignore application-type))
-    (ensure-directories-exist *tmp-directory*)
-    (let ((new-path (merge-pathnames (format nil "~(~32r~32r~)-~a"
-                                             (random 99999) (get-universal-time)
-                                             name)
-                                     *tmp-directory*)))
-      (rename-file path new-path)
-      (when (probe-file new-path)
-        (make-auth-dispathcer new-path)
-        new-path))))
+  (when parameters
+    (destructuring-bind (path name application-type) parameters
+      (declare (ignore application-type))
+      (ensure-directories-exist *tmp-directory*)
+      (let ((new-path (merge-pathnames (format nil "~(~32r~32r~)-~a"
+                                               (random 99999) (get-universal-time)
+                                               name)
+                                       *tmp-directory*)))
+        (rename-file path new-path)
+        (when (probe-file new-path)
+          (make-auth-dispathcer new-path)
+          new-path)))))
 
 (defmethod handle-action ((grid generic-actions-grid) (action (eql 'save)))
   (setf (error-message grid) nil)
@@ -192,7 +187,8 @@
           ;;                (get-facebook-access-token-by-user (parameter "channel-user"))))
           (to-user nil)
           (image (handle-upload (post-parameter "file")))
-          (doc (editing-row grid)))
+          (doc (editing-row grid))
+          (short-url (make-short-url (parameter "post-url"))))
       (when t ;; (or from-user to-user)
         (let ((date-time nil))
           (multiple-value-bind (year month day)
@@ -207,7 +203,9 @@
                          (setf (post-type doc) (parameter "service")
                                (from-user-id doc) (parameter "channel-user")
                                (scheduled-date doc) date-time
-                               (image-url doc) image)
+                               (image-url doc) (or image
+                                                   (image-url doc))
+                               (short-url doc) short-url)
                          (persist doc))
                         (t
                          (persist (make-generic-action nil
@@ -217,7 +215,9 @@
                                                        (parameter "action-type")
                                                        (parameter "action-content")
                                                        date-time
-                                                       :image-url image)))))
+                                                       :image-url image
+                                                       :post-url (parameter "post-url")
+                                                       :short-url short-url)))))
               (unless second
                 (setf (error-message grid) minute))))
 
