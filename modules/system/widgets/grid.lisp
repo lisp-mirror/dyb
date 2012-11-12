@@ -728,7 +728,7 @@ document.getElementById(\"~A\").submit();"
                    (lambda (row) (column-text grid row column))))))
 
 (defmethod process-data-table ((grid grid))
-  (print (get-parameters*))
+  ;(print (get-parameters*))
   (with-parameters ((s-echo "sEcho")
                     (start "iDisplayStart")
                     (length "iDisplayLength")

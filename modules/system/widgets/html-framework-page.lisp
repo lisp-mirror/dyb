@@ -99,9 +99,15 @@
    (form-id :initarg :form-id
             :accessor form-id)
    (grid-name :initarg :grid-name
-            :accessor grid-name)
+              :accessor grid-name)
    (parent-grid :initarg :parent-grid
-                :accessor parent-grid)))
+                :accessor parent-grid)
+   (form-data :initarg :form-data
+              :initform nil
+              :accessor form-data)
+   (ajax-submit :initarg :ajax-submit
+                :initform t
+                :accessor ajax-submit)))
 
 (defmethod render ((widget html-framework-form) &key content grid)
   (with-html
@@ -113,12 +119,22 @@
                       (:form :name (get-val widget 'form-id)
                              :id (get-val widget 'form-id)
                              :class "form-horizontal well"
+                             :action (when (ajax-submit widget)
+                                       "")
                              :method "post"
-                             :onsubmit "return false;"
+                             :onsubmit (when (ajax-submit widget)
+                                         "return false;")
+                             :enctype (and (form-data widget)
+                                           "multipart/form-data")
                              (:fieldset
                               (:input :type "hidden" :name "form-id"
                                       :value (get-val widget 'form-id))
-
+                              (unless (ajax-submit widget)
+                                (htm
+                                 (:input :type "hidden" :name "action"
+                                         :value "save")
+                                 (:input :type "hidden" :name "grid-name"
+                                         :value (name grid))))
                               (if (get-val widget 'grid-name)
                                   (htm (:input :type "hidden" :name "grid-name"
                                                :value (get-val widget 'grid-name))))
@@ -132,18 +148,20 @@
                                      (format nil
                                              "if($(\"#~a\").valid()){~a}"
                                              (get-val widget 'form-id)
-                                             
-                                             (js-render-form-values 
-                                              (editor grid)
-                                              (get-val widget 'form-id)
-                                              (js-pair "grid-name" (name grid))
-                                              (js-pair "action" "save")))
+                                             (if (ajax-submit widget)
+                                                 (js-render-form-values 
+                                                  (editor grid)
+                                                  (get-val widget 'form-id)
+                                                  (js-pair "grid-name" (name grid))
+                                                  (js-pair "action" "save"))
+                                                 ""))
                                      "Save")
                                     (:button :class "btn btn-warning"
                                              :onclick
-                                             (js-render (editor grid)
-                                                        (js-pair "grid-name" (name grid))
-                                                        (js-pair "action" "cancel"))
+                                             (format nil "event.preventDefault(); ~a"
+                                                     (js-render (editor grid)
+                                                                (js-pair "grid-name" (name grid))
+                                                                (js-pair "action" "cancel")))
                                              "Cancel")))))))))
 
 (defclass form-section (widget)

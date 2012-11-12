@@ -1,18 +1,42 @@
 (in-package :dyb)
 
 (defclass generic-action (doc)
-  ((pid :initarg :pid :accessor generic-entry-pid)
-   (post-type :initarg :post-type)
-   (from-user-id :initarg :from-user-id)
-   (to-user-id :initarg :to-user-id)
-   (action-type :initarg :action-type)
-   (action-content :initarg :action-content)
-   (action-status :initarg :action-status)
-   (action-log :initarg :action-log)
-   (image-url :initarg :image-url)
-   (post-url :initarg :post-url)
-   (short-url :initarg :short-url)
-   (scheduled-date :initarg :scheduled-date))
+  ((pid :initarg :pid
+        :initform nil
+        :accessor generic-entry-pid)
+   (post-type :initarg :post-type
+              :initform nil
+              :accessor post-type)
+   (from-user-id :initarg :from-user-id
+                 :initform nil
+                 :accessor from-user-id)
+   (to-user-id :initarg :to-user-id
+               :initform nil
+               :accessor to-user-id)
+   (action-type :initarg :action-type
+                :initform nil
+                :accessor action-type)
+   (action-content :initarg :action-content
+                   :initform nil
+                   :accessor action-content)
+   (action-status :initarg :action-status
+                  :initform nil
+                  :accessor action-status)
+   (action-log :initarg :action-log
+               :initform nil
+               :accessor action-log)
+   (image-url :initarg :image-url
+              :initform nil
+              :accessor image-url)
+   (post-url :initarg :post-url
+             :initform nil
+             :accessor post-url)
+   (short-url :initarg :short-url
+              :initform nil
+              :accessor short-url)
+   (scheduled-date :initarg :scheduled-date
+                   :initform nil
+                   :accessor scheduled-date))
   (:metaclass storable-class))
 
 

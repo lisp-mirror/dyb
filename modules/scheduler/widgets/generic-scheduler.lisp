@@ -25,10 +25,11 @@
 
 (defmethod render-row-editor ((grid generic-actions-grid) row)
   (let ((comment-form (make-widget 'html-framework-form :name "schedule-action-formx"
-                                       :grid-size 12
-                                       :header "Schedule Action Against Post"
-                                       :form-id "schedule-action-form"
-                                       ))
+                                                        :grid-size 12
+                                                        :header "Schedule Action Against Post"
+                                                        :form-id "schedule-action-form"
+                                                        :form-data t
+                                                        :ajax-submit nil))
         (form-section (make-widget 'form-section
                                    :name "form-section"))
         (current-doc (get-val grid 'current-doc))
@@ -36,147 +37,163 @@
                                     :name "channel-user-select-dropown")))
     
     (render comment-form
-                    :grid grid
-                    :content
-                    (with-html-to-string ()
-                      (:input :type "hidden" :name "from-user-id" 
-                              :value (get-val 
-                                      (get-val 
-                                       (get-val current-doc 'payload) 'from) 'id))
-                      (:input :type "hidden" :name "action-type" 
-                              :value "Post")
-                      (:input :type "hidden" :name "to-user-id" 
-                              :value (if (get-val (get-val current-doc 'payload) 'to)
-                                         (if (listp (get-val 
-                                                     (get-val current-doc 'payload) 'to))
-                                             (get-val 
-                                              (first (get-val 
-                                                      (get-val current-doc 'payload) 'to)) 'id)
-                                             (get-val (get-val 
-                                                       (get-val current-doc 'payload) 'to) 'id))))
+            :grid grid
+            :content
+            (with-html-to-string ()
+              (:input :type "hidden" :name "from-user-id" 
+                      :value (get-val 
+                              (get-val 
+                               (get-val current-doc 'payload) 'from) 'id))
+              (:input :type "hidden" :name "action-type" 
+                      :value "Post")
+              (:input :type "hidden" :name "to-user-id" 
+                      :value (if (get-val (get-val current-doc 'payload) 'to)
+                                 (if (listp (get-val 
+                                             (get-val current-doc 'payload) 'to))
+                                     (get-val 
+                                      (first (get-val 
+                                              (get-val current-doc 'payload) 'to)) 'id)
+                                     (get-val (get-val 
+                                               (get-val current-doc 'payload) 'to) 'id))))
                       
 
-                      (destructuring-bind (service channel-user)
-                          (selects channel-users)
-                        (render channel-users)
-                        (setf (value service) (or (parameter "service")
-                                                  (get-val row 'post-type)))
-                        (setf (value channel-user) (or (parameter "channel-user")
-                                                        (get-val row 'from-user-id)))
-                        (render form-section
-                                :label "Post To"
-                                :input
-                                (with-html-to-string ()
-                                  (render service)))
-                        (render form-section
-                                :label "Channel User"
-                                :input
-                                (with-html-to-string ()
-                                  (render channel-user))))
+              (destructuring-bind (service channel-user)
+                  (selects channel-users)
+                (render channel-users)
+                (setf (value service) (or (parameter "service")
+                                          (get-val row 'post-type)))
+                (setf (value channel-user) (or (parameter "channel-user")
+                                               (get-val row 'from-user-id)))
+                (render form-section
+                        :label "Post To"
+                        :input
+                        (with-html-to-string ()
+                          (render service)))
+                (render form-section
+                        :label "Channel User"
+                        :input
+                        (with-html-to-string ()
+                          (render channel-user))))
 
                 
-                      (render form-section 
-                              :label "Post"
-                              :input 
-                              (with-html-to-string ()
-                                (render-edit-field
-                                 "action-content" 
-                                 (or (parameter "action-content") 
-                                     (get-val row 'action-content))
-                                 :required t
-                                 :type :textarea)))
-                      (render 
-                       form-section
-                       :label "Image"
-                       :input (with-html-to-string ()
-                                (render-edit-field 
-                                 "image-url"
-                                 (or (parameter "image-url")
-                                     (get-val row 'image-url))
+              (render form-section 
+                      :label "Post"
+                      :input 
+                      (with-html-to-string ()
+                        (render-edit-field
+                         "action-content" 
+                         (or (parameter "action-content") 
+                             (get-val row 'action-content))
+                         :required t
+                         :type :textarea)))
+              (render 
+               form-section
+               :label "Image"
+               :input (with-html-to-string ()
+                        ;; (render-edit-field 
+                        ;;  "image-url"
+                        ;;  (or (parameter "image-url")
+                        ;;      (get-val row 'image-url))
                                  
-                                 :required t)
-                                (:form :action ""
-                                       :method "post"
-                                       :enctype "multipart/form-data"
-                                       (:input :type "hidden" :name "form-id" :value "upload-file-form")
-                                       (:label :for "file" "Select file")
-                                       (:input :type "file" :name "file" :id "file"
-                                               :style "display: inline-block;")
-                                       (:input :type "submit" :value "Upload"
-                                               :style "display: inline-block;")
-                                       (:button :class "red"
-                                                :onclick
-                                                ""
-                      "Cancel"))
-                                ))
-                      (render 
-                       form-section
-                       :label "Post Url"
-                       :input (with-html-to-string ()
-                                (render-edit-field 
-                                 "post-url"
-                                 (or (parameter "post-url")
-                                     (get-val row 'post-url))
+                        ;;  :required t)
+                        (when (image-url row)
+                          (htm (:div (:img :src (format nil "/dyb/images/~a" (file-namestring  (image-url row)))
+                                      :width 250
+                                      :height 250))))
+                        (:input :type "file" :name "file" :id "file"
+                                :style "display: inline-block;")))
+              (render 
+               form-section
+               :label "Post Url"
+               :input (with-html-to-string ()
+                        (render-edit-field 
+                         "post-url"
+                         (or (parameter "post-url")
+                             (get-val row 'post-url))
                                  
-                                 :required t)
-                                ))
-                      (render 
-                       form-section
-                       :label "Short Url"
-                       :input (with-html-to-string ()
-                                (render-edit-field 
-                                 "short-url"
-                                 (or (parameter "short-url")
-                                     (get-val row 'short-url))
-                                 :type :span
-                                 )
-                                ))
-                      (render 
-                       form-section
-                       :label "Scheduled Date"
-                       :input (with-html-to-string ()
-                                (render-edit-field 
-                                 "scheduled-date"
-                                 (or (parameter "scheduled-date")
-                                     (if (get-val row 'scheduled-date)
-                                         (format-universal-date 
-                                          (get-val row 'scheduled-date))))
-                                 :type :date
-                                 :required t)
-                                ))
-                      (render 
-                       form-section
-                       :label "Scheduled Time"
-                       :input (with-html-to-string ()
-                                (render-edit-field 
-                                 "scheduled-time"
-                                 (or (parameter "scheduled-time")
-                                     (if (get-val row 'scheduled-date)
-                                         (multiple-value-bind 
-                                               (second minute hour day month year)
-                                             (decode-universal-time 
-                                              (get-val row 'scheduled-date))
-                                           (declare (ignore second day month year))
-                                           (format nil "~2,'0d:~2,'0d" hour minute))))
-                                 :type :text
-                                 :required t)
-                                ))
+                         :required t)
+                        ))
+              (render 
+               form-section
+               :label "Short Url"
+               :input (with-html-to-string ()
+                        (render-edit-field 
+                         "short-url"
+                         (or (parameter "short-url")
+                             (get-val row 'short-url))
+                         :type :span
+                         )
+                        ))
+              (render 
+               form-section
+               :label "Scheduled Date"
+               :input (with-html-to-string ()
+                        (render-edit-field 
+                         "scheduled-date"
+                         (or (parameter "scheduled-date")
+                             (if (get-val row 'scheduled-date)
+                                 (format-universal-date 
+                                  (get-val row 'scheduled-date))))
+                         :type :date
+                         :required t)
+                        ))
+              (render 
+               form-section
+               :label "Scheduled Time"
+               :input (with-html-to-string ()
+                        (render-edit-field 
+                         "scheduled-time"
+                         (or (parameter "scheduled-time")
+                             (if (get-val row 'scheduled-date)
+                                 (multiple-value-bind 
+                                       (second minute hour day month year)
+                                     (decode-universal-time 
+                                      (get-val row 'scheduled-date))
+                                   (declare (ignore second day month year))
+                                   (format nil "~2,'0d:~2,'0d" hour minute))))
+                         :type :text
+                         :required t)
+                        ))
                       
-                      ))))
+              ))))
 
+(defparameter *tmp-directory* #p"~/hunchentoot-upload/")
 
+(defun authorized-dispatcher (dispatch-fn)
+  (lambda (request)
+    (when (current-user)
+      (funcall dispatch-fn request))))
 
+(defmethod make-auth-dispathcer (path)
+  (push
+   (authorized-dispatcher (create-static-file-dispatcher-and-handler
+                           (format nil "/dyb/images/~A" (file-namestring path))
+                           path))
+   *dispatch-table*))
 
+(defun handle-upload (parameters)
+  (destructuring-bind (path name application-type) parameters
+    (declare (ignore application-type))
+    (ensure-directories-exist *tmp-directory*)
+    (let ((new-path (merge-pathnames (format nil "~(~32r~32r~)-~a"
+                                             (random 99999) (get-universal-time)
+                                             name)
+                                     *tmp-directory*)))
+      (rename-file path new-path)
+      (when (probe-file new-path)
+        (make-auth-dispathcer new-path)
+        new-path))))
 
 (defmethod handle-action ((grid generic-actions-grid) (action (eql 'save)))
   (setf (error-message grid) nil)
-
   (when (and (string-equal (parameter "form-id") "schedule-action-form"))
-    (let ((from-user (if (and (string-equal (parameter "service") "facebook")
-                              (parameter "channel-user"))
-                         (get-facebook-access-token-by-user (parameter "channel-user"))))
-          (to-user nil))
-      (when (or from-user to-user)
+    (let (;; (from-user (if (and (string-equal (parameter "service") "facebook")
+          ;;                     (parameter "channel-user"))
+          ;;                (get-facebook-access-token-by-user (parameter "channel-user"))))
+          (to-user nil)
+          (image (handle-upload (post-parameter "file")))
+          (doc (editing-row grid)))
+      (when t ;; (or from-user to-user)
         (let ((date-time nil))
           (multiple-value-bind (year month day)
                 (decode-date-string (parameter "scheduled-date"))
@@ -185,28 +202,28 @@
               (when second
                   (setf date-time 
                         (encode-universal-time second minute hour day month year))
-                  (if (xid (editing-row grid))
-                      (let ((new-doc (editing-row grid))
-                            (old-doc (copy (editing-row grid))))
-                        (synq-edit-data new-doc)
-                        (setf (get-val new-doc 'post-type) (parameter "service"))
-                        (setf (get-val new-doc 'from-user-id) (parameter "channel-user"))
-                        (setf (get-val new-doc 'scheduled-date) date-time)
-                (persist new-doc :old-object old-doc))
-              (persist (make-generic-action  nil
-                                             (parameter "service")
-                                             (parameter "channel-user") 
-                                             to-user
-                                             (parameter "action-type")
-                                             (parameter "action-content")
-                                             date-time
-                                             )))
-                  )
+                  (cond ((xid doc)
+                         (synq-edit-data doc)
+                         (setf (post-type doc) (parameter "service")
+                               (from-user-id doc) (parameter "channel-user")
+                               (scheduled-date doc) date-time
+                               (image-url doc) image)
+                         (persist doc))
+                        (t
+                         (persist (make-generic-action nil
+                                                       (parameter "service")
+                                                       (parameter "channel-user") 
+                                                       to-user
+                                                       (parameter "action-type")
+                                                       (parameter "action-content")
+                                                       date-time
+                                                       :image-url image)))))
               (unless second
                 (setf (error-message grid) minute))))
 
           )
         (finish-editing grid))
-      (unless (or from-user to-user)
-          (setf (error-message grid) "User does not exist.")))))
+      ;; (unless (or from-user to-user)
+      ;;     (setf (error-message grid) "User does not exist."))
+      )))
  
