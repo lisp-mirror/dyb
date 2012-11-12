@@ -62,13 +62,12 @@
 
 (defmethod render ((widget html-simple-framework-form) &key content)
   (with-html
-    (:div :class "nonboxy-widget"
+    (:div :class (format nil "nonboxy-widget span-~A" (get-val widget 'grid-size))
           (if (get-val widget 'header)
               (htm (:div :class "widget-head"
                          (:h5 (str (get-val widget 'header))))))
           (:div :class "widget-content"
-                (:div :class "widget-box"
-                      (:form :name (get-val widget 'form-id)
+                (:form :name (get-val widget 'form-id)
                              :id (get-val widget 'form-id)
                              :class "form-horizontal well"
                              :method "post"
@@ -89,7 +88,7 @@
                                               widget
                                               (get-val widget 'form-id)
                                               (js-pair "action" (get-val widget 'action))))
-                                     (str (get-val widget 'action-title)))))))))))
+                                     (str (get-val widget 'action-title))))))))))
 
 (defclass html-framework-form (widget)
   ((grid-size :initarg :grid-size

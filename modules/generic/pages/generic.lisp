@@ -30,9 +30,6 @@
 
                       )))))
 
-
-
-
 (defun twitter-post-display (grid row col-val row-id)
   (with-html-to-string ()
     (:div 
@@ -55,13 +52,38 @@
               (str (gpv col-val :text)))
        (:span :class "twitter-actions"
               (:span :class "action-icon" :title "Reply"
-                     (:a :href "#" (:img :src "/appimg/twitter-reply.png")))
+                     (:a :href (js-link 
+                                (js-render (editor grid)
+                                           (js-pair "grid-name" (name grid))
+                                           (js-pair "action" "reply-twitter-form")
+                                           (js-pair "row_id" row-id))) 
+                                  ;;(:img :src "/appimg/twitter-reply.png")
+                                  (str "Reply")
+                                  )
+
+                     )
                                        
               (:span :class "action-icon" :title "Retweet"
-                     (:a :href "#" (:img :src "/appimg/twitter-retweet.png")))
+                     (:a :href (js-link 
+                                (js-render (editor grid)
+                                           (js-pair "grid-name" (name grid))
+                                           (js-pair "action" "retweet-twitter-form")
+                                           (js-pair "row_id" row-id))) 
+                                  ;;(:img :src "/appimg/twitter-retweet.png")
+                                  (str "Retweet")
+                                  )
+                     )
                                        
               (:span :class "action-icon" :title "Add to favourites"
-                     (:a :href "#" (:img :src "/appimg/twitter-favourite.png")))
+                     (:a :href (js-link 
+                                (js-render (editor grid)
+                                           (js-pair "grid-name" (name grid))
+                                           (js-pair "action" "favourite-twitter")
+                                           (js-pair "row_id" row-id))) 
+                                  ;;(:img :src "/appimg/twitter-favourite.png")
+                                  (str "Add to Favourites")
+                                  )
+                     )
               )
 
        )
@@ -85,23 +107,30 @@
               (str (gpv col-val 'created--time)))
        (:span :class "post-content"
               (str (or (gpv col-val :message) (gpv col-val :story))))
-       (:span :class "twitter-actions"
-              (:span :class "action-icon" :title "Like"
-                     (:a :href (js-link 
-                                (js-render nil (js-pair "action" "like"))) 
-                         (:img :src "/appimg/fb-like.png")))
-              (:span :class "action-icon" (str (if (gpv col-val :likes :count)
-                                                   (gpv col-val :likes :count)
-                                                   0)))
-              (:span :class "action-icon" :title "Comment"
-                     (:a :href "#" 
-                         :onclick (format nil "$(\"#comments-~A\").toggle(); return false;"
-                                          (gpv col-val :id))
-                         (:img :src "/appimg/fb-comment.png")))
-              (:span :class "action-icon" (str (gpv col-val :comments :count)))
-              (:span :class "action-icon" :title "Share"
-                     (:a :href "#" (:img :src "/appimg/fb-share.png")))
-              )
+       (if (gpv col-val :actions)
+           (htm (:span :class "twitter-actions"
+                       (:span :class "action-icon" :title "Like"
+                              (:a :href (js-link 
+                                         (js-render (editor grid)
+                                                    (js-pair "grid-name" (name grid))
+                                                    (js-pair "action" "post-facebook-like")
+                                                    (js-pair "row_id" row-id))) 
+                                  ;;(:img :src "/appimg/fb-like.png")
+                                  (str "Like")
+                                  ))
+                       (:span :class "action-icon" (str (if (gpv col-val :likes :count)
+                                                            (gpv col-val :likes :count)
+                                                            0)))
+                       (:span :class "action-icon" :title "Comment"
+                              (:a :href "#" 
+                                  :onclick (format nil "$(\"#comments-~A\").toggle(); return false;"
+                                                   (gpv col-val :id))
+                                  ;;(:img :src "/appimg/fb-comment.png")
+                                  (str "comment")))
+                       (:span :class "action-icon" (str (gpv col-val :comments :count)))
+                       ;;(:span :class "action-icon" :title "Share"
+                       ;;       (:a :href "#" (:img :src "/appimg/fb-share.png")))
+                       )))
 
 
        (:div :id (format nil "comments-~A" (gpv col-val :id)) 

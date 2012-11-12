@@ -493,10 +493,11 @@ document.getElementById(\"~A\").submit();"
      (defer-js (fmt "updateTable('~a-table')" (name parent))))
   (defer-js (fmt "updateTable('~a-table')" (name grid))))
 
-(defun open-dialog (widget grid)
-  (defer-js (format nil "$('#~a').dialog({width: 900, height: 500,~@
+(defun open-dialog (widget grid &key (width 900) (height 500))
+  (defer-js (format nil "$('#~a').dialog({width: ~A, height: ~A,~@
                                            close: function(){~a}})"
                     (name widget)
+                    width height
                     (js-render (editor grid)
                                (js-pair "grid-name" (name grid))
                                (js-pair "action" "cancel")))))
@@ -654,9 +655,10 @@ document.getElementById(\"~A\").submit();"
         thereis (search term (column-text grid row column )
                         :test #'equalp)))
 
-(defun expand-all-columns (grid rows)
+(defun expand-all-columns (grid rows current-index)
+
   (loop for row being the elements of rows
-     for row-id = (if row-id (incf row-id) 0)
+     for row-id = (if row-id  (incf row-id) (+ current-index  0))
      collect (expand-columns grid row row-id)))
 
 (defun grid-filtered-rows (grid)
@@ -681,7 +683,7 @@ document.getElementById(\"~A\").submit();"
                                            (+ start length))))))
 
     (values 
-     (loop for row in (expand-all-columns grid cut)
+     (loop for row in (expand-all-columns grid cut start) 
            for id from start
            collect 
           (append row

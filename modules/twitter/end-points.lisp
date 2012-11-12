@@ -3,16 +3,16 @@
 (defun simple-tweet (app-id app-secret access-token access-secret message)
   (let* ((stamp (format nil "~A" (get-unix-time)))
          (nonce (format nil "~A" (random 1234567)))
-         (end-point  "https://api.twitter.com/1/statuses/update.json" ))
+         (end-point  "https://api.twitter.com/1.1/statuses/update.json" ))
 
     (drakma:http-request 
-     (format nil "~A?include_entities=true&status=~A&trim_user=true" 
+     (format nil "~A?status=~A" 
              end-point (replace-all message " " "+"))   
      :method :post
      :additional-headers
      `(("Authorization"
         ,@(build-auth-string
-           `(("include_entities" "true")
+           `(
              ("oauth_consumer_key" ,app-id)
              ("oauth_nonce" ,nonce)
              ("oauth_signature"
@@ -21,7 +21,7 @@
                  (signature-base-string
                   :uri end-point 
                   :request-method "POST"
-                  :parameters `(("include_entities" "true")
+                  :parameters `(
                                 ("oauth_consumer_key" ,app-id)
                                 ("oauth_nonce" ,nonce)
                                 ("oauth_signature_method" "HMAC-SHA1")
@@ -29,7 +29,133 @@
                                 ("oauth_token" ,access-token)
                                 ("oauth_version" "1.0")
                                 ("status" ,message)
-                                ("trim_user" "true")))
+                                ))
+                 (hmac-key  app-secret 
+                            access-secret))
+                  nil))
+             ("oauth_signature_method" "HMAC-SHA1")
+             ("oauth_timestamp" ,stamp)
+             ("oauth_token" ,access-token)
+             ("oauth_version" "1.0")
+             
+             ))))
+    :want-stream nil
+    :preserve-uri t)))
+
+(defun twitter-favourite (app-id app-secret access-token access-secret tweet-id)
+  (let* ((stamp (format nil "~A" (get-unix-time)))
+         (nonce (format nil "~A" (random 1234567)))
+         (end-point  "https://api.twitter.com/1.1/favorites/create.json" ))
+
+    (drakma:http-request 
+     (format nil "~A?id=~A" end-point tweet-id)   
+     :method :post
+     :additional-headers
+     `(("Authorization"
+        ,@(build-auth-string
+           `(
+             ("oauth_consumer_key" ,app-id)
+             ("oauth_nonce" ,nonce)
+             ("oauth_signature"
+              ,(encode-signature
+                (hmac-sha1
+                 (signature-base-string
+                  :uri end-point 
+                  :request-method "POST"
+                  :parameters `(("id" tweet-id)
+                                ("oauth_consumer_key" ,app-id)
+                                ("oauth_nonce" ,nonce)
+                                ("oauth_signature_method" "HMAC-SHA1")
+                                ("oauth_timestamp" ,stamp)
+                                ("oauth_token" ,access-token)
+                                ("oauth_version" "1.0")
+                                
+                                ))
+                 (hmac-key  app-secret 
+                            access-secret))
+                  nil))
+             ("oauth_signature_method" "HMAC-SHA1")
+             ("oauth_timestamp" ,stamp)
+             ("oauth_token" ,access-token)
+             ("oauth_version" "1.0")
+             
+             ))))
+    :want-stream nil
+    :preserve-uri t)))
+
+(defun retweet (app-id app-secret access-token access-secret tweet-id)
+  (let* ((stamp (format nil "~A" (get-unix-time)))
+         (nonce (format nil "~A" (random 1234567)))
+         (end-point  (format nil
+                             "https://api.twitter.com/1.1/statuses/retweet/~A.json"
+                             tweet-id) ))
+
+    (drakma:http-request 
+     end-point   
+     :method :post
+     :additional-headers
+     `(("Authorization"
+        ,@(build-auth-string
+           `(
+             ("oauth_consumer_key" ,app-id)
+             ("oauth_nonce" ,nonce)
+             ("oauth_signature"
+              ,(encode-signature
+                (hmac-sha1
+                 (signature-base-string
+                  :uri end-point 
+                  :request-method "POST"
+                  :parameters `(
+                                ("oauth_consumer_key" ,app-id)
+                                ("oauth_nonce" ,nonce)
+                                ("oauth_signature_method" "HMAC-SHA1")
+                                ("oauth_timestamp" ,stamp)
+                                ("oauth_token" ,access-token)
+                                ("oauth_version" "1.0")
+                                
+                                ))
+                 (hmac-key  app-secret 
+                            access-secret))
+                  nil))
+             ("oauth_signature_method" "HMAC-SHA1")
+             ("oauth_timestamp" ,stamp)
+             ("oauth_token" ,access-token)
+             ("oauth_version" "1.0")
+             
+             ))))
+    :want-stream nil
+    :preserve-uri t)))
+
+(defun reply-tweet (app-id app-secret access-token access-secret message at-user)
+  (let* ((stamp (format nil "~A" (get-unix-time)))
+         (nonce (format nil "~A" (random 1234567)))
+         (end-point  "https://api.twitter.com/1.1/statuses/update.json" ))
+
+    (drakma:http-request 
+     (format nil "~A?status=~A" 
+             end-point (replace-all (format nil "D @~A ~A" at-user message) " " "+"))   
+     :method :post
+     :additional-headers
+     `(("Authorization"
+        ,@(build-auth-string
+           `(
+             ("oauth_consumer_key" ,app-id)
+             ("oauth_nonce" ,nonce)
+             ("oauth_signature"
+              ,(encode-signature
+                (hmac-sha1
+                 (signature-base-string
+                  :uri end-point 
+                  :request-method "POST"
+                  :parameters `(
+                                ("oauth_consumer_key" ,app-id)
+                                ("oauth_nonce" ,nonce)
+                                ("oauth_signature_method" "HMAC-SHA1")
+                                ("oauth_timestamp" ,stamp)
+                                ("oauth_token" ,access-token)
+                                ("oauth_version" "1.0")
+                                ("status" ,(format nil "D @~A ~A" at-user message))
+                                ))
                  (hmac-key  app-secret 
                             access-secret))
                   nil))
