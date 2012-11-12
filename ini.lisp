@@ -37,7 +37,7 @@
 
 
 (defparameter *installation* "Local Machine");;"Live Serve"
-
+(defparameter *site-url* "http://localhost/")
 
 (defparameter *facebook-oauth-uri* "https://www.facebook.com/dialog/oauth")
 (defparameter *facebook-access-token-uri* "https://graph.facebook.com/oauth/access_token")

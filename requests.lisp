@@ -109,7 +109,8 @@
 
 (defmethod handle-request :around ((acceptor dyb-acceptor) request)
   (cond ((or (current-user)
-             (equal (script-name request) "/dyb/login"))
+             (equal (script-name request) "/dyb/login")
+             (alexandria:starts-with-subseq "/dyb/s/" (script-name request)))
          (let (*print-pretty*
                (*widget-parameters* nil))
            (with-error-handling

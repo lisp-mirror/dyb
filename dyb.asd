@@ -55,7 +55,8 @@
                                              (:file "user")
                                              (:file "entities")
                                              (:file "entity-relationships")
-                                             (:file "system-log")))
+                                             (:file "system-log")
+                                             (:file "short-url")))
 
                                    (:module "widgets"
                                             :serial t
@@ -72,7 +73,8 @@
                                              (:file "input-widgets")
                                              (:file "login")
                                              (:file "root-entities")
-                                             (:file "graphs")))
+                                             (:file "graphs")
+                                             (:file "short-url")))
                                    (:module "pages"
                                             :serial t
                                             :components
