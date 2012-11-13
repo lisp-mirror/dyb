@@ -4,16 +4,25 @@
 (defun twitter-refresh-home-timelinex (channel-user)
   (when channel-user
     (when (get-val channel-user 'last-access-token)
-      (let ((result (twitter-home-timeline (get-val channel-user 'last-access-token) 
-                                           (get-val channel-user 'last-token-secret))))
+      (let* ((channel (get-social-channel (get-val channel-user 'channel-user-type)))
+            (result (twitter-home-timeline 
+                     (get-val channel 'app-id)
+                     (get-val channel 'app-secret)
+                     (get-val channel-user 'last-access-token) 
+                     (get-val channel-user 'last-token-secret))))
         (json::decode-json-from-string (flexi-streams:octets-to-string result))))))
 
 (defun twitter-refresh-home-timeline (channel-user)
   (when channel-user
     (when (get-val channel-user 'last-access-token)
-      (let ((result (twitter-home-timeline (get-val channel-user 'last-access-token) 
-                                           (get-val channel-user 'last-token-secret))))
+      (let* ((channel (get-social-channel (get-val channel-user 'channel-user-type)))
+            (result (twitter-home-timeline
+                     (get-val channel 'app-id)
+                     (get-val channel 'app-secret)
+                     (get-val channel-user 'last-access-token) 
+                     (get-val channel-user 'last-token-secret))))
         (parse-tweets 
+         (get-val channel-user 'entity)
          (json::decode-json-from-string (flexi-streams:octets-to-string result))
          'home-timeline)))))
 
@@ -32,13 +41,19 @@
 (defun twitter-user-stream-listener (channel-user)
   (when channel-user
     (when (get-val channel-user 'last-access-token)
-      (let ((stream (twitter-get-stream (get-val channel-user 'last-access-token) (get-val channel-user 'last-token-secret))))
+      (let* ((channel (get-social-channel (get-val channel-user 'channel-user-type)))
+             (stream (twitter-user-stream  (get-val channel 'app-id)
+                                           (get-val channel 'app-secret)
+                                           (get-val channel-user 'last-access-token) 
+                                           (get-val channel-user 'last-token-secret))))
         (when stream
             (loop for i below 200
                for line = (read-line stream nil nil) 
                when (and line (> 1 0) (> (length line) 2))
-               do (parse-tweets (list (json::decode-json-from-string line))
-                                'user-stream))
+               do (parse-tweets 
+                   (get-val channel-user 'entity)
+                   (list (json::decode-json-from-string line))
+                   'user-stream))
             (close stream)
             ;;(values)
             )))))

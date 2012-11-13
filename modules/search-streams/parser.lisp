@@ -15,7 +15,7 @@
 (defmethod raw-post-user-id (post (post-type (eql 'social-mention)))
    (gpv post :user--id))
 
-(defun parse-social-mention (mentions stream-type)
+(defun parse-social-mention (entity mentions stream-type)
 
   (dolist (mention (gpv mentions :items))
     (let ((dup
@@ -29,7 +29,8 @@
         (setf (payload dup) mention)
         (persist dup))
       (unless dup
-        (persist (make-generic-post 'social-mention
+        (persist (make-generic-post entity 
+                                    'social-mention
                                     mention
                                     stream-type
                                     (unix-time-to-universal 

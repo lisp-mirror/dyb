@@ -28,7 +28,7 @@
        (month-number (second split)) 
        (parse-trim-integer (sixth split))))))
 
-(defun parse-tweets (tweets stream-type)
+(defun parse-tweets (entity tweets stream-type)
   (if (not (gpv tweets :errors))
   
     (dolist (tweet tweets)
@@ -43,12 +43,14 @@
           (setf (payload dup) tweet)
           (persist dup))
         (unless dup
-          (persist (make-generic-post 'twitter
-                                      tweet
-                                      stream-type
-                                      (parse-twitter-created-at (gpv tweet :created--at))
-                                      ;;TODO: last-change-date
-                                      ))
+          (persist (make-generic-post 
+                    entity
+                    'twitter
+                    tweet
+                    stream-type
+                    (parse-twitter-created-at (gpv tweet :created--at))
+                    ;;TODO: last-change-date
+                    ))
           ))
       )
     (gpv tweets :errors :message)))

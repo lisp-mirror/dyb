@@ -168,7 +168,7 @@
     :want-stream nil
     :preserve-uri t)))
 
-(defun twitter-user-stream (access-token access-secret)
+(defun twitter-user-stream (app-id app-secret access-token access-secret)
   (let* ((stamp (format nil "~A" (get-unix-time)))
          (nonce (format nil "~A~A" (random 1234567) stamp))
          (end-point  "https://userstream.twitter.com/1.1/user.json";;"http://api.twitter.com/1/statuses/home_timeline.json"
@@ -182,7 +182,7 @@
      `(("Authorization"
         ,@(build-auth-string
            `(;;("oauth_callback" ,*twitter-callback-uri*)
-             ("oauth_consumer_key" ,*twitter-client-id*)
+             ("oauth_consumer_key" ,app-id)
              ("oauth_nonce" ,nonce)
              ("oauth_signature"
               ,(encode-signature
@@ -191,13 +191,13 @@
                   :uri end-point 
                   :request-method "POST"
                   :parameters `(;;("oauth_callback" ,*twitter-callback-uri*)
-                                ("oauth_consumer_key" ,*twitter-client-id*)
+                                ("oauth_consumer_key" ,app-id)
                                 ("oauth_nonce" ,nonce)
                                 ("oauth_signature_method" "HMAC-SHA1")
                                 ("oauth_timestamp" ,stamp)
                                 ("oauth_token" ,access-token)
                                 ("oauth_version" "1.0")))
-                 (hmac-key  *twitter-client-secret* 
+                 (hmac-key  app-secret 
                             access-secret))
                 nil))
              ("oauth_signature_method" "HMAC-SHA1")
@@ -206,7 +206,7 @@
              ("oauth_version" "1.0")))))
     :want-stream t)))
 
-(defun twitter-home-timeline (access-token access-secret)
+(defun twitter-home-timeline (app-id app-secret access-token access-secret)
   (let* ((stamp (format nil "~A" (get-unix-time)))
          (nonce (format nil "~A~A" (random 1234567) stamp))
          (end-point  "http://api.twitter.com/1.1/statuses/home_timeline.json?count=800"
@@ -221,7 +221,7 @@
      `(("Authorization"
         ,@(build-auth-string
            `(;;("oauth_callback" ,*twitter-callback-uri*)
-             ("oauth_consumer_key" ,*twitter-client-id*)
+             ("oauth_consumer_key" ,app-id)
              ("oauth_nonce" ,nonce)
              ("oauth_signature"
               ,(encode-signature
@@ -231,13 +231,13 @@
                   :request-method "GET"
                   :parameters `(;;("oauth_callback" ,*twitter-callback-uri*)
                                 ("count" "800")
-                                ("oauth_consumer_key" ,*twitter-client-id*)
+                                ("oauth_consumer_key" ,app-id)
                                 ("oauth_nonce" ,nonce)
                                 ("oauth_signature_method" "HMAC-SHA1")
                                 ("oauth_timestamp" ,stamp)
                                 ("oauth_token" ,access-token)
                                 ("oauth_version" "1.0")))
-                 (hmac-key  *twitter-client-secret* 
+                 (hmac-key  app-secret
                             access-secret))
                 nil))
              ("oauth_signature_method" "HMAC-SHA1")

@@ -27,9 +27,9 @@
         ((string-equal (gpv post :update-type) "CMPY")
          (gpv post :update-content :company :id))))
 
-(defun parse-linkedin-updates (updates stream-type)
+(defun parse-linkedin-updates (entity updates stream-type)
 
-(dolist (update (gpv updates :values))
+  (dolist (update (gpv updates :values))
     
     
     (let ((dup
@@ -43,11 +43,13 @@
         (setf (payload dup) update)
         (persist dup))
       (unless dup
-        (persist (make-generic-post 'linkedin
-                                    update
-                                    stream-type
-                                    (unix-time-to-universal (truncate (/ (gpv update :timestamp) 1000)))
-                                    ;;TODO: last-change-date
-                                    ))
+        (persist (make-generic-post 
+                  entity
+                  'linkedin
+                  update
+                  stream-type
+                  (unix-time-to-universal (truncate (/ (gpv update :timestamp) 1000)))
+                  ;;TODO: last-change-date
+                  ))
         ))))
 

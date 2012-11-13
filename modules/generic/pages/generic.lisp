@@ -31,7 +31,8 @@
                       )))))
 
 (defun twitter-post-display (grid row col-val row-id)
-  (with-html-to-string ()
+;(break "~A~%~A" col-val (gpv col-val :created--at)) 
+ (with-html-to-string ()
     (:div 
      :class "nonboxy-widget"
      (:div 
@@ -45,9 +46,9 @@
         (str (gpv col-val :user :name)))
        (:span :class "twitter-user" 
               (:a :href (format nil "http://www.twitter.com/~A" 
-                                (gpv col-val :user :screen-name))))
+                                (gpv col-val :user :screen--name))))
        (:span :class "timestamp"
-              (str (gpv col-val :created-at)))
+              (str (gpv col-val :created--at)))
        (:span :class "post-content"
               (str (gpv col-val :text)))
        (:span :class "twitter-actions"
@@ -91,6 +92,7 @@
       ))))
 
 (defun facebook-post-display (grid row col-val row-id)
+  (declare (ignore row))
 ;;(break "~A" col-val)
   (with-html-to-string ()
     (:div 
@@ -104,7 +106,7 @@
         :href (format nil "http://www.facebook.com/~A" (gpv col-val :from :id))
         (str (gpv col-val :from :name)))
        (:span :class "timestamp"
-              (str (gpv col-val 'created--time)))
+              (str (gpv col-val :created--time)))
        (:span :class "post-content"
               (str (or (gpv col-val :message) (gpv col-val :story))))
        (if (gpv col-val :actions)
@@ -154,6 +156,7 @@
      )))
 
 (defun linkedin-post-display (grid row col-val row-id)
+;;(break "~A~%~A" col-val (gpv col-val :timestamp))
   (with-html-to-string ()
     (:div 
      :class "nonboxy-widget"

@@ -25,12 +25,12 @@
   (declare (ignore grid search))
   (find-docs 'vector
               (lambda (doc)
-             ;;   (if (match-context-entities (get-val doc 'payload) ))
-                (cond ((equal filter 'with-audit-data)
-                           doc)
-                          (t 
-                           (if (not (string-equal (get-val doc 'doc-status) "superseded"))
-                               doc))))
+               (if (match-context-entities  doc )
+                   (cond ((equal filter 'with-audit-data)
+                          doc)
+                         (t 
+                          (if (not (string-equal (get-val doc 'doc-status) "superseded"))
+                              doc)))))
               (generic-post-collection)))
 
 (defmethod get-rows ((grid generic-grid))

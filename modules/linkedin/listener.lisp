@@ -10,7 +10,9 @@
                      (get-val channel-user 'last-access-token) 
                      (get-val channel-user 'last-token-secret))))
         (parse-linkedin-updates 
-         (json::decode-json-from-string (flexi-streams:octets-to-string result))
+         (get-val channel-user 'entity)
+         (json::decode-json-from-string 
+          (flexi-streams:octets-to-string result))
          'updates)))))
 
 (defun linkedin-refresh-updates ()

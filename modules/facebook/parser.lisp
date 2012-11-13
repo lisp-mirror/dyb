@@ -34,7 +34,7 @@
        (parse-trim-integer (second split-date)) 
        (parse-trim-integer (first split-date))))))
 
-(defun parse-facebook-posts (posts stream-type)
+(defun parse-facebook-posts (entity posts stream-type)
   (dolist (post (gpv posts :data))
 
     (let ((dup
@@ -45,6 +45,7 @@
                          (equal (raw-post-id post 'facebook) 
                                 (raw-post-id doc 'facebook)))))))
       
+      
       (when dup
         (setf (last-change-date dup) 
               (parse-facebook-created-at 
@@ -53,9 +54,12 @@
 
         (persist dup))
       (unless dup
-        (persist (make-generic-post 'facebook
-                                    post
-                                    stream-type
-                                    (parse-facebook-created-at (gpv post :created--time))
-                                    :last-change-date (parse-facebook-created-at 
-                                                       (gpv post :updated--time))))))))
+        
+        (persist (make-generic-post 
+                  entity
+                  'facebook
+                  post
+                  stream-type
+                  (parse-facebook-created-at (gpv post :created--time))
+                  :last-change-date (parse-facebook-created-at 
+                                     (gpv post :updated--time))))))))
