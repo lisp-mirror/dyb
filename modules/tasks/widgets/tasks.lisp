@@ -97,7 +97,10 @@
                                 (render-edit-field 
                                  "assigning-user"
                                  (or (parameter "assigning-user")
-                                     (get-val row 'assigning-user))
+                                     (if (not (stringp (get-val row 'assigning-user)))
+                                             (email (get-val row 'assigning-user))
+                                             (get-val row 'assigning-user)) 
+                                     (email (current-user)))
                                  :type :span)))
 
                       (render 
@@ -107,7 +110,9 @@
                                 (render-edit-field 
                                  "assigned-user"
                                  (or (parameter "assigned-user")
-                                     (get-val row 'assigned-user))
+                                     (if (not (stringp (get-val row 'assigned-user)))
+                                             (email (get-val row 'assigned-user))
+                                             (get-val row 'assigned-user)))
                                  :data (user-list)
                                  :type :select)))
                       
@@ -120,7 +125,9 @@
                                  (or (parameter "assigned-date")
                                      (if (get-val row 'assigned-date)
                                          (format-universal-date 
-                                          (get-val row 'assigned-date))))
+                                          (get-val row 'assigned-date)))
+                                     (current-date-time))
+                                 
                                  :type :span)))
 
                       (render 
@@ -132,7 +139,8 @@
                                  (or (parameter "scheduled-date")
                                      (if (get-val row 'scheduled-date)
                                          (format-universal-date 
-                                          (get-val row 'scheduled-date))))
+                                          (get-val row 'scheduled-date)))
+                                     (current-date))
                                  :type :date
                                  :required t)))
 
@@ -161,6 +169,9 @@
   (when (and (string-equal (parameter "form-id") "task-form"))
     (let ((new-doc (editing-row grid)))
       (synq-edit-data new-doc)
+      (setf (get-val new-doc 'assigning-user) (get-user (parameter "assigning-user")))
+      (setf (get-val new-doc 'assigning-user) (get-user (parameter "assigned-user")))
+        
       (setf (get-val new-doc 'entity) 
             (get-entity-by-id 
              (if (stringp (parameter "entity"))
@@ -170,6 +181,5 @@
       (unless (get-val new-doc 'xid)
         (setf (get-val new-doc 'assigned-date) (get-universal-time)))
       (persist new-doc))
-    (finish-editing grid)
-    ))
+    (finish-editing grid)))
  

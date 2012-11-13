@@ -39,20 +39,6 @@
                           :filter (grid-filter grid)  
                           :search (search-term grid))))
 
-(defclass grid-action (ajax-widget)
-  ((grid :initarg :grid
-         :initform nil
-         :accessor grid))
-  (:metaclass widget-class))
-
-(defmethod render ((widget grid-action) &key )
-  (with-html
-    "Grid Action")
-  (open-dialog widget (grid widget)))
-
-(defmethod handle-action ((grid generic-grid) (action (eql 'block-user)))
-  (setf (action-widget grid)
-        (make-widget 'grid-action :grid grid :name "XXX")))
 
 
 
@@ -225,3 +211,161 @@
 
 
 
+(defclass assign-task-action (ajax-widget)
+  ((grid :initarg :grid
+         :initform nil
+         :accessor grid)
+   (message :initarg :message))
+  (:metaclass widget-class))
+
+(defmethod render ((widget assign-task-action) &key grid)
+  (let ((row (set-current-row (get-val widget 'grid)))
+        (assign-form (make-widget 'html-simple-framework-form 
+                                    :name "assign-task-form"
+                                    :grid-size 12
+                                    :form-id "assign-task-form"
+                                    :action "assign-task"
+                                    :action-title "Assign Task"))
+        (form-section (make-widget 'form-section
+                                   :name "form-section")))
+    (when row
+        (with-html
+          (render assign-form
+                  :grid grid
+                  :content
+                  (with-html-to-string ()
+                      
+                      
+                    (render form-section 
+                            :label "Entity"
+                            :input 
+                            (with-html-to-string ()
+                              (render-edit-field
+                               "entityx"  
+                               (get-val (get-val row 'entity) 'entity-name)
+                               :type :span)
+                              (:input :type "hidden" :name "entity" 
+                                      :value (get-val (get-val row 'entity) 'xid))))
+                    (render form-section 
+                            :label "Description"
+                            :input 
+                            (with-html-to-string ()
+                              (render-edit-field
+                               "task-description" 
+                               (parameter "task-description")
+                               :required t
+                               :type :text)))
+                    (render form-section 
+                            :label "Instructions"
+                            :input 
+                            (with-html-to-string ()
+                              (render-edit-field
+                               "task-instructions" 
+                               (or (parameter "task-instructions")
+                                   (raw-post-id 
+                                    row 
+                                    (cond ((string-equal (post-type row) "twitter")
+                                           'twitter)
+                                          ((string-equal (post-type row) "facebook")
+                                           'facebook)
+                                          ((string-equal (post-type row) "linkedin")
+                                           'twitter)
+                                          ((string-equal (post-type row) "social mention")
+                                           'social-mention)
+                                          )))
+                               :required t
+                               :type :textarea)))
+                      
+                    (render 
+                     form-section
+                     :label "Status"
+                     :input (with-html-to-string ()
+                              (render-edit-field
+                               "task-status" 
+                               "Assigned"
+                               :type :span)
+                              (:input :type "hidden" :name "task-status" 
+                                      :value "Assigned")))
+                    (render 
+                     form-section
+                     :label "Assigner"
+                     :input (with-html-to-string ()
+                              (render-edit-field 
+                               "assigning-user"
+                               (email (current-user))
+                               :type :span)
+                              (:input :type "hidden" :name "assigning-user" 
+                                      :value (email (current-user)))))
+
+                    (render 
+                     form-section
+                     :label "Assignee"
+                     :input (with-html-to-string ()
+                              (render-edit-field 
+                               "assigned-user"
+                               (parameter "assigned-user")
+                               :data (user-list)
+                               :type :select)))
+                      
+                    (render 
+                     form-section
+                     :label "Assigned Date"
+                     :input (with-html-to-string ()
+                              (render-edit-field 
+                               "assigned-date"
+                               (or (parameter "assigned-date")
+                                   (format-universal-date-time  (get-universal-time)))
+                               :type :span)))
+
+                    (render 
+                     form-section
+                     :label "Scheduled Date"
+                     :input (with-html-to-string ()
+                              (render-edit-field 
+                               "scheduled-date"
+                               (or (parameter "scheduled-date")
+                                   (current-date))
+                               :type :date
+                               :required t))))))))
+  (open-dialog widget (grid widget)))
+
+(defmethod handle-action ((grid generic-grid) (action (eql 'assign-task-form)))
+  (setf (action-widget grid)
+        (make-widget 'assign-task-action :grid grid :name "assign-task-action-form")))
+
+(defmethod  action-handler ((widget assign-task-action))
+  
+
+  (when (string-equal (parameter "action") "assign-task")
+    (setf (get-val widget 'message) nil)
+
+    (let* ((error-message)
+          (entity (get-entity-by-id 
+                               (if (stringp (parameter "entity"))
+                                   (parse-integer 
+                                    (parameter "entity"))
+                                   (parameter "entity"))))
+          (new-doc (make-task entity 
+                       (parameter "task-description")
+                       (get-user (parameter "assigning-user"))
+                       (get-user (parameter "assigned-user")) 
+                       (parameter "scheduled-date")
+                       :task-instructions
+                       (parameter "task-instructions")
+                       :assigned-date
+                       (parameter "assigned-date")
+                       :task-status
+                       (parameter "task-status") 
+                       )))
+    
+
+      (unless (parameter "entity")
+        (setf error-message "Please supply an entity."))
+
+      (when (parameter "entity")
+        (persist new-doc))
+
+      (if error-message
+          (setf (get-val widget 'message) error-message)
+          (defer-js (format nil "$('#~a').dialog('close')" (name widget)))))
+    ))

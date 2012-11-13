@@ -9,7 +9,12 @@
                           :header "Description")
            (make-instance 'grid-column
                           :name 'assigned-user
-                          :header "Assigned User")
+                          :header "Assigned User"
+                          :printer (lambda (user)
+                                     (if user
+                                         (if (not (stringp user))
+                                             (email user)
+                                             user))))
            (make-instance 'grid-column
                           :name 'task-status
                           :header "Status")
@@ -26,7 +31,7 @@
            ))
          (grid (make-widget 'tasks-grid :name "tasks-grid"
                             :edit-inline nil
-                            :title "Schedule Actions"
+                            :title "Assign Task"
                             :row-object-class 'task)))
 
     (setf (get-val grid 'columns) columns)
