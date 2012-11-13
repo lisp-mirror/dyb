@@ -111,7 +111,7 @@
                          (or (parameter "post-url")
                              (get-val row 'post-url))
                                  
-                         :required t)))
+                         :required nil)))
               (render 
                form-section
                :label "Short Url"
@@ -130,7 +130,8 @@
                          (or (parameter "scheduled-date")
                              (if (get-val row 'scheduled-date)
                                  (format-universal-date 
-                                  (get-val row 'scheduled-date))))
+                                  (get-val row 'scheduled-date)))
+                             (current-date))
                          :type :date
                          :required t)
                         ))
@@ -147,9 +148,12 @@
                                      (decode-universal-time 
                                       (get-val row 'scheduled-date))
                                    (declare (ignore second day month year))
-                                   (format nil "~2,'0d:~2,'0d" hour minute))))
+                                   (format nil "~2,'0d:~2,'0d" hour minute)))
+                             "00:00"
+                             )
                          :type :text
-                         :required t)))))))
+                         :required t) 
+                        (str "hh:mm")))))))
 
 (defparameter *tmp-directory* #p"~/hunchentoot-upload/")
 
@@ -182,20 +186,36 @@
 (defmethod handle-action ((grid generic-actions-grid) (action (eql 'save)))
   (setf (error-message grid) nil)
   (when (and (string-equal (parameter "form-id") "schedule-action-form"))
-    (let (;; (from-user (if (and (string-equal (parameter "service") "facebook")
-          ;;                     (parameter "channel-user"))
-          ;;                (get-facebook-access-token-by-user (parameter "channel-user"))))
-          (to-user nil)
-          (image (handle-upload (post-parameter "file")))
-          (doc (editing-row grid))
-          (short-url (make-short-url (parameter "post-url"))))
-      (when t ;; (or from-user to-user)
-        (let ((date-time nil))
-          (multiple-value-bind (year month day)
+
+    
+    (unless (blank-p (parameter "scheduled-date"))
+      (setf (error-message grid) "Please enter a valid date."))
+    
+    (unless (blank-p (parameter "service"))
+      (setf (error-message grid) "Please enter a channel to post to."))
+    
+    (unless (blank-p (parameter "channel-user"))
+      (setf (error-message grid) "Please enter a user to post as."))
+
+    (when (and (blank-p (parameter "service")) 
+               (blank-p (parameter "channel-user")) 
+               (blank-p (parameter "scheduled-date")))
+      (let ( ;; (from-user (if (and (string-equal (parameter "service") "facebook")
+            ;;                     (parameter "channel-user"))
+            ;;                (get-facebook-access-token-by-user (parameter "channel-user"))))
+            (to-user nil)
+            (image (handle-upload (post-parameter "file")))
+            (doc (editing-row grid))
+            (short-url (if (blank-p (parameter "post-url"))
+                           (make-short-url (parameter "post-url"))
+                                     )))
+        (when t ;; (or from-user to-user)
+          (let ((date-time nil))
+            (multiple-value-bind (year month day)
                 (decode-date-string (parameter "scheduled-date"))
-            (multiple-value-bind (second minute hour)
-                (decode-time-string (format nil "~A:00" (parameter "scheduled-time")))
-              (when second
+              (multiple-value-bind (second minute hour)
+                  (decode-time-string (format nil "~A:00" (parameter "scheduled-time")))
+                (when second
                   (setf date-time 
                         (encode-universal-time second minute hour day month year))
                   (cond ((xid doc)
@@ -218,12 +238,12 @@
                                                        :image-url image
                                                        :post-url (parameter "post-url")
                                                        :short-url short-url)))))
-              (unless second
-                (setf (error-message grid) minute))))
+                (unless second
+                  (setf (error-message grid) minute))))
 
-          )
-        (finish-editing grid))
-      ;; (unless (or from-user to-user)
-      ;;     (setf (error-message grid) "User does not exist."))
-      )))
+            )
+          (finish-editing grid))
+        ;; (unless (or from-user to-user)
+        ;;     (setf (error-message grid) "User does not exist."))
+        ))))
  
