@@ -84,7 +84,7 @@
                                      (format nil
                                              "if($(\"#~a\").valid()){~a};"
                                              (get-val widget 'form-id)
-                                             (js-render-form-values  
+                                             (js-render-form-values
                                               widget
                                               (get-val widget 'form-id)
                                               (js-pair "action" (get-val widget 'action))))
@@ -149,7 +149,7 @@
                                              "if($(\"#~a\").valid()){~a}"
                                              (get-val widget 'form-id)
                                              (if (ajax-submit widget)
-                                                 (js-render-form-values 
+                                                 (js-render-form-values
                                                   (editor grid)
                                                   (get-val widget 'form-id)
                                                   (js-pair "grid-name" (name grid))
@@ -172,7 +172,7 @@
 (defmethod render ((widget form-section) &key label input label-for)
   (with-html
     (:div :class "control-group"
-          (:label :class "control-label" :for label-for 
+          (:label :class "control-label" :for label-for
                   (str label))
           (:div :class "controls"
                 (str input)))))
@@ -188,14 +188,14 @@
 (defmethod render ((widget html-framework-tab-box) &key)
   (with-html
     (:div :class "box-tab"
-          (:div :class "tabbalbe tabs-right"
+          (:div :class "tabbable tabs-right"
                 (:ul :class "nav nav-tabs"
                      (loop for (title) in (tabs widget)
                            for i from 0
                            do
                            (htm
                             (:li
-                             (:a :data-toggle "tab" 
+                             (:a :data-toggle "tab"
                                  :href (format nil "#~a-tab-~a" (name widget) i)
                                  (esc title))))))
                 (:div :class "tab-content"
@@ -203,9 +203,12 @@
                             for i from 0
                             do
                             (htm
-                             (:div :class "tab-pane"
+                             (:div :class (if (zerop i)
+                                              "tab-pane active"
+                                              "tab-pane")
                                    :id (format nil "~a-tab-~a" (name widget) i)
-                                   (str content)))))))))
+                                   (str content))))))
+          (str (body-content widget)))))
 
 
 (defclass html-framework-header (widget)
@@ -231,11 +234,11 @@
                                 (:ul :class "dropdown-menu"
                                      (:li
                                       (:a :href "/dyb/dashboard" "Dashboard"))
-                                     (:li 
+                                     (:li
                                       (:a :href "/dyb/clients" "Clients"))
-                                     (:li 
-                                      (:a :href "/dyb/companies" "Companies"))                     
-                                     (:li 
+                                     (:li
+                                      (:a :href "/dyb/companies" "Companies"))
+                                     (:li
                                       (:a :href "/dyb/channel-users" "Channel Users"))
                                      (:li
                                       (:a :href "/dyb/users" "Users"))
@@ -291,7 +294,7 @@
       (:head
        (:meta :charest "utf-8")
        (:link :rel "dns-prefetch" :href "//fonts.googleapis.com")
-       
+
        ;; Use the .htaccess and remove these lines to avoid edge case issues. More info: h5bp.com/i/378
        (:meta :http-equiv "X-UA-Compatible" :content "IE=edge,chrome=1")
 
@@ -315,14 +318,14 @@
        (:link :rel "stylesheet" :href "/css/styles.css")
        (:link :rel "stylesheet" :href "/css/icons-sprite.css")
        (:link :rel "stylesheet" :type "text/css" :href "http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.11/themes/base/jquery-ui.css")
-   
+
        (:link :rel "stylesheet" :type "text/css" :href "http://static.jquery.com/ui/css/demo-docs-theme/ui.theme.css")
 
-    
+
        " <link href=\"/css/jquery.jqplot.css\" rel=\"stylesheet\">"
 
        (:link :id "themes" :rel "stylesheet" :href "/css/theme-blue.css")
-       (:style 
+       (:style
         "div.ui-datepicker{
  font-size:12px;
 }
@@ -356,8 +359,8 @@ if (okToRefresh)
        (if styling
            (str styling))
 
-       
-       
+
+
        (page-include-bits)
        )
 
@@ -425,7 +428,7 @@ if (okToRefresh)
     <script src=\"/js/chart/jqplot.categoryAxisRenderer.min.js\"></script>
     <script src=\"/js/chart/jqplot.logAxisRenderer.min.js\"></script>
     <script src=\"/js/chart/jqplot.canvasTextRenderer.min.js\"></script>
-    <script src=\"/js/chart/jqplot.canvasAxisTickRenderer.min.js\"></script> 
+    <script src=\"/js/chart/jqplot.canvasAxisTickRenderer.min.js\"></script>
 
 <script src=\"/js/custom-script.js\"></script>"
 
@@ -450,7 +453,7 @@ if (okToRefresh)
        (str bottom-java-script)
 
        (:script "$(\"#inline-datepicker\").datepicker({
-   onSelect: function(dateText, inst) { 
+   onSelect: function(dateText, inst) {
       var dateAsString = dateText; //the first parameter of this function
       var dateAsObject = $(this).datepicker( 'getDate' ); //the getDate method
       //alert (dateText);
@@ -460,8 +463,8 @@ if (okToRefresh)
    }
 });
 ")
-       
-       (:script :defer t :src "/appjs/ajax.js")       
+
+       (:script :defer t :src "/appjs/ajax.js")
        (:script (str (deferred-js)))
 
        )
@@ -530,10 +533,10 @@ $(function(){
       cursor: {
         show: false
       },
-	  
+
 	  series: [
             {
-				
+
                 label: 'Facebook'
             },
             {
@@ -546,9 +549,9 @@ $(function(){
                 label: 'LinkedIn'
             }
         ]
-		
+
   });
-  
+
 });
 	$(function() {
 		var date = new Date();
@@ -690,16 +693,16 @@ $(function(){
                       (render (slot-val widget 'header)))
                   (render (make-widget 'html-framework-header :name "top-menu"
                                        :info-panel (slot-val widget 'info-panel))))
-              
+
               (:div :id "sidebar" :style "overflow-y:hidden;cursor:-moz-grab;"
                     :tabindex "5000"
-                    
+
                     (:ul :class "side-nav accordion_mnu collapsible"
-                         (:li 
+                         (:li
                           (:a :href "/dyb/dashboard"
                               (:span :class "white-icons computer_imac")
                               (str "Dashboard")))
-                         
+
                          (:li
                           (:a :href "/dyb/generic"
                               (:span :class "white-icons mail")
@@ -723,9 +726,9 @@ $(function(){
 
                                (:li
                                 (:a :href "/dyb/search-stream" "Search Streams"))
-                       
-                               
-                       
+
+
+
                                (:li
                                 (:a :href "/dyb/search-stream-feedback" "Search Stream Data"))
                                )|#
@@ -741,14 +744,14 @@ $(function(){
                                           (str "Todays Event")))
                                 (:div :class "accordion-content"
                                       (:div :id "inline-datepicker" :altField "shit" ;:style "font-size:8px;"
-                                           
+
                                             :value "12-02-2012"
                                             (:intput :id "shit" :type "hidden" ;;:onchange "(alert 'shit');";; "document.getElementById(\"shit\").submit();"
                                                      ))))))
-              
+
               (:div :id "main-content"
                     (:div :class "container-fluid"
-                          
+
                           (str body))))
             :bottom-java-script
             "")))

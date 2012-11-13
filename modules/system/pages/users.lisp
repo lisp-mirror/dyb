@@ -102,9 +102,10 @@
                               :grid grid))
          (permissions (make-widget 'user-permission-editor))
          (entitites (make-widget 'user-entity-editor))
-         (tabs (make-instance 'html-framework-tab-box :name "user-edit"
-                                             :header "Users"
-                                             :icon "card--pencil")))
+         (tabs (make-instance 'html-framework-tab-box
+                              :name "user-edit"
+                              :header "Users"
+                              :icon "card--pencil")))
     (setf (edit-form grid) editor
           (user editor) (unless (eq row t) row)
           (entity-editor editor) entitites)
@@ -113,24 +114,25 @@
             ("Entities" ,(render-to-string entitites :editor editor))
             ("Permissions" ,(render-to-string permissions :editor editor))))
     (setf (body-content tabs)
-          (with-html-to-string ()
-            (:div :class "actions"
-                  (:div :class "actions-left"
-                        (:button :onclick
-                                 (js-render-form-values (editor grid)
-                                                        "user-editor-form"
-                                                        (js-pair "grid-name" (name grid))
-                                                        (js-pair "action" "save")
-                                                        (scroll-to grid))
-                                 "Save"))
-                  (:div :class "actions-right"
-                        (:button :class "red"
-                                 :onclick
-                                 (js-render (editor grid)
+          (with-html-string
+            (:div :class "form-actions"
+                  (:button
+                   :class "btn btn-info"
+                   :onclick
+                   (js-render-form-values (editor grid)
+                                          "user-editor-form"
+                                          (js-pair "grid-name" (name grid))
+                                          (js-pair "action" "save")
+                                          (scroll-to grid))
+                   "Save")
+                  (:button :class "btn btn-warning"
+                           :onclick
+                           (format nil "event.preventDefault(); ~a"
+                                   (js-render (editor grid)
                                             (js-pair "grid-name" (name grid))
                                             (js-pair "action" "cancel")
-                                            (scroll-to grid))
-                                 "Cancel")))))
+                                            (scroll-to grid)))
+                           "Cancel"))))
     (with-html
       (:div
        :class "grid_6"
