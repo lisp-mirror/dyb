@@ -97,10 +97,12 @@
                                 (render-edit-field 
                                  "assigning-user"
                                  (or (parameter "assigning-user")
-                                     (if (not (stringp (get-val row 'assigning-user)))
+                                     (if (get-val row 'assigning-user)
+                                         (if (not (stringp (get-val row 'assigning-user)))
                                              (email (get-val row 'assigning-user))
-                                             (get-val row 'assigning-user)) 
-                                     (email (current-user)))
+                                             (get-val row 'assigning-user))) 
+                                     (if (current-user)
+                                         (email (current-user))))
                                  :type :span)))
 
                       (render 
@@ -110,9 +112,10 @@
                                 (render-edit-field 
                                  "assigned-user"
                                  (or (parameter "assigned-user")
-                                     (if (not (stringp (get-val row 'assigned-user)))
+                                     (if (get-val row 'assigned-user)
+                                         (if (not (stringp (get-val row 'assigned-user)))
                                              (email (get-val row 'assigned-user))
-                                             (get-val row 'assigned-user)))
+                                             (get-val row 'assigned-user))))
                                  :data (user-list)
                                  :type :select)))
                       
