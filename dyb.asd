@@ -73,8 +73,7 @@
                                              (:file "input-widgets")
                                              (:file "login")
                                              (:file "root-entities")
-                                             (:file "graphs")
-                                             (:file "short-url")))
+                                             (:file "graphs")))
                                    (:module "pages"
                                             :serial t
                                             :components
@@ -86,7 +85,8 @@
                                              (:file "users")
                                              (:file "permissions")
                                              ;;  (:file "export-csv")
-                                             (:file "root-entities")))))
+                                             (:file "root-entities")
+                                             (:file "short-url")))))
                          (:module "administrative"
                                   :serial t
                                   :components
