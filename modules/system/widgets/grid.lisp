@@ -14,10 +14,9 @@
                     :initform nil
                     :accessor total-row-count) 
    (rows-per-page
-    :initarg :rows-per-page :initform 10
+    :initarg :rows-per-page
+    :initform 10
     :accessor rows-per-page)
-   (selected-row :initform nil
-                 :accessor selected-row)
    (editable
     :initarg :editable :initform t
     :accessor editable)
@@ -248,22 +247,23 @@ document.getElementById(\"~A\").submit();"
 (defun set-current-row (grid)
   (let ((row-id (integer-paremeter "row_id")))
     (when row-id
-      (setf (selected-row grid)
+      (setf (editing-row grid)
             (elt (rows grid) row-id)))))
 
-(defmethod handle-action ((object grid) action))
-
-(defmethod handle-action :before ((object grid) action)
+(defmethod handle-action :around ((grid grid) action)
   (when *logging*
-   (format *debug-io* "~a ~a~%" action object)))
-
+   (format *debug-io* "~a ~a~%" action grid))
+  (when (next-method-p)
+    (setf (error-message grid) nil)
+    (set-current-row grid)
+    (when (edit-form grid)
+      (setf (error-message (edit-form grid)) nil))
+    (call-next-method)))
 
 (defmethod handle-action ((grid grid) (action (eql 'delete)))
   (when (editable grid)
-    (let ((row (selected-row grid)))
-      (remove-doc row)
-      (update-table grid))))
-
+    (remove-doc (editing-row grid)))
+  (finish-editing grid))
 
 (defmethod handle-action ((grid grid) (action (eql 'init-new)))
   (editing-row grid))
@@ -320,18 +320,8 @@ document.getElementById(\"~A\").submit();"
                         affected-rows)))))
         finally (return affected-rows)))
 
-(defun log-object (object)
-  (make-instance
-   (find-symbol
-    (format nil "~a-~a" (class-name (class-of object)) 'log)
-    #.*package*)))
-
-
 (defmethod handle-action ((grid grid) (action (eql 'edit)))
-  (when (edit-form grid)
-    (setf (error-message (edit-form grid)) nil))
-  (setf (error-message grid) nil)
-  (setf (editing-row grid) (selected-row grid)))
+  (editing-row grid))
 
 (defmethod handle-action ((grid grid) (action (eql 'cancel)))
   (when (edit-form grid)
@@ -344,8 +334,6 @@ document.getElementById(\"~A\").submit();"
 
 (defmethod action-handler ((grid grid))
   (when (equal (name grid) (parameter "grid-name"))
-    (setf (error-message grid) nil)
-    (set-current-row grid)
     (handle-action grid
                    (find-symbol (string-upcase (parameter "action"))
                                 #.*package*))))
@@ -494,8 +482,6 @@ document.getElementById(\"~A\").submit();"
         while parent
         collect parent))
 
- 	
-
 (defun update-table (grid)
   (loop for parent in (ancestor-grids grid)
      do
@@ -514,22 +500,20 @@ document.getElementById(\"~A\").submit();"
 (defmethod render ((editor grid-editor) &key (modal-p t))
   (let* ((grid (grid editor))
          (editing-row (editing-row grid)))
-    (cond ((action-widget grid)
-           (render (action-widget grid)))
-          ((and (not (edit-inline grid))
+    (cond ((and (not (edit-inline grid))
                 editing-row)
            (with-html
              (when (error-message grid)
                (htm
                 (:div :class "edit-form-error"
                       (esc (error-message grid)))))
-             (render-row-editor grid editing-row)
+             (if (action-widget grid)
+                 (render (action-widget grid))
+                 (render-row-editor grid editing-row))
              (cond (modal-p
                     (open-dialog editor grid))
                    (t
-                    
                     (defer-js (scroll-to editor)))))
-           
            (setf (state grid) :editing))
           ((eql (state grid) :editing)
            (unless (equal (parameter "action") "cancel")

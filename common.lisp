@@ -389,10 +389,13 @@
   (push code (getf *widget-parameters* :javascript-defer-function)))
 
 (defun deferred-js ()
-  (format nil "$(document).ready(function(){~{~a;~}});~
+  (let ((defer (getf *widget-parameters* :javascript-defer))
+        (function (getf *widget-parameters* :javascript-defer-function)))
+    (when (or defer function)
+      (format nil "$(document).ready(function(){~{~a;~}});~
 ~{~a~}"
-          (getf *widget-parameters* :javascript-defer)
-          (getf *widget-parameters* :javascript-defer-function )))
+              defer
+              function))))
 
 (defun check-vals (docs element)
   (dolist (doc (coerce docs 'list))

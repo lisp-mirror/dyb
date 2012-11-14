@@ -52,43 +52,51 @@
               :initform 6
               :accessor grid-size)
    (header :initarg :header
+           :initform nil
            :accessor header)
    (action :initarg :action
+           :initform nil
            :accessor action)
    (action-title :initarg :action-title
-           :accessor action-title)
+                 :initform nil
+                 :accessor action-title)
    (form-id :initarg :form-id
-            :accessor form-id)))
+            :initform nil
+            :accessor form-id)
+   (ajax-render-widget :initarg :ajax-render-widget
+                       :initform nil
+                       :accessor ajax-render-widget)))
 
 (defmethod render ((widget html-simple-framework-form) &key content)
   (with-html
-    (:div :class (format nil "nonboxy-widget span-~A" (get-val widget 'grid-size))
-          (if (get-val widget 'header)
-              (htm (:div :class "widget-head"
-                         (:h5 (str (get-val widget 'header))))))
+    (:div :class (format nil "nonboxy-widget span-~A" (grid-size widget))
+          (when (header widget)
+            (htm
+             (:div :class "widget-head"
+                   (:h5 (str (header widget))))))
           (:div :class "widget-content"
-                (:form :name (get-val widget 'form-id)
-                             :id (get-val widget 'form-id)
-                             :class "form-horizontal well"
-                             :method "post"
-                             :onsubmit "return false;"
-                             (:fieldset
-                              (:input :type "hidden" :name "form-id"
-                                      :value (get-val widget 'form-id))
-                              (str content)
-
-                              (:div :class "form-actions"
-                                    (:button
-                                     :class "btn btn-info"
-                                     :onclick
-                                     (format nil
-                                             "if($(\"#~a\").valid()){~a};"
-                                             (get-val widget 'form-id)
-                                             (js-render-form-values
-                                              widget
-                                              (get-val widget 'form-id)
-                                              (js-pair "action" (get-val widget 'action))))
-                                     (str (get-val widget 'action-title))))))))))
+                (:form :name (form-id widget)
+                       :id (form-id widget)
+                       :class "form-horizontal well"
+                       :method "post"
+                       :onsubmit "return false;"
+                       (:fieldset
+                        (:input :type "hidden" :name "form-id"
+                                :value (form-id widget))
+                        (str content)
+                        (:div :class "form-actions"
+                              (:button
+                               :class "btn btn-info"
+                               :onclick
+                               (format nil
+                                       "if($(\"#~a\").valid()){~a};"
+                                       (form-id widget)
+                                       (js-render-form-values
+                                        (or (ajax-render-widget widget)
+                                            widget)
+                                        (form-id widget)
+                                        (js-pair "action" (action widget))))
+                               (esc (action-title widget))))))))))
 
 (defclass html-framework-form (widget)
   ((grid-size :initarg :grid-size
@@ -194,7 +202,8 @@
                            for i from 0
                            do
                            (htm
-                            (:li
+                            (:li :class (when (zerop i)
+                                          "active")
                              (:a :data-toggle "tab"
                                  :href (format nil "#~a-tab-~a" (name widget) i)
                                  (esc title))))))
@@ -463,11 +472,8 @@ if (okToRefresh)
    }
 });
 ")
-
        (:script :defer t :src "/appjs/ajax.js")
-       (:script (str (deferred-js)))
-
-       )
+       (:script (str (deferred-js))))
 
        " <script src=\"/js/respond.min.js\"></script>
          <script src=\"/js/ios-orientationchange-fix.js\"></script>"
