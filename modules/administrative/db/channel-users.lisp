@@ -19,7 +19,9 @@
                       :initform nil)
    (request-secret :initarg :request-secret
                       :initform nil)
-   (access-token-expiry-date :initarg :access-token-expiry-date))
+   (access-token-expiry-date :initarg :access-token-expiry-date)
+   (user-data :initarg :user-data
+              :initform (make-hash-table :test 'equal)))
   (:metaclass storable-class)
   (:default-initargs :doc-type "channel-user"))
 

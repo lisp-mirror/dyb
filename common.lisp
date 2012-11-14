@@ -507,3 +507,59 @@
 (defun (setf context) (entities)
   (and (current-user)
        (setf (session-value 'context) entities)))
+
+(defun valid-channel-user (user channel)
+  (when (match-context-entities user)  
+    (when (and user (string-equal (get-val user 'doc-status) "Active")) 
+      (when (string-equal (get-val user 'channel-user-type) channel)   
+        (if (get-val user 'user-data)
+            user)))))
+
+
+(defun http-call (url method &key content content-type parameters headers return-type)
+  (when url
+    (let ((result))
+      (multiple-value-bind (body status)
+          (drakma:http-request 
+           url
+           :parameters parameters
+           :content content
+           :method (or method :get) 
+           :content-type content-type
+           :additional-headers headers
+           :preserve-uri t)
+        (let ((decoded-body))
+        
+          (if  (stringp body)
+               (setf decoded-body body)
+               (setf decoded-body (babel:octets-to-string body)))
+
+          (cond ((string-equal return-type "Query String")
+                 (setf result (parse-query-string body)))
+                ((string-equal return-type "JSON")
+                 (setf result
+                       (json::decode-json-from-string decoded-body)))
+                ((string-equal return-type "XML")
+                 ;;TODO: Implement xml parsing
+                 (setf result decoded-body))
+                (t
+                 (setf result decoded-body)))
+
+          (cond ((equal status 200)
+                 (values result status nil))
+                (t
+                 (if (consp (caar result))
+                     (setf result (car result)))
+
+                 (if (or (assoc-path (first (cdr (assoc-path result :errors)))
+                                     :message)
+                         (assoc-path result :error :message))
+                     (values nil
+                             status
+                             (cdr
+                              (or
+                               (assoc-path
+                                (first (cdr (assoc-path result :errors))) :message)
+                               (assoc-path result :error :message))))
+                     (values result status nil)))))))))
+

@@ -245,3 +245,85 @@
              ("oauth_token" ,access-token)
              ("oauth_version" "1.0")))))
     :want-stream nil)))
+
+
+(defun twitter-followers (app-id app-secret access-token access-secret)
+  (let* ((stamp (format nil "~A" (get-unix-time)))
+         (nonce (format nil "~A~A" (random 1234567) stamp))
+         (end-point  "https://api.twitter.com/1.1/followers/ids.json"
+          
+           ))
+    
+    (drakma:http-request end-point
+      
+     :method :get    
+     
+     :additional-headers
+     `(("Authorization"
+        ,@(build-auth-string
+           `(
+             ("oauth_consumer_key" ,app-id)
+             ("oauth_nonce" ,nonce)
+             ("oauth_signature"
+              ,(encode-signature
+                (hmac-sha1
+                 (signature-base-string
+                  :uri end-point 
+                  :request-method "GET"
+                  :parameters `(
+                                
+                                ("oauth_consumer_key" ,app-id)
+                                ("oauth_nonce" ,nonce)
+                                ("oauth_signature_method" "HMAC-SHA1")
+                                ("oauth_timestamp" ,stamp)
+                                ("oauth_token" ,access-token)
+                                ("oauth_version" "1.0")))
+                 (hmac-key  app-secret
+                            access-secret))
+                nil))
+             ("oauth_signature_method" "HMAC-SHA1")
+             ("oauth_timestamp" ,stamp)
+             ("oauth_token" ,access-token)
+             ("oauth_version" "1.0")))))
+    :want-stream nil)))
+
+
+(defun twitter-verify-credentials (app-id app-secret access-token access-secret)
+  (let* ((stamp (format nil "~A" (get-unix-time)))
+         (nonce (format nil "~A~A" (random 1234567) stamp))
+         (end-point  "https://api.twitter.com/1.1/account/verify_credentials.json"
+          
+           ))
+    
+    (drakma:http-request end-point
+      
+     :method :get    
+     
+     :additional-headers
+     `(("Authorization"
+        ,@(build-auth-string
+           `(
+             ("oauth_consumer_key" ,app-id)
+             ("oauth_nonce" ,nonce)
+             ("oauth_signature"
+              ,(encode-signature
+                (hmac-sha1
+                 (signature-base-string
+                  :uri end-point 
+                  :request-method "GET"
+                  :parameters `(
+                                
+                                ("oauth_consumer_key" ,app-id)
+                                ("oauth_nonce" ,nonce)
+                                ("oauth_signature_method" "HMAC-SHA1")
+                                ("oauth_timestamp" ,stamp)
+                                ("oauth_token" ,access-token)
+                                ("oauth_version" "1.0")))
+                 (hmac-key  app-secret
+                            access-secret))
+                nil))
+             ("oauth_signature_method" "HMAC-SHA1")
+             ("oauth_timestamp" ,stamp)
+             ("oauth_token" ,access-token)
+             ("oauth_version" "1.0")))))
+    :want-stream nil)))

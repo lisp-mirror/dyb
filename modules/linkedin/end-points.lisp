@@ -27,9 +27,10 @@
                              comment
                              ""))
            
-           ("visibility" . (("code" . "anyone")))))))
+           ("visibility" . (("code" . "anyone"))))))))
 
-  )
+
+
 
 
 (defun linkedin-share (app-id app-secret access-token 
@@ -51,7 +52,7 @@
      :content share
      :method :post    
      :additional-headers
-     `(("x-li-format" "json")
+     `(("x-li-format" . "json")
        ("Authorization"
         ,@(build-auth-string
            `(("oauth_consumer_key" ,app-id)
@@ -100,7 +101,8 @@
      :method :get    
      :content (linkedin-like-xml )
      :additional-headers
-     `(("Authorization"
+     `(;;("x-li-format" . "json")
+       ("Authorization"
         ,@(build-auth-string
            `(("oauth_consumer_key" ,app-id)
              ("oauth_nonce" ,nonce)
@@ -152,7 +154,8 @@
      :method :get    
      :content (linkedin-comment-xml comment)
      :additional-headers
-     `(("Authorization"
+     `(("x-li-format" . "json")
+       ("Authorization"
         ,@(build-auth-string
            `(("oauth_consumer_key" ,app-id)
              ("oauth_nonce" ,nonce)
@@ -185,14 +188,15 @@
 (defun linkedin-network-updates (app-id app-secret access-token access-secret)
   (let* ((stamp (format nil "~A" (get-unix-time)))
          (nonce (format nil "~A" (random 1234567)))
-         (end-point  "http://api.linkedin.com/v1/people/~/network/updates?type=CMPY&type=PICT&type=SHAR&count=250&format=json" ))
+         (end-point  "http://api.linkedin.com/v1/people/~/network/updates?type=CMPY&type=PICT&type=SHAR&count=250" ))
     
     (drakma:http-request end-point
       
      :method :get    
      
      :additional-headers
-     `(("Authorization"
+     `(("x-li-format" . "json")
+       ("Authorization"
         ,@(build-auth-string
            `(("oauth_consumer_key" ,app-id)
              ("oauth_nonce" ,nonce)
@@ -223,3 +227,99 @@
              ("oauth_version" "1.0")))))
     :want-stream nil
     :preserve-uri nil)))
+
+(defun linkedin-connections (app-id app-secret
+                             access-token 
+                             access-secret)
+  (let* ((stamp (format nil "~A" (get-unix-time)))
+         (nonce (format nil "~A" (random 1234567)))
+         (end-point  "http://api.linkedin.com/v1/people/~/connections" )
+         )
+    
+    
+    (drakma:http-request 
+     end-point  
+     :content-type "application/json"
+     
+     :method :get    
+    
+     :additional-headers
+     `(("x-li-format" . "json")
+       ("Authorization"
+        ,@(build-auth-string
+           `(("oauth_consumer_key" ,app-id)
+             ("oauth_nonce" ,nonce)
+             ("oauth_signature"
+              ,(encode-signature
+                (hmac-sha1
+                 (signature-base-string
+                  :uri end-point 
+                  :request-method "GET"
+                  :parameters `(
+                                
+                                ("oauth_consumer_key" ,app-id)
+                                ("oauth_nonce" ,nonce)
+                                ("oauth_signature_method" "HMAC-SHA1")
+                                ("oauth_timestamp" ,stamp)
+                                ("oauth_token" ,access-token)
+                                ("oauth_version" "1.0")
+                                
+                                ))
+                 (hmac-key  app-secret 
+                            access-secret))
+                nil))
+             ("oauth_signature_method" "HMAC-SHA1")
+             ("oauth_timestamp" ,stamp)
+             ("oauth_token" ,access-token)
+             ("oauth_version" "1.0")))))
+    :want-stream nil
+    :preserve-uri t)))
+
+
+(defun linkedin-companies (app-id app-secret
+                           access-token 
+                           access-secret
+                           company-user-name)
+  (let* ((stamp (format nil "~A" (get-unix-time)))
+         (nonce (format nil "~A" (random 1234567)))
+         (end-point  (format nil "http://api.linkedin.com/v1/companies/universal-name=~A:(id,name,universal-name,email-domains,company-type,website-url,logo-url,twitter-id,locations,description,num-followers)" company-user-name))
+         )
+    
+    
+    (drakma:http-request 
+     end-point  
+     :content-type "application/json"
+     
+     :method :get    
+    
+     :additional-headers
+     `(("x-li-format" . "json")
+       ("Authorization"
+        ,@(build-auth-string
+           `(("oauth_consumer_key" ,app-id)
+             ("oauth_nonce" ,nonce)
+             ("oauth_signature"
+              ,(encode-signature
+                (hmac-sha1
+                 (signature-base-string
+                  :uri end-point 
+                  :request-method "GET"
+                  :parameters `(
+                                
+                                ("oauth_consumer_key" ,app-id)
+                                ("oauth_nonce" ,nonce)
+                                ("oauth_signature_method" "HMAC-SHA1")
+                                ("oauth_timestamp" ,stamp)
+                                ("oauth_token" ,access-token)
+                                ("oauth_version" "1.0")
+                                
+                                ))
+                 (hmac-key  app-secret 
+                            access-secret))
+                nil))
+             ("oauth_signature_method" "HMAC-SHA1")
+             ("oauth_timestamp" ,stamp)
+             ("oauth_token" ,access-token)
+             ("oauth_version" "1.0")))))
+    :want-stream nil
+    :preserve-uri t)))

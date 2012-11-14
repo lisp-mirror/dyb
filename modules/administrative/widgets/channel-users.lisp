@@ -56,8 +56,6 @@
              :grid grid
              :content
              (with-html-to-string ()
-               
-               
                (render form-section
                        :label "Entity"
                        :input
@@ -79,15 +77,6 @@
                               :type :select))))
 
                (render form-section
-                       :label "User Name"
-                       :input (with-html-to-string ()
-                                (render-edit-field
-                                 "channel-user-name"
-                                 (or (parameter "channel-user-name")
-                                     (get-val row 'channel-user-name))
-                                 :required t)))
-
-               (render form-section
                        :label "Social Channel"
                        :input (with-html-to-string ()
                                 (render-edit-field
@@ -97,19 +86,40 @@
                                  :required t
                                  :blank-allowed t
                                  :type :select)))
+
+               (render form-section
+                       :label "User Name"
+                       :input (with-html-to-string ()
+                                (render-edit-field
+                                 "channel-user-name"
+                                 (or (parameter "channel-user-name")
+                                     (get-val row 'channel-user-name))
+                                 :type :span)))
                
                (render form-section
                        :label "User Id"
                        :input (with-html-to-string ()
                                 (render-edit-field
                                  "user-id"
-                                 (get-val row 'user-id))))
+                                 (get-val row 'user-id)
+                                 :type :span)))
+
                (render form-section
                        :label "Access Token"
                        :input (with-html-to-string ()
                                 (render-edit-field
                                  "last-access-token"
-                                 (get-val row 'last-access-token))))
+                                 (get-val row 'last-access-token)
+                                 :type :span)))
+               
+               (render form-section
+                       :label "Access Token Expiry Date"
+                       :input (with-html-to-string ()
+                                (render-edit-field
+                                 "access-token-expiry-date"
+                                 (format-universal-date-time (get-val row 'access-token-expiry-date))
+                                 :type :span)))
+
                (if (xid row)
                    (render form-section
                            :label "Get Id and Oauth"
@@ -133,32 +143,10 @@
 
 
 (defun get-social-user-id (channel user-name)
-  (let ((url (end-point-url channel "User ID" (list (cons 'user-name user-name)))))
+  (let ((url (end-point-url  channel "User ID" (list (cons 'user-name user-name))))
+        (end-point (get-end-point channel  "User ID")))
     (when url
-      (multiple-value-bind (body)
-          (drakma:http-request
-           url :preserve-uri t)
-        (if body
-            (let ((decoded-body (if (stringp body)
-                                    (json::decode-json-from-string body)
-                                    (json::decode-json-from-string
-                                     (babel:octets-to-string body)))))
-          
-              (if (consp (caar decoded-body))
-                  (setf decoded-body (car decoded-body)))
-
-          
-          
-              (if (or (assoc-path (first (cdr (assoc-path decoded-body :errors)))
-                                  :message)
-                      (assoc-path decoded-body :error :message))
-                  (values nil
-                          (cdr
-                           (or
-                            (assoc-path
-                             (first (cdr (assoc-path decoded-body :errors))) :message)
-                            (assoc-path decoded-body :error :message))))
-                  (values (cdr (assoc-path decoded-body :id) ) nil))))))))
+      (http-call url :get :return-type (get-val end-point 'return-type)))))
 
 (defmethod handle-action ((grid channel-user-grid) (action (eql 'save)))
   (when (string-equal (parameter "entity") "")
@@ -205,9 +193,7 @@
               
               (when (string-equal (get-val channel 'auth-type) "OAuth1")
                 
-                (let* ((response (parse-query-string (oauth1-request channel)))
-                       )
-                  
+                (let* ((response (parse-query-string (oauth1-request channel))))
                   (setf (get-val new-doc 'request-token)
                         (cdr (assoc-path response "oauth_token")))
                   (setf (get-val new-doc 'request-secret)

@@ -48,6 +48,44 @@
              (generic-actions-collection)))
 
 
+(defun fb-friends-count ()
+  (let ((count 0))
+    (dolist (user (coerce (channel-users) 'list ))
+      (when (valid-channel-user user "Facebook")  
+        (if (get-val user 'user-data)
+                (if (gethash "friends" (get-val user 'user-data))
+                    (incf count (length (assoc-path
+                                         (gethash "friends"
+                                                  (get-val user 'user-data))
+                                         :data)))))))
+    count))
+
+(defun twitter-followers-count ()
+  (let ((count 0))
+    (dolist (user (coerce (channel-users) 'list ))
+      (when (valid-channel-user user "Twitter")  
+        (if (get-val user 'user-data)
+            (when (gethash "followers" (get-val user 'user-data))
+              (incf count (length (assoc-path
+                                   (gethash "followers"
+                                            (get-val user 'user-data))
+                                   :ids)))))))
+    (if (> count 0)
+        (- count 1)
+        count)))
+
+(defun linkedin-connections-count ()
+  (let ((count 0))
+    (dolist (user (coerce (channel-users) 'list ))
+      (when (valid-channel-user user "LinkedIn")  
+        (when (get-val user 'user-data)
+            (when (gethash "connections" (get-val user 'user-data))
+              (incf count (gpv
+                           (gethash "connections"
+                                    (get-val user 'user-data))
+                           :--total))))))
+    count))
+
 (defun fb-comment-dates-count (interval payload)
   (let ((count 0))
     
@@ -61,7 +99,7 @@
 (defun fb-comments-made (interval)
   (let ((count 0))
     (loop for post across (generic-posts) 
-       ;;when (match-entities post (context))
+       when (match-entities post (context))
        do (incf count (fb-comment-dates-count 
                        interval 
                        (get-val post 'payload))))
@@ -75,8 +113,8 @@
 (defun fb-likes-made (interval)
   (let ((count 0))
     (loop for post across (generic-posts) 
-       ;;when (match-entities post (context))
-         when (equal (post-type post) 'facebook)
+       when (match-entities post (context))
+       when (equal (post-type post) 'facebook)
        do (incf count (fb-likes-dates-count 
                        interval 
                        (get-val post 'payload))))
@@ -98,15 +136,107 @@
                        (get-val post 'payload))))
     count))
 
+
+(defun dash-menu-item (title icon href) 
+  (with-html-string
+    (:div :class "span2"
+          (:div :class "dashboard-wid-wrap"
+                (:div :class "dashboard-wid-content"
+                      (:a :href href
+                          (:i :class (format nil "dashboard-icons ~A" icon))
+                          (:span :class "dasboard-icon-title"
+                                 (str title))))))))
+
+(defun dash-small-stat-graph (graph-id range total-count total-percent)
+  (with-html-string
+    (:div :class "span3"
+          (:div :class "stat-block"
+                (:ul 
+                 (:li :class "stat-graph"
+                      :id graph-id
+                      (str range)
+                      )
+                 (:li :class "stat-count"
+                      (:span "Reach")
+                      (:span (str total-count)))
+                 (:li :class "stat-percent"
+                      (:span (:img :src "/appimg/green-arrow.png"
+                                   :width "20"
+                                   :height "20"
+                                   :alt "Increase")
+                             (:span :class "label-green" 
+                                    (str (format nil "~A%" total-percent ))))))))))
+
 (define-easy-handler (dashboard-page :uri "/dyb/dashboard") ()
   
-  (let ((page (make-widget 'page :name "dashboard-page")))
+  (let ((page (make-widget 'page :name "dashboard-page"))
+        (fb-friends-count (fb-friends-count))
+        (twitter-followers-count (twitter-followers-count))
+        (linkedin-connections-count (linkedin-connections-count)))
+    
     (with-html
       (render page
               :body 
               (with-html-to-string ()
+                (:div :class "container-fluid"
+                      (:div :class "page-header"
+                            (:h1 "Dashboard"))
+                      (:ul :class "breadcrumb"
+                           (:li (:a :href "#" "Home")
+                                (:span :class "divider" "&raquo;"))
+                           (:li :class "active" "Dashboard"))
+                      (:div :class "dashboard-widget"
+                            (:div :class "row-fluid"
+                                  (str (dash-menu-item "Inbox" 
+                                                       "mail_blk" 
+                                                       "/dyb/generix"))
+                                  (str (dash-menu-item "Scheduler" 
+                                                       "month_calendar_blk" 
+                                                       "/dyb/generic-scheduler"))
+                                  (str (dash-menu-item "Search Streams" 
+                                                       "magnifying_glass_blk" 
+                                                       "/dyb/search-stream"))
+                                  (str (dash-menu-item "Reporting" 
+                                                       "graph_blk" 
+                                                       "#"))
+                                  (str (dash-menu-item "Settings" 
+                                                       "cog_2_blk" 
+                                                       "#"))
+                                  (str (dash-menu-item "Help" 
+                                                       "help_blk" 
+                                                       "#"))
+                                  
+                                  ))
+                      (:div :class "page-header"
+                            (:h3 "OVERVIEW") )
+                      (:div :class "row-fluid"
+                            (:form :name "dash-date-form"
+                             (str "From" )
+                             (:input :type "text" 
+                                     :name "start-date" 
+                                     :value (parameter "start-date"))
+                             (str "To")
+                             (:input :type "text" 
+                                     :name "to-date" 
+                                     :value (parameter "to-date"))))
+                      (:div :class "row-fluid"
+                            (str (dash-small-stat-graph 
+                                  "new-visits"
+                                  (format nil "0,~A" 
+                                          (+ fb-friends-count 
+                                             twitter-followers-count
+                                             linkedin-connections-count))
+                                  (+ fb-friends-count 
+                                     twitter-followers-count
+                                     linkedin-connections-count)
+                                  100)
+                                   )
+                            ))
+                
+                
+#|
 
-                "<div class=\"container-fluid\">
+"<div class=\"container-fluid\">
 	<div class=\"page-header\">
       <h1>Dashboard</h1>
 	</div>
@@ -114,40 +244,7 @@
       <li><a href=\"#\">Home</a><span class=\"divider\">&raquo;</span></li>
       <li class=\"active\">Dashboard</li>
     </ul>
-    <div class=\"dashboard-widget\">
-      <div class=\"row-fluid\">
-        <div class=\"span2\">
-          <div class=\"dashboard-wid-wrap\">
-            <div class=\"dashboard-wid-content\"> <a href=\"inbox.html\"> <i class=\"dashboard-icons mail_blk\"></i> <span class=\"dasboard-icon-title\">Inbox</span> </a> </div>
-          </div>
-        </div>
-        <div class=\"span2\">
-          <div class=\"dashboard-wid-wrap\">
-            <div class=\"dashboard-wid-content\"> <a href=\"#\"> <i class=\"dashboard-icons month_calendar_blk\"></i> <span class=\"dasboard-icon-title\">Scheduler</span> </a> </div>
-          </div>
-        </div>
-        <div class=\"span2\">
-          <div class=\"dashboard-wid-wrap\">
-            <div class=\"dashboard-wid-content\"> <a href=\"#\"> <i class=\"dashboard-icons magnifying_glass_blk\"></i> <span class=\"dasboard-icon-title\">Search Streams</span> </a> </div>
-          </div>
-        </div>
-        <div class=\"span2\">
-          <div class=\"dashboard-wid-wrap\">
-            <div class=\"dashboard-wid-content\"> <a href=\"#\"> <i class=\"dashboard-icons graph_blk\"></i> <span class=\"dasboard-icon-title\">Reporting</span> </a> </div>
-          </div>
-        </div>
-        <div class=\"span2\">
-          <div class=\"dashboard-wid-wrap\">
-            <div class=\"dashboard-wid-content\"> <a href=\"#\"> <i class=\"dashboard-icons cog_2_blk\"></i> <span class=\"dasboard-icon-title\">Settings</span> </a> </div>
-          </div>
-        </div>
-        <div class=\"span2\">
-          <div class=\"dashboard-wid-wrap\">
-            <div class=\"dashboard-wid-content\"> <a href=\"#\"> <i class=\"dashboard-icons help_blk\"></i> <span class=\"dasboard-icon-title\">Help</span> </a> </div>
-          </div>
-        </div>
-      </div>
-    </div>
+   
     
 	
 	
@@ -371,7 +468,7 @@
 		</div>
       
     </div>"
-#|
+
                 (:div :class "dashboard-widget"
                       (:div :class "row-fluid"
                             (:div :class "span2"
