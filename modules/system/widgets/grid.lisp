@@ -58,6 +58,14 @@
    (sort-key-function :initarg :sort-key-function
                 :initform nil
                 :accessor sort-key-function)
+   (sort-keys :initarg :sort-keys
+              :initform nil
+              :accessor sort-keys
+              :documentation
+              "A plist of (column-number key)")
+   (initial-sort-column :initarg :initial-sort-column
+                        :initform 0
+                        :accessor initial-sort-column) 
    (grid-filter :initarg :grid-filter
                 :initform nil
                 :accessor grid-filter)
@@ -629,13 +637,16 @@ document.getElementById(\"~A\").submit();"
 'sAjaxSource': '/dyb/ajax/TABLE?script-name=~a&id=~a',
 'sDom': '<\"tbl-searchbox clearfix\"flr,<\"clear\">>,<\"table_content\"t>,<\"widget-bottom\"ip<\"clear\">>',
 
-~:[~;'aoColumnDefs': [{'bSortable': false, 'aTargets': [~a]}]~]
+~:[~;'aoColumnDefs': [{'bSortable': false, 'aTargets': [~a]}]~],
+~:[~;'aaSorting': [[~a,'desc']]~]
 })"
                   (sub-name grid "table")
                   (script-name*)
                   (name grid)
                   (editable grid)
-                  (length (columns grid)))))))
+                  (length (columns grid))
+                  (plusp (initial-sort-column grid))
+                  (initial-sort-column grid))))))
 
 (defun column-text (grid row column &key row-id)
   (let ((value (slot-val row (name column))))
@@ -713,19 +724,42 @@ document.getElementById(\"~A\").submit();"
                                      ))))))
      data-length)))
 
+(defun comparison> (x y)
+  (typecase x
+    (string
+     (string> x y))
+    (number
+     (> x y))
+    (t
+     (string> (princ-to-string x)
+              (princ-to-string y)))))
+
+(defun comparison< (x y)
+  (typecase x
+    (string
+     (string< x y))
+    (number
+     (< x y))
+    (t
+     (string< (princ-to-string x)
+              (princ-to-string y)))))
+
 (defun sort-direction-function (grid)
   (if (eq (sort-direction grid) :ascending)
-      #'string<
-      #'string>))
+      #'comparison<
+      #'comparison>))
 
 (defun sort-data (grid rows)
-  (let ((column (elt (columns grid) (sort-column grid))))
+  (let* ((column-number (sort-column grid))
+         (column (elt (columns grid) column-number))
+         (key (getf (sort-keys grid) column-number)))
     (sort rows (sort-direction-function grid)
-          :key (if (equal (sort-column grid) 0) 
-                   (if (sort-key-function grid)
-                       (sort-key-function grid)
-                       (lambda (row) (column-text grid row column)))
-                   (lambda (row) (column-text grid row column))))))
+          :key
+          (cond (key)
+                ((and (zerop column-number)
+                      (sort-key-function grid)))
+                (t
+                 (lambda (row) (column-text grid row column)))))))
 
 (defmethod process-data-table ((grid grid))
   ;(print (get-parameters*))

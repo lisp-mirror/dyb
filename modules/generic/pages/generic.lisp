@@ -371,11 +371,8 @@
 
                 (list 'social-mention "delete" "Delete")
                 (list 'social-mention "assign-task-form" "Assign Task")))
-    (setf (sort-direction grid) :descending)
-    (setf (sort-key-function grid)
-          (lambda (doc)
-            (format nil "~A"  
-                    (get-val doc 'created-date))))
+    (setf (sort-keys grid) '(2 identity))
+    (setf (initial-sort-column grid) 2)
     
     (render (make-widget 'page :name "generic-page")
             :body (with-html-to-string ()

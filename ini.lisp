@@ -13,7 +13,7 @@
   (make-instance 'ht-simple-ajax:ajax-processor :server-uri "/dyb/ajax"))
 
 (defun call-lisp-function (processor)
-  "This is called from hunchentoot on each ajax request. It parses the 
+  "This is called from hunchentoot on each ajax request. It parses the
    parameters from the http request, calls the lisp function and returns
    the response."
   (let* ((fn-name (string-trim "/" (subseq (script-name* *request*)
@@ -22,7 +22,7 @@
          (args (mapcar #'cdr (get-parameters* *request*))))
     (unless fn
       (error "Error in call-lisp-function: no such function: ~A" fn-name))
-    
+
     (setf (reply-external-format*) (reply-external-format processor))
     (setf (content-type*) (content-type processor))
     (no-cache)
@@ -40,5 +40,3 @@
 
 (defparameter *installation* "Local Machine");;"Live Serve"
 (defparameter *site-url* "http://digyourbrand.co.za/")
-
-
