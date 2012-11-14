@@ -64,8 +64,9 @@
               :documentation
               "A plist of (column-number key)")
    (initial-sort-column :initarg :initial-sort-column
-                        :initform 0
-                        :accessor initial-sort-column) 
+                        :initform '(0 :ascending)
+                        :accessor initial-sort-column
+                        :documentation "(column direction)") 
    (grid-filter :initarg :grid-filter
                 :initform nil
                 :accessor grid-filter)
@@ -638,15 +639,20 @@ document.getElementById(\"~A\").submit();"
 'sDom': '<\"tbl-searchbox clearfix\"flr,<\"clear\">>,<\"table_content\"t>,<\"widget-bottom\"ip<\"clear\">>',
 
 ~:[~;'aoColumnDefs': [{'bSortable': false, 'aTargets': [~a]}]~],
-~:[~;'aaSorting': [[~a,'desc']]~]
+~:[~;'aaSorting': [[~a,~s]]~]
 })"
                   (sub-name grid "table")
                   (script-name*)
                   (name grid)
                   (editable grid)
                   (length (columns grid))
-                  (plusp (initial-sort-column grid))
-                  (initial-sort-column grid))))))
+                  (not (equal (initial-sort-column grid)
+                              '(0 :ascending)))
+                  (car (initial-sort-column grid))
+                  (if (eq (cadr (initial-sort-column grid))
+                          :ascending)
+                      "asc"
+                      "desc"))))))
 
 (defun column-text (grid row column &key row-id)
   (let ((value (slot-val row (name column))))

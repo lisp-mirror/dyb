@@ -372,7 +372,7 @@
                 (list 'social-mention "delete" "Delete")
                 (list 'social-mention "assign-task-form" "Assign Task")))
     (setf (sort-keys grid) '(2 identity))
-    (setf (initial-sort-column grid) 2)
+    (setf (initial-sort-column grid) '(2 :ascending))
     
     (render (make-widget 'page :name "generic-page")
             :body (with-html-to-string ()
