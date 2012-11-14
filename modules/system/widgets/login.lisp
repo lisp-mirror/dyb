@@ -2,14 +2,14 @@
 
 (defclass login (widget)
   ((email :initarg :email
+          :initform nil
           :accessor email)
    (password :initarg :password
+             :initform nil
              :accessor password)
    (message :initarg :message
-            :accessor message)
-   (css-class :initarg :css-class
-          :initform nil
-          :accessor css-class))
+            :initform nil
+            :accessor message))
   (:metaclass widget-class)
   (:action-params submit-login))
 
@@ -18,7 +18,7 @@
 (defgeneric on-failure (login &key))
 
 (defmethod handle-action ((widget login) (action (eql 'submit-login)))
-  (when (and (slot-val widget 'email) (slot-val widget 'password))
+  (when (and (email widget) (password widget))
     (let ((user (validate-user widget)))
       (if user
           (on-success widget :user user)
@@ -32,26 +32,27 @@
           (:form :method "post"
                  :action ""               
                  (:div :class "content no-padding"
-                     (:div :class "section _100"
-                      (:label :for "email" "Email")
-                      (:div
-                       (:input :class "required" :type "text" 
-                               :name (widgy-name widget "email") 
-                               :id "email"
-                               :value (slot-val widget 'email))))
-                     (:div :class "section _100"
-                           (:label :for "password" "Password")
-                           (:div
-                            (:input :class "required" :type "password" 
-                                    :name (widgy-name widget "password") 
-                                    :id "password"))))
+                       (:div :class "section _100"
+                             (:label :for "email" "Email")
+                             (:div
+                              (:input :class "required" :type "text" 
+                                      :name (widgy-name widget "email") 
+                                      :id "email"
+                                      :value (email widget))))
+                       (:div :class "section _100"
+                             (:label :for "password" "Password")
+                             (:div
+                              (:input :class "required" :type "password" 
+                                      :name (widgy-name widget "password") 
+                                      :id "password"))))
                  (:div :class "actions"
-                    (:div :class "actions-right"
-                     (:input :name (widgy-name widget "submit-login") 
-                          :type "submit" :value "Login"))))
-          (if (slot-val widget 'message)
-              (htm
-               (:div :class "error" (esc (slot-val widget 'message))))))))
+                       (:div :class "actions-right"
+                             (:input :name (widgy-name widget "submit-login") 
+                                     :type "submit" :value "Login"))))
+          (when (message widget)
+            (htm
+             (:div :class "error" (esc (message widget))))))
+    (defer-js "$('#email').focus()")))
 
 
 

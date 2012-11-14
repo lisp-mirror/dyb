@@ -45,3 +45,9 @@
 (define-easy-handler (login :uri "/dyb/login"
                             :for-everyone t) ()
   (render (make-widget 'landing-page :name "special-login-page")))
+
+(define-easy-handler (logout :uri "/dyb/logout"
+                             :for-everyone t) ()
+  ()
+  (hunchentoot:remove-session *session*)
+  (redirect "/dyb/login"))
