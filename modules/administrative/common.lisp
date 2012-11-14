@@ -230,10 +230,8 @@
                    (value (cond ((stringp (get-val parameter 'default-value))
                                  (get-val parameter 'default-value))                               
                                 (t
-                                 
                                  (if values
                                      (cdr (assoc (get-val parameter 'default-value) values)))))))
-               
                (setf url (format nil "~A~A~A~A~A" url 
                                  (if (get-val parameter 'part-of-url-p)
                                      "/"
