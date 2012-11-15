@@ -6,9 +6,10 @@
          (end-point  "https://api.twitter.com/1.1/statuses/update.json" ))
 
     (drakma:http-request 
-     (format nil "~A?status=~A" 
-             end-point (replace-all message " " "+"))   
+     ;;(format nil "~A?status=~A"  end-point (replace-all message " " "+"))   
+      end-point
      :method :post
+     :parameters `(("status" . ,message))
      :additional-headers
      `(("Authorization"
         ,@(build-auth-string
@@ -40,7 +41,7 @@
              
              ))))
     :want-stream nil
-    :preserve-uri t)))
+    :preserve-uri nil)))
 
 (defun twitter-favourite (app-id app-secret access-token access-secret tweet-id)
   (let* ((stamp (format nil "~A" (get-unix-time)))
@@ -48,8 +49,10 @@
          (end-point  "https://api.twitter.com/1.1/favorites/create.json" ))
 
     (drakma:http-request 
-     (format nil "~A?id=~A" end-point tweet-id)   
+     ;;(format nil "~A?id=~A" end-point tweet-id) 
+     end-point
      :method :post
+     :parameters `(("id" . , tweet-id))
      :additional-headers
      `(("Authorization"
         ,@(build-auth-string
@@ -81,7 +84,7 @@
              
              ))))
     :want-stream nil
-    :preserve-uri t)))
+    :preserve-uri nil)))
 
 (defun retweet (app-id app-secret access-token access-secret tweet-id)
   (let* ((stamp (format nil "~A" (get-unix-time)))
@@ -130,11 +133,11 @@
   (let* ((stamp (format nil "~A" (get-unix-time)))
          (nonce (format nil "~A" (random 1234567)))
          (end-point  "https://api.twitter.com/1.1/statuses/update.json" ))
-
-    (drakma:http-request 
-     (format nil "~A?status=~A" 
-             end-point (replace-all (format nil "D @~A ~A" at-user message) " " "+"))   
+    (drakma:http-request
+     end-point
+     ;;(format nil "~A?status=~A" end-point (replace-all (format nil "D @~A ~A" at-user message) " " "+"))   
      :method :post
+     :parameters `(("status" . ,(format nil "D @~A ~A" at-user message)))
      :additional-headers
      `(("Authorization"
         ,@(build-auth-string
@@ -158,21 +161,20 @@
                                 ))
                  (hmac-key  app-secret 
                             access-secret))
-                  nil))
+                nil))
              ("oauth_signature_method" "HMAC-SHA1")
              ("oauth_timestamp" ,stamp)
              ("oauth_token" ,access-token)
              ("oauth_version" "1.0")
              
              ))))
-    :want-stream nil
-    :preserve-uri t)))
+     :want-stream nil
+     :preserve-uri nil)))
 
 (defun twitter-user-stream (app-id app-secret access-token access-secret)
   (let* ((stamp (format nil "~A" (get-unix-time)))
          (nonce (format nil "~A~A" (random 1234567) stamp))
-         (end-point  "https://userstream.twitter.com/1.1/user.json";;"http://api.twitter.com/1/statuses/home_timeline.json"
-          
+         (end-point  "https://userstream.twitter.com/1.1/user.json"
            ))
     
     (drakma:http-request end-point

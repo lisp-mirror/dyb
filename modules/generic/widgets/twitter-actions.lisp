@@ -106,7 +106,6 @@
 
       
       (when (and user channel)
-
         (when (get-val user 'last-access-token)
           (setf result
                 (reply-tweet 
