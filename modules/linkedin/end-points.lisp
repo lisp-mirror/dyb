@@ -330,7 +330,7 @@
                          access-secret)
   (let* ((stamp (format nil "~A" (get-unix-time)))
          (nonce (format nil "~A" (random 1234567)))
-         (end-point  "http://api.linkedin.com/v1/people/~" ))
+         (end-point  "http://api.linkedin.com/v1/people/~:(id,first-name,last-name,headline,picture-url,public-profile-url)" ))
     
     
     (drakma:http-request 

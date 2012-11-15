@@ -98,6 +98,9 @@
                                                   (get-val user 'last-access-token)
                                                   (get-val user 'last-token-secret))
                        
+                              (setf result (json:decode-json-from-string 
+                                            (babel:octets-to-string result)))
+                              
                               
                               (when result
                                 (setf (get-val user 'user-id) (gpv result :id))
@@ -119,7 +122,8 @@
                                  (get-val user 'last-access-token)
                                  (get-val user 'last-token-secret)
                                  )                       
-                              
+                              (setf result (json:decode-json-from-string 
+                                            (babel:octets-to-string result)))
                               (when result
                                 (setf (get-val user 'user-id) (gpv result :id))
                                 (setf (gethash "profile" (get-val user 'user-data)) result)
