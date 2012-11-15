@@ -109,9 +109,11 @@
                 :collection-class 'dyb-collection 
                 :load-from-file-p t)
 
-;;Don't remove this, but change the default password regularly
-(persist (make-user "admin@dyb.co.za" "admin"
-                        :super-user-p t))
+
+(unless (get-user "admin@dyb.co.za")
+    ;;Don't remove this, but change the default password regularly
+    (persist (make-user "admin@dyb.co.za" "admin"
+                        :super-user-p t)))
 
 (defun user-list ()
   (let ((u-list))
