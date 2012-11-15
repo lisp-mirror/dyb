@@ -9,6 +9,9 @@
    (channel-user-type :initarg :channel-user-type
                 :initform nil
                 :documentation "Twitter, Facebook, LinkedIn.")
+   (profile-type :initarg :profile-type
+                :initform nil
+                :documentation "User,Page")
    (user-id :initarg :user-id
                 :initform nil)
    (last-access-token :initarg :last-access-token
@@ -40,7 +43,8 @@
   (docs (channel-users-collection)))
 
 
-(defun make-channel-user (entity channel-user-name channel-user-type user-id
+(defun make-channel-user (entity channel-user-name channel-user-type profile-type
+                          user-id
                           &key last-access-token)
   (make-instance 'channel-user :key (list (get-val entity 'xid) channel-user-type channel-user-name)
                  :doc-type "channel-user"
@@ -48,6 +52,7 @@
                  :entity entity
                  :channel-user-name channel-user-name
                  :channel-user-type channel-user-type
+                 :profile-type profile-type
                  :user-id user-id
                  :last-access-token last-access-token))
 

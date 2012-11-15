@@ -100,10 +100,11 @@
                        
                               (setf result (json:decode-json-from-string 
                                             (babel:octets-to-string result)))
-                              
-                              
                               (when result
                                 (setf (get-val user 'user-id) (gpv result :id))
+                                (setf (get-val user 'channel-user-name) 
+                                      (format nil "~A ~A" (gpv result :first-name)
+                                              (gpv result :last-name)))
                                 (setf (gethash "profile" (get-val user 'user-data)) result)
                                 )))
                            ((string-equal channel "Facebook")
@@ -112,7 +113,16 @@
                               
                               (when result
                                 (setf (get-val user 'user-id) (gpv result :id))
+                                (setf (get-val user 'channel-user-name) 
+                                      (gpv result :username))
                                 (setf (gethash "profile" (get-val user 'user-data)) result)
+
+                                (multiple-value-bind (accounts)
+                                    (facebook-accounts user)
+                                    (when accounts
+                                      (setf (gethash "accounts" 
+                                                     (get-val user 'user-data)) accounts)
+                                      ))
                                 )))
                            ((string-equal channel "Twitter")
                             (multiple-value-bind (result status error) 
@@ -124,8 +134,11 @@
                                  )                       
                               (setf result (json:decode-json-from-string 
                                             (babel:octets-to-string result)))
+
                               (when result
                                 (setf (get-val user 'user-id) (gpv result :id))
+                                (setf (get-val user 'channel-user-name) 
+                                      (gpv result :screen--name))
                                 (setf (gethash "profile" (get-val user 'user-data)) result)
                                 ))))
 

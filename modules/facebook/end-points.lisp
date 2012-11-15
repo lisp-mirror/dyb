@@ -59,3 +59,17 @@
        (if (assoc-path feed :error)
            (setf message (cdr (assoc-path feed :error :message))))))
     (values feed message)))
+
+
+(defun facebook-accounts (user)
+  (let ((feed)
+        (message))
+    (when (get-val user 'last-access-token)
+      (multiple-value-bind (bodyx)
+          (drakma:http-request 
+           (format nil "https://graph.facebook.com/me/accounts?fields=about,access_token,affiliation,app_id,perms,can_post,id,username,talking_about_count,new_like_count,global_brand_like_count,description,likes,is_published,genre,category&access_token=~A" 
+                   (get-val user 'last-access-token)))
+       (setf feed (json::decode-json-from-string bodyx)) 
+       (if (assoc-path feed :error)
+           (setf message (cdr (assoc-path feed :error :message))))))
+    (values feed message)))

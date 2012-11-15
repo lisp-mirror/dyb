@@ -51,95 +51,137 @@
                            :form-id "reporting-channel-user-form"
                            :grid-name (name grid)))
         (form-section (make-widget 'form-section
-                                   :name "form-section")))
-    (render form
-             :grid grid
-             :content
-             (with-html-to-string ()
-               (render form-section
-                       :label "Entity"
-                       :input
-                       (if (get-val row 'entity)
-                           (with-html-to-string ()
-                             (render-edit-field
-                              "entity-name"
-                              (get-val (get-val row 'entity) 'entity-name)
-                              :type :span)
-                             (:input :type "hidden" :name "entity-xid"
-                                     :value (get-val (get-val row 'entity) 'xid)))
-                           (with-html-to-string ()
-                             (render-edit-field
-                              "entity"
-                              (get-val (get-val row 'entity) 'xid)
-                              :data (entity-list)
-                              :required t
-                              :blank-allowed t
-                              :type :select))))
+                                   :name "form-section"))
+        (tabs (make-instance 'html-framework-tab-box
+                              :name "channel-user-tabs"
+                              :header "Channel Users"
+                              :icon "card--pencil")))
 
-               (render form-section
-                       :label "Social Channel"
-                       :input (with-html-to-string ()
-                                (render-edit-field
-                                 "channel-user-type"
-                                 (get-val row 'channel-user-type)
-                                 :data (get-channels-list)
-                                 :required t
-                                 :blank-allowed t
-                                 :type :select)))
+    (render
+     form
+     :grid grid
+     :content
+     (with-html-to-string ()
+       (render form-section
+               :label "Entity"
+               :input
+               (if (get-val row 'entity)
+                   (with-html-to-string ()
+                     (render-edit-field
+                      "entity-name"
+                      (get-val (get-val row 'entity) 'entity-name)
+                      :type :span)
+                     (:input :type "hidden" :name "entity-xid"
+                             :value (get-val (get-val row 'entity) 'xid)))
+                   (with-html-to-string ()
+                     (render-edit-field
+                      "entity"
+                      (get-val (get-val row 'entity) 'xid)
+                      :data (entity-list)
+                      :required t
+                      :blank-allowed t
+                      :type :select))))
 
-               (render form-section
-                       :label "User Name"
-                       :input (with-html-to-string ()
-                                (render-edit-field
-                                 "channel-user-name"
-                                 (or (parameter "channel-user-name")
-                                     (get-val row 'channel-user-name))
-                                 :type :span)))
+       (render form-section
+               :label "Social Channel"
+               :input (with-html-to-string ()
+                        (render-edit-field
+                         "channel-user-type"
+                         (get-val row 'channel-user-type)
+                         :data (get-channels-list)
+                         :required t
+                         :blank-allowed t
+                         :type :select)))
+
+       (render form-section
+               :label "Profile Type"
+               :input (with-html-to-string ()
+                        (render-edit-field
+                         "profile-type"
+                         (get-val row 'profile-type)
+                         :data (list (list "User" "User")
+                                     (list "Page" "Page"))
+                         :required t
+                         :blank-allowed nil
+                         :type :select)))
+
+       (render form-section
+               :label "User Name"
+               :input (with-html-to-string ()
+                        (render-edit-field
+                         "channel-user-name"
+                         (or (parameter "channel-user-name")
+                             (get-val row 'channel-user-name))
+                         :type :span)))
                
-               (render form-section
-                       :label "User Id"
-                       :input (with-html-to-string ()
-                                (render-edit-field
-                                 "user-id"
-                                 (get-val row 'user-id)
-                                 :type :span)))
+       (render form-section
+               :label "User Id"
+               :input (with-html-to-string ()
+                        (render-edit-field
+                         "user-id"
+                         (get-val row 'user-id)
+                         :type :span)))
 
-               (render form-section
-                       :label "Access Token"
-                       :input (with-html-to-string ()
-                                (render-edit-field
-                                 "last-access-token"
-                                 (get-val row 'last-access-token)
-                                 :type :span)))
-               
-               (render form-section
-                       :label "Access Token Expiry Date"
-                       :input (with-html-to-string ()
-                                (render-edit-field
-                                 "access-token-expiry-date"
-                                 (format-universal-date-time (get-val row 'access-token-expiry-date))
-                                 :type :span)))
+       (render form-section
+               :label "Access Token"
+               :input (with-html-to-string ()
+                        (render-edit-field
+                         "last-access-token"
+                         (get-val row 'last-access-token)
+                         :type :span)))
 
-               (if (xid row)
-                   (render form-section
-                           :label "Get Id and Oauth"
-                           :input
-                           (with-html-to-string ()
-                             (let* ((channel (get-social-channel
-                                              (or (parameter "channel-user-type")
-                                                                 (get-val row 'channel-user-type))))
-                                    (url (oauth-request-token-url
-                                         channel
-                                         "Request Token"
-                                         (if (string-equal (get-val channel 'channel-name)
-                                                           "facebook")
-                                             (list (cons 'user-id (format nil "~A" (get-val row 'verification-code))))
-                                             (list (cons 'request-token
-                                                         (get-val row 'request-token)))))))
+       (render form-section
+               :label "Access Token Expiry Date"
+               :input (with-html-to-string ()
+                        (render-edit-field
+                         "access-token-expiry-date"
+                         (format-universal-date-time 
+                          (get-val row 'access-token-expiry-date))
+                         :type :span)))
 
-                               (htm (:a :href url
-                                        (str "Authenticate using >> "))
-                                    (str url))))))))))
+       (if (get-val row 'last-access-token)
+           (if (string-equal (get-val row 'channel-user-type) "Facebook")
+               (render form-section
+                       :label "Pull in pages connected to user."
+                       :input (with-html-to-string ()
+                                (:button
+                                 :class "btn btn-info"
+                                 :onclick
+                                 (js-render-form-values 
+                                  (editor grid)
+                                  "reporting-channel-user-form"
+                                  (js-pair "grid-name" (name grid))
+                                  (js-pair "action" "pull-pages")
+                                  (scroll-to grid))
+                                 "Pull")))))
+       (if (xid row)
+           (render form-section
+                   :label "Get Id and Oauth"
+                   :input
+                   (with-html-to-string ()
+                     (let* ((channel (get-social-channel
+                                      (or (parameter "channel-user-type")
+                                          (get-val row 'channel-user-type))))
+                            (url 
+                             (oauth-request-token-url
+                              channel
+                              "Request Token"
+                              (if (string-equal 
+                                   (get-val channel 'channel-name)
+                                   "facebook")
+                                  (list 
+                                   (cons 
+                                    'user-id 
+                                    (format nil "~A" 
+                                            (get-val row 'verification-code))))
+                                  (list (cons 'request-token
+                                              (get-val row 'request-token)))))))
+
+                       (htm (:a :href url
+                                (str "Authenticate using >> "))
+                            (str url))))))))
+    
+    ))
 
 
 (defun get-social-user-id (channel user-name)
@@ -147,6 +189,37 @@
         (end-point (get-end-point channel  "User ID")))
     (when url
       (http-call url :get :return-type (get-val end-point 'return-type)))))
+
+(defmethod handle-action ((grid channel-user-grid) (action (eql 'pull-pages)))
+  (cond ((string-equal (parameter "channel-user-type") "Facebook")
+         (multiple-value-bind (accounts)
+             (facebook-accounts (editing-row grid))
+           (when accounts
+             (setf (gethash "accounts" 
+                            (get-val (editing-row grid) 'user-data))  accounts)
+             (dolist (account (gpv accounts :data))
+        
+               (unless (string-equal (gpv account :category) "Application")
+                 (let ((user (get-channel-user-by-user-id (gpv account :id))))
+
+                   (when user
+                     (setf (get-val user 'last-access-token) (gpv account :access-token))
+                     (persist user))
+                   (unless user
+                     (persist (make-channel-user
+                               (get-entity-by-id
+                                (if (stringp (parameter "entity-xid"))
+                                    (parse-integer
+                                     (parameter "entity-xid"))
+                                    (parameter "entity-xid")))
+                               (gpv account :username)
+                               "Facebook"
+                               "Page"
+                               (gpv account :id)
+                               :last-access-token (gpv account :access-token)
+                               )))))))))
+        ((string-equal (parameter "channel-user-type") "LinkedIn")
+         )))
 
 (defmethod handle-action ((grid channel-user-grid) (action (eql 'save)))
   (when (string-equal (parameter "entity") "")
@@ -186,7 +259,8 @@
 
               (unless (get-val new-doc 'verification-code)
                 (when (string-equal (get-val channel 'auth-type) "OAuth2")
-                  (setf (get-val new-doc 'verification-code) (format nil "~A-~A" (get-universal-time) (random 9999999999)))))
+                  (setf (get-val new-doc 'verification-code) 
+                        (format nil "~A-~A" (get-universal-time) (random 9999999999)))))
 
               (persist new-doc)
 
