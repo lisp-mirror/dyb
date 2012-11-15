@@ -323,3 +323,50 @@
              ("oauth_version" "1.0")))))
     :want-stream nil
     :preserve-uri t)))
+
+
+(defun linkedin-profile (app-id app-secret
+                         access-token 
+                         access-secret)
+  (let* ((stamp (format nil "~A" (get-unix-time)))
+         (nonce (format nil "~A" (random 1234567)))
+         (end-point  "http://api.linkedin.com/v1/people/~" ))
+    
+    
+    (drakma:http-request 
+     end-point  
+     :content-type "application/json"
+     
+     :method :get    
+    
+     :additional-headers
+     `(("x-li-format" . "json")
+       ("Authorization"
+        ,@(build-auth-string
+           `(("oauth_consumer_key" ,app-id)
+             ("oauth_nonce" ,nonce)
+             ("oauth_signature"
+              ,(encode-signature
+                (hmac-sha1
+                 (signature-base-string
+                  :uri end-point 
+                  :request-method "GET"
+                  :parameters `(
+                                
+                                ("oauth_consumer_key" ,app-id)
+                                ("oauth_nonce" ,nonce)
+                                ("oauth_signature_method" "HMAC-SHA1")
+                                ("oauth_timestamp" ,stamp)
+                                ("oauth_token" ,access-token)
+                                ("oauth_version" "1.0")
+                                
+                                ))
+                 (hmac-key  app-secret 
+                            access-secret))
+                nil))
+             ("oauth_signature_method" "HMAC-SHA1")
+             ("oauth_timestamp" ,stamp)
+             ("oauth_token" ,access-token)
+             ("oauth_version" "1.0")))))
+    :want-stream nil
+    :preserve-uri t)))

@@ -133,7 +133,7 @@
                                          "Request Token"
                                          (if (string-equal (get-val channel 'channel-name)
                                                            "facebook")
-                                             (list (cons 'user-id (get-val row 'user-id)))
+                                             (list (cons 'user-id (format nil "~A" (get-val row 'verification-code))))
                                              (list (cons 'request-token
                                                          (get-val row 'request-token)))))))
 
@@ -159,23 +159,9 @@
                  (blank-p (parameter "entity-xid")))
              (blank-p (parameter "channel-user-type")))
  
-    (when (and (parameter "channel-user-name")
-               (not (string-equal (parameter "channel-user-name") "")))
-      
-      (let ((channel (get-social-channel
-                      (parameter "channel-user-type"))))
-        
-        (multiple-value-bind (id error)
-            (get-social-user-id channel (parameter "channel-user-name"))
-          
-          (unless (string-equal (parameter "channel-user-type") "LinkedIn")
-            (unless id
-              (setf (error-message grid)
-                    (format nil "User could not be found on Social Channel.~%ERROR: ~A"
-                            error))))
-          (when (or (string-equal (parameter "channel-user-type") "LinkedIn")
-                    id)
-            (let ((new-doc (editing-row grid)))
+    (let ((channel (get-social-channel
+                      (parameter "channel-user-type")))
+              (new-doc (editing-row grid)))
               (synq-edit-data new-doc)
         
               (unless (parameter "entity-xid")
@@ -189,7 +175,6 @@
               (setf (key new-doc) (list (xid (get-val new-doc 'entity))
                                         (parameter "channel-user-type")
                                         (parameter "channel-user-name")))
-              (setf (get-val new-doc 'user-id) id)
               
               (when (string-equal (get-val channel 'auth-type) "OAuth1")
                 
@@ -198,11 +183,14 @@
                         (cdr (assoc-path response "oauth_token")))
                   (setf (get-val new-doc 'request-secret)
                         (cdr (assoc-path response "oauth_token_secret")))))
+
+              (unless (get-val new-doc 'verification-code)
+                (when (string-equal (get-val channel 'auth-type) "OAuth2")
+                  (setf (get-val new-doc 'verification-code) (format nil "~A-~A" (get-universal-time) (random 9999999999)))))
+
               (persist new-doc)
 
               (finish-editing grid))))
-
-        ))))
 
 (defmethod export-csv ((grid channel-user-grid))
   (let* ((data (grid-filtered-rows grid)))

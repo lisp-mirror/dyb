@@ -21,10 +21,11 @@
                                       social-channel 
                                       "Request Token" 
                                       "request-token"))))
-    
+  
+  
       (when request-token
         (let ((user (if (string-equal (get-val social-channel 'auth-type) "OAuth2")
-                        (get-channel-user-by-user-id  verification-code)
+                        (get-channel-user-by-verification-code verification-code)
                         (get-channel-user-by-auth-token (parameter "oauth_token"))) )
               (access-token-end (get-end-point social-channel "Access Token")))
 
@@ -51,6 +52,7 @@
               (unless (stringp body) 
                 (setf body (babel:octets-to-string body)))
               
+
               (cond ((equal status 200)
 
                      (cond ((string-equal (get-val access-token-end 'return-type) 
@@ -84,15 +86,54 @@
                                                               "access-token-expiry")))))))))
                            
                            ((string-equal (get-val access-token-end 'return-type) "JSON")
+                            ;;TODO: Must this be implemented?
                             )
                            ((string-equal (get-val access-token-end 'return-type) "XML")
+                            ;;TODO: Must this be implemented?
                             ))
+                     (cond ((string-equal channel "LinkedIn")
+                            (multiple-value-bind (result status ) 
+                                (linkedin-profile (get-val social-channel 'app-id)
+                                                  (get-val social-channel 'app-secret)
+                                                  (get-val user 'last-access-token)
+                                                  (get-val user 'last-token-secret))
+                       
+                              
+                              (when result
+                                (setf (get-val user 'user-id) (gpv result :id))
+                                (setf (gethash "profile" (get-val user 'user-data)) result)
+                                )))
+                           ((string-equal channel "Facebook")
+                            (multiple-value-bind (result status error) 
+                                (facebook-profile user)                       
+                              
+                              (when result
+                                (setf (get-val user 'user-id) (gpv result :id))
+                                (setf (gethash "profile" (get-val user 'user-data)) result)
+                                )))
+                           ((string-equal channel "Twitter")
+                            (multiple-value-bind (result status error) 
+                                (twitter-verify-credentials
+                                 (get-val social-channel 'app-id)
+                                 (get-val social-channel 'app-secret)
+                                 (get-val user 'last-access-token)
+                                 (get-val user 'last-token-secret)
+                                 )                       
+                              
+                              (when result
+                                (setf (get-val user 'user-id) (gpv result :id))
+                                (setf (gethash "profile" (get-val user 'user-data)) result)
+                                ))))
+
+                     (persist user)
+
                      (if (string-equal *installation* "Live Serve")
                          (redirect "http://app.digyourbrand.co.za/dyb/channel-users")
                          (redirect "http://local.dataxware.co.za/dyb/channel-users")))
                     ((equal status 401)
                      (setf error-description body))))
-            (persist user))))
+            
+            )))
 
       (when error-description
         (format nil "~A" error-description))

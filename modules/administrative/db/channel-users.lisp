@@ -21,7 +21,9 @@
                       :initform nil)
    (access-token-expiry-date :initarg :access-token-expiry-date)
    (user-data :initarg :user-data
-              :initform (make-hash-table :test 'equal)))
+              :initform (make-hash-table :test 'equal))
+   (verification-code :initarg :verification-code
+                      :initform nil))
   (:metaclass storable-class)
   (:default-initargs :doc-type "channel-user"))
 
@@ -74,6 +76,9 @@
 
 (defun get-channel-user-by-user-name (user-id)
   (get-doc (channel-users-collection) user-id :element 'channel-user-name))
+
+(defun get-channel-user-by-verification-code (code)
+  (get-doc (channel-users-collection) code :element 'verification-code))
   
 (defun get-channel-users-list (channel-name users)
   (loop for user across (channel-users)
