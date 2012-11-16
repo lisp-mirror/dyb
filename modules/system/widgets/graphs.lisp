@@ -43,7 +43,10 @@
                 :accessor highlighter)
    (legend :initarg :legend
            :initform nil
-           :accessor legend))
+           :accessor legend)
+   (cursor :initarg :cursor
+           :initform nil
+           :accessor cursor))
   (:metaclass widget-class))
 
 (defun json-getf (plist key &optional json-key)
@@ -112,6 +115,11 @@
     (json-getf options :show)
     (json-getf options :placement)))
 
+(defun format-graph-cursor (options)
+  (with-json-object
+    (json-getf options :show)
+    ))
+
 (defmethod render ((widget line-graph) &key)
   (defer-js
       (format
@@ -127,6 +135,7 @@ var plot1 = $.jqplot(\"~A\", ~a, {
   grid: ~a,
   highlighter: ~a,
   legend: ~a,
+  cursor: ~a,
   seriesDefaults: {
     rendererOptions: {
       smooth: true,
@@ -158,12 +167,7 @@ drawBaseline: false
 }
 }
 });
-//var w = parseInt($(\".jqplot-yaxis\").width(), 10) + parseInt(plot1.width(), 10);
-//var h = parseInt($(\".jqplot-title\").height(), 10) + parseInt($(\".jqplot-xaxis\").height(), 10) + parseInt(plot1.height(), 10);
-//plot1.width(w).height(h);
-//plot1.replot();
-//plot1.onresize = \"alert(this); \"
-//plot1.onresize = \"$(var w = parseInt($('.jqplot-yaxis').width(), 10) + parseInt(this.width(), 10);var h = parseInt($('.jqplot-title').height(), 10) + parseInt($('.jqplot-xaxis').height(), 10) + parseInt(this.height(), 10);this.width(w).height(h);this.replot();)\"
+
 "
        (name widget)
        (json:encode-json-to-string (data widget))
@@ -176,6 +180,7 @@ drawBaseline: false
        (format-graph-grid (grid widget))
        (format-graph-highlighter (highlighter widget))
        (format-graph-legend (legend widget))
+       (format-graph-cursor (cursor widget))
        (json:encode-json-to-string (animation widget)))))
 
  (defparameter *graph-data*

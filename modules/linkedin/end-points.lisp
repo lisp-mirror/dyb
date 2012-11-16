@@ -282,8 +282,7 @@
                            company-user-name)
   (let* ((stamp (format nil "~A" (get-unix-time)))
          (nonce (format nil "~A" (random 1234567)))
-         (end-point  (format nil "http://api.linkedin.com/v1/companies/universal-name=~A:(id,name,universal-name,email-domains,company-type,website-url,logo-url,twitter-id,locations,description,num-followers)" company-user-name))
-         )
+         (end-point  (format nil "http://api.linkedin.com/v1/companies/universal-name=~A:(id,name,universal-name,email-domains,company-type,website-url,logo-url,twitter-id,locations,description,num-followers)" company-user-name)))
     
     
     (drakma:http-request 

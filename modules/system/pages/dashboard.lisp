@@ -47,6 +47,8 @@
                    (within-date-range interval (get-val doc 'scheduled-date))))
              (generic-actions-collection)))
 
+(defun posts-scheduled-count (interval)
+  (length (posts-scheduled interval)))
 
 (defun fb-friends-count ()
   (let ((count 0))
@@ -147,7 +149,7 @@
                           (:span :class "dasboard-icon-title"
                                  (str title))))))))
 
-(defun dash-small-stat-graph (graph-id range total-count total-percent)
+(defun dash-small-stat-graph (title graph-id range total-count total-percent)
   (with-html-string
     (:div :class "span3"
           (:div :class "stat-block"
@@ -157,7 +159,7 @@
                       (str range)
                       )
                  (:li :class "stat-count"
-                      (:span "Reach")
+                      (:span (str title))
                       (:span (str total-count)))
                  (:li :class "stat-percent"
                       (:span (:img :src "/appimg/green-arrow.png"
@@ -167,9 +169,39 @@
                              (:span :class "label-green" 
                                     (str (format nil "~A%" total-percent ))))))))))
 
+(defun community-summary-item (title count icon alt style-p)
+  (with-html-string
+    (:span :class (if (not style-p) "summary-icon")
+           :style "width: 36px;height: 36px;float: left;margin-right: 10px;padding: 6px;"
+           (:img :src icon
+                 :width "36" :height "36" :alt alt)
+           )
+    (:span :class "count" 
+                  (str count))
+           (:span :class "summary-title" (str title))))
+;;TODO: Add date range
+
+(defun board-stats (range title icons chart span)
+  (with-html-string
+    (:div :class span
+          (:div :class "board-stats"
+                (:div :class "statistics-wrap"
+                      (:div :class "statistics-block"
+                            (:div :class (format nil "stat-chart ~A" chart)
+                                  range)
+                            (:div :class "stat-info"
+                                  (dolist (icon icons)
+                                    (htm (:span :class (format nil "black-icons ~A" icon))))
+                                  (str title))
+                            ))))))
+
 (define-easy-handler (dashboard-page :uri "/dyb/dashboard") ()
   
   (let ((page (make-widget 'page :name "dashboard-page"))
+        (posts-scheduled-count (posts-scheduled-count 30))
+        (fb-comments-made (fb-comments-made 30))
+        (fb-likes-made (fb-likes-made 30))
+        (twitter-retweets (twitter-retweets 30))
         (fb-friends-count (fb-friends-count))
         (twitter-followers-count (twitter-followers-count))
         (linkedin-connections-count (linkedin-connections-count)))
@@ -221,6 +253,7 @@
                                      :value (parameter "to-date"))))
                       (:div :class "row-fluid"
                             (str (dash-small-stat-graph 
+                                  "Reach"
                                   "new-visits"
                                   (format nil "0,~A" 
                                           (+ fb-friends-count 
@@ -231,421 +264,207 @@
                                      linkedin-connections-count)
                                   100)
                                    )
-                            ))
-                
-                
-#|
-
-"<div class=\"container-fluid\">
-	<div class=\"page-header\">
-      <h1>Dashboard</h1>
-	</div>
-    <ul class=\"breadcrumb\">
-      <li><a href=\"#\">Home</a><span class=\"divider\">&raquo;</span></li>
-      <li class=\"active\">Dashboard</li>
-    </ul>
-   
-    
-	
-	
-    <div class=\"page-header\">
-      <h3>OVERVIEW</h3>
-	</div>
-	<div class=\"row-fluid\">
-		<div class=\"span3 \">
-        <div class=\"stat-block\">
-          <ul>
-            <li class=\"stat-graph\" id=\"new-visits\">50,80,100,120,110,150,180</li>
-            <li class=\"stat-count\"><span>Reach</span><span>+20</span></li>
-            <li class=\"stat-percent\"><span><img src=\"/appimg/green-arrow.png\" width=\"20\" height=\"20\" alt=\"Increase\"></span><span class=\"label-green\">20</span></li>
-          </ul>
-        </div>
-		</div>
-		<div class=\"span3 \">
-        <div class=\"stat-block\">
-          <ul>
-            <li class=\"stat-graph\" id=\"unique-visits\">3,4,6,5,15,40</li>
-            <li class=\"stat-count\"><span>Activity</span><span>+25</span></li>
-            <li class=\"stat-percent\"><span><img src=\"/appimg/green-arrow.png\" width=\"20\" height=\"20\" alt=\"Increased\"></span><span class=\"label-green\">25%</span></li>
-          </ul>
-        </div>
-		</div>
-		<div class=\"span3 \">
-		<div class=\"stat-block\">
-          <ul>
-            <li class=\"stat-graph\" id=\"weekly-sales\">90,85,90,100,115,126</li>
-            <li class=\"stat-count\"><span>Engagement</span><span>126</span></li>
-            <li class=\"stat-percent\"><span><img src=\"/appimg/green-arrow.png\" width=\"20\" height=\"20\" alt=\"Increased\"></span><span class=\"label-green\">5%</span></li>
-          </ul>
-        </div>
-		</div>
-		
-		
-	</div>
-	<div class=\"row-fluid\">
-		<div class=\"span4\">
-        	<div class=\"graph-wrap\">
-				<div class=\"chart-block\">
-					<div id=\"chart4\">
-					</div>
-				</div>
-            </div>
-		</div>
-		<div class=\"span6\">
-			<div class=\"index-graph\">
-				<div class=\"chart-block\">
-					<div id=\"chart1\"> </div>
-				</div>
-			</div>
-		</div>
-		<div class=\"span2\">
-        <div class=\"summary\">
-			<h4>CURRENT COMMUNITY SIZE</h4>
-			</br>
-          <ul>
-            <li><span class=\"summary-icon\"><img src=\"/appimg/user-accounts.png\" width=\"36\" height=\"36\" alt=\"All Accounts\"></span><span class=\"count\">373</span><span class=\"summary-title\"> All Accounts</span></li>
-            <li><span style=\"width: 36px;height: 36px;float: left;margin-right: 10px;padding: 6px;\"><img src=\"/appimg/Facebook_Light_Logo.png\" width=\"36\" height=\"36\" alt=\"New Items\"></span><span class=\"count\">309</span><span class=\"summary-title\"> Facebook</span></li>
-            <li><span style=\"width: 36px;height: 36px;float: left;margin-right: 10px;padding: 6px;\"><img src=\"/appimg/twitter-bird-white-on-blue.png\" width=\"36\" height=\"36\" alt=\"New Posts\"></span><span class=\"count\">42</span><span class=\"summary-title\"> Twitter</span></li>
-            <li><span style=\"width: 36px;height: 36px;float: left;margin-right: 10px;padding: 6px;\"><img src=\"/appimg/linkedin-icon.png\" width=\"36\" height=\"36\" alt=\"New Orders\"></span><span class=\"count\">22</span><span class=\"summary-title\"> LinkedIn</span></li>
-            
-          </ul>
-        </div>
-      </div>
-      
-    </div>
-	<div class=\"page-header\">
-            <h3><span class=\"black-icons facebook\" style=\"margin-top:1px;\"></span> FACEBOOK</h3>
-        </div>
-	<div class=\"row-fluid\">
-		
-		
-		<div class=\"span3\">
-			<div class=\"board-stats\">
-				<div class=\"statistics-wrap\">
-					<div class=\"statistics-block\">
-						<div class=\"stat-chart bar-chart\">1,0,2,3,0,1,2,1,0,2,0,0,-1,2,1,0,2,3,0</div>
-						<div class=\"stat-info\"><span class=\"black-icons facebook_like\"></span> New Likes</div>
-					</div>
-				</div>
-    
-			</div>
-		</div>
-		<div class=\"span3\">
-			<div class=\"board-stats\">
-				<div class=\"statistics-wrap\">
-					<div class=\"statistics-block\">
-						<div class=\"stat-chart bar-chart\">10,12,15,9,8,5,14,12,4,20,25,26,17,10,9,9,10,7,13</div>
-						<div class=\"stat-info\"><span class=\"black-icons documents\"></span> Page Impressions</div>
-					</div>
-				</div>
-    
-			</div>
-		</div>
-		<div class=\"span3\">
-			<div class=\"board-stats\">
-				<div class=\"statistics-wrap\">
-					<div class=\"statistics-block\">
-						<div class=\"stat-chart bar-chart\">306,307,307,307,307,307,307,307,308,308,308,308,308,308,308,308,308,308</div>
-						<div class=\"stat-info\"><span class=\"black-icons users\"></span> Total Fans</div>
-					</div>
-				</div>
-    
-			</div>
-		</div>
-		<div class=\"span2\">
-			<div class=\"board-stats\">
-				<div class=\"statistics-wrap\">
-					<div class=\"statistics-block\">
-						<div class=\"stat-chart pie-chart\">170,139</div>
-						<div class=\"stat-info\"><span class=\"black-icons male_contour\"></span><span class=\"black-icons female_contour\"></span> Demographics</div>
-					</div>
-				</div>
-    
-			</div>
-		</div>
-		
-	</div>
-	<div class=\"page-header\">
-            <h3><span class=\"black-icons twitter\" style=\"margin-top:1px;\"></span> TWITTER</h3>
-      </div>
-    <div class=\"row-fluid\">
-	    <div class=\"span3\">
-			<div class=\"board-stats\">
-				<div class=\"statistics-wrap\">
-					<div class=\"statistics-block\">
-						<div class=\"stat-chart bar-chart\">1,0,2,3,0,1,2,1,0,2,0,0,-1,2,1,0,2,3</div>
-						<div class=\"stat-info\"><span class=\"black-icons facebook_like\"></span> New Followers</div>
-					</div>
-				</div>
-    
-			</div>
-		</div>
-		<div class=\"span3\">
-			<div class=\"board-stats\">
-				<div class=\"statistics-wrap\">
-					<div class=\"statistics-block\">
-						<div class=\"stat-chart bar-chart\">10,12,15,9,8,5,14,12,4,20,25,26,17,10,9,9,10</div>
-						<div class=\"stat-info\"><span class=\"black-icons documents\"></span> Page Impressions</div>
-					</div>
-				</div>
-    
-			</div>
-		</div>
-		<div class=\"span3\">
-			<div class=\"board-stats\">
-				<div class=\"statistics-wrap\">
-					<div class=\"statistics-block\">
-						<div class=\"stat-chart bar-chart\">37,38,38,38,38,38,38,38,39,40,39,39,39,40,40</div>
-						<div class=\"stat-info\"><span class=\"black-icons users\"></span> Total Followers</div>
-					</div>
-				</div>
-    
-			</div>
-		</div>
-		<div class=\"span2\">
-			<div class=\"board-stats\">
-				<div class=\"statistics-wrap\">
-					<div class=\"statistics-block\">
-						<div class=\"stat-chart pie-chart\">170,139</div>
-						<div class=\"stat-info\"><span class=\"black-icons male_contour\"></span><span class=\"black-icons female_contour\"></span> Demographics</div>
-					</div>
-				</div>
-    
-			</div>
-		</div>
-      
-      
-    </div>
-	
-	<div class=\"page-header\">
-            <h3><img src=\"/appimg/linkedin-icon1.png\" style=\"margin-top:-6px;\"> LINKEDIN</h3>
-      </div>
-	
-	<div class=\"row-fluid\">
-		<div class=\"span3\">
-			<div class=\"board-stats\">
-				<div class=\"statistics-wrap\">
-					<div class=\"statistics-block\">
-						<div class=\"stat-chart bar-chart\">1,0,2,3,0,1,2,1,0,2,0,0,-1,2,1</div>
-						<div class=\"stat-info\"><span class=\"black-icons facebook_like\"></span> New Followers</div>
-					</div>
-				</div>
-    
-			</div>
-		</div>
-		<div class=\"span3\">
-			<div class=\"board-stats\">
-				<div class=\"statistics-wrap\">
-					<div class=\"statistics-block\">
-						<div class=\"stat-chart bar-chart\">10,12,15,9,8,5,14,12,4,20,25,26,17,10,9,9,10,7</div>
-						<div class=\"stat-info\"><span class=\"black-icons documents\"></span> Page Impressions</div>
-					</div>
-				</div>
-    
-			</div>
-		</div>
-		<div class=\"span3\">
-			<div class=\"board-stats\">
-				<div class=\"statistics-wrap\">
-					<div class=\"statistics-block\">
-						<div class=\"stat-chart bar-chart\">17,18,18,18,18,18,18,18,19,20,19,19,19,20,20,21</div>
-						<div class=\"stat-info\"><span class=\"black-icons users\"></span> Total Followers</div>
-					</div>
-				</div>
-    
-			</div>
-		</div>
-		<div class=\"span2\">
-			<div class=\"board-stats\">
-				<div class=\"statistics-wrap\">
-					<div class=\"statistics-block\">
-						<div class=\"stat-chart pie-chart\">170,139</div>
-						<div class=\"stat-info\"><span class=\"black-icons male_contour\"></span><span class=\"black-icons female_contour\"></span> Demographics</div>
-					</div>
-				</div>
-    
-			</div>
-		</div>
-      
-    </div>"
-
-                (:div :class "dashboard-widget"
+                            (str (dash-small-stat-graph 
+                                  "Activity"
+                                  "unique-visits"
+                                  (format nil "0,~A" 
+                                          posts-scheduled-count)
+                                  posts-scheduled-count
+                                  100)
+                                   )
+                            (str (dash-small-stat-graph 
+                                  "Engagement"
+                                  "weekly-sales"
+                                  (format nil "0,~A" 
+                                          (+ fb-comments-made 
+                                             fb-likes-made
+                                             twitter-retweets))
+                                  (+ fb-comments-made 
+                                             fb-likes-made
+                                             twitter-retweets)
+                                  100)
+                                   )
+                            )
                       (:div :class "row-fluid"
-                            (:div :class "span2"
-                                  (:div :class "dashboard-wid-wrap"
-                                        (:div :class "dashboard-wid-content"
-                                              (:a :href "/dyb/generic"
-                                                     (:i :class "dashboard-icons mail_blk")
-                                                     (:span :class "dasboard-icon-title"
-                                                            "Inbox")))))
-                            (:div :class "span2"
-                                  (:div :class "dashboard-wid-wrap"
-                                        (:div :class "dashboard-wid-content"
-                                              (:a :href "/dyb/generic-scheduler"
-                                                     (:i :class "dashboard-icons month_calendar_blk")
-                                                     (:span :class "dasboard-icon-title"
-                                                            "Scheduler")))))
-                            (:div :class "span2"
-                                  (:div :class "dashboard-wid-wrap"
-                                        (:div :class "dashboard-wid-content"
-                                              (:a :href "/dyb/search-stream"
-                                                     (:i :class "dashboard-icons magnifying_glass_blk")
-                                                     (:span :class "dasboard-icon-title"
-                                                            "Search Streams")))))
-                            (:div :class "span2"
-                                  (:div :class "dashboard-wid-wrap"
-                                        (:div :class "dashboard-wid-content"
-                                              (:a :href "/dyb/search-stream"
-                                                     (:i :class "dashboard-icons graph_blk")
-                                                     (:span :class "dasboard-icon-title"
-                                                            "Reporting (Coming Soon)")))))
-                            (:div :class "span2"
-                                  (:div :class "dashboard-wid-wrap"
-                                        (:div :class "dashboard-wid-content"
-                                              (:a :href "/dyb/channel-users"
-                                                     (:i :class "dashboard-icons cog_2_blk")
-                                                     (:span :class "dasboard-icon-title"
-                                                            "Settings")))))
-                            (:div :class "span2"
-                                  (:div :class "dashboard-wid-wrap"
-                                        (:div :class "dashboard-wid-content"
-                                              (:a :href "#"
-                                                     (:i :class "dashboard-icons help_blk")
-                                                     (:span :class "dasboard-icon-title"
-                                                            "Help"))))))
+                            (:div :class "span4"
+                                  (:div :class "graph-wrap"
+                                        (:div :class "chart-block"
+                                              (let ((network-size 
+                                                     (make-widget
+                                                      'line-graph :name "current-network-size"
+                                                      :data `((("2012-07-28" 39) ("2012-07-29" 39)
+                                                               ("2012-07-30" 39) ("2012-07-31" 39) 
+                                                               ("2012-08-01" 39) ("2012-08-02" 39)
+                                                               ("2012-08-03" 39) ("2012-08-04" 39) 
+                                                               ("2012-08-05" 39) ("2012-08-06" 39)
+                                                               )
+                                                              (("2012-07-28" 294) ("2012-07-29" 294)
+                                                               ("2012-07-30" 295) ("2012-07-31" 295) 
+                                                               ("2012-08-01" 296) ("2012-08-02" 296)
+                                                               ("2012-08-03" 296) ("2012-08-04" 296) 
+                                                               ("2012-08-05" 296) ("2012-08-06" 295))))))
 
-                      (let ((dash-item (make-widget 'dashboard-item :name "dash-item"))
-                            (dash-item-full (make-widget 'dashboard-item-full 
-                                                         :name "dash-item-full")))
-                        (htm 
-                         (str (render dash-item-full :name "ave-engagement" 
-                                      :header "Current Network Size"
-                                      :content (render-to-string (make-widget 'line-graph :name "chart6"))))
-                         (str (render dash-item-full :name "report-summary" 
-                                      :header "Report Summary"
-                                 
-                                      :content (with-html-to-string ()
-                                                 (:div 
-                                                  (:p "Community Growth")
-                                                  (:p "Activity" 
-                                                      (str (length (posts-scheduled 7))))
-                                                  (:p "Engagement" 
-                                                      (str (+ (fb-comments-made 7)
-                                                              (fb-likes-made 7))))
-                                                  (:p "Impressions"
-                                                      (str (twitter-retweets 7)))
-                                                  (:p "Clicks"
-                                                      "0")))
-                                      ))
-                         (str (render dash-item-full :name "audience-demographics" 
-                                      :header "Audience Demographics"
-                                 
-                                      :content "Eish"
-                                      ))
-                         )
-                        )
+                                                (setf (title network-size) "Current Network Size")
+                                                (setf (x network-size)
+                                                      '(:type :date
+                                                        ;;:min "2012-07-26"
+                                                        ;;:max "2012-9-20"
+                                                        ;;:tick-interval "7 days"
+                                                        ;;(:tickOptions (:formatString "%b&nbsp;%#d" ))
+                                                        ))
+                                                (setf (y network-size)
+                                                      '(:type :log))
+                                                (setf (grid network-size)
+                                                      '(:background "#fff"
+                                                        :draw-border nil
+                                                        :shadow nil
+                                                        :grid-line-color "#ccc"
+                                                        :grid-line-width 1))
+                                                (setf (highlighter network-size)
+                                                      '(:show t :size-adjust 7.5 ;;:tooltip-offset 9
+                                                        ))
+                                                (setf (legend network-size)
+                                                      '(:show t :placement :inside))
+                                                (setf (animation network-size) t)
+                                                (setf (series network-size)
+                                                      '((:color "#00FFFF"
+                                                         :label "TW"
+                                                         ;;:style "diamond"
+                                                         )
+                                                        (:color "#0000FF"
+                                                         :label "FB"
+                                                         ;;:style "filledSquare"
+                                                         ;;:size 10
+                                                         )
+                                                        (:color "#04B45F"
+                                                         :label "LNK"
+                                                         ;;:style "circle"
+                                                         )
+                                                        (:color "#d44703"
+                                                         :label "Total"
+                                                         :style "x")))
+                                                (render network-size)))))
+                            (:div :class "span4"
+                                  (:div :class "graph-wrap"
+                                        (:div :class "chart-block"
+                                              "Grid goes here")))
+                            (:div :class "span2"
+                                  (:div :class "summary"
+                                        (:h4 "CURRENT COMMUNITY SIZE")
+                                        (:br)
+                                        (:ul
+                                         (:li
+                                          (str (community-summary-item  
+                                                "All Accounts"
+                                                (+ fb-friends-count 
+                                                   twitter-followers-count
+                                                   linkedin-connections-count)
+                                                "/appimg/user-accounts.png"
+                                                "All Accounts"
+                                                nil
+                                                ))
+                                          
+                                          )
+                                         (:li
+                                          (str (community-summary-item  
+                                                " Facebook"
+                                                fb-friends-count
+                                                "/appimg/Facebook_Light_Logo.png"
+                                                "Facebook Friends"
+                                                t
+                                                ))
+                                          
+                                          )
+                                         (:li
+                                          (str (community-summary-item  
+                                                " Twitter"
+                                                twitter-followers-count
+                                                "/appimg/twitter-bird-white-on-blue.png"
+                                                "Twitter Followers"
+                                                t
+                                                ))
+                                          
+                                          )
+                                         (:li
+                                          (str (community-summary-item  
+                                                " LinkedIn"
+                                                linkedin-connections-count
+                                                "/appimg/linkedin-icon.png"
+                                                "LinkedIn Connections"
+                                                t
+                                                )))))))
+                      (:div :class "page-header"
+                            (:h3 (:span :class "black-icons facebook" 
+                                        :style "margin-top:1px;" )
+                                 "FACEBOOK") )
                       (:div :class "row-fluid"
-                            (:div :class "span2"
-                                  (:div :class "stat-block"
-                                        (:ul
-                                         (:li
-                                          (:i :class "dashboard-icons-colors current_work_sl"))
-                                         (:li :class "stat-count"
-                                              (:span "Total Reach")
-                                              (:span 974)
-                                              (:br)
-                                              (:br))
-                                         (:li :class "stat-percent"
-                                              (:span (:img :src "/appimg/green-arrow.png"
-                                                           :height "20"
-                                                           :width "20"
-                                                           :alt "Increased"))
-                                              (:span :class "label-green"
-                                                     "12%")))))
-                            (:div :class "span2"
-                                  (:div :class "stat-block"
-                                        (:ul
-                                         (:li
-                                          (:i :class "dashboard-icons-colors current_work_sl"))
-                                         (:li :class "stat-count"
-                                              (:span "Current Network")
-                                              (:span 373)
-                                              (:br))
-                                         (:li :class "stat-percent"
-                                              (:span (:img :src "/appimg/green-arrow.png"
-                                                           :height "20"
-                                                           :width "20"
-                                                           :alt "Increased"))
-                                              (:span :class "label-green"
-                                                     "5%")))))
-                            (:div :class "span2"
-                                  (:div :class "stat-block"
-                                        (:ul
-                                         (:li
-                                          (:i :class "dashboard-icons-colors current_work_sl"))
-                                         (:li :class "stat-count"
-                                              (:span "Total Impressions")
-                                              (:span 3873)
-                                              (:br))
-                                         (:li :class "stat-percent"
-                                              (:span (:img :src "/appimg/green-arrow.png"
-                                                           :height "20"
-                                                           :width "20"
-                                                           :alt "Increased"))
-                                              (:span :class "label-green"
-                                                     "9%")))))
-                            (:div :class "span2"
-                                  (:div :class "stat-block"
-                                        (:ul
-                                         (:li
-                                          (:i :class "dashboard-icons-colors current_work_sl"))
-                                         (:li :class "stat-count"
-                                              (:span "Planned Activities")
-                                              (:span 32)
-                                              (:br))
-                                         (:li :class "stat-percent"
-                                              (:span (:img :src "/appimg/green-arrow.png"
-                                                           :height "20"
-                                                           :width "20"
-                                                           :alt "Increased"))
-                                              (:span :class "label-green"
-                                                     "53%")))))
-                            (:div :class "span2"
-                                  (:div :class "stat-block"
-                                        (:ul
-                                         (:li
-                                          (:i :class "dashboard-icons-colors current_work_sl"))
-                                         (:li :class "stat-count"
-                                              (:span "Published Activities")
-                                              (:span 31)
-                                              (:br))
-                                         (:li :class "stat-percent"
-                                              (:span (:img :src "/appimg/green-arrow.png"
-                                                           :height "20"
-                                                           :width "20"
-                                                           :alt "Increased"))
-                                              (:span :class "label-green"
-                                                     "52%")))))
-                            (:div :class "span2"
-                                  (:div :class "stat-block"
-                                        (:ul
-                                         (:li
-                                          (:i :class "dashboard-icons-colors current_work_sl"))
-                                         (:li :class "stat-count"
-                                              (:span "Planned Activities Published")
-                                              (:span 11)
-                                              )
-                                         (:li :class "stat-percent"
-                                              (:span (:img :src "/appimg/green-arrow.png"
-                                                           :height "20"
-                                                           :width "20"
-                                                           :alt "Increased"))
-                                              (:span :class "label-green"
-                                                     "42%"))))))
+                            
+                            (str (board-stats (format nil "0,~A" fb-likes-made) 
+                                              "New Likes" 
+                                              (list "facebook_like") 
+                                              "bar-chart" "span3"))
+                            (str (board-stats (format nil "0,~A" 0)
+                                              "Page Impressions" 
+                                              (list "documents")
+                                              "bar-chart" "span3"))
+                            (str (board-stats (format nil "0,~A" fb-friends-count)
+                                              "Total Fans" 
+                                              (list "users")
+                                              "bar-chart" "span3"))
+                            (str (board-stats "10,30"
+                                              "Demographics" 
+                                              (list "male_contour" "female_contour")
+                                              "pie-chart" "span2"))
+                            )
                       
-
-                      )
-|#
-
-)))))
+                      
+                      (:div :class "page-header"
+                            (:h3 (:span :class "black-icons twitter" 
+                                        :style "margin-top:1px;" )
+                                 "TWITTER") )
+                      (:div :class "row-fluid"
+                            
+                            (str (board-stats (format nil "0,~A" twitter-followers-count) 
+                                              "New Followers" 
+                                              (list "facebook_like") 
+                                              "bar-chart" "span3"))
+                            (str (board-stats (format nil "0,~A" 0)
+                                              "Page Impressions" 
+                                              (list "documents")
+                                              "bar-chart" "span3"))
+                            (str (board-stats (format nil "0,~A" twitter-followers-count)
+                                              "Total Fans" 
+                                              (list "users")
+                                              "bar-chart" "span3"))
+                            (str (board-stats "10,30"
+                                              "Demographics" 
+                                              (list "male_contour" "female_contour")
+                                              "pie-chart" "span2"))
+                            )
+                      (:div :class "page-header"
+                            (:h3 (:span :class "black-icons linkedin" 
+                                        :style "margin-top:1px;" )
+                                 "LINKEIN") )
+                      (:div :class "row-fluid"
+                            
+                            (str (board-stats (format nil "0,~A" linkedin-connections-count) 
+                                              "New Connections" 
+                                              (list "facebook_like") 
+                                              "bar-chart" "span3"))
+                            (str (board-stats (format nil "0,~A" 0)
+                                              "Page Impressions" 
+                                              (list "documents")
+                                              "bar-chart" "span3"))
+                            (str (board-stats (format nil "0,~A" linkedin-connections-count)
+                                              "Total Followers" 
+                                              (list "users")
+                                              "bar-chart" "span3"))
+                            (str (board-stats "10,30"
+                                              "Demographics" 
+                                              (list "male_contour" "female_contour")
+                                              "pie-chart" "span2"))
+                            )
+                
+                      
+                      ))))))
 
