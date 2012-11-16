@@ -169,7 +169,7 @@
               (when (parameter "add-entity-click")
                 (let ((entity-select (make-widget 'select :name "entity-select"))
                       (entity-type-select (make-widget 'select :name "entity-type-select"))
-                      (edit-box (make-widget 'peach-box :name "edit-box")))
+                      (edit-box (make-widget 'html-framework-box :name "edit-box")))
 
                   (setf (items entity-select) (entity-list-no-context))
                   (setf (items entity-type-select) (entity-type-list))
