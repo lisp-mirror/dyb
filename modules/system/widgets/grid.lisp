@@ -263,7 +263,8 @@ document.getElementById(\"~A\").submit();"
 (defmethod handle-action ((grid grid) (action (eql 'delete)))
   (when (editable grid)
     (remove-doc (editing-row grid)))
-  (finish-editing grid))
+  (finish-editing grid)
+  (update-table grid))
 
 (defmethod handle-action ((grid grid) (action (eql 'init-new)))
   (editing-row grid))
