@@ -33,17 +33,10 @@
                                            :value "Client")
               (render form-section 
                       :label "Client"
-                      :input (if (get-val row 'entity-name)
-                                 (with-html-to-string ()
+                      :input (with-html-to-string ()
                                    (render-edit-field "entity-name" 
-                                                      (get-val row 'entity-name)
-                                                      :type :span)
-                                   (:input :type "hidden" :name "entity-name" 
-                                           :value (get-val row 'entity-name)))
-                                 (with-html-to-string ()
-                                   (render-edit-field "entity-name" 
-                                                      (get-val row 'entity-name)
-                                                      :required t))))))))
+                                                      (or (parameter "entity-name") (get-val row 'entity-name))
+                                                      :required t)))))))
 
 (defmethod handle-action ((grid clients-grid) (action (eql 'cancel)))
   (finish-editing grid))
