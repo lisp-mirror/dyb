@@ -233,6 +233,7 @@
                       (:div :class "branding"
                             (:div :class "logo"
                                   (:img :style "width:50%;" :src "/appimg/dyb-logo.png")))
+                      (:span :style "color:white" (str (entity-list)))
                       (:ul :class "nav pull-right"
                            (:li :class "dropdown"
                                 (:a :class "dropdown-toggle" :href "#" :data-toggle "dropdown"

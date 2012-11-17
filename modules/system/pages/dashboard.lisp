@@ -195,6 +195,90 @@
                                   (str title))
                             ))))))
 
+(defun network-size-graph (data)
+  (with-html-string
+    (:div :class "span4"
+          (:div :class "graph-wrap"
+                (:div :class "chart-block"
+                      (let ((network-size 
+                             (make-widget
+                              'line-graph :name "current-network-size"
+                              :data data)))
+
+                        (setf (title network-size) "Current Network Size")
+                        (setf (x network-size)
+                              '(:type :date
+                                :tickOptions (:format-string "%b&nbsp;%#d")))
+                        (setf (y network-size)
+                              '(:type :log
+                                :tickOptions (:format-string "")))
+                        (setf (grid network-size)
+                              '(:background "#fff"
+                                :draw-border nil
+                                :shadow nil
+                                :grid-line-color "#ccc"
+                                :grid-line-width 1))
+                        (setf (highlighter network-size)
+                              '(:show t :size-adjust 7.5))
+                        (setf (legend network-size)
+                              '(:show t :placement :inside))
+                        ;;(setf (animation network-size) t)
+                        (setf (series network-size)
+                              '((:color "#00FFFF"
+                                 :label "TW")
+                                (:color "#0000FF"
+                                 :label "FB")
+                                (:color "#04B45F"
+                                 :label "LNK")
+                                (:color "#d44703"
+                                 :label "Total"
+                                 :style "x")))
+                        (render network-size)))))))
+
+(defun engagement-graph (data)
+  (with-html-string
+    (:div :class "span4"
+          (:div :class "graph-wrap"
+                (:div :class "chart-block"
+                      (let ((network-size 
+                             (make-widget
+                              'line-graph :name "current-network-size"
+                              :data data)))
+
+                        (setf (title network-size) "Engagement by Type")
+                        (setf (x network-size)
+                              '(:type :date
+                                :tickOptions (:format-string "%b&nbsp;%#d")))
+                        (setf (y network-size)
+                              '(:type :log
+                                :tickOptions (:format-string "")))
+                        (setf (grid network-size)
+                              '(:background "#fff"
+                                :draw-border nil
+                                :shadow nil
+                                :grid-line-color "#ccc"
+                                :grid-line-width 1))
+                        (setf (highlighter network-size)
+                              '(:show t :size-adjust 7.5))
+                        (setf (legend network-size)
+                              '(:show t :placement :inside))
+                        (setf (animation network-size) t)
+                        (setf (series network-size)
+                              '((:color "#00FFFF"
+                                 :label "TW")
+                                (:color "#0000FF"
+                                 :label "FB")
+                                (:color "#04B45F"
+                                 :label "LNK")
+                                (:color "#d44703"
+                                 :label "Total"
+                                 :style "x")))
+                        (setf (series-defaults network-size) 
+                              '(:shadow "false"
+                                :renderer :pie
+                                ))
+                        (render network-size)))))))
+
 (define-easy-handler (dashboard-page :uri "/dyb/dashboard") ()
   
   (let ((page (make-widget 'page :name "dashboard-page"))
@@ -285,65 +369,27 @@
                                   100)
                                    )
                             )
+                      
                       (:div :class "row-fluid"
-                            (:div :class "span4"
-                                  (:div :class "graph-wrap"
-                                        (:div :class "chart-block"
-                                              (let ((network-size 
-                                                     (make-widget
-                                                      'line-graph :name "current-network-size"
-                                                      :data `((("2012-07-28" 39) ("2012-07-29" 39)
-                                                               ("2012-07-30" 39) ("2012-07-31" 39) 
-                                                               ("2012-08-01" 39) ("2012-08-02" 39)
-                                                               ("2012-08-03" 39) ("2012-08-04" 39) 
-                                                               ("2012-08-05" 39) ("2012-08-06" 39)
-                                                               )
-                                                              (("2012-07-28" 294) ("2012-07-29" 294)
-                                                               ("2012-07-30" 295) ("2012-07-31" 295) 
-                                                               ("2012-08-01" 296) ("2012-08-02" 296)
-                                                               ("2012-08-03" 296) ("2012-08-04" 296) 
-                                                               ("2012-08-05" 296) ("2012-08-06" 295))))))
-
-                                                (setf (title network-size) "Current Network Size")
-                                                (setf (x network-size)
-                                                      '(:type :date
-                                                        ;;:min "2012-07-26"
-                                                        ;;:max "2012-9-20"
-                                                        ;;:tick-interval "7 days"
-                                                        ;;(:tickOptions (:formatString "%b&nbsp;%#d" ))
-                                                        ))
-                                                (setf (y network-size)
-                                                      '(:type :log))
-                                                (setf (grid network-size)
-                                                      '(:background "#fff"
-                                                        :draw-border nil
-                                                        :shadow nil
-                                                        :grid-line-color "#ccc"
-                                                        :grid-line-width 1))
-                                                (setf (highlighter network-size)
-                                                      '(:show t :size-adjust 7.5 ;;:tooltip-offset 9
-                                                        ))
-                                                (setf (legend network-size)
-                                                      '(:show t :placement :inside))
-                                                (setf (animation network-size) t)
-                                                (setf (series network-size)
-                                                      '((:color "#00FFFF"
-                                                         :label "TW"
-                                                         ;;:style "diamond"
-                                                         )
-                                                        (:color "#0000FF"
-                                                         :label "FB"
-                                                         ;;:style "filledSquare"
-                                                         ;;:size 10
-                                                         )
-                                                        (:color "#04B45F"
-                                                         :label "LNK"
-                                                         ;;:style "circle"
-                                                         )
-                                                        (:color "#d44703"
-                                                         :label "Total"
-                                                         :style "x")))
-                                                (render network-size)))))
+                            (str (network-size-graph `((("2012-07-28" 39) ("2012-07-29" 39)
+                                                  ("2012-07-30" 39) ("2012-07-31" 39) 
+                                                  ("2012-08-01" 39) ("2012-08-02" 39)
+                                                  ("2012-08-03" 39) ("2012-08-04" 39) 
+                                                  ("2012-08-05" 39) ("2012-08-06" 39)
+                                                  )
+                                                 (("2012-07-28" 294) ("2012-07-29" 294)
+                                                  ("2012-07-30" 295) ("2012-07-31" 295) 
+                                                  ("2012-08-01" 296) ("2012-08-02" 296)
+                                                  ("2012-08-03" 296) ("2012-08-04" 296) 
+                                                  ("2012-08-05" 296) ("2012-08-06" 295)))))
+                            #|(str (engagement-graph `((("Likes" 9)
+                                                      ("Clicks" 2)
+                                                      ("Comments" 1)
+                                                      ("Manual Retweets" 0.1)
+                                                      ("Native Retweets" 0.1)
+                                                      ("Replies" 0.1)
+                                                      ("Mentions" 2)
+                                                      ("Direct Messages" 0.1)))))|#
                             (:div :class "span4"
                                   (:div :class "graph-wrap"
                                         (:div :class "chart-block"

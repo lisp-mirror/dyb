@@ -7,9 +7,7 @@
    (title :initarg :title
           :initform nil
           :accessor title)
-   (animation :initarg :animation
-              :initform t
-              :accessor animation))
+   )
   (:include-js "/appcss/site_style.css"
    "/js/jquery.jqplot.min.js"
    "/js/chart/jqplot.highlighter.min.js"
@@ -29,6 +27,9 @@
   ((series :initarg :series
            :initform nil
            :accessor series)
+   (series-defaults :initarg :series-defaults
+           :initform nil
+           :accessor series-defaults)
    (x :initarg :x
               :initform nil
               :accessor x)
@@ -81,12 +82,48 @@
 
 (defparameter *graph-renderer-types*
   '(:date "$.jqplot.DateAxisRenderer"
-    :log "$.jqplot.LogAxisRenderer"))
+    :log "$.jqplot.LogAxisRenderer"
+    :pie "$.jqplot.PieRenderer"))
 
 (defmacro with-json-object (&body body)
   `(with-output-to-string (json:*json-output*)
      (json:with-object ()
        ,@body)))
+
+(defun format-graph-axis-tick-options (options)
+  (with-json-object
+    (json-getf options :format-string)))
+
+(defun format-graph-series-renderer-options-animation (options)
+  (with-json-object
+    (json-getf options :show)))
+
+(defun format-graph-series-renderer-options (options)
+  (with-json-object
+    (if (getf options :start-angle)
+        (json-getf options :start-angle))
+    (if (getf options :slice-margin)
+        (json-getf options :slice-margin))
+    (if (getf options :show-data-labels)
+        (json-getf options :show-data-labels))
+    (if (getf options :smooth)
+        (json-getf options :smooth))
+    (if (getf options :animation)
+        (json-encode-literal-key "animation"
+                                 (format-graph-series-renderer-options-animation 
+                                  (json-getf options :animation))))))
+
+(defun format-graph-series-defaults (options)
+  (with-json-object
+    (if (getf options :renderer)
+        (json-encode-literal-key "renderer"
+                                 (getf *graph-renderer-types* (getf options :renderer))))
+    (if (getf options :shadow)
+        (json-getf options :shadow))
+    (if (getf options :renderer-options)
+        (json-encode-literal-key "rendererOptions"
+                                 (format-graph-series-renderer-options 
+                                  (json-getf options :renderer-options))))))
 
 (defun format-graph-axis (options)
   (with-json-object
@@ -94,7 +131,10 @@
                              (getf *graph-renderer-types* (getf options :type)))
     (json-getf options :min)
     (json-getf options :max)
-    (json-getf options :tick-interval)))
+    (json-getf options :tick-interval)
+    (if (json-getf options :tick-options)
+        (json-encode-literal-key "tickOptions"
+                                 (format-graph-axis-tick-options (json-getf options :tick-options))))))
 
 (defun format-graph-grid (options)
   (with-json-object
@@ -137,9 +177,7 @@ var plot1 = $.jqplot(\"~A\", ~a, {
   legend: ~a,
   cursor: ~a,
   seriesDefaults: {
-    rendererOptions: {
-      smooth: true,
-      animation: { show: ~a }
+    ~a
     },
     /*markerOptions: {
       show: true, // wether to show data point markers.
@@ -181,7 +219,7 @@ drawBaseline: false
        (format-graph-highlighter (highlighter widget))
        (format-graph-legend (legend widget))
        (format-graph-cursor (cursor widget))
-       (json:encode-json-to-string (animation widget)))))
+       (format-graph-series-defaults (series-defaults widget)))))
 
  (defparameter *graph-data*
    '((("2012-07-26" 39) ("2012-07-27" 39) ("2012-07-28" 39) ("2012-07-29" 39)
@@ -288,7 +326,11 @@ drawBaseline: false
            '(:show t :size-adjust 1 :tooltip-offset 9))
      (setf (legend widget)
            '(:show t :placement :outside))
-     (setf (animation widget) t)
+     (setf (series-defaults widget) 
+           '(:smooth "true"
+             (:renderer-options
+              (:animation 
+               (:show "true")))))
      (render page
              :body
              (with-html-string 
