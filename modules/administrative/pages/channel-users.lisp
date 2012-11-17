@@ -19,7 +19,12 @@
                            :header "User Id" )
             (make-instance 'grid-column
                            :name 'last-access-token
-                           :header "Token" )))
+                           :header "Token" 
+                           :printer (lambda (token)
+                                      (if token
+                                          (if (> (length token) 8)
+                                              (subseq token 0 8)
+                                              token))))))
          (grid (make-widget 'channel-user-grid :name "channel-user-grid"
                                        :columns columns
                                        :edit-inline nil
