@@ -65,13 +65,14 @@
        (render form-section
                :label "Entity"
                :input
-               (render-edit-field
-                      "entity"
-                      (or (parameter "entity") (get-val (get-val row 'entity) 'xid))
-                      :data (entity-list)
-                      :required t
-                      :blank-allowed t
-                      :type :select))
+               (with-html-string
+                 (render-edit-field
+                  "entity"
+                  (or (parameter "entity") (get-val (get-val row 'entity) 'xid))
+                  :data (entity-list)
+                  :required t
+                  :blank-allowed t
+                  :type :select)))
 
        (render form-section
                :label "Social Channel"
