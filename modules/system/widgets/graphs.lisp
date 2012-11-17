@@ -98,7 +98,8 @@
   (with-json-object
     (json-getf options :show)))
 
-(defun format-graph-series-renderer-options (options)
+ (defun format-graph-series-renderer-options (options)
+
   (with-json-object
     (if (getf options :start-angle)
         (json-getf options :start-angle))
@@ -120,10 +121,11 @@
                                  (getf *graph-renderer-types* (getf options :renderer))))
     (if (getf options :shadow)
         (json-getf options :shadow))
+
     (if (getf options :renderer-options)
         (json-encode-literal-key "rendererOptions"
                                  (format-graph-series-renderer-options 
-                                  (json-getf options :renderer-options))))))
+                                  (getf options :renderer-options))))))
 
 (defun format-graph-axis (options)
   (with-json-object
