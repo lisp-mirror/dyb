@@ -65,22 +65,13 @@
        (render form-section
                :label "Entity"
                :input
-               (if (get-val row 'entity)
-                   (with-html-to-string ()
-                     (render-edit-field
-                      "entity-name"
-                      (get-val (get-val row 'entity) 'entity-name)
-                      :type :span)
-                     (:input :type "hidden" :name "entity-xid"
-                             :value (get-val (get-val row 'entity) 'xid)))
-                   (with-html-to-string ()
-                     (render-edit-field
+               (render-edit-field
                       "entity"
-                      (get-val (get-val row 'entity) 'xid)
+                      (or (parameter "entity") (get-val (get-val row 'entity) 'xid))
                       :data (entity-list)
                       :required t
                       :blank-allowed t
-                      :type :select))))
+                      :type :select))
 
        (render form-section
                :label "Social Channel"
@@ -208,15 +199,15 @@
                    (unless user
                      (persist (make-channel-user
                                (get-entity-by-id
-                                (if (stringp (parameter "entity-xid"))
+                                (if (stringp (parameter "entity"))
                                     (parse-integer
-                                     (parameter "entity-xid"))
-                                    (parameter "entity-xid")))
+                                     (parameter "entity"))
+                                    (parameter "entity")))
                                (gpv account :username)
                                "Facebook"
                                "Page"
                                (gpv account :id)
-                               :last-access-token (gpv account :access-token)
+                               :last-access-token (gpv account :access--token)
                                )))))))))
         ((string-equal (parameter "channel-user-type") "LinkedIn")
          )))
@@ -228,8 +219,7 @@
   (when (string-equal (parameter "channel-user-type") "")
     (setf (error-message grid) "Select a Service."))
 
-  (when (and (or (blank-p (parameter "entity"))
-                 (blank-p (parameter "entity-xid")))
+  (when (and (blank-p (parameter "entity"))
              (blank-p (parameter "channel-user-type")))
  
     (let ((channel (get-social-channel
@@ -237,13 +227,12 @@
               (new-doc (editing-row grid)))
               (synq-edit-data new-doc)
         
-              (unless (parameter "entity-xid")
-                (setf (get-val new-doc 'entity)
+              (setf (get-val new-doc 'entity)
                       (get-entity-by-id
                        (if (stringp (parameter "entity"))
                            (parse-integer
                             (parameter "entity"))
-                           (parameter "entity")))))
+                           (parameter "entity"))))
 
               (setf (key new-doc) (list (xid (get-val new-doc 'entity))
                                         (parameter "channel-user-type")

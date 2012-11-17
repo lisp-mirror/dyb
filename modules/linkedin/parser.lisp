@@ -27,7 +27,7 @@
         ((string-equal (gpv post :update-type) "CMPY")
          (gpv post :update-content :company :id))))
 
-(defun parse-linkedin-updates (entity updates stream-type)
+(defun parse-linkedin-updates (channel-user updates stream-type)
 
   (dolist (update (gpv updates :values))
     
@@ -44,7 +44,7 @@
         (persist dup))
       (unless dup
         (persist (make-generic-post 
-                  entity
+                  channel-user
                   'linkedin
                   update
                   stream-type

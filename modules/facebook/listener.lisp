@@ -28,5 +28,5 @@
           (multiple-value-bind (posts error)
               (facebook-feed user)
             (unless error
-              (parse-facebook-posts (get-val user 'entity) posts 'facebook-feed)
+              (parse-facebook-posts user posts 'facebook-feed)
               )))))))

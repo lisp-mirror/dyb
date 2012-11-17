@@ -1,7 +1,9 @@
 (in-package :dyb)
 
 (defclass generic-post (doc)
-  ((entity :initarg :entity :accessor entity)
+  (;;(entity :initarg :entity :accessor entity)
+   (channel-user :initarg :channel-user
+                 :accessor channel-user)
    (post-type 
     :accessor post-type :initarg :post-type
     :documentation "Twitter,Facebook,LinkedIn,Wordpress")
@@ -45,11 +47,11 @@
 (defmethod doc-collection ((doc generic-post))
   (generic-post-collection))
 
-(defun make-generic-post (entity post-type payload payload-source created-date 
+(defun make-generic-post (channel-user post-type payload payload-source created-date 
                           &key payload-type last-change-date payload-parser-version)
   (make-instance 'generic-post
-                 :key (list (xid entity) post-type (raw-post-id payload post-type))
-                 :entity entity
+                 :key (list (xid channel-user) post-type (raw-post-id payload post-type))
+                 :channel-user channel-user
                  :post-type post-type
                  :payload payload
                  :payload-source payload-source

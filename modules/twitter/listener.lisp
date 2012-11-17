@@ -60,13 +60,12 @@
                      (get-val channel-user 'last-access-token) 
                      (get-val channel-user 'last-token-secret))))
         (parse-tweets 
-         (get-val channel-user 'entity)
+         channel-user
          (json::decode-json-from-string (flexi-streams:octets-to-string result))
          'home-timeline)))))
 
 (defun twitter-refresh-home-timelines ()
-  (let ((result))
-    (dolist (user (coerce (channel-users) 'list ))
+  (dolist (user (coerce (channel-users) 'list ))
       (when (and user (string-equal (get-val user 'doc-status) "Active"))
         ;;TODO: How to get error messages in for users without access tokens.
         (when (string-equal (get-val user 'channel-user-type) "Twitter")
@@ -74,7 +73,7 @@
             (let ((result (twitter-refresh-home-timeline user))) 
               (if result
                   (return-from twitter-refresh-home-timelines result))
-              )))))))
+              ))))))
 
 (defun twitter-user-stream-listener (channel-user)
   (when channel-user
@@ -89,7 +88,7 @@
                for line = (read-line stream nil nil) 
                when (and line (> 1 0) (> (length line) 2))
                do (parse-tweets 
-                   (get-val channel-user 'entity)
+                   channel-user
                    (list (json::decode-json-from-string line))
                    'user-stream))
             (close stream)

@@ -26,7 +26,7 @@
   (declare (ignore grid search))
   (find-docs 'vector
               (lambda (doc)
-               (if (match-context-entities  doc )
+                (if (match-context-entities  (channel-user doc) )
                    (cond ((equal filter 'with-audit-data)
                           doc)
                          (t

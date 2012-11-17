@@ -101,7 +101,7 @@
 (defun fb-comments-made (interval)
   (let ((count 0))
     (loop for post across (generic-posts) 
-       when (match-entities post (context))
+       when (match-entities (channel-user post) (context))
        do (incf count (fb-comment-dates-count 
                        interval 
                        (get-val post 'payload))))
@@ -115,7 +115,7 @@
 (defun fb-likes-made (interval)
   (let ((count 0))
     (loop for post across (generic-posts) 
-       when (match-entities post (context))
+       when (match-entities (channel-user post) (context))
        when (equal (post-type post) 'facebook)
        do (incf count (fb-likes-dates-count 
                        interval 
@@ -131,7 +131,7 @@
 (defun twitter-retweets (interval)
   (let ((count 0))
     (loop for post across (generic-posts) 
-       ;;when (match-entities post (context))
+       when (match-entities (channel-user post) (context))
        when (equal (post-type post) 'twitter)
        do (incf count (twitter-retweets-dates-count 
                        interval 

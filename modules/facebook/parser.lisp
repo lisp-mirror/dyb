@@ -34,7 +34,7 @@
        (parse-trim-integer (second split-date)) 
        (parse-trim-integer (first split-date))))))
 
-(defun parse-facebook-posts (entity posts stream-type)
+(defun parse-facebook-posts (channel-user posts stream-type)
   (dolist (post (gpv posts :data))
 
     (let ((dup
@@ -56,7 +56,7 @@
       (unless dup
         
         (persist (make-generic-post 
-                  entity
+                  channel-user
                   'facebook
                   post
                   stream-type

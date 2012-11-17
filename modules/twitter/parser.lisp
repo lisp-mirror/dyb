@@ -28,7 +28,7 @@
        (month-number (second split)) 
        (parse-trim-integer (sixth split))))))
 
-(defun parse-tweets (entity tweets stream-type)
+(defun parse-tweets (channel-user tweets stream-type)
   (if (not (gpv tweets :errors))
   
     (dolist (tweet tweets)
@@ -44,7 +44,7 @@
           (persist dup))
         (unless dup
           (persist (make-generic-post 
-                    entity
+                    channel-user
                     'twitter
                     tweet
                     stream-type
