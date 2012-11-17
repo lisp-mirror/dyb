@@ -69,7 +69,9 @@
                  (render-edit-field
                   "entity"
                   (or (parameter "entity") (get-val (get-val row 'entity) 'xid))
-                  :data (entity-list)
+                  :data (if (get-val (current-user) 'super-user-p)
+                            (admin-entity-list) 
+                            (entity-list))
                   :required t
                   :blank-allowed t
                   :type :select)))

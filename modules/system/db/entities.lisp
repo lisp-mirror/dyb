@@ -110,6 +110,14 @@
                                                   (get-val doc 'entity-name)))))))
     e-list))
 
+(defun admin-entity-list ()
+  (let ((e-list))
+    (dolist (doc (coerce (entities) 'list))
+      (if (not (string-equal (get-val doc 'doc-status) "superseded"))
+          (setf e-list (append e-list (list (list (get-val doc 'xid) 
+                                                  (get-val doc 'entity-name)))))))
+    e-list))
+
 (defun entity-mine-list ()
   (let ((e-list))
     (dolist (doc (coerce (entities) 'list))

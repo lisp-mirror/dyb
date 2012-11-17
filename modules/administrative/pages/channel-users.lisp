@@ -16,8 +16,11 @@
                            :header "Social Channel")
             (make-instance 'grid-column
                            :name 'user-id
-                           :header "User Id" )))
-         (grid (make-widget 'channel-user-grid :name "channel-user-gridc"
+                           :header "User Id" )
+            (make-instance 'grid-column
+                           :name 'last-access-token
+                           :header "Token" )))
+         (grid (make-widget 'channel-user-grid :name "channel-user-grid"
                                        :columns columns
                                        :edit-inline nil
                                        :title "Channel User"
