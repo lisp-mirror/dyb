@@ -9,14 +9,13 @@
    (entities :initarg :entities)
    (message :initarg :message)
    (stamp :initarg :stamp))
-  (:metaclass storable-class)
-  )
+  (:metaclass storable-class))
 
 (defun system-logs-collection ()
   (get-collection (system-db) "system-log"))
 
 (defun system-logs ()
-  (docs (entity-types-collection)))
+  (docs (system-logs-collection)))
 
 (defun log-entry (source status message)
   (store-doc (system-logs-collection)
@@ -30,7 +29,8 @@
                             :remote-address (remote-addr*)
                             :entities (context)
                             :message message
-                            :stamp nil)))
+                            :stamp nil)
+             :duplicate-doc-p-func nil))
 
 (defun log-login (source email status message)
   (store-doc (system-logs-collection)
@@ -42,7 +42,8 @@
                             :remote-address (remote-addr*)
                             :entities nil
                             :message message
-                            :stamp nil)))
+                            :stamp nil)
+             :duplicate-doc-p-func nil))
 
 
 (add-collection (system-db) "system-log" 
