@@ -428,7 +428,8 @@ Please select a legal one"
                                    (if (get-val doc 'channel-user-name)
                                        (get-val doc 'channel-user-name)
                                        ))
-                        collect (get-val doc 'channel-user-name))
+     collect (list (get-val doc 'channel-user-id)
+                   (get-val doc 'channel-user-name)))
 
   )
 

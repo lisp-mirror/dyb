@@ -1,6 +1,5 @@
 (in-package :dyb)
 
-
 (defun like-linkedin (user-id linkedin-update-id)
   (when (and user-id linkedin-update-id)
     (let* ((result)
@@ -46,8 +45,7 @@
                                     :name "form-section"))
          
          (current-post (set-current-row (get-val widget 'grid)))
-         (linkedin-update-id (gpv current-post :id))
-         )
+         (linkedin-update-id (gpv current-post :id)))
     (setf (get-val like-form 'grid-size) 2)
     
     (with-html 
@@ -68,14 +66,11 @@
                                 (parameter "user-id")
                                 :data (get-channel-users-list "Linkedin" nil)
                                 :required t
-                                :type :select)))
-
-                     )))
+                                :type :select))))))
           (str (get-val widget 'message))))
     (open-dialog widget (grid widget) :width 500 :height 260)))
 
 (defmethod handle-action ((grid generic-grid) (action (eql 'like-linkedin-form)))
-
   (setf (action-widget grid)
         (make-widget 'linkedin-like-form 
                      :grid grid 
@@ -88,6 +83,7 @@
     (setf (get-val widget 'message) nil)
     
     (let ((action (generic-action 
+                   (get-channel-user-by-user-id (parameter "user-id"))
                    nil 
                    "LinkedIn"
                    (parameter "user-id")
@@ -142,15 +138,12 @@
             (setf error (cdr (assoc-path result :errors :message))))))
       (values result error))))
 
-
-
 (defclass linkein-comment-form (ajax-widget)
   ((grid :initarg :grid
          :initform nil
          :accessor grid)
    (message :initarg :message))
   (:metaclass widget-class))
-
 
 (defmethod render ((widget linkein-comment-form) &key )
   (let* ((like-form (make-widget 'html-simple-framework-form 
@@ -211,6 +204,7 @@
     (setf (get-val widget 'message) nil)
     
     (let ((action (generic-action 
+                   (get-channel-user-by-user-id (parameter "user-id"))
                    nil 
                    "LinkedIn"
                    (parameter "user-id")
@@ -222,8 +216,7 @@
       (multiple-value-bind (result error-message)
           (comment-linkein  (parameter "user-id")
                             (parameter "linkedin-update-id")
-                            (parameter "message")
-                       )
+                            (parameter "message"))
 
         (when error-message
           (setf (get-val widget 'message) error-message)
@@ -236,10 +229,4 @@
                               "Result"
                               result
                               "Completed")
-          (defer-js (format nil "$('#~a').dialog('close')" (name widget))))
-
-        ))
-
-
-    
-    ))
+          (defer-js (format nil "$('#~a').dialog('close')" (name widget))))))))

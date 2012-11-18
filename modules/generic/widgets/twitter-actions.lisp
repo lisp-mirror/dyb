@@ -86,7 +86,8 @@
   (when (string-equal (parameter "action") "retweet-twitter")  
     (setf (get-val widget 'message) nil)
     
-    (let ((action (generic-action 
+    (let ((action (generic-action
+                   (get-channel-user-by-user-id (parameter "user-id"))
                     nil 
                     "Twitter"
                     (parameter "user-id")
@@ -211,7 +212,8 @@
   (when (string-equal (parameter "action") "reply-twitter")  
     (setf (get-val widget 'message) nil)
     
-    (let ((action (generic-action 
+    (let ((action (generic-action
+                   (get-channel-user-by-user-id (parameter "user-id"))
                     nil 
                     "Twitter"
                     (parameter "user-id")
@@ -309,14 +311,11 @@
                                 (parameter "user-id")
                                 :data (get-channel-users-list "Twitter" nil)
                                 :required t
-                                :type :select)))
-
-                     )))
+                                :type :select))))))
           (str (get-val widget 'message))))
     (open-dialog widget (grid widget) :width 500 :height 260)))
 
 (defmethod handle-action ((grid generic-grid) (action (eql 'favourite-twitter-form)))
-
   (setf (action-widget grid)
         (make-widget 'twitter-favourite-form 
                      :grid grid 
@@ -329,6 +328,7 @@
     (setf (get-val widget 'message) nil)
     
     (let ((action (generic-action 
+                   (get-channel-user-by-user-id (parameter "user-id"))
                     (parameter "tweet-id") 
                     "Twitter"
                     (parameter "user-id")
@@ -352,6 +352,4 @@
                               "Result"
                               result
                               "Completed")
-          (defer-js (format nil "$('#~a').dialog('close')" (name widget))))))
-    
-    ))
+          (defer-js (format nil "$('#~a').dialog('close')" (name widget))))))))

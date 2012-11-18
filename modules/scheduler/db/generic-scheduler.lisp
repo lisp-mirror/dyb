@@ -71,16 +71,17 @@
   (get-doc (generic-actions-collection) id
            :element 'post-id))
 
-(defun make-generic-action (post-id post-type from-user to-user action-type 
+(defun make-generic-action (channel-user post-id post-type from-user-id 
+                            to-user-id action-type 
                             action-content schedule-type
                             scheduled-date &key image-url post-url short-url
                             action-status)
   (make-instance 'generic-action 
                  :post-id post-id
                  :post-type post-type
-                 :channel-user (get-channel-user-by-user-id from-user)
-                 :from-user-id from-user
-                 :to-user-id to-user
+                 :channel-user channel-user
+                 :from-user-id from-user-id
+                 :to-user-id to-user-id
                  :action-type action-type
                  :action-content action-content
                  :image-url image-url
@@ -91,7 +92,7 @@
                  :action-status (or action-status "Pending")
                  ))
 
-(defun generic-action (post-id post-type from-user to-user action-type 
+(defun add-generic-action (channel-user post-id post-type from-user-id to-user-id action-type 
                             action-content schedule-type scheduled-date 
                        &key image-url post-url short-url)
   (let ((dup (find-doc (generic-actions-collection)
@@ -99,20 +100,21 @@
                                (and
                                 (string-equal post-id (get-val doc 'post-id))
                                 (string-equal post-type (get-val doc 'post-type))
-                                (string-equal from-user (get-val doc 'from-user-id))
-                                (string-equal to-user (get-val doc 'to-user-id))
+                                (string-equal from-user-id (get-val doc 'from-user-id))
+                                (string-equal to-user-id (get-val doc 'to-user-id))
                                 (string-equal action-type (get-val doc 'action-type))
                                 (string-equal action-content 
                                               (get-val doc 'action-content)))))))
     (if dup
         dup
-        (make-generic-action post-id post-type from-user to-user action-type 
-                             action-content schedule-type scheduled-date 
-                             :image-url image-url
-                             :post-url post-url
-                             :short-url short-url))))
+        (persist (make-generic-action channel-user post-id post-type 
+                                      from-user-id to-user-id action-type 
+                                      action-content schedule-type scheduled-date 
+                                      :image-url image-url
+                                      :post-url post-url
+                                      :short-url short-url)))))
 
-(defun generic-action-log (action lable message status)
+(defun add-generic-action-log (action lable message status)
   (when (> (length (get-val action 'action-log)) 5)
     (setf (get-val action 'action-status) "Abandoned Retries")
     (persist action))

@@ -212,7 +212,8 @@
                                             ((:file "generic")
                                              (:file "facebook-actions")
                                              (:file "twitter-actions")
-                                             (:file "linkedin-actions")))
+                                             (:file "linkedin-actions")
+                                             (:file "tasks")))
                                    (:module "pages"
                                             :serial t
                                             :components
