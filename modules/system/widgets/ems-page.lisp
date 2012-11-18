@@ -1,13 +1,5 @@
 (in-package :dyb)
 
-(defun context-enties-display ()
-  (let ((display ""))
-    (dolist (entity
-              (get-entity-relationships-ordered 
-               (get-val (current-user) 'last-root) 
-               (get-val (current-user) 'last-context)))
-      (setf display (concatenate 'string display entity "\|")))))
-
 (defclass page (html-framework-page)
   ((alert :initarg :alert
              :initform nil
@@ -18,9 +10,7 @@
    "/appjs/common.js"
    "/appjs/checkbox-list.js"
    "/appjs/validation.js"
-   "/tinymce/jscripts/tiny_mce/tiny_mce.js"
-   )
-  )
+   "/tinymce/jscripts/tiny_mce/tiny_mce.js"))
 
 
 (defmethod render ((widget page) &key body)
@@ -33,7 +23,7 @@
     (setf (slot-value html-framework-page 'info-panel) (info-panel widget))
     (setf (slot-value html-framework-page 'title) title)
     (setf (slot-value html-framework-page 'author) "DATA X-WARE; info@dataxware.co.za")
-    (setf (slot-value html-framework-page 'key-words) "Digital Marketing")
+    (setf (slot-value html-framework-page 'key-words) "Dig Your Brand,Digital Marketing,Social")
 
     (log-entry
      (name widget) 

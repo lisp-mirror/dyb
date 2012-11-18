@@ -219,6 +219,16 @@
                                    (str content))))))
           (str (body-content widget)))))
 
+(defun context-enties-display ()
+  (let ((display ))
+    (dolist (entity
+              (entity-list))
+      (setf display (concatenate 'string display 
+                                 (if display 
+                                     "\|"
+                                     "")  
+                                 (second entity) )))
+    (format nil "(~A)" display)))
 
 (defclass html-framework-header (widget)
     ((info-panel :initarg :info-panel
@@ -232,8 +242,9 @@
                 (:div :class "container-fluid"
                       (:div :class "branding"
                             (:div :class "logo"
-                                  (:img :style "width:50%;" :src "/appimg/dyb-logo.png")))
-                      (:span :style "color:white" (str (entity-list)))
+                                  (:img :style "" :src "/appimg/dyb-logo.png")))
+                      (:span :style "color:white" (str (context-enties-display) ;;(entity-list)
+                                                       ))
                       (:ul :class "nav pull-right"
                            (:li :class "dropdown"
                                 (:a :class "dropdown-toggle" :href "#" :data-toggle "dropdown"
