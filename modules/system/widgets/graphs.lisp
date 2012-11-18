@@ -50,6 +50,8 @@
            :accessor cursor))
   (:metaclass widget-class))
 
+
+
 (defun json-getf (plist key &optional json-key)
   (let* ((default (load-time-value (gensym)))
          (value (getf plist key default)))
@@ -90,11 +92,13 @@
      (json:with-object ()
        ,@body)))
 
+
 (defun format-graph-axis-tick-options (options)
   (with-json-object
     (json-getf options :format-string)))
 
 (defun format-graph-series-renderer-options-animation (options)
+
   (with-json-object
     (json-getf options :show)))
 
@@ -109,34 +113,46 @@
         (json-getf options :show-data-labels))
     (if (getf options :smooth)
         (json-getf options :smooth))
+
     (if (getf options :animation)
-        (json-encode-literal-key "animation"
+        (json-encode-key "animation"
                                  (format-graph-series-renderer-options-animation 
-                                  (json-getf options :animation))))))
+                                  (getf options :animation))))))
+
+
+
 
 (defun format-graph-series-defaults (options)
   (with-json-object
     (if (getf options :renderer)
-        (json-encode-literal-key "renderer"
+        (json-encode-literal-key :renderer
                                  (getf *graph-renderer-types* (getf options :renderer))))
+    (if (getf options :show)
+        (json-getf options :show))
+    (if (getf options :xaxis)
+        (json-getf options :xaxis))
+    (if (getf options :yaxis)
+        (json-getf options :yaxis))
+    (if (getf options :line-width)
+        (json-getf options :line-width))
     (if (getf options :shadow)
         (json-getf options :shadow))
-
     (if (getf options :renderer-options)
-        (json-encode-literal-key "rendererOptions"
+        (json-encode-key :renderer-options
                                  (format-graph-series-renderer-options 
                                   (getf options :renderer-options))))))
 
 (defun format-graph-axis (options)
   (with-json-object
-    (json-encode-literal-key "renderer"
+    (json-encode-literal-key :renderer
                              (getf *graph-renderer-types* (getf options :type)))
     (json-getf options :min)
     (json-getf options :max)
     (json-getf options :tick-interval)
-    (if (json-getf options :tick-options)
-        (json-encode-literal-key "tickOptions"
-                                 (format-graph-axis-tick-options (json-getf options :tick-options))))))
+    (if (getf options :tick-options)
+        (json-encode-key "tick-options"
+                                 (format-graph-axis-tick-options 
+                                  (getf options :tick-options))))))
 
 (defun format-graph-grid (options)
   (with-json-object
@@ -163,6 +179,7 @@
     ))
 
 (defmethod render ((widget line-graph) &key)
+
   (defer-js
       (format
        nil
@@ -178,9 +195,9 @@ var plot1 = $.jqplot(\"~A\", ~a, {
   highlighter: ~a,
   legend: ~a,
   cursor: ~a,
-  seriesDefaults: {
+  seriesDefaults: 
     ~a
-    },
+    ,
     /*markerOptions: {
       show: true, // wether to show data point markers.
       //style: 'filledCircle', // circle, diamond, square, filledCircle.
@@ -196,7 +213,7 @@ var plot1 = $.jqplot(\"~A\", ~a, {
       shadowAlpha: 0.07 // Opacity of the shadow
     }*/
 
-  },
+  
 
 axesDefaults: {
 rendererOptions: {
@@ -212,8 +229,10 @@ drawBaseline: false
        (name widget)
        (json:encode-json-to-string (data widget))
        (title widget)
-       (json:encode-json-to-string (mapcar (lambda (x) (getf x :color))
-                                           (series widget)))
+       (if (series widget)
+           (json:encode-json-to-string (mapcar (lambda (x) (getf x :color))
+                                               (series widget)))
+           "null")
        (format-graph-series (series widget))
        (format-graph-axis (x widget))
        (format-graph-axis (y widget))
@@ -330,9 +349,9 @@ drawBaseline: false
            '(:show t :placement :outside))
      (setf (series-defaults widget) 
            '(:smooth "true"
-             (:renderer-options
+             :renderer-options
               (:animation 
-               (:show "true")))))
+               (:show "true"))))
      (render page
              :body
              (with-html-string 

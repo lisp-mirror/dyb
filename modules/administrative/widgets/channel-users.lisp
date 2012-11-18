@@ -133,7 +133,7 @@
                           (get-val row 'access-token-expiry-date))
                          :type :span)))
 
-       (if (get-val row 'last-access-token)
+       (if (blank-p (get-val row 'last-access-token))
            (if (string-equal (get-val row 'channel-user-type) "Facebook")
                (render form-section
                        :label "Pull in pages connected to user."

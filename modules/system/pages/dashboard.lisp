@@ -202,16 +202,16 @@
                 (:div :class "chart-block"
                       (let ((network-size 
                              (make-widget
-                              'line-graph :name "current-network-size"
+                              'line-graph :name "currentnetworksize"
                               :data data)))
 
                         (setf (title network-size) "Current Network Size")
                         (setf (x network-size)
                               '(:type :date
-                                :tickOptions (:format-string "%b&nbsp;%#d")))
+                                :tick-options (:format-string "%b&nbsp;%#d")))
                         (setf (y network-size)
                               '(:type :log
-                                :tickOptions (:format-string "")))
+                                :tick-options (:format-string "")))
                         (setf (grid network-size)
                               '(:background "#fff"
                                 :draw-border nil
@@ -222,47 +222,6 @@
                               '(:show t :size-adjust 7.5))
                         (setf (legend network-size)
                               '(:show t :placement :inside))
-                        ;;(setf (animation network-size) t)
-                        (setf (series network-size)
-                              '((:color "#00FFFF"
-                                 :label "TW")
-                                (:color "#0000FF"
-                                 :label "FB")
-                                (:color "#04B45F"
-                                 :label "LNK")
-                                (:color "#d44703"
-                                 :label "Total"
-                                 :style "x")))
-                        (render network-size)))))))
-
-(defun engagement-graph (data)
-  (with-html-string
-    (:div :class "span4"
-          (:div :class "graph-wrap"
-                (:div :class "chart-block"
-                      (let ((network-size 
-                             (make-widget
-                              'line-graph :name "current-network-size"
-                              :data data)))
-
-                        (setf (title network-size) "Engagement by Type")
-                        (setf (x network-size)
-                              '(:type :date
-                                :tickOptions (:format-string "%b&nbsp;%#d")))
-                        (setf (y network-size)
-                              '(:type :log
-                                :tickOptions (:format-string "")))
-                        (setf (grid network-size)
-                              '(:background "#fff"
-                                :draw-border nil
-                                :shadow nil
-                                :grid-line-color "#ccc"
-                                :grid-line-width 1))
-                        (setf (highlighter network-size)
-                              '(:show t :size-adjust 7.5))
-                        (setf (legend network-size)
-                              '(:show t :placement :inside))
-                        (setf (animation network-size) t)
                         (setf (series network-size)
                               '((:color "#00FFFF"
                                  :label "TW")
@@ -274,10 +233,45 @@
                                  :label "Total"
                                  :style "x")))
                         (setf (series-defaults network-size) 
+                              '(:show "true"
+                                :xaxis "xaxis"
+                                :yaxis "yaxis"
+                                :line-width 3
+                                :shadow "false"))
+                        (render network-size)))))))
+
+(defun engagement-graph (data)
+  (with-html-string
+    (:div :class "span4"
+          (:div :class "graph-wrap"
+                (:div :class "chart-block"
+                      (let ((engagement 
+                             (make-widget
+                              'line-graph :name "engagementgraphx"
+                              :data data)))
+
+                        (setf (title engagement) "Engagement by Type")
+                        
+                        
+                        (setf (grid engagement)
+                              '(:background "#fff"
+                                :draw-border nil
+                                :shadow nil
+                                :grid-line-color "#ccc"
+                                :grid-line-width 1))
+                        
+                        (setf (legend engagement)
+                              '(:show t :placement "w"))
+                        
+                        (setf (series-defaults engagement) 
                               '(:shadow "false"
                                 :renderer :pie
+                                :renderer-options
+                                (:start-angle 180
+                                 :slice-margin 4
+                                 :show-data-labels "true")
                                 ))
-                        (render network-size)))))))
+                        (render engagement)))))))
 
 (define-easy-handler (dashboard-page :uri "/dyb/dashboard") ()
   
@@ -382,18 +376,15 @@
                                                   ("2012-08-01" 296) ("2012-08-02" 296)
                                                   ("2012-08-03" 296) ("2012-08-04" 296) 
                                                   ("2012-08-05" 296) ("2012-08-06" 295)))))
-                            #|(str (engagement-graph `((("Likes" 9)
-                                                      ("Clicks" 2)
-                                                      ("Comments" 1)
-                                                      ("Manual Retweets" 0.1)
-                                                      ("Native Retweets" 0.1)
-                                                      ("Replies" 0.1)
-                                                      ("Mentions" 2)
-                                                      ("Direct Messages" 0.1)))))|#
-                            (:div :class "span4"
-                                  (:div :class "graph-wrap"
-                                        (:div :class "chart-block"
-                                              "Grid goes here")))
+                            (str (engagement-graph `((("Likes" fb-likes-made)
+                                                      ("Clicks" 0)
+                                                      ("Comments" fb-comments-made)
+                                                      ("Retweets" twitter-retweets)
+                                                      
+                                                      ("Posts" posts-scheduled-count)
+                                                      ("Mentions" 0)
+                                                      ("Direct Messages" 0)))))
+                            
                             (:div :class "span2"
                                   (:div :class "summary"
                                         (:h4 "CURRENT COMMUNITY SIZE")
