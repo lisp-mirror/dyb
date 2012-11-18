@@ -17,7 +17,8 @@
                                              :header "Scheduled Time"
                                              :printer
                                              (lambda (doc)
-                                               (if doc
+                                               (unless (stringp doc)
+                                                   
                                                    (multiple-value-bind 
                                                          (second minute hour day month year)
                                                        (decode-universal-time 

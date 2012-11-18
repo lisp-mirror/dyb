@@ -75,14 +75,31 @@
 
 (defmethod action-handler ((widget fb-post-comment-form))
   (when (string-equal (parameter "action") "post-facebook-comment")  
-  
-    (multiple-value-bind (result error-message)
-        (comment-facebook (parameter "post-id")
-                          (parameter "user-id")
-                          (parameter "comment"))
-      (if error-message
+    (let ((action (generic-action 
+                    (parameter "post-id") 
+                    "Facebook"
+                    (parameter "user-id")
+                    nil
+                    "Comment"
+                    (parameter "comment")
+                    (get-universal-time))))
+
+      (multiple-value-bind (result error-message)
+          (comment-facebook (parameter "post-id")
+                            (parameter "user-id")
+                            (parameter "comment"))
+        (when error-message
           (setf (get-val widget 'message) error-message)
-          (defer-js (format nil "$('#~a').dialog('close')" (name widget)))))
+          (generic-action-log action 
+                              "Error"
+                              error-message
+                              "Pending"))
+        (unless error-message
+          (generic-action-log action 
+                              "Result"
+                              result
+                              "Completed")
+          (defer-js (format nil "$('#~a').dialog('close')" (name widget))))))
     ))
 
 
@@ -171,13 +188,29 @@
                      :name "facebook-like-action-form")))
 
 (defmethod action-handler ((widget fb-like-post-form))
-  (setf (get-val widget 'message) nil)
   (when (string-equal (parameter "action") "post-facebook-like")  
     (setf (get-val widget 'message) nil)
-    (multiple-value-bind (result error-message)
-        (facebook-like (parameter "post-id")
-                       (parameter "user-id"))
-      (if error-message
-          (setf (get-val widget 'message) error-message)
-          (defer-js (format nil "$('#~a').dialog('close')" (name widget)))))
-    ))
+    (let ((action (generic-action 
+                    (parameter "post-id") 
+                    "Facebook"
+                    (parameter "user-id")
+                    nil
+                    "Like"
+                    t
+                    "Immediate"
+                    (get-universal-time))))
+          (multiple-value-bind (result error-message)
+              (facebook-like (parameter "post-id")
+                             (parameter "user-id"))
+            (when error-message
+              (setf (get-val widget 'message) error-message)
+              (generic-action-log action 
+                                  "Error"
+                                  error-message
+                                  "Pending"))
+            (unless error-message
+                (generic-action-log action 
+                              "Result"
+                              result
+                              "Completed")
+                (defer-js (format nil "$('#~a').dialog('close')" (name widget))))))))

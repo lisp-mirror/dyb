@@ -166,6 +166,7 @@
     (values result error)))
 
 (defmethod action-handler ((widget post-form))
+
   (let ((grid (grid widget)))
     (when (string-equal (parameter "action") "post-to-channel")
       (cond ((string-equal (parameter "service") "facebook")

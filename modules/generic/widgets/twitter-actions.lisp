@@ -86,15 +86,33 @@
   (when (string-equal (parameter "action") "retweet-twitter")  
     (setf (get-val widget 'message) nil)
     
+    (let ((action (generic-action 
+                    nil 
+                    "Twitter"
+                    (parameter "user-id")
+                    nil
+                    "Retweet"
+                    t
+                    "Immediate"
+                    (get-universal-time))))
+      (multiple-value-bind (result error-message)
+          (retweet-twitter (parameter "user-id")
+                           (parameter "tweet-id"))
 
-    (multiple-value-bind (result error-message)
-        (retweet-twitter (parameter "user-id")
-                         (parameter "tweet-id"))
-
-
-      (if error-message
+        (when error-message
           (setf (get-val widget 'message) error-message)
-          (defer-js (format nil "$('#~a').dialog('close')" (name widget)))))
+          (generic-action-log action 
+                              "Error"
+                              error-message
+                              "Pending"))
+        (unless error-message
+          (generic-action-log action 
+                              "Result"
+                              result
+                              "Completed")
+          (defer-js (format nil "$('#~a').dialog('close')" (name widget))))
+
+        ))
     ))
 
 (defun reply-twitter (user-id message at-user)
@@ -193,18 +211,33 @@
   (when (string-equal (parameter "action") "reply-twitter")  
     (setf (get-val widget 'message) nil)
     
-
-    (multiple-value-bind (result error-message)
-        (reply-twitter (parameter "user-id")
+    (let ((action (generic-action 
+                    nil 
+                    "Twitter"
+                    (parameter "user-id")
+                    nil
+                    "Reply"
+                    t
+                    "Immediate"
+                    (get-universal-time))))
+      (multiple-value-bind (result error-message)
+          (reply-twitter (parameter "user-id")
                        
                        (parameter "message")
                        (parameter "at-user"))
 
-
-      (if error-message
+        (when error-message
           (setf (get-val widget 'message) error-message)
-          (defer-js (format nil "$('#~a').dialog('close')" (name widget)))))
-    ))
+          (generic-action-log action 
+                              "Error"
+                              error-message
+                              "Pending"))
+        (unless error-message
+          (generic-action-log action 
+                              "Result"
+                              result
+                              "Completed")
+          (defer-js (format nil "$('#~a').dialog('close')" (name widget))))))))
 
 
 
@@ -295,12 +328,30 @@
   (when (string-equal (parameter "action") "favourite-twitter")  
     (setf (get-val widget 'message) nil)
     
-
-    (multiple-value-bind (result error-message)
-        (favourite-twitter (parameter "user-id")
+    (let ((action (generic-action 
+                    (parameter "tweet-id") 
+                    "Twitter"
+                    (parameter "user-id")
+                    nil
+                    "Favourite"
+                    t
+                    "Immediate"
+                    (get-universal-time))))
+      (multiple-value-bind (result error-message)
+          (favourite-twitter (parameter "user-id")
                          (parameter "tweet-id"))
 
-      (if error-message
+        (when error-message
           (setf (get-val widget 'message) error-message)
-          (defer-js (format nil "$('#~a').dialog('close')" (name widget)))))
+          (generic-action-log action 
+                              "Error"
+                              error-message
+                              "Pending"))
+        (unless error-message
+          (generic-action-log action 
+                              "Result"
+                              result
+                              "Completed")
+          (defer-js (format nil "$('#~a').dialog('close')" (name widget))))))
+    
     ))

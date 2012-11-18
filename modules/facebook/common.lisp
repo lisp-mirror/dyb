@@ -2,28 +2,128 @@
 
 (defun post-to-facebook (action)
   (when action
-    (unless (string-equal (get-val action 'action-status) "Completed"))
-    (let ((from-user (get-channel-user-by-user-name (get-val action 'from-user-id))))
-      (multiple-value-bind (body)
-          (drakma:http-request 
-           (format nil "https://graph.facebook.com/~A/feed&access_token=~A"
-                   (get-val from-user 'user-id)
-                   (get-val from-user 'last-access-token)
-                   )
-           :method :post
-           :parameters (list (cons "message"  (get-val action 'action-content))))
+    (when (string-equal (get-val action 'action-status) "Pending")
+      
+      (let ((from-user (get-channel-user-by-user-name (get-val action 'from-user-id))))
 
-        (let ((error-message (get-facebook-error body) ))           
-          (when error-message
-            (setf (get-val action 'action-status) "Error")
-            (setf (get-val action 'action-log) (cdr (car (rest error-message)))))
+        (cond ((string-equal (get-val action 'post-type) "Facebook")
+               (cond ((string-equal (get-val action 'action-type) "Post")
+                      (multiple-value-bind (result error-message)
+                          (post-facebook (get-val action 'from-user-id) 
+                                         (get-val action 'action-content))
+                        (when error-message
+                          (generic-action-log action 
+                                              "Error"
+                                              error-message
+                                              "Pending"))
+                        (unless error-message
+                          (generic-action-log action 
+                                              "Result"
+                                              result
+                                              "Completed"))))
+                     ((string-equal (get-val action 'action-type) "Comment")
+                      (multiple-value-bind (result error-message)
+                          (comment-facebook (get-val action 'pid)
+                                            (get-val action 'from-user-id)
+                                            (get-val action 'action-content))
+                        (when error-message
+                          (generic-action-log action 
+                                              "Error"
+                                              error-message
+                                              "Pending"))
+                        (unless error-message
+                          (generic-action-log action 
+                                              "Result"
+                                              result
+                                              "Completed"))))
+                     ((string-equal (get-val action 'action-type) "Like")
+                      (multiple-value-bind (result error-message)
+                          (facebook-like (get-val action 'pid)
+                                         (get-val action 'from-user-id))
+                        (when error-message
+                          (generic-action-log action 
+                                              "Error"
+                                              error-message
+                                              "Pending"))
+                        (unless error-message
+                          (generic-action-log action 
+                                              "Result"
+                                              result
+                                              "Completed"))))))
+              ((string-equal (get-val action 'post-type) "Twitter")
+               (cond ((string-equal (get-val action 'action-type) "Tweet")
+                      (multiple-value-bind (result error-message)
+                          (post-twitter  
+                           (get-val action 'from-user-id)
+                           (get-val action 'action-content))
+                        (when error-message
+                          (generic-action-log action 
+                                              "Error"
+                                              error-message
+                                              "Pending"))
+                        (unless error-message
+                          (generic-action-log action 
+                                              "Result"
+                                              result
+                                              "Completed"))))
+                     ((string-equal (get-val action 'action-type) "Retweet")
+                      (multiple-value-bind (result error-message)
+                          (retweet-twitter  
+                           (get-val action 'from-user-id)
+                           (get-val action 'pid))
+                        (when error-message
+                          (generic-action-log action 
+                                              "Error"
+                                              error-message
+                                              "Pending"))
+                        (unless error-message
+                          (generic-action-log action 
+                                              "Result"
+                                              result
+                                              "Completed"))))
+                     ((string-equal (get-val action 'action-type) "Reply")
+                      (multiple-value-bind (result error-message)
+                          (reply-twitter
+                           (get-val action 'from-user-id)
+                           (get-val action 'action-content)
+                           ;;TODO: Get right user name
+                           (get-val action 'to-user-id)
+                                         )
+                        (when error-message
+                          (generic-action-log action 
+                                              "Error"
+                                              error-message
+                                              "Pending"))
+                        (unless error-message
+                          (generic-action-log action 
+                                              "Result"
+                                              result
+                                              "Completed"))))
+                     ((string-equal (get-val action 'action-type) "Favourite")
+                      (multiple-value-bind (result error-message)
+                          (favourite-twitter
+                           (get-val action 'from-user-id)
+                           (get-val action 'pid)
+                                         )
+                        (when error-message
+                          (generic-action-log action 
+                                              "Error"
+                                              error-message
+                                              "Pending"))
+                        (unless error-message
+                          (generic-action-log action 
+                                              "Result"
+                                              result
+                                              "Completed"))))
+                     )
+                )
 
-          (unless error-message 
-            (setf (get-val action 'action-status) "Completed")
-            (setf (get-val action 'action-log) "Posted successfully.")))))))
+          )))))
 
 (defun post-facebook-scheduled-actions ()
   (dolist (action (coerce (generic-actions) 'list))
-    (unless (string-equal (get-val action 'action-status) "Completed")
+    (when (or 
+             (string-equal (get-val action 'action-status) "")
+             (string-equal (get-val action 'action-status) "A"))
       (when (< (get-val action 'scheduled-date) (get-universal-time))
           (post-to-facebook action)))))

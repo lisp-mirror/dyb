@@ -87,19 +87,35 @@
   (when (string-equal (parameter "action") "like-linkedin")  
     (setf (get-val widget 'message) nil)
     
-
-    (multiple-value-bind (result error-message)
-        (like-linkedin (parameter "user-id")
+    (let ((action (generic-action 
+                   nil 
+                   "LinkedIn"
+                   (parameter "user-id")
+                   nil
+                   "Like"
+                   t
+                   "Immediate"
+                   (get-universal-time))))
+      (multiple-value-bind (result error-message)
+          (like-linkedin (parameter "user-id")
                          (parameter "linkedin-update-id"))
 
-      (if error-message
+        (when error-message
           (setf (get-val widget 'message) error-message)
-          (defer-js (format nil "$('#~a').dialog('close')" (name widget)))))
-    ))
+          (generic-action-log action 
+                              "Error"
+                              error-message
+                              "Pending"))
+        (unless error-message
+          (generic-action-log action 
+                              "Result"
+                              result
+                              "Completed")
+          (defer-js (format nil "$('#~a').dialog('close')" (name widget))))))))
 
 
-(defun comment-linkein (user-id message at-user)
-  (when (and user-id at-user)
+(defun comment-linkein (user-id update-id comment)
+  (when (and user-id update-id comment)
     (let* ((result)
            (error)
            (user (get-channel-user-by-user-id  (parse-integer  user-id)))
@@ -110,13 +126,14 @@
 
         (when (get-val user 'last-access-token)
           (setf result
-                (comment-tweet 
+                (linkedin-comment
                  (get-val channel 'app-id)
                  (get-val channel 'app-secret)
                  (get-val user 'last-access-token)
-                 (get-val user 'last-token-secret)
-                 message
-                 at-user))
+                 (get-val user 'last-token-secret) 
+                 update-id 
+                 comment
+                 ))
           
           (setf result (json::decode-json-from-string  (babel:octets-to-string result)))
  
@@ -146,8 +163,7 @@
                                     :name "form-section"))
          
          (current-post (set-current-row (get-val widget 'grid)))
-         (at-user (gpv current-post :user :screen--name))
-         )
+         (linkedin-update-id (gpv current-post :id)))
     (setf (get-val like-form 'grid-size) 2)
     
     (with-html 
@@ -156,10 +172,9 @@
                   :content
                   (with-html-to-string ()
                     (:div 
-                     (:input :type "hidden" :name "at-user" 
-                             :value at-user)
-                     
-
+                     (:input :type "hidden" :name "linkedin-update-id" 
+                             :value linkedin-update-id)
+ 
                      (render form-section 
                              :label "As User"
                              :input 
@@ -178,9 +193,7 @@
                                   "message" 
                                   (parameter "message")
                                   :required t
-                                  :type :textarea)))
-
-                     )))
+                                  :type :textarea))))))
           (str (get-val widget 'message))))
     (open-dialog widget (grid widget) :width 600 :height 460)))
 
@@ -197,15 +210,36 @@
   (when (string-equal (parameter "action") "comment-linkein")  
     (setf (get-val widget 'message) nil)
     
+    (let ((action (generic-action 
+                   nil 
+                   "LinkedIn"
+                   (parameter "user-id")
+                   nil
+                   "Comment"
+                   t
+                   "Immediate"
+                   (get-universal-time))))
+      (multiple-value-bind (result error-message)
+          (comment-linkein  (parameter "user-id")
+                            (parameter "linkedin-update-id")
+                            (parameter "message")
+                       )
 
-    (multiple-value-bind (result error-message)
-        (comment-linkein (parameter "user-id")
-                       
-                       (parameter "message")
-                       (parameter "at-user"))
-
-
-      (if error-message
+        (when error-message
           (setf (get-val widget 'message) error-message)
-          (defer-js (format nil "$('#~a').dialog('close')" (name widget)))))
+          (generic-action-log action 
+                              "Error"
+                              error-message
+                              "Pending"))
+        (unless error-message
+          (generic-action-log action 
+                              "Result"
+                              result
+                              "Completed")
+          (defer-js (format nil "$('#~a').dialog('close')" (name widget))))
+
+        ))
+
+
+    
     ))

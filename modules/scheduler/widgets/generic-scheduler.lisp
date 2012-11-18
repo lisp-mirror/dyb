@@ -65,7 +65,7 @@
                 (setf (value channel-user) (or (parameter "channel-user")
                                                (get-val row 'from-user-id)))
                 (render form-section
-                        :label "Post To"
+                        :label "Post To Channel"
                         :input
                         (with-html-string
                           (render service)))
@@ -234,6 +234,7 @@
                                                        to-user
                                                        (parameter "action-type")
                                                        (parameter "action-content")
+                                                       "Timed"
                                                        date-time
                                                        :image-url image
                                                        :post-url (parameter "post-url")
