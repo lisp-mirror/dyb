@@ -82,6 +82,7 @@
                     nil
                     "Comment"
                     (parameter "comment")
+                    "Immediate"
                     (get-universal-time))))
 
       (multiple-value-bind (result error-message)

@@ -18,10 +18,10 @@
                       (if (gpv col-val :user)
                           (htm
                            (:span :class "twitter-user" (:a :href (gpv col-val :user--link) (gpv col-val :user)))))
-                      (:span :class "timestamp"
-                             (str (format-universal-date-time  
-                                   (unix-time-to-universal 
-                                    (gpv col-val :timestamp)))))
+                     ;; (:span :class "timestamp"
+                     ;;        (str (format-universal-date-time  
+                     ;;              (unix-time-to-universal 
+                     ;;               (gpv col-val :timestamp)))))
                       (:span :class "post-content"
                              (str (gpv col-val :description)))
                       (:span :class "twitter-actions"
@@ -47,8 +47,8 @@
        (:span :class "twitter-user" 
               (:a :href (format nil "http://www.twitter.com/~A" 
                                 (gpv col-val :user :screen--name))))
-       (:span :class "timestamp"
-              (str (gpv col-val :created--at)))
+       ;;(:span :class "timestamp"
+       ;;       (str (gpv col-val :created--at)))
        (:span :class "post-content"
               (str (gpv col-val :text)))
        (:span :class "twitter-actions"
@@ -105,8 +105,8 @@
         :class "post-title"
         :href (format nil "http://www.facebook.com/~A" (gpv col-val :from :id))
         (str (gpv col-val :from :name)))
-       (:span :class "timestamp"
-              (str (gpv col-val :created--time)))
+;;       (:span :class "timestamp"
+;;              (str (gpv col-val :created--time)))
        (:span :class "post-content"
               (str (or (gpv col-val :message) (gpv col-val :story))))
        (if (gpv col-val :actions)
@@ -181,8 +181,8 @@
                                        (gpv col-val :update-content :person :id))
                                       ((string-equal (gpv col-val :update-type) "CMPY")
                                        (gpv col-val :update-content :company :id))))))
-       (:span :class "timestamp"
-              (str (format-universal-date-time (unix-time-to-universal (truncate (/ (gpv col-val :timestamp) 1000))))))
+      ;; (:span :class "timestamp"
+      ;;        (str (format-universal-date-time (unix-time-to-universal (truncate (/ (gpv col-val :timestamp) 1000))))))
        (:span :class "post-content"
               (str (cond ((string-equal (gpv col-val :update-type) "SHAR")
                           (or (gpv col-val :update-content :person :current-share :content :description)
@@ -224,7 +224,49 @@
             ((string-equal (get-val row 'post-type) "Facebook")
              (facebook-post-display grid row payload row-id)))))
 
+(defun display-image (payload)
+  (cond ((string-equal "t" "") 
+         (with-html-to-string ()
+           (:div :class "post-image-thumb"
+                 (:a :href "#" :title "Click to view the full size image"
+                     ;;(:img :src "")
+                     ))
+           ))
+        ((gpv payload :favicon)
+         (with-html-to-string ()
+           (if (gpv payload :image)
+               (htm
+                (:div :class "post-image-thumb"
+                      (:a :href (gpv payload :image) :title "Click to view the full size image"
+                          (:img :src (gpv payload :image))
+                          ))))
+           ))
+        ((gpv payload :update-type)
+         (with-html-to-string ()
+           (let ((image (or
+                         (gpv payload :update-content :person :current-share :content :thumbnail-url)
+                         (gpv payload :update-content :company-status-update :share :content :thumbnail-url))))
+             (if image
+                 (htm
+                  (:div :class "post-image-thumb"
+                        (:a :href image
+                            :title "Click to view the full size image"
+                            (:img :src (gpv payload :update-content :person :current-share :content :thumbnail-url))
+                            )))))
+           )
+         )
+        (t
+         (with-html-to-string ()
+           (if (gpv payload :picture)
+               (htm
+                (:div :class "post-image-thumb"
+                      (:a :href "#" :title "Click to view the full size image"
+                                                              
+                          (:img :src (gpv payload :picture)))))
+               ))
+         ))
 
+  )
 
 (define-easy-handler (generic-page :uri "/dyb/generic") ()
   (let* ((columns
@@ -296,61 +338,25 @@
             'grid-column
             :name 'payload
             :header "Post"
-            :width "100%"
+            :width "60%"
             :special-printer #'generic-grid-item-display)
+           (make-instance 
+            'grid-column
+            :name 'created-date
+            :header "Created"
+            
+            :printer #'format-universal-date-time)
            (make-instance 'grid-column
                           :name 'payload
                           :header "Image"
-                          :printer (lambda (payload)
-                                     (cond ((gpv payload :id--str)
-                                            (with-html-to-string ()
-                                              (:div :class "post-image-thumb"
-                                                    (:a :href "#" :title "Click to view the full size image"
-                                                        ;;(:img :src "")
-                                                        ))
-                                              ))
-                                           ((gpv payload :favicon)
-                                            (with-html-to-string ()
-                                              (if (gpv payload :image)
-                                                  (htm
-                                                   (:div :class "post-image-thumb"
-                                                         (:a :href (gpv payload :image) :title "Click to view the full size image"
-                                                             (:img :src (gpv payload :image))
-                                                             ))))
-                                              ))
-                                           ((gpv payload :update-type)
-                                            (with-html-to-string ()
-                                              (let ((image (or
-                                                            (gpv payload :update-content :person :current-share :content :thumbnail-url)
-                                                            (gpv payload :update-content :company-status-update :share :content :thumbnail-url))))
-                                                (if image
-                                                    (htm
-                                                     (:div :class "post-image-thumb"
-                                                           (:a :href image
-                                                               :title "Click to view the full size image"
-                                                               (:img :src (gpv payload :update-content :person :current-share :content :thumbnail-url))
-                                                               )))))
-                                              )
-                                            )
-                                           (t
-                                            (with-html-to-string ()
-                                              (if (gpv payload :picture)
-                                                  (htm
-                                                   (:div :class "post-image-thumb"
-                                                         (:a :href "#" :title "Click to view the full size image"
-                                                              
-                                                             (:img :src (gpv payload :picture))))))
-                                              ))
-                                           ))
-
-                          )))
+                          :printer #'display-image)))
 
            
-         (grid (make-widget 'generic-grid :name "generic-post-gridxx"
-                            ;;:columns columns
-                            :edit-inline nil
-                            :title "Inbox"
-                            :row-object-class 'generic-post)))
+           (grid (make-widget 'generic-grid :name "generic-post-gridxx"
+                              ;;:columns columns
+                              :edit-inline nil
+                              :title "Inbox"
+                              :row-object-class 'generic-post)))
     (setf (get-val grid 'columns) columns)
     (setf (get-val grid 'grid-links) 
           (list (list 'twitter "delete" "Delete")
@@ -371,8 +377,8 @@
 
                 (list 'social-mention "delete" "Delete")
                 (list 'social-mention "assign-task-form" "Assign Task")))
-    (setf (sort-keys grid) '(2 identity))
-    (setf (initial-sort-column grid) '(2 :ascending))
+    (setf (sort-keys grid) '(3 identity))
+    (setf (initial-sort-column grid) '(3 :descending))
     
     (render (make-widget 'page :name "generic-page")
             :body (with-html-to-string ()
