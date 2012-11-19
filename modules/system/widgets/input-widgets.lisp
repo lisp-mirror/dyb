@@ -423,11 +423,11 @@ Please select a legal one"
 
 (defun get-channel-users (service)
   (loop for doc across (docs (channel-users-collection))
-                        when (if (string-equal (get-val doc 'channel-user-type) service)
-
-                                   (if (get-val doc 'channel-user-name)
-                                       (get-val doc 'channel-user-name)
-                                       ))
+       when (match-context-entities doc)
+     when (if (string-equal (get-val doc 'channel-user-type) service)              
+              (if (get-val doc 'channel-user-name)
+                  (get-val doc 'channel-user-name)
+                  ))
      collect (list (get-val doc 'user-id)
                    (get-val doc 'channel-user-name)))
 
