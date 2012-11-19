@@ -4,12 +4,19 @@
   (when channel-user
     (when (get-val channel-user 'last-access-token)
       (let (
-            (result (linkedin-network-updates
-                     (get-val channel 'app-id)
-                     (get-val channel 'app-secret)
-                     (get-val channel-user 'last-access-token) 
-                     (get-val channel-user 'last-token-secret))))
-
+            (result (if (string-equal (get-val channel-user 'profile-type) "Page")
+                        (linkedin-company-updates
+                         (get-val channel 'app-id)
+                         (get-val channel 'app-secret)
+                         (get-val channel-user 'last-access-token) 
+                         (get-val channel-user 'last-token-secret)
+                         (get-val channel-user 'user-id))
+                        (linkedin-network-updates
+                         (get-val channel 'app-id)
+                         (get-val channel 'app-secret)
+                         (get-val channel-user 'last-access-token) 
+                         (get-val channel-user 'last-token-secret)))))
+        
         (parse-linkedin-updates 
          channel-user
          (json::decode-json-from-string 

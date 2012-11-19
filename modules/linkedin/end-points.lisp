@@ -324,14 +324,15 @@
     :want-stream nil
     :preserve-uri t)))
 
-(defun linkedin-companies-update (app-id app-secret
+(defun linkedin-company-updates (app-id app-secret
                                   access-token 
                                   access-secret
-                                  company-user-name)
+                                  company-id)
   (let* ((stamp (format nil "~A" (get-unix-time)))
          (nonce (format nil "~A" (random 1234567)))
-         (end-point  (format nil "http://api.linkedin.com/v1/companies/~A/updates)" company-user-name)))
+         (end-point  (format nil "http://api.linkedin.com/v1/companies/~A/updates" company-id)))
     
+
     
     (drakma:http-request 
      end-point  
