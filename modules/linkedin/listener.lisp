@@ -9,6 +9,7 @@
                      (get-val channel 'app-secret)
                      (get-val channel-user 'last-access-token) 
                      (get-val channel-user 'last-token-secret))))
+
         (parse-linkedin-updates 
          channel-user
          (json::decode-json-from-string 

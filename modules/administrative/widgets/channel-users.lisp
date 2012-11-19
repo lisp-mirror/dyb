@@ -213,6 +213,7 @@
                                :last-access-token (gpv account :access--token)
                                )))))))))
         ((string-equal (parameter "channel-user-type") "LinkedIn")
+
          )))
 
 (defmethod handle-action ((grid channel-user-grid) (action (eql 'save)))

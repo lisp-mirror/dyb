@@ -190,8 +190,9 @@
          (nonce (format nil "~A" (random 1234567)))
          (end-point  "http://api.linkedin.com/v1/people/~/network/updates?type=CMPY&type=PICT&type=SHAR&count=250" ))
     
-    (drakma:http-request end-point
-      
+    (drakma:http-request 
+     end-point
+     :content-type "application/json"
      :method :get    
      
      :additional-headers
@@ -207,14 +208,12 @@
                   :uri end-point 
                   :request-method "GET"
                   :parameters `(("count" "250")
-                                ("format" "json")
                                 ("oauth_consumer_key" ,app-id)
                                 ("oauth_nonce" ,nonce)
                                 ("oauth_signature_method" "HMAC-SHA1")
                                 ("oauth_timestamp" ,stamp)
                                 ("oauth_token" ,access-token)
                                 ("oauth_version" "1.0")
-                                ;;("start" "250")
                                 ("type" "CMPY")
                                 ("type" "PICT")
                                 ("type" "SHAR")))
@@ -226,7 +225,9 @@
              ("oauth_token" ,access-token)
              ("oauth_version" "1.0")))))
     :want-stream nil
-    :preserve-uri nil)))
+    :preserve-uri t)))
+
+
 
 (defun linkedin-connections (app-id app-secret
                              access-token 
@@ -283,6 +284,53 @@
   (let* ((stamp (format nil "~A" (get-unix-time)))
          (nonce (format nil "~A" (random 1234567)))
          (end-point  (format nil "http://api.linkedin.com/v1/companies/universal-name=~A:(id,name,universal-name,email-domains,company-type,website-url,logo-url,twitter-id,locations,description,num-followers)" company-user-name)))
+    
+    
+    (drakma:http-request 
+     end-point  
+     :content-type "application/json"
+     
+     :method :get    
+    
+     :additional-headers
+     `(("x-li-format" . "json")
+       ("Authorization"
+        ,@(build-auth-string
+           `(("oauth_consumer_key" ,app-id)
+             ("oauth_nonce" ,nonce)
+             ("oauth_signature"
+              ,(encode-signature
+                (hmac-sha1
+                 (signature-base-string
+                  :uri end-point 
+                  :request-method "GET"
+                  :parameters `(
+                                
+                                ("oauth_consumer_key" ,app-id)
+                                ("oauth_nonce" ,nonce)
+                                ("oauth_signature_method" "HMAC-SHA1")
+                                ("oauth_timestamp" ,stamp)
+                                ("oauth_token" ,access-token)
+                                ("oauth_version" "1.0")
+                                
+                                ))
+                 (hmac-key  app-secret 
+                            access-secret))
+                nil))
+             ("oauth_signature_method" "HMAC-SHA1")
+             ("oauth_timestamp" ,stamp)
+             ("oauth_token" ,access-token)
+             ("oauth_version" "1.0")))))
+    :want-stream nil
+    :preserve-uri t)))
+
+(defun linkedin-companies-update (app-id app-secret
+                                  access-token 
+                                  access-secret
+                                  company-user-name)
+  (let* ((stamp (format nil "~A" (get-unix-time)))
+         (nonce (format nil "~A" (random 1234567)))
+         (end-point  (format nil "http://api.linkedin.com/v1/companies/~A/updates)" company-user-name)))
     
     
     (drakma:http-request 

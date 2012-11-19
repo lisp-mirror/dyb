@@ -69,9 +69,10 @@
 (defmethod match-channel-users (doc channel-users)
   (find (get-val doc 'xid) channel-users))
 
-(add-collection (system-db) "channel-users"
-                :collection-class 'dyb-collection
-                :load-from-file-p t)
+(unless (channel-users-collection)
+  (add-collection (system-db) "channel-users"
+                  :collection-class 'dyb-collection
+                  :load-from-file-p t))
 
 (defun get-channel-user-by-auth-token (auth-token)
   (get-doc (channel-users-collection) auth-token :element 'request-token))
@@ -88,6 +89,7 @@
 (defun get-channel-users-list (channel-name users)
   (loop for user across (channel-users)
        when (string-equal (get-val user 'channel-user-type) channel-name)
-       ;;when (find (get-val user 'user-id) users)
+       ;when (find (get-val user 'user-id) users)
+       when (match-context-entities user)
        collect (list (get-val user 'user-id)
                      (get-val user 'channel-user-name))))
