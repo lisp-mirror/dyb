@@ -82,7 +82,7 @@
   (when (string-equal (parameter "action") "like-linkedin")  
     (setf (get-val widget 'message) nil)
     
-    (let ((action (generic-action 
+    (let ((action (add-generic-action 
                    (get-channel-user-by-user-id (parameter "user-id"))
                    nil 
                    "LinkedIn"
@@ -98,12 +98,12 @@
 
         (when error-message
           (setf (get-val widget 'message) error-message)
-          (generic-action-log action 
+          (add-generic-action-log action 
                               "Error"
                               error-message
                               "Pending"))
         (unless error-message
-          (generic-action-log action 
+          (add-generic-action-log action 
                               "Result"
                               result
                               "Completed")
@@ -203,7 +203,7 @@
   (when (string-equal (parameter "action") "comment-linkein")  
     (setf (get-val widget 'message) nil)
     
-    (let ((action (generic-action 
+    (let ((action (add-generic-action 
                    (get-channel-user-by-user-id (parameter "user-id"))
                    nil 
                    "LinkedIn"
@@ -220,12 +220,12 @@
 
         (when error-message
           (setf (get-val widget 'message) error-message)
-          (generic-action-log action 
+          (add-generic-action-log action 
                               "Error"
                               error-message
                               "Pending"))
         (unless error-message
-          (generic-action-log action 
+          (add-generic-action-log action 
                               "Result"
                               result
                               "Completed")

@@ -76,7 +76,7 @@
 
 (defmethod action-handler ((widget fb-post-comment-form))
   (when (string-equal (parameter "action") "post-facebook-comment")  
-    (let ((action (generic-action 
+    (let ((action (add-generic-action 
                    (get-channel-user-by-user-id (parameter "user-id"))
                    (parameter "post-id") 
                     "Facebook"
@@ -93,12 +93,12 @@
                             (parameter "comment"))
         (when error-message
           (setf (get-val widget 'message) error-message)
-          (generic-action-log action 
+          (add-generic-action-log action 
                               "Error"
                               error-message
                               "Pending"))
         (unless error-message
-          (generic-action-log action 
+          (add-generic-action-log action 
                               "Result"
                               result
                               "Completed")
@@ -193,7 +193,7 @@
 (defmethod action-handler ((widget fb-like-post-form))
   (when (string-equal (parameter "action") "post-facebook-like")  
     (setf (get-val widget 'message) nil)
-    (let ((action (generic-action 
+    (let ((action (add-generic-action 
                    (get-channel-user-by-user-id (parameter "user-id"))
                    (parameter "post-id") 
                     "Facebook"
@@ -208,12 +208,12 @@
                              (parameter "user-id"))
             (when error-message
               (setf (get-val widget 'message) error-message)
-              (generic-action-log action 
+              (add-generic-action-log action 
                                   "Error"
                                   error-message
                                   "Pending"))
             (unless error-message
-                (generic-action-log action 
+                (add-generic-action-log action 
                               "Result"
                               result
                               "Completed")
