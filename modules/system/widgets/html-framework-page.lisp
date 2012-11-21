@@ -249,7 +249,7 @@
                            (:li :class "dropdown"
                                 (:a :class "dropdown-toggle" :href "#" :data-toggle "dropdown"
                                     (str (get-val (current-user) 'email))
-                                    (:span :class "alert-noty" (str "25"))
+                                    (:span :class "alert-noty" (str "0"))
                                     (:i :class "white-icons admin_user")
                                     (:b :class "caret"))
                                 (:ul :class "dropdown-menu"
