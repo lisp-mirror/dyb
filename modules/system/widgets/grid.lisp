@@ -697,15 +697,21 @@ document.getElementById(\"~A\").submit();"
                                              (:span :class "caret")))
                                 (:ul :class "dropdown-menu"
                                      (when (get-val grid 'grid-links)
-                                       (dolist (link (get-val grid 'grid-links))
-                                         (if (equal (first link) 
-                                                    (get-val (elt cut (- id start)) 
-                                                             'post-type))
-                                             (htm 
-                                              (:li (render-ajax-buttonx 
-                                                    grid id 
-                                                    (second link)
-                                                    (third link)))))))
+                                       (if (typep grid 'generic-grid)
+                                           (dolist (link (get-val grid 'grid-links))
+                                             (if (equal (first link) 
+                                                        (get-val (elt cut (- id start)) 
+                                                                 'post-type))
+                                                 (htm 
+                                                  (:li (render-ajax-buttonx 
+                                                        grid id 
+                                                        (second link)
+                                                        (third link))))))
+                                           (dolist (link (get-val grid 'grid-links))
+                                             (htm (:li (render-ajax-buttonx 
+                                                        grid id 
+                                                        (first link)
+                                                        (second link)))))))
                                      (unless (get-val grid 'grid-links)
                                        (htm
                                         (:li
