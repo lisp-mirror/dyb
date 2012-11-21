@@ -4,5 +4,5 @@
   (multiple-value-bind (body)
       (drakma:http-request 
        (format nil "http://api2.socialmention.com/search?q=~A&f=json&t=all&lang=en" 
-               search))
+               (url-encode search)))
     (json:decode-json-from-string (babel:octets-to-string body))))
