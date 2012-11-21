@@ -452,13 +452,13 @@
 
                 (list 'linkedin "delete" "Delete")
                 (list 'linkedin "assign-task-form" "Assign Task")
-                (list 'twitter "direct-message" "Direct Message")
+                (list 'linkedin "direct-message" "Direct Message")
                ; (list 'linkedin "highlight" "Highlight")
-                (list 'facebook "go-to-content" "Go To Content")
+                (list 'linkedin "go-to-content" "Go To Content")
 
                 (list 'social-mention "delete" "Delete")
                 (list 'social-mention "assign-task-form" "Assign Task")
-                (list 'facebook "go-to-content" "Go To Content")))
+                (list 'social-mention "go-to-content" "Go To Content")))
     (setf (sort-keys grid) '(3 created-date))
     (setf (initial-sort-column grid) '(3 :descending))
     
