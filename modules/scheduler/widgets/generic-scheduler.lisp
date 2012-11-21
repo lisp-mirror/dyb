@@ -50,7 +50,7 @@
   (let ((action-form (make-widget 
                        'html-framework-form :name "schedule-action-formx"
                        :grid-size 12
-                       :header "Schedule Channel Actions"
+                       :header "Schedule New Message"
                        :form-id "schedule-action-form"
                        :form-data t
                        :ajax-submit nil))
@@ -95,19 +95,19 @@
                            (setf (value channel-user) (or (parameter "channel-user")
                                                           (get-val row 'from-user-id)))
                            (render form-section
-                                   :label "Post To Channel"
+                                   :label "Select To Channel"
                                    :input
                                    (with-html-string
                                      (render service)))
                            (render form-section
-                                   :label "Channel User"
+                                   :label "Select Account"
                                    :input
                                    (with-html-string
                                      (render channel-user))))
 
                 
                          (render form-section 
-                                 :label "Post"
+                                 :label "Message"
                                  :input 
                                  (with-html-string
                                    (render-edit-field
@@ -118,7 +118,7 @@
                                     :type :textarea)))
                          (render 
                           form-section
-                          :label "Image"
+                          :label "Add Image"
                           :input (with-html-string
                                    (when (image-url row)
                                      (htm (:div 
@@ -131,7 +131,7 @@
                                            :style "display: inline-block;")))
                          (render 
                           form-section
-                          :label "Post Url"
+                          :label "Add Link"
                           :input (with-html-string
                                    (render-edit-field 
                                     "post-url"
@@ -141,7 +141,7 @@
                                     :required nil)))
                          (render 
                           form-section
-                          :label "Short Url"
+                          :label "Shortened Link"
                           :input (with-html-string
                                    (render-edit-field 
                                     "short-url"
@@ -150,7 +150,7 @@
                                     :type :span)))
                          (render 
                           form-section
-                          :label "Scheduled Date"
+                          :label "Select Date"
                           :input (with-html-string
                                    (render-edit-field 
                                     "scheduled-date"
@@ -164,7 +164,7 @@
                                    ))
                          (render 
                           form-section
-                          :label "Scheduled Time"
+                          :label "Select Time"
                           :input (with-html-string
                                    (render-edit-field 
                                     "scheduled-time"

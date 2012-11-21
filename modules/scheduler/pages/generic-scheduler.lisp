@@ -33,7 +33,7 @@
          (grid (make-widget 'generic-actions-grid :name "generic-actions-gridx"
                                        ;;:columns columns
                                        :edit-inline nil
-                                       :title "Schedule Actions"
+                                       :title "Schedule Messages"
                                        :row-object-class 'generic-action)))
     (setf (get-val grid 'columns) columns)
     
