@@ -147,7 +147,7 @@
        (:div :id (format nil "comments-~A" (gpv col-val :id)) 
              :style "background-color:#F2F2F2;display:none;"
              (:br)
-                           
+             
              (dolist (comment (gpv col-val :comments :data))
                (htm (:div :style "border-bottom:thin solid #ffffff;" 
                           (str (gpv comment :message)))))
@@ -160,7 +160,7 @@
                                     (js-pair "action" "facebook-comment")
                                     (js-pair "row_id" row-id)))
                         
-                        (str "Post Comment"))))))
+                        (str "Add Comment"))))))
 
      )))
 
