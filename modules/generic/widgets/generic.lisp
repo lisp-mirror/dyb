@@ -6,6 +6,14 @@
   (:include-css "/appcss/posts.css")
   (:default-initargs :edit-inline nil))
 
+(defmethod list-grid-filters ((grid generic-grid))
+  '(facebook-only
+    twitter-only
+    linkedin-only
+    mentions-only
+    with-audit-data))
+
+
 (defclass grid-action (ajax-widget)
   ((grid :initarg :grid
          :initform nil
@@ -25,11 +33,28 @@
   (find-docs 'vector
               (lambda (doc)
                 (if (match-context-entities  (channel-user doc) )
-                   (cond ((equal filter 'with-audit-data)
+                   (cond 
+                     ((equal filter 'facebook-only)
+                      (if (string-equal (get-val doc 'post-type) "Facebook")
                           doc)
-                         (t
-                          (if (not (string-equal (get-val doc 'doc-status) "superseded"))
-                              doc)))))
+                      )
+                     ((equal filter 'twitter-only)
+                      (if (string-equal (get-val doc 'post-type) "Twitter")
+                          doc)
+                      )
+                     ((equal filter 'linkedin-only)
+                      (if (string-equal (get-val doc 'post-type) "LinkedIn")
+                          doc)
+                      )
+                     ((equal filter 'mentions-only)
+                      (if (string-equal (get-val doc 'post-type) "Social-Mention")
+                          doc)
+                      )
+                     ((equal filter 'with-audit-data)
+                      doc)
+                     (t
+                      (if (not (string-equal (get-val doc 'doc-status) "superseded"))
+                          doc)))))
               (generic-post-collection)))
 
 (defmethod get-rows ((grid generic-grid))
