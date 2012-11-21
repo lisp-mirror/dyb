@@ -288,3 +288,27 @@
 
 (defmethod handle-action ((grid channel-user-grid) (action (eql 'cancel)))
   (finish-editing grid))
+
+(defmethod handle-action ((grid channel-user-grid) (action (eql 'refresh-profile)))
+  (let ((user (editing-row grid)))
+    (when user
+      (when (string-equal (get-val user 'channel-user-type)
+                        "Facebook")
+        (multiple-value-bind (result status error) 
+            (facebook-profile user)                       
+                              
+          (when result
+            (setf (get-val user 'user-id) (gpv result :id))
+            (setf (get-val user 'channel-user-name) 
+                  (gpv result :username))
+            (setf (gethash "profile" (get-val user 'user-data)) result)
+
+            (multiple-value-bind (accounts)
+                (facebook-accounts user)
+              (when accounts
+                (setf (gethash "accounts" 
+                               (get-val user 'user-data)) accounts)
+                ))
+            (persist user))))))
+(finish-editing grid)
+ )

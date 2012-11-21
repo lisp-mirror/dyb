@@ -30,6 +30,11 @@
                                        :edit-inline nil
                                        :title "Channel User"
                                        :row-object-class 'channel-user)))
+    (setf (get-val grid 'grid-links) 
+          (list
+           (list "edit" "Edit")
+           (list "delete" "Delete")
+           (list "refresh-profile" "Refresh Profile")))
     (setf (sort-key-function grid)
           (lambda (doc)
             (if (stringp (get-val doc 'channel-user-name))
