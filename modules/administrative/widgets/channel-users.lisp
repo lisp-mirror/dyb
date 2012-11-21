@@ -198,7 +198,18 @@
 
                    (when user
                      (setf (get-val user 'last-access-token) (gpv account :access-token))
+                     (when (gpv account :access-token)
+                         (multiple-value-bind (result status error) 
+                             (facebook-profile user)
+                           ;;TODO: Process errors.
+                           (when result
+                             (setf (get-val user 'user-id) (gpv result :id))
+                             (setf (get-val user 'channel-user-name) 
+                                   (gpv result :username))
+                             (setf (gethash "profile" (get-val user 'user-data)) result)) ))
                      (persist user))
+
+                   
                    (unless user
                      (persist (make-channel-user
                                (get-entity-by-id
