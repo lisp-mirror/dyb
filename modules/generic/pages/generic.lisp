@@ -2,7 +2,7 @@
 
 
 (defun social-mention-display (grid row col-val row-id)
- ;; (break "~A" col-val)
+ ; (break "~A" col-val)
   (with-html-to-string ()
     (:div :class "nonboxy-widget"
           ;; (:div :class "widget-head")
@@ -12,8 +12,9 @@
 
                       (:a
                        :class "post-title"
-                       :href (or (gpv col-val :user--link)
-                                 (gpv col-val :link))
+                       :target "_blank"
+                       :href (or (gpv col-val :link)
+                                 (gpv col-val :user--link))
                        (str (gpv col-val :title)))
                       (if (gpv col-val :user)
                           (htm
@@ -31,7 +32,7 @@
                       )))))
 
 (defun twitter-post-display (grid row col-val row-id)
-;(break "~A~%~A" col-val (gpv col-val :created--at)) 
+;(break "~A~%~A" col-val (gpv col-val :entities :urls :expanded--url)) 
  (with-html-to-string ()
     (:div 
      :class "nonboxy-widget"
@@ -40,9 +41,10 @@
       (:div 
        :class "post"
        (:a
-        :class "post-title"
+        :class "post-title"        
+        :target "_blank"
         :href (format nil "http://www.twitter.com/~A" 
-                      (gpv col-val :user :id))
+                      (gpv col-val :entities :urls :expanded--url))
         (str (gpv col-val :user :name)))
        (:span :class "twitter-user" 
               (:a :href (format nil "http://www.twitter.com/~A" 
@@ -103,12 +105,19 @@
        :class "post"
        (:a
         :class "post-title"
-        :href (format nil "http://www.facebook.com/~A" (gpv col-val :from :id))
+        :target "_blank"
+        :href (format nil "http://www.facebook.com/~A" (gpv col-val :id))
         (str (gpv col-val :from :name)))
 ;;       (:span :class "timestamp"
 ;;              (str (gpv col-val :created--time)))
+       
        (:span :class "post-content"
-              (str (or (gpv col-val :message) (gpv col-val :story))))
+              (if (not (or (gpv col-val :message) (gpv col-val :story)))
+                  (if (and (string-equal (gpv col-val :type) "photo")
+                           (string-equal (gpv col-val :status--type) "added_photos"))
+                      (htm  (str (gpv col-val :name )))
+                      (htm (str "MISSING TEXT report to info@dyb.co.za")))
+                  (htm (str (or (gpv col-val :message) (gpv col-val :story))))))
        (if (gpv col-val :actions)
            (htm (:span :class "twitter-actions"
                        (:span :class "action-icon" :title "Like"
@@ -166,6 +175,7 @@
        :class "post"
        (:a
         :class "post-title"
+        :target "_blank"
         :href (format nil "http://www.linkedin.com/~A" 
                       (cond ((string-equal (gpv col-val :update-type) "SHAR")
                              (gpv col-val :update-content :person :id))
@@ -217,7 +227,7 @@
   (if payload
       (cond ((string-equal (get-val row 'post-type) "Twitter")
              (twitter-post-display grid row payload row-id))
-            ((string-equal (get-val row 'post-type) "Social Mention")
+            ((string-equal (get-val row 'post-type) "Social-Mention")
              (social-mention-display grid row payload row-id))
             ((string-equal (get-val row 'post-type) "LinkedIn")
              (linkedin-post-display grid row payload row-id))
@@ -268,6 +278,78 @@
 
   )
 
+
+(defun get-profile-pic (grid row payload row-id)
+  (cond ((string-equal (get-val row 'post-type) "Twitter")
+             (with-html-to-string ()
+                       (:span :class "post-source" 
+                              (:a
+                               :class "post-title"        
+                               :target "_blank"
+                               :href (format nil "http://www.twitter.com/~A" 
+                                             (gpv payload :user :screen--name))
+        
+                               (:img :src (if (gpv payload :user :profile--image--url--https)
+                                              (gpv payload :user :profile--image--url--https)
+                                              "/appimg/user-thumb.png"))))
+                       ))
+           ; ((string-equal (get-val row 'post-type) "Social Mention")
+           ;  (social-mention-display grid row payload row-id))
+            ((string-equal (get-val row 'post-type) "LinkedIn")
+             (with-html-to-string ()
+                       (:span :class "user-thumb" 
+                              (:a
+                               :class "post-title"
+                               :target "_blank"
+                               :href (format nil "http://www.linkedin.com/~A" 
+                                             (cond ((string-equal 
+                                                     (gpv payload :update-type) "SHAR")
+                                                    (gpv payload :update-content 
+                                                         :person :id))
+                                                   ((string-equal 
+                                                     (gpv payload :update-type) "CMPY")
+                                                    (gpv payload :update-content 
+                                                         :company :id))))
+        
+                               (:img :src (if (gpv payload :update-content 
+                                                   :person :picture-url)
+                                              (gpv payload :update-content 
+                                                   :person :picture-url)
+                                              "/appimg/user-thumb.png"))))
+                       ))
+            ((string-equal (get-val row 'post-type) "Facebook")
+             (with-html-to-string ()
+                       (:span :class "post-source" 
+                              (:a
+                               :class "post-title"
+                               :target "_blank"
+                               :href (format nil "http://www.facebook.com/~A" 
+                                             (gpv payload :from :id))
+                               (:img :src 
+                                     (if (gpv payload :from :id)
+                                         (format nil 
+                                                 "https://graph.facebook.com/~A/picture" 
+                                                 (gpv payload :from :id))
+                                         "/appimg/user-thumb.png"))))
+                       ))
+            ((string-equal (get-val row 'post-type) "Social-Mention")
+             (with-html-to-string ()
+                       (:span :class "user-thumb" 
+                              (:a
+                               :class "post-title"
+                               :target "_blank"
+                               :href (gpv payload :user--link)
+                               (:img :src (if (gpv payload :user--image)
+                                              (gpv payload :user--image)
+                                              "/appimg/user-thumb.png"))))
+                       ))
+            (t
+             (break "~A" row)
+                     (with-html-to-string ()
+                       (:span :class "post-source" 
+                              (:img :src "/appimg/user-thumb.png"))
+                       ))))
+
 (define-easy-handler (generic-page :uri "/dyb/generic") ()
   (let* ((columns
           (list
@@ -302,35 +384,8 @@
             'grid-column
             :name 'payload
             :header "Pic"
-            :printer 
-            (lambda (payload)
-              (cond ((gpv payload :id--str)
-                     (with-html-to-string ()
-                       (:span :class "post-source" 
-                              (:img :src (if (gpv payload :user :profile--image--url--https)
-                                             (gpv payload :user :profile--image--url--https)
-                                             "/appimg/user-thumb.png")))
-                       ))
-                    ((gpv payload :favicon)
-                     (with-html-to-string ()
-                       (:span :class "user-thumb" 
-                              (:img :src (if (gpv payload :user--image)
-                                             (gpv payload :user--image)
-                                             "/appimg/user-thumb.png")))
-                       ))
-                    ((gpv payload :update-type)
-                     (with-html-to-string ()
-                       (:span :class "user-thumb" 
-                              (:img :src (if (gpv payload :update-content :person :picture-url)
-                                             (gpv payload :update-content :person :picture-url)
-                                             "/appimg/user-thumb.png")))
-                       )
-                     )
-                    (t
-                     (with-html-to-string ()
-                       (:span :class "post-source" 
-                              (:img :src "/appimg/user-thumb.png"))
-                       ))))
+            :special-printer #'get-profile-pic 
+            
 
             )
             
