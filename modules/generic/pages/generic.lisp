@@ -143,14 +143,36 @@
                        ;;       (:a :href "#" (:img :src "/appimg/fb-share.png")))
                        )))
 
-
+       (:br)
        (:div :id (format nil "comments-~A" (gpv col-val :id)) 
              :style "background-color:#F2F2F2;display:none;"
+             
+             (:span :style "font-weight:bold;" (str "Latest Comments"))
+             
+             
              (:br)
              
              (dolist (comment (gpv col-val :comments :data))
-               (htm (:div :style "border-bottom:thin solid #ffffff;" 
-                          (str (gpv comment :message)))))
+               (htm 
+
+                (:table :style "border:none,border-collapse: collapse;"
+                 (:tr
+                  (:td :style "border:none,border-collapse: collapse;" :width "20%" 
+                       (:a :target "_blank"
+                        :href (format nil "http://facebook.com/~A"
+                                      (gpv comment :from :id)) 
+                        (str (gpv comment :from :name))
+                        (:img :src 
+                                     (if (gpv comment :from :id)
+                                         (format nil 
+                                                 "https://graph.facebook.com/~A/picture" 
+                                                 (gpv comment :from :id))
+                                         "/appimg/user-thumb.png"))
+                        ))
+                        
+                  (:td (str  (gpv comment :message)))))
+                
+                ))
              (:br)
 
              (htm (:a :href
@@ -415,23 +437,28 @@
     (setf (get-val grid 'columns) columns)
     (setf (get-val grid 'grid-links) 
           (list (list 'twitter "delete" "Delete")
-                (list 'twitter "unfollow" "Unfollow")
+             ;   (list 'twitter "unfollow" "Unfollow")
                 (list 'twitter "direct-message" "Direct Message")
                 (list 'twitter "assign-task-form" "Assign Task")
-                (list 'twitter "highlight" "Highlight")
+               ; (list 'twitter "highlight" "Highlight")
+                (list 'twitter "go-to-content" "Go To Content")
 
                 (list 'facebook "delete" "Delete")
-                (list 'facebook "block-user" "Block User")
+               ; (list 'facebook "block-user" "Block User")
                 (list 'facebook "direct-messaeg" "Direct Message")
                 (list 'facebook "assign-task-form" "Assign Task")
-                (list 'facebook "highlight" "Highlight")
+              ;  (list 'facebook "highlight" "Highlight")
+                (list 'facebook "go-to-content" "Go To Content")
 
                 (list 'linkedin "delete" "Delete")
                 (list 'linkedin "assign-task-form" "Assign Task")
-                (list 'linkedin "highlight" "Highlight")
+                (list 'twitter "direct-message" "Direct Message")
+               ; (list 'linkedin "highlight" "Highlight")
+                (list 'facebook "go-to-content" "Go To Content")
 
                 (list 'social-mention "delete" "Delete")
-                (list 'social-mention "assign-task-form" "Assign Task")))
+                (list 'social-mention "assign-task-form" "Assign Task")
+                (list 'facebook "go-to-content" "Go To Content")))
     (setf (sort-keys grid) '(3 created-date))
     (setf (initial-sort-column grid) '(3 :descending))
     
