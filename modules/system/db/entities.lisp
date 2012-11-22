@@ -89,10 +89,12 @@
   )
 
 (defmethod match-context-entities (doc)
-  (if (typep doc 'entity)
-    (find (xid doc) (context))
-    (if (typep (get-val doc 'entity) 'entity)
-        (find (xid (get-val doc 'entity)) (context)))))
+  (if doc
+      (if (typep doc 'entity)
+          (find (xid doc) (context))
+          (if (get-val doc 'entity)
+              (if (typep (get-val doc 'entity) 'entity)
+                  (find (xid (get-val doc 'entity)) (context)))))))
 
 
 (defun entity-list-no-context ()

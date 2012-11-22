@@ -35,7 +35,7 @@
     (when (parameter "get-search-stream-data")
       (social-mention-refresh-searches))
     (when (parameter "schedule-actions")
-      (post-facebook-scheduled-actions))
+      (post-scheduled-actions))
     (when (parameter "get-twitter-old")
       (setf result (twitter-refresh-home-timelines))
       (twitter-refresh-followers)

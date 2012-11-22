@@ -10,7 +10,11 @@
   (find-docs 
    'vector
    (lambda (doc)
-     (if (match-context-entities (get-val doc 'channel-user) )
+
+     (if (or (not (get-val doc 'channel-user))
+             (if (stringp (get-val doc 'channel-user))
+                 nil
+                 (match-context-entities (get-val doc 'channel-user) )))
          (cond ((equal filter 'with-audit-data)
                 doc)
                (t 
@@ -90,6 +94,7 @@
                          (destructuring-bind (service channel-user)
                              (selects channel-users)
                            (render channel-users)
+
                            (setf (value service) (or (parameter "service")
                                                      (get-val row 'post-type)))
                            (setf (value channel-user) (or (parameter "channel-user")
@@ -262,16 +267,15 @@
     (when (and (blank-p (parameter "service")) 
                (blank-p (parameter "channel-user")) 
                (blank-p (parameter "scheduled-date")))
-      (let ( ;; (from-user (if (and (string-equal (parameter "service") "facebook")
-            ;;                     (parameter "channel-user"))
-            ;;                (get-facebook-access-token-by-user (parameter "channel-user"))))
+      (let (
             (to-user nil)
             (image (handle-upload (post-parameter "file")))
             (doc (editing-row grid))
             (short-url (if (blank-p (parameter "post-url"))
                            (make-short-url (parameter "post-url"))
                                      )))
-        (when t ;; (or from-user to-user)
+        
+        (when doc
           (let ((date-time nil))
             (multiple-value-bind (year month day)
                 (decode-date-string (parameter "scheduled-date"))
@@ -280,9 +284,15 @@
                 (when second
                   (setf date-time 
                         (encode-universal-time second minute hour day month year))
+
+
+
                   (cond ((xid doc)
+
                          (synq-edit-data doc)
-                         (setf (post-type doc) (parameter "service")
+                         (setf
+                          (channel-user doc) (get-channel-user-by-user-id (parameter "channel-user"))
+                          (post-type doc) (parameter "service")
                                (from-user-id doc) (parameter "channel-user")
                                (scheduled-date doc) date-time
                                (image-url doc) (or image
@@ -290,17 +300,21 @@
                                (short-url doc) short-url)
                          (persist doc))
                         (t
-                         (persist (make-generic-action nil
-                                                       (parameter "service")
-                                                       (parameter "channel-user") 
-                                                       to-user
-                                                       (parameter "action-type")
-                                                       (parameter "action-content")
-                                                       "Timed"
-                                                       date-time
-                                                       :image-url image
-                                                       :post-url (parameter "post-url")
-                                                       :short-url short-url)))))
+                         
+                         (persist (make-generic-action    
+                                   (get-channel-user-by-user-id (parameter "channel-user"))
+                                   nil 
+                                    (parameter "service")
+                                    
+                                   (parameter "channel-user") 
+                                   to-user 
+                                   (parameter "action-type")
+                                   (parameter "action-content")
+                                   "Timed"
+                                   date-time
+                                   :image-url image
+                                   :post-url (parameter "post-url")
+                                   :short-url short-url)))))
                 (unless second
                   (setf (error-message grid) minute))))
 
