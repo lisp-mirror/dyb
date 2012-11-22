@@ -1,5 +1,42 @@
 (in-package :dyb)
 
+(defun twitter-refresh-user-profiles (channel-user)
+  (when channel-user
+    (when (get-val channel-user 'last-access-token)
+      (let* ((channel (get-social-channel (get-val channel-user 'channel-user-type)))
+             (result (twitter-verify-credentials
+                      (get-val channel 'app-id)
+                      (get-val channel 'app-secret)
+                      (get-val channel-user 'last-access-token) 
+                      (get-val channel-user 'last-token-secret)))
+             (message))
+
+        (if (stringp result)
+            (setf result (json::decode-json-from-string 
+                          result))
+            (setf result (json::decode-json-from-string 
+                          (flexi-streams:octets-to-string result))))
+        (if (assoc-path result :errors)
+            (setf message (cdr (assoc-path result :errors :message))))
+        (values result message)))))
+
+(defun twitter-refresh-profiles ()
+  (dolist (user (coerce (channel-users) 'list ))
+      (when (and user (string-equal (get-val user 'doc-status) "Active"))
+        ;;TODO: How to get error messages in for users without access tokens.
+        (when (string-equal (get-val user 'channel-user-type) "Twitter")
+          (when (get-val user 'last-access-token)
+            (multiple-value-bind (profile error)
+                (twitter-refresh-user-profiles user)
+              (unless error
+                (unless (get-val user 'user-data)
+                  (setf (get-val user 'user-data) (make-hash-table :test 'equal)))
+                
+                (setf (gethash "profile"
+                               (get-val user 'user-data))
+                      profile)
+              (persist user))
+              ))))))
 
 (defun twitter-refresh-user-followers (channel-user)
   (when channel-user
@@ -70,9 +107,12 @@
         ;;TODO: How to get error messages in for users without access tokens.
         (when (string-equal (get-val user 'channel-user-type) "Twitter")
           (when (get-val user 'last-access-token)
-            (let ((result (twitter-refresh-home-timeline user))) 
-              (if result
-                  (return-from twitter-refresh-home-timelines result))
+            (when (twitter-refresh-home-timeline user) 
+         ;     (twitter-refresh-user-profiles user)
+         ;     (twitter-refresh-user-followers user)
+              
+             ;; (if result
+             ;;     (return-from twitter-refresh-home-timelines result))
               ))))))
 
 (defun twitter-user-stream-listener (channel-user)

@@ -82,10 +82,14 @@
       (when (valid-channel-user user "LinkedIn")  
         (when (get-val user 'user-data)
             (when (gethash "connections" (get-val user 'user-data))
-              (incf count (gpv
+              (if (gpv
                            (gethash "connections"
                                     (get-val user 'user-data))
-                           :--total))))))
+                           :--total)
+               (incf count (gpv
+                            (gethash "connections"
+                                     (get-val user 'user-data))
+                            :--total)))))))
     count))
 
 (defun fb-comment-dates-count (interval payload)
@@ -188,7 +192,7 @@
                 (:div :class "statistics-wrap"
                       (:div :class "statistics-block"
                             (:div :class (format nil "stat-chart ~A" chart)
-                                  range)
+                                  (str range))
                             (:div :class "stat-info"
                                   (dolist (icon icons)
                                     (htm (:span :class (format nil "black-icons ~A" icon))))
@@ -204,7 +208,7 @@
                              (make-widget
                               'line-graph :name "currentnetworksize"
                               :data data)))
-
+                        (setf (get-val network-size 'data) data)
                         (setf (title network-size) "Current Network Size")
                         (setf (x network-size)
                               '(:type :date
@@ -247,9 +251,9 @@
                 (:div :class "chart-block"
                       (let ((engagement 
                              (make-widget
-                              'line-graph :name "engagementgraphx"
+                              'line-graph :name "engagementgraph"
                               :data data)))
-
+                        (setf (get-val engagement 'data) data)
                         (setf (title engagement) "Engagement by Type")
                         
                         
@@ -283,7 +287,16 @@
         (fb-friends-count (fb-friends-count))
         (twitter-followers-count (twitter-followers-count))
         (linkedin-connections-count (linkedin-connections-count)))
-    
+
+  #|  (break "~A ~A ~A ~A ~A ~A ~A"
+           posts-scheduled-count
+           fb-comments-made
+           fb-likes-made
+           twitter-retweets
+           fb-friends-count
+           twitter-followers-count 
+           linkedin-connections-count)
+    |#
     (with-html
       (render page
               :body 
@@ -363,25 +376,27 @@
                                   100)
                                    )
                             )
-                      
-                      (:div :class "row-fluid"
-                            (str (network-size-graph `((("2012-07-28" 39) ("2012-07-29" 39)
-                                                  ("2012-07-30" 39) ("2012-07-31" 39) 
-                                                  ("2012-08-01" 39) ("2012-08-02" 39)
-                                                  ("2012-08-03" 39) ("2012-08-04" 39) 
-                                                  ("2012-08-05" 39) ("2012-08-06" 39)
-                                                  )
-                                                 (("2012-07-28" 294) ("2012-07-29" 294)
-                                                  ("2012-07-30" 295) ("2012-07-31" 295) 
-                                                  ("2012-08-01" 296) ("2012-08-02" 296)
-                                                  ("2012-08-03" 296) ("2012-08-04" 296) 
-                                                  ("2012-08-05" 296) ("2012-08-06" 295)))))
-                            (str (engagement-graph `((("Likes" fb-likes-made)
+                       
+                   (:div :class "row-fluid"
+                            (str (network-size-graph `((("2012-11-21" 
+                                                         ,(or fb-friends-count 0) 
+                                                          )
+                                                        ("2012-11-22" 
+                                                         ,(or fb-friends-count 0)))
+                                                       (("2012-11-21" 
+                                                         ,(or twitter-followers-count 0))
+                                                        ("2012-11-22" 
+                                                         ,(or twitter-followers-count 0)))
+                                                       (("2012-11-21" 
+                                                         ,(or linkedin-connections-count 0))
+                                                        ("2012-11-22" 
+                                                         ,(or linkedin-connections-count 0))))))
+                            (str (engagement-graph `((("Likes" ,fb-likes-made)
                                                       ("Clicks" 0)
-                                                      ("Comments" fb-comments-made)
-                                                      ("Retweets" twitter-retweets)
+                                                      ("Comments" ,fb-comments-made)
+                                                      ("Retweets" ,twitter-retweets)
                                                       
-                                                      ("Posts" posts-scheduled-count)
+                                                      ("Posts" ,posts-scheduled-count)
                                                       ("Mentions" 0)
                                                       ("Direct Messages" 0)))))
                             
@@ -448,7 +463,7 @@
                                               "Total Fans" 
                                               (list "users")
                                               "bar-chart" "span3"))
-                            (str (board-stats "10,30"
+                            (str (board-stats "0,0"
                                               "Demographics" 
                                               (list "male_contour" "female_contour")
                                               "pie-chart" "span2"))
@@ -473,7 +488,7 @@
                                               "Total Fans" 
                                               (list "users")
                                               "bar-chart" "span3"))
-                            (str (board-stats "10,30"
+                            (str (board-stats "0,0"
                                               "Demographics" 
                                               (list "male_contour" "female_contour")
                                               "pie-chart" "span2"))
@@ -481,7 +496,7 @@
                       (:div :class "page-header"
                             (:h3 (:span :class "black-icons linkedin" 
                                         :style "margin-top:1px;" )
-                                 "LINKEIN") )
+                                 "LINKEDIN") )
                       (:div :class "row-fluid"
                             
                             (str (board-stats (format nil "0,~A" linkedin-connections-count) 
@@ -496,7 +511,7 @@
                                               "Total Followers" 
                                               (list "users")
                                               "bar-chart" "span3"))
-                            (str (board-stats "10,30"
+                            (str (board-stats "0,0"
                                               "Demographics" 
                                               (list "male_contour" "female_contour")
                                               "pie-chart" "span2"))

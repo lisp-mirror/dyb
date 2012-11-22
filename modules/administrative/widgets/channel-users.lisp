@@ -303,12 +303,7 @@
                   (gpv result :username))
             (setf (gethash "profile" (get-val user 'user-data)) result)
 
-            (multiple-value-bind (accounts)
-                (facebook-accounts user)
-              (when accounts
-                (setf (gethash "accounts" 
-                               (get-val user 'user-data)) accounts)
-                ))
+            (facebook-friends-refresh user)
             (persist user))))))
 (finish-editing grid)
  )
