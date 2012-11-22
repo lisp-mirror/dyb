@@ -378,19 +378,23 @@
                             )
                        
                    (:div :class "row-fluid"
-                            (str (network-size-graph `((("2012-11-21" 
-                                                         ,(or fb-friends-count 0) 
-                                                          )
-                                                        ("2012-11-22" 
-                                                         ,(or fb-friends-count 0)))
-                                                       (("2012-11-21" 
-                                                         ,(or twitter-followers-count 0))
-                                                        ("2012-11-22" 
-                                                         ,(or twitter-followers-count 0)))
-                                                       (("2012-11-21" 
-                                                         ,(or linkedin-connections-count 0))
-                                                        ("2012-11-22" 
-                                                         ,(or linkedin-connections-count 0))))))
+                            (str (network-size-graph `(
+                                                       ,(if (> (or fb-friends-count 0) 0)
+                                                           `(("2012-11-21" 
+                                                             ,(or fb-friends-count 0) 
+                                                             )
+                                                            ("2012-11-22" 
+                                                             ,(or fb-friends-count 0))))
+                                                       ,(if (> (or twitter-followers-count 0) 0)
+                                                           `(("2012-11-21" 
+                                                             ,(or twitter-followers-count 0))
+                                                            ("2012-11-22" 
+                                                             ,(or twitter-followers-count 0))))
+                                                        (if (> (or linkedin-connections-count 0) 0)
+                                                            `(("2012-11-21" 
+                                                               ,(or linkedin-connections-count 0))
+                                                              ("2012-11-22" 
+                                                               ,(or linkedin-connections-count 0)))))))
                             (str (engagement-graph `((("Likes" ,fb-likes-made)
                                                       ("Clicks" 0)
                                                       ("Comments" ,fb-comments-made)
