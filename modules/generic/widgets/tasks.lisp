@@ -14,6 +14,8 @@
                                   :action-title "Assign Task"))
         (form-section (make-widget 'form-section
                                    :name "form-section")))
+
+
     (setf (ajax-render-widget assign-form) (editor (grid widget)))
     (render assign-form
             :content
@@ -24,10 +26,10 @@
                       (with-html-string
                         (render-edit-field
                          "entityx"
-                         (get-val (get-val row 'entity) 'entity-name)
+                         (get-val (get-val (get-val row 'channel-user) 'entity) 'entity-name)
                          :type :span)
                         (:input :type "hidden" :name "entity"
-                                :value (get-val (get-val row 'entity) 'xid))))
+                                :value (get-val (get-val (get-val row 'channel-user) 'entity) 'xid))))
               (render form-section
                       :label "Description"
                       :input

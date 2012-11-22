@@ -30,10 +30,10 @@
 (defmethod doc-collection ((doc entity-type))
   (entity-types-collection))
 
-
-(add-collection (system-db) "entity-types" 
-                :collection-class 'dyb-collection
-                :load-from-file-p t)
+(unless (entity-types-collection)
+  (add-collection (system-db) "entity-types" 
+                  :collection-class 'dyb-collection
+                  :load-from-file-p t))
 
 (when (= (length (entity-types)) 0)
     (persist (make-entity-type "Client" "Client"))
@@ -144,9 +144,11 @@
       (setf e-list (append e-list (list (format nil "[~A]" (get-val (get-entity-by-id id) 'entity-name ))))))
     e-list))
 
-(add-collection (system-db) "entities" 
-                :collection-class 'dyb-collection
-                :load-from-file-p t)
+
+(unless (entities-collection)
+  (add-collection (system-db) "entities" 
+                  :collection-class 'dyb-collection
+                  :load-from-file-p t))
 
 
 

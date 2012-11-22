@@ -101,13 +101,15 @@
                  (users-collection))
       (users)))
 
-(add-collection (system-db) "users" 
-                :collection-class 'dyb-collection 
-                :load-from-file-p t)
+(unless (users-collection)
+  (add-collection (system-db) "users" 
+                  :collection-class 'dyb-collection 
+                  :load-from-file-p t))
 
-(add-collection (system-db) "permissions" 
-                :collection-class 'dyb-collection 
-                :load-from-file-p t)
+(unless (permissions-collection)
+  (add-collection (system-db) "permissions" 
+                  :collection-class 'dyb-collection 
+                  :load-from-file-p t))
 
 
 (unless (get-user "admin@dyb.co.za")
@@ -119,7 +121,10 @@
   (let ((u-list))
     (dolist (doc (coerce (users) 'list))
       ;;TODO: Match entities
-      (when (not (string-equal (get-val doc 'doc-status) "superseded"))
-            (setf u-list (append u-list (list (list (get-val doc 'email) 
-                                                    (get-val doc 'email)))))))
+      (dolist (entity (get-val doc 'accessible-entities))
+        
+        (if (find entity (context))
+            (when (not (string-equal (get-val doc 'doc-status) "superseded"))
+              (setf u-list (append u-list (list (list (get-val doc 'email) 
+                                                      (get-val doc 'email)))))))))
     u-list))
