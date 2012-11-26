@@ -70,7 +70,9 @@
     :want-stream nil
     :preserve-uri nil)))
 
-(defun linkedin-share (user message)
+(defun linkedin-share (user message  &key content-title
+                       description submited-url
+                       submitted-image-url)
   (let ((channel (if user (get-social-channel (get-val user 'channel-user-type)))))
     (handle-endpoint
          user

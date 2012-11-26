@@ -93,10 +93,7 @@
                             ))
                      (cond ((string-equal channel "LinkedIn")
                             (multiple-value-bind (result status ) 
-                                (linkedin-profile (get-val social-channel 'app-id)
-                                                  (get-val social-channel 'app-secret)
-                                                  (get-val user 'last-access-token)
-                                                  (get-val user 'last-token-secret))
+                                (linkedin-profile user)
                        
                               (setf result (json:decode-json-from-string 
                                             (babel:octets-to-string result)))

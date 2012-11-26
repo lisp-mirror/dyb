@@ -61,3 +61,43 @@
    (drakma:http-request 
            (format nil "https://graph.facebook.com/me/accounts?fields=about,access_token,affiliation,app_id,perms,can_post,id,username,talking_about_count,new_like_count,global_brand_like_count,description,likes,is_published,genre,category&access_token=~A" 
                    (get-val user 'last-access-token)))))
+
+(defun post-facebook-image-url (user-id message image-url)
+  (let ((user (get-channel-user-by-user-id user-id)))
+    (handle-endpoint 
+     user
+     (drakma:http-request
+      (format nil "https://graph.facebook.com/~A/photos"
+              user-id)
+      :method :post
+      :parameters `(("message" . ,message)
+                    ("url" . ,image-url)
+                    ("oauth_token" . ,(get-val user 'last-access-token)))))))
+
+(defun post-facebook-image (user-id message image-path)
+  (let ((user (get-channel-user-by-user-id user-id)))
+    (handle-endpoint 
+     user
+     (drakma:http-request
+      (format nil "https://graph.facebook.com/~A/photos"
+              user-id)
+      :method :post
+      :content-length t     
+      :parameters `(("message" . ,message)
+                    ("type" . "picture")
+                    ("source" . ,(pathname image-path))                  
+                    ("oauth_token" . ,(get-val user 'last-access-token)))))))
+
+(defun post-facebook-url (user-id message url)
+  (let ((user (get-channel-user-by-user-id user-id)))
+    (handle-endpoint 
+     user
+     (drakma:http-request
+      (format nil "https://graph.facebook.com/~A/feed"
+              user-id)
+      :method :post
+      :content-length t     
+      :parameters `(("message" . ,message)
+                    ("link" . ,url)                  
+                    ("oauth_token" . ,(get-val user 'last-access-token)))))))
+
