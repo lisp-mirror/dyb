@@ -14,11 +14,22 @@
   `(with-html-output-to-string (*standard-output* nil :indent *indent-code*)
      ,@body))
 
+(defun handle-endpoint (user request &key error-path result-is-octets-p)
+  (let ((result)
+        (message))
+    (unless (get-val user 'last-access-token)
+      (setf message "Missing access token"))
 
-(defun get-access-token (client identifier request-token)
-  (let ((service (get-twitter-service client identifier)))
-    (if service
-        (cl-oauth::obtain-access-token  
-         (get-access-token-endpoint service)
-         request-token  
-         :consumer-token (consumer-token service) ))))
+    (when (get-val user 'last-access-token)
+      (multiple-value-bind (body)
+          request
+        (if result-is-octets-p
+               (setf result (json::decode-json-from-string (babel:octets-to-string body)))
+               (setf result (json::decode-json-from-string body))) 
+        (if (or (assoc-path result error-path) 
+                (assoc-path result :error) 
+                (assoc-path result :errors))
+            (setf message (cdr (or (assoc-path result error-path)
+                                   (assoc-path result :error :message)
+                                   (assoc-path result :errors :message)))))))
+    (values result message)))

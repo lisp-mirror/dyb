@@ -53,32 +53,13 @@
           (str (get-val widget 'message))))
     (open-dialog widget (grid widget))))
 
-(defun comment-facebook (post-id user-id message)
-  (let ((result)
-        (error)
-        (user (get-channel-user-by-user-id user-id)))
-
-    (when (get-val user 'last-access-token)
-      (multiple-value-bind (body)
-          (drakma:http-request 
-           (format nil "https://graph.facebook.com/~A/comments" 
-                   post-id)
-           :method :post
-           :parameters `(("message" . ,message)
-                         ("oauth_token" . ,(get-val user 'last-access-token))
-                         ))
-       (setf result (json::decode-json-from-string body)) 
-       (if (assoc-path result :error)
-           (setf error (cdr (assoc-path result :error :message))))))
-    (values result error)))
-
-
 
 (defmethod action-handler ((widget fb-post-comment-form))
   (when (string-equal (parameter "action") "post-facebook-comment")  
-    (let ((action (add-generic-action 
-                   (get-channel-user-by-user-id (parameter "user-id"))
-                   (parameter "post-id") 
+    (let* ((user (get-channel-user-by-user-id (parameter "user-id")))
+           (action (add-generic-action 
+                    user
+                    (parameter "post-id") 
                     "Facebook"
                     (parameter "user-id")
                     nil
@@ -88,24 +69,15 @@
                     (get-universal-time))))
 
       (multiple-value-bind (result error-message)
-          (comment-facebook (parameter "post-id")
-                            (parameter "user-id")
-                            (parameter "comment"))
-        (when error-message
-          (setf (get-val widget 'message) error-message)
-          (add-generic-action-log action 
-                              "Error"
-                              error-message
-                              "Pending"))
-        (unless error-message
-          (add-generic-action-log action 
-                              "Result"
-                              result
-                              "Completed")
-          (defer-js (format nil "$('#~a').dialog('close')" (name widget))))))
-    ))
-
-
+          (comment-facebook
+           user
+           (parameter "post-id")
+           (parameter "comment"))
+        (handle-generic-action 
+         widget
+         action
+         result
+         error-message)))))
 
 (defmethod handle-action ((grid generic-grid) (action (eql 'facebook-comment)))
 
@@ -113,29 +85,6 @@
         (make-widget 'fb-post-comment-form 
                      :grid grid 
                      :name "facebook-comment-action-form")))
-
-
-
-(defun facebook-like (post-id user-id)
-  (let ((result)
-        (error)
-        (user (get-channel-user-by-user-id user-id)))
-
-    (when (get-val user 'last-access-token)
-      (multiple-value-bind (body)
-          (drakma:http-request 
-           (format nil "https://graph.facebook.com/~A/likes" 
-                   post-id)
-           :parameters `(("oauth_token" . ,(get-val user 'last-access-token)))
-           :method :post)
-       (setf result (json::decode-json-from-string body))
-       
-       (if (listp result)
-           (if (assoc-path result :error)
-               (setf error (cdr (assoc-path result :error :message)))))))
-    (values result error)))
-
-
 
 (defclass fb-like-post-form (ajax-widget)
   ((grid :initarg :grid
@@ -177,9 +126,7 @@
                                 (parameter "user-id")
                                 :data (get-channel-users-list "Facebook" nil)
                                 :required t
-                                :type :select)))
-
-                     )))
+                                :type :select))))))
           (str (get-val widget 'message))))
     (open-dialog widget (grid widget) :width 500 :height 260)))
 
@@ -193,8 +140,9 @@
 (defmethod action-handler ((widget fb-like-post-form))
   (when (string-equal (parameter "action") "post-facebook-like")  
     (setf (get-val widget 'message) nil)
-    (let ((action (add-generic-action 
-                   (get-channel-user-by-user-id (parameter "user-id"))
+    (let* ((user (get-channel-user-by-user-id (parameter "user-id")))
+           (action (add-generic-action 
+                   user
                    (parameter "post-id") 
                     "Facebook"
                     (parameter "user-id")
@@ -204,17 +152,11 @@
                     "Immediate"
                     (get-universal-time))))
           (multiple-value-bind (result error-message)
-              (facebook-like (parameter "post-id")
-                             (parameter "user-id"))
-            (when error-message
-              (setf (get-val widget 'message) error-message)
-              (add-generic-action-log action 
-                                  "Error"
-                                  error-message
-                                  "Pending"))
-            (unless error-message
-                (add-generic-action-log action 
-                              "Result"
-                              result
-                              "Completed")
-                (defer-js (format nil "$('#~a').dialog('close')" (name widget))))))))
+              (facebook-like user
+                             (parameter "post-id"))
+
+            (handle-generic-action 
+             widget
+             action
+             result
+             error-message)))))

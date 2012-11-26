@@ -121,81 +121,9 @@
                    (htm (:span :style "color:red;"
                                (get-val widget 'message)))))))))
 
-(defun post-facebook (user-id message)
-
-  (let ((result)
-        (error)
-        (user (get-channel-user-by-user-id user-id)))
-
-    (unless (get-val user 'last-access-token)
-      (setf error "Missing access token"))
-    (when (get-val user 'last-access-token)
-
-      (multiple-value-bind (body)
-          (drakma:http-request
-           (format nil "https://graph.facebook.com/~A/feed"
-                   user-id)
-           :method :post
-           :parameters `(("message" . ,message)
-                         ("oauth_token" . ,(get-val user 'last-access-token))))
-
-       (setf result (json::decode-json-from-string body))
-
-       (if (assoc-path result :error)
-           (setf error (cdr (assoc-path result :error :message))))))
-    (values result error)))
-
-(defun post-twitter (user-id message)
-  (let* ((result)
-         (error)
-         (user (get-channel-user-by-user-id user-id))
-         (channel (if user (get-social-channel (get-val user 'channel-user-type)))) )
-
-    (when (and user channel)
-
-      (when (get-val user 'last-access-token)
-        (setf result
-              (simple-tweet
-               (get-val channel 'app-id)
-               (get-val channel 'app-secret)
-               (get-val user 'last-access-token)
-               (get-val user 'last-token-secret)
-               message))
-
-        (setf result (json::decode-json-from-string  (babel:octets-to-string result)))
-
-        (when (assoc-path result :error)
-          (setf result nil)
-          (setf error (cdr (assoc-path result :error :message))))))
-    (values result error)))
 
 
-(defun post-linkedin (user-id message)
-  (let* ((result)
-         (error)
-         (user (get-channel-user-by-user-id user-id))
-         (channel (if user (get-social-channel (get-val user 'channel-user-type)))) )
 
-    (when (and user channel)
-
-      (when (get-val user 'last-access-token)
-        (setf result
-              (linkedin-share
-               (get-val channel 'app-id)
-               (get-val channel 'app-secret)
-               (get-val user 'last-access-token)
-               (get-val user 'last-token-secret)
-               message))
-        (when result
-          (if (stringp result)
-              (setf result (json::decode-json-from-string  (babel:octets-to-string result)))
-              (setf result (json::decode-json-from-string  result))
-              ))
-
-        (when (assoc-path result :error)
-          (setf result nil)
-          (setf error (cdr (assoc-path result :error :message))))))
-    (values result error)))
 
 
 (defun add-generic-post-action (channel channel-user
@@ -224,6 +152,21 @@
                               "Completed")
       (finish-editing grid)))
 
+(defun handle-generic-action (widget action result error-message)
+  (setf (get-val widget 'message) nil)
+  (when error-message
+      (setf (get-val widget 'message) error-message)
+      (add-generic-action-log action 
+                              "Error"
+                              error-message
+                              "Pending"))
+    (unless error-message
+      (add-generic-action-log action 
+                              "Result"
+                              result
+                              "Completed")
+      (defer-js (format nil "$('#~a').dialog('close')" (name widget)))))
+
 (defmethod action-handler ((widget post-form))
   (when (string-equal (parameter "action") "post-to-channel")
     (let ((grid (grid widget))
@@ -246,7 +189,7 @@
                                                     (parameter "post-status"))))
                (multiple-value-bind (result error-message)
                    (post-twitter
-                    (parameter "channel-user")
+                    channel-user
                     (parameter "post-status"))
                  (handle-generic-post-action grid widget action 
                                              result error-message))))

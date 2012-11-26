@@ -1,38 +1,11 @@
 (in-package :dyb)
 
-(defun like-linkedin (user-id linkedin-update-id)
-  (when (and user-id linkedin-update-id)
-    (let* ((result)
-           (error)
-           (user (get-channel-user-by-user-id  (parse-integer  user-id)))
-           (channel (if user (get-social-channel (get-val user 'channel-user-type)))) )
-
-      
-      (when (and user channel)
-
-        (when (get-val user 'last-access-token)
-          (setf result
-                (linkedin-like 
-                 (get-val channel 'app-id)
-                 (get-val channel 'app-secret)
-                 (get-val user 'last-access-token)
-                 (get-val user 'last-token-secret)
-                 linkedin-update-id))
-          
-          (setf result (json::decode-json-from-string  (babel:octets-to-string result)))
- 
-          (when (assoc-path result :errors)
-            (setf result nil)
-            (setf error (cdr (assoc-path result :errors :message))))))
-      (values result error))))
-
 (defclass linkedin-like-form (ajax-widget)
   ((grid :initarg :grid
          :initform nil
          :accessor grid)
    (message :initarg :message))
   (:metaclass widget-class))
-
 
 (defmethod render ((widget linkedin-like-form) &key )
   (let* ((like-form (make-widget 'html-simple-framework-form 
@@ -77,66 +50,26 @@
                      :name "linkedin-like-action-form")))
 
 (defmethod action-handler ((widget linkedin-like-form))
-  (setf (get-val widget 'message) nil)
-
-  (when (string-equal (parameter "action") "like-linkedin")  
-    (setf (get-val widget 'message) nil)
-    
-    (let ((action (add-generic-action 
-                   (get-channel-user-by-user-id (parameter "user-id"))
-                   nil 
-                   "LinkedIn"
-                   (parameter "user-id")
-                   nil
-                   "Like"
-                   t
-                   "Immediate"
-                   (get-universal-time))))
-      (multiple-value-bind (result error-message)
-          (like-linkedin (parameter "user-id")
-                         (parameter "linkedin-update-id"))
-
-        (when error-message
-          (setf (get-val widget 'message) error-message)
-          (add-generic-action-log action 
-                              "Error"
-                              error-message
-                              "Pending"))
-        (unless error-message
-          (add-generic-action-log action 
-                              "Result"
-                              result
-                              "Completed")
-          (defer-js (format nil "$('#~a').dialog('close')" (name widget))))))))
-
-
-(defun comment-linkein (user-id update-id comment)
-  (when (and user-id update-id comment)
-    (let* ((result)
-           (error)
-           (user (get-channel-user-by-user-id  (parse-integer  user-id)))
-           (channel (if user (get-social-channel (get-val user 'channel-user-type)))) )
-
-      
-      (when (and user channel)
-
-        (when (get-val user 'last-access-token)
-          (setf result
-                (linkedin-comment
-                 (get-val channel 'app-id)
-                 (get-val channel 'app-secret)
-                 (get-val user 'last-access-token)
-                 (get-val user 'last-token-secret) 
-                 update-id 
-                 comment
-                 ))
-          
-          (setf result (json::decode-json-from-string  (babel:octets-to-string result)))
- 
-          (when (assoc-path result :errors)
-            (setf result nil)
-            (setf error (cdr (assoc-path result :errors :message))))))
-      (values result error))))
+   (when (string-equal (parameter "action") "like-linkedin")  
+     (let* ((user (get-channel-user-by-user-id (parameter "user-id")))
+            (action (add-generic-action 
+                     user
+                     nil 
+                     "LinkedIn"
+                     (parameter "user-id")
+                     nil
+                     "Like"
+                     t
+                     "Immediate"
+                     (get-universal-time))))
+       (multiple-value-bind (result error-message)
+           (like-linkedin user
+                          (parameter "linkedin-update-id"))
+        (handle-generic-action 
+         widget
+         action
+         result
+         error-message)))))
 
 (defclass linkein-comment-form (ajax-widget)
   ((grid :initarg :grid
@@ -191,7 +124,6 @@
     (open-dialog widget (grid widget) :width 600 :height 460)))
 
 (defmethod handle-action ((grid generic-grid) (action (eql 'comment-linkein-form)))
-
   (setf (action-widget grid)
         (make-widget 'linkein-comment-form 
                      :grid grid 
@@ -203,8 +135,9 @@
   (when (string-equal (parameter "action") "comment-linkein")  
     (setf (get-val widget 'message) nil)
     
-    (let ((action (add-generic-action 
-                   (get-channel-user-by-user-id (parameter "user-id"))
+    (let* ((user (get-channel-user-by-user-id (parameter "user-id")))
+          (action (add-generic-action 
+                   user
                    nil 
                    "LinkedIn"
                    (parameter "user-id")
@@ -214,19 +147,11 @@
                    "Immediate"
                    (get-universal-time))))
       (multiple-value-bind (result error-message)
-          (comment-linkein  (parameter "user-id")
+          (comment-linkein  user
                             (parameter "linkedin-update-id")
                             (parameter "message"))
-
-        (when error-message
-          (setf (get-val widget 'message) error-message)
-          (add-generic-action-log action 
-                              "Error"
-                              error-message
-                              "Pending"))
-        (unless error-message
-          (add-generic-action-log action 
-                              "Result"
-                              result
-                              "Completed")
-          (defer-js (format nil "$('#~a').dialog('close')" (name widget))))))))
+        (handle-generic-action 
+         widget
+         action
+         result
+         error-message)))))
