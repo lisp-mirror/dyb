@@ -19,7 +19,8 @@
                                      (get-val action 'post-url))
                                  (post-facebook-url (get-val action 'from-user-id)
                                                     (get-val action 'action-content)
-                                                    (or (get-val action 'short-url) 
+                                                    (or (format-short-url
+                                                         (get-val action 'short-url)) 
                                                         (get-val action 'post-url))
                                                       ))
                                 (t
@@ -143,8 +144,8 @@
                           (linkedin-share  
                            from-user
                            (get-val action 'action-content)
-                           :submited-url (or (get-val action 'short-url) 
-                                                 (get-val action 'post-url))
+                           :submited-url (or (format-short-url (get-val action 'short-url)) 
+                                             (get-val action 'post-url))
                            :submitted-image-url (get-val action 'post-url)
                            
                            )

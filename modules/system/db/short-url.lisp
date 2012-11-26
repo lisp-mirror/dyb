@@ -42,8 +42,10 @@
               short))))
 
 (defun format-short-url (short)
-  (format nil "~adyb/s/~a" *site-url* short))
+  (if short
+      (format nil "~adyb/s/~a" *site-url* short)))
 
-(add-collection (system-db) "short-url"
-                :collection-class 'dyb-collection
-                :load-from-file-p t)
+(unless (short-url-collection)
+  (add-collection (system-db) "short-url"
+                  :collection-class 'dyb-collection
+                  :load-from-file-p t))

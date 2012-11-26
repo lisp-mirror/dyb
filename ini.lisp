@@ -40,8 +40,8 @@
 
 (defparameter *installation* "Local Machine");;"Live Serve"
 
-(defvar *site-url* "http://digyourbrand.co.za/")
+(defparameter *site-url* "http://dxw.co.za/")
 
-(when (string-equal *installation* "Live Serve")
+(if (string-equal *installation* "Live Serve")
   (setf *site-url* "http://dxw.co.za/")
   (setf *site-url* "http://local.dataxware.co.za/"))
