@@ -7,6 +7,7 @@
                                   :for-everyone t) ()
   (let* ((short (subseq (script-name*) (length "/dyb/s/")))
          (url (expand-short-url short)))
+
     (if url
         (redirect url)
         (setf (return-code*) +http-not-found+))))

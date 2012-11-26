@@ -271,9 +271,7 @@
             (to-user nil)
             (image (handle-upload (post-parameter "file")))
             (doc (editing-row grid))
-            (short-url (if (blank-p (parameter "post-url"))
-                           (make-short-url (parameter "post-url"))
-                                     )))
+            (short-url (make-short-url (parameter "post-url"))))
         
         (when doc
           (let ((date-time nil))
@@ -284,8 +282,6 @@
                 (when second
                   (setf date-time 
                         (encode-universal-time second minute hour day month year))
-
-
 
                   (cond ((xid doc)
 
