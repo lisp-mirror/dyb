@@ -1,6 +1,5 @@
 (in-package :dyb)
 
-
 (defmacro with-html-to-string ((&key prologue (indent '*indent-code*)) &body body)
   `(with-html-output-to-string (*standard-output* nil :indent ,indent
                                                   :prologue ,prologue)

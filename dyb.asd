@@ -34,6 +34,7 @@
                (:module "modules"
                         :serial t
                         :components
+                        (:file "common")
                         ((:module "db"
                                   :serial t
                                   :components
