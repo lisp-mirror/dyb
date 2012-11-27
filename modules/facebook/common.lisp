@@ -43,7 +43,7 @@
                                               "Completed"))))
                      ((string-equal (get-val action 'action-type) "Comment")
                       (multiple-value-bind (result error-message)
-                          (comment-facebook (get-val action 'pid)
+                          (comment-facebook (get-val action 'post-id)  
                                             (get-val action 'from-user-id)
                                             (get-val action 'action-content))
                         (when error-message
@@ -58,7 +58,7 @@
                                               "Completed"))))
                      ((string-equal (get-val action 'action-type) "Like")
                       (multiple-value-bind (result error-message)
-                          (facebook-like (get-val action 'pid)
+                          (facebook-like (get-val action 'post-id)
                                          (get-val action 'from-user-id))
                         (when error-message
                           (add-generic-action-log action 
@@ -93,7 +93,7 @@
                       (multiple-value-bind (result error-message)
                           (retweet-twitter  
                            from-user
-                           (get-val action 'pid))
+                           (get-val action 'post-id))
                         (when error-message
                           (add-generic-action-log action 
                                               "Error"
@@ -126,7 +126,7 @@
                       (multiple-value-bind (result error-message)
                           (favourite-twitter
                            from-user
-                           (get-val action 'pid)
+                           (get-val action 'post-id)
                                          )
                         (when error-message
                           (add-generic-action-log action 
