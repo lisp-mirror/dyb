@@ -47,7 +47,8 @@
        (setf (last-context (current-user))
              (loop for node in (selected-nodes tree)
                    collect (xid (entity (car (wfx:data node))))))
-       (setf (context) (last-context (current-user)))))))
+       (setf (context) (last-context (current-user)))
+       (persist (current-user))))))
 
 (defclass entity-edit-tree (entity-selection-tree)
   ((selected-entities :initarg :selected-entities
