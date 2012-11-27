@@ -438,21 +438,22 @@
     (setf (get-val grid 'grid-links) 
           (list (list 'twitter "delete" "Delete")
              ;   (list 'twitter "unfollow" "Unfollow")
-                (list 'twitter "direct-message" "Direct Message")
+                (list 'twitter "direct-message-form" "Direct Message")
                 (list 'twitter "assign-task-form" "Assign Task")
                ; (list 'twitter "highlight" "Highlight")
                 (list 'twitter "go-to-content" "Go To Content")
 
                 (list 'facebook "delete" "Delete")
                ; (list 'facebook "block-user" "Block User")
-                (list 'facebook "direct-messaeg" "Direct Message")
+                (list 'facebook "direct-message-form" "Direct Message")
                 (list 'facebook "assign-task-form" "Assign Task")
               ;  (list 'facebook "highlight" "Highlight")
                 (list 'facebook "go-to-content" "Go To Content")
 
                 (list 'linkedin "delete" "Delete")
+               ;; (list 'linkedin "direct-message-form" "Direct Message")
                 (list 'linkedin "assign-task-form" "Assign Task")
-                (list 'linkedin "direct-message" "Direct Message")
+                
                ; (list 'linkedin "highlight" "Highlight")
                 (list 'linkedin "go-to-content" "Go To Content")
 

@@ -101,3 +101,13 @@
                     ("link" . ,url)                  
                     ("oauth_token" . ,(get-val user 'last-access-token)))))))
 
+(defun post-facebook-user-profile-no-auth (user-id)
+  (let ((profile
+         (drakma:http-request
+          (format nil "https://graph.facebook.com/~A"
+                  user-id)
+          :method :get
+          :content-length t)))
+    (if profile
+        (json:decode-json-from-string profile))))
+

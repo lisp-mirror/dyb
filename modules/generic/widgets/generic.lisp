@@ -121,11 +121,6 @@
                    (htm (:span :style "color:red;"
                                (get-val widget 'message)))))))))
 
-
-
-
-
-
 (defun add-generic-post-action (channel channel-user
                                    action-type post)
   (add-generic-action channel-user

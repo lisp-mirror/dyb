@@ -24,6 +24,7 @@
                drakma
                split-sequence
                trivial-timers
+               cl-smtp
                )
   :serial t
   :components ((:file "packages")
@@ -215,7 +216,8 @@
                                              (:file "facebook-actions")
                                              (:file "twitter-actions")
                                              (:file "linkedin-actions")
-                                             (:file "tasks")))
+                                             (:file "tasks")
+                                             (:file "direct-message")))
                                    (:module "pages"
                                             :serial t
                                             :components
