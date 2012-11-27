@@ -390,7 +390,7 @@ document.getElementById(\"~A\").submit();"
   (with-html
     
     (:a :href
-        (js-link 
+        (js-link
          (js-render (editor grid)
                     (js-pair "grid-name" (name grid))
                     (js-pair "action" "edit")
@@ -558,14 +558,9 @@ document.getElementById(\"~A\").submit();"
                          :collapsible t
                          :body (with-html-string
                                  (:div :class "widget-control"
-                                       (render filter)
-                                       )
+                                       (render filter))
                                  (:div :class "widget-control pull-left"
-                                       (:button :onclick
-                                                (format nil "window.open(\"/dyb/export-csv?grid=~a&script-name=~a\")"
-                                                        (name grid)
-                                                        (script-name*))
-                                                "Export CSV"))))
+                                       (add-actions-menu grid))))
             (:div :class "widget-content"
                   (:div :class "widget-box"
                         (render-grid-rows grid :editing editing-row)))
@@ -816,8 +811,7 @@ document.getElementById(\"~A\").submit();"
              :id name
              :name name
              (:div :class "content no-padding"
-                   (str body)
-                   )
+                   (str body))
              (:div :class "actions"
                    (:div :class "actions-left"
                          (:input :type "submit"
@@ -917,3 +911,28 @@ document.getElementById(\"~A\").submit();"
                              (mapcar #'string-capitalize filters))))
                 (js-render widget (js-value select))
                 (render select)))))))
+
+;;;
+
+(defgeneric list-grid-actions (grid))
+
+(defun drop-down-menu (items)
+  (with-html
+    (:div :class "btn-group pull-right"
+          (:button :data-toggle "dropdown" 
+                   :class "btn dropdown-toggle" 
+                   (:i :class "icon-cog"
+                       (:span :class "caret")))
+          (:ul :class "dropdown-menu"
+               (loop for (title js) in items
+                     do
+                     (htm (:li (:a :href (js-link js)
+                                   (esc title)))))))))
+(defmethod list-grid-actions (grid)
+  `(("Export CSV"
+     ,(format nil "window.open(\"/dyb/export-csv?grid=~a&script-name=~a\")"
+              (name grid)
+              (script-name*)))))
+
+(defun add-actions-menu (grid)
+  (drop-down-menu (list-grid-actions grid)))
