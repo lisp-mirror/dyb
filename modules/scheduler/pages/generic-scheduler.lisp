@@ -5,6 +5,11 @@
           (list
            (make-instance 'grid-column
                           :name 'channel-user
+                          :header "Channel"
+                          :printer (lambda (user)
+                                     (get-val user 'profile-type)))
+           (make-instance 'grid-column
+                          :name 'channel-user
                           :header "User"
                           :printer (lambda (user)
                                      (get-val user 'channel-user-name)))  
