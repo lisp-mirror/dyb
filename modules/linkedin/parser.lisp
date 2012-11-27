@@ -40,8 +40,10 @@
                               (raw-post-id doc 'linkedin))))))
       (when dup
         ;;TODO: Update changed-date? 
+        (setf (get-val dup 'channel-user) channel-user)
         (setf (payload dup) update)
         (persist dup))
+;(break "~A ~A ~A~%~A" channel-user (get-val dup 'channel-user) dup (payload dup))
       (unless dup
         (persist (make-generic-post 
                   channel-user

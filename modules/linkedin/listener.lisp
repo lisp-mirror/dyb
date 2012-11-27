@@ -6,9 +6,10 @@
       (let ((result (if (string-equal (get-val channel-user 'profile-type) "Page")
                         (linkedin-company-updates
                          channel-user
-                         (get-val channel-user 'user-id))
+                         )
                         (linkedin-network-updates
                          channel-user))))
+
         (parse-linkedin-updates 
          channel-user
          result

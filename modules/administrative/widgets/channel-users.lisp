@@ -106,7 +106,9 @@
                          "channel-user-name"
                          (or (parameter "channel-user-name")
                              (get-val row 'channel-user-name))
-                         :type :span)))
+                         :type (if (string-equal (get-val row 'profile-type) "page")
+                                   :text
+                                   :span))))
                
        (render form-section
                :label "User Id"
@@ -114,7 +116,9 @@
                         (render-edit-field
                          "user-id"
                          (get-val row 'user-id)
-                         :type :span)))
+                         :type (if (string-equal (get-val row 'profile-type) "page")
+                                   :text
+                                   :span))))
 
        (render form-section
                :label "Access Token"

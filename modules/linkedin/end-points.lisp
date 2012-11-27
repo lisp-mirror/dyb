@@ -360,7 +360,7 @@
     :want-stream nil
     :preserve-uri t)))
 
-(defun linkedin-company-updates (user company-id)
+(defun linkedin-company-updates (user)
   (when user
     (let ((channel (get-social-channel (get-val user 'channel-user-type))))
       (handle-endpoint
@@ -370,7 +370,7 @@
                  (get-val channel 'app-secret)
                  (get-val user 'last-access-token)
                  (get-val user 'last-token-secret)
-                 company-id)
+                 (get-val user 'user-id))
        :result-is-octets-p t))))
 
 (defun linkedin-profile-request (app-id app-secret
@@ -477,3 +477,110 @@
                  (get-val user 'last-token-secret)
                  company-user-name)
        :result-is-octets-p t))))
+
+(defun linkedin-company-by-id-request (app-id app-secret
+                           access-token 
+                           access-secret
+                           company-id)
+  (let* ((stamp (format nil "~A" (get-unix-time)))
+         (nonce (format nil "~A" (random 1234567)))
+         (end-point  (format nil "http://api.linkedin.com/v1/companies/~A:(id,name,universal-name,email-domains,company-type,website-url,logo-url,twitter-id,locations,description,num-followers)" company-id)))
+    
+    (drakma:http-request 
+     end-point  
+     :content-type "application/json"
+     :method :get    
+     :additional-headers
+     `(("x-li-format" . "json")
+       ("Authorization"
+        ,@(build-auth-string
+           `(("oauth_consumer_key" ,app-id)
+             ("oauth_nonce" ,nonce)
+             ("oauth_signature"
+              ,(encode-signature
+                (hmac-sha1
+                 (signature-base-string
+                  :uri end-point 
+                  :request-method "GET"
+                  :parameters `(("oauth_consumer_key" ,app-id)
+                                ("oauth_nonce" ,nonce)
+                                ("oauth_signature_method" "HMAC-SHA1")
+                                ("oauth_timestamp" ,stamp)
+                                ("oauth_token" ,access-token)
+                                ("oauth_version" "1.0")))
+                 (hmac-key  app-secret 
+                            access-secret))
+                nil))
+             ("oauth_signature_method" "HMAC-SHA1")
+             ("oauth_timestamp" ,stamp)
+             ("oauth_token" ,access-token)
+             ("oauth_version" "1.0")))))
+    :want-stream nil
+    :preserve-uri t)))
+
+(defun linkedin-company-by-id (user company-id)
+  (when user
+    (let ((channel (get-social-channel (get-val user 'channel-user-type))))
+      (handle-endpoint
+       user
+       (linkedin-company-by-id-request
+                 (get-val channel 'app-id)
+                 (get-val channel 'app-secret)
+                 (get-val user 'last-access-token)
+                 (get-val user 'last-token-secret)
+                 company-id)
+       :result-is-octets-p t))))
+
+(defun linkedin-user-companies-request (app-id app-secret
+                           access-token 
+                           access-secret)
+  (let* ((stamp (format nil "~A" (get-unix-time)))
+         (nonce (format nil "~A" (random 1234567)))
+         (end-point  "http://api.linkedin.com/v1/people/~:(positions:(company:(name,id,universal-name)))"))
+    
+    (drakma:http-request 
+     end-point  
+     :content-type "application/json"
+     :method :get    
+     :additional-headers
+     `(("x-li-format" . "json")
+       ("Authorization"
+        ,@(build-auth-string
+           `(("oauth_consumer_key" ,app-id)
+             ("oauth_nonce" ,nonce)
+             ("oauth_signature"
+              ,(encode-signature
+                (hmac-sha1
+                 (signature-base-string
+                  :uri end-point 
+                  :request-method "GET"
+                  :parameters `(("oauth_consumer_key" ,app-id)
+                                ("oauth_nonce" ,nonce)
+                                ("oauth_signature_method" "HMAC-SHA1")
+                                ("oauth_timestamp" ,stamp)
+                                ("oauth_token" ,access-token)
+                                ("oauth_version" "1.0")))
+                 (hmac-key  app-secret 
+                            access-secret))
+                nil))
+             ("oauth_signature_method" "HMAC-SHA1")
+             ("oauth_timestamp" ,stamp)
+             ("oauth_token" ,access-token)
+             ("oauth_version" "1.0")))))
+    :want-stream nil
+    :preserve-uri t)))
+
+(defun linkedin-user-companies (user )
+  (when user
+    (let ((channel (get-social-channel (get-val user 'channel-user-type))))
+      (handle-endpoint
+       user
+       (linkedin-user-companies-request
+                 (get-val channel 'app-id)
+                 (get-val channel 'app-secret)
+                 (get-val user 'last-access-token)
+                 (get-val user 'last-token-secret))
+       :result-is-octets-p t))))
+
+
+ 
