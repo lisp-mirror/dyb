@@ -5,7 +5,9 @@
   (when action
     (when (string-equal (get-val action 'action-status) "Pending")
       
-      (let ((from-user (get-channel-user-by-user-name (get-val action 'from-user-id))))
+      (let ((from-user (or (get-channel-user-by-user-name (get-val action 'from-user-id))
+                           (get-channel-user-by-user-id (get-val action 'from-user-id)))
+              ))
 
         (cond ((string-equal (get-val action 'post-type) "Facebook")
                (cond ((string-equal (get-val action 'action-type) "Post")                  
@@ -139,7 +141,9 @@
                      )
                 )
               ((string-equal (get-val action 'post-type) "LinkedIn")
+
                (cond ((string-equal (get-val action 'action-type) "Post")
+
                       (multiple-value-bind (result error-message)
                           (linkedin-share  
                            from-user

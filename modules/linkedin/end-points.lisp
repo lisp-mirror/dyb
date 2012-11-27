@@ -36,7 +36,7 @@
          (share (make-share comment content-title
                             description submited-url
                             submitted-image-url)))
-    
+   
     (drakma:http-request 
      end-point  
      :content-type "application/json"
@@ -74,14 +74,18 @@
                        description submited-url
                        submitted-image-url)
   (let ((channel (if user (get-social-channel (get-val user 'channel-user-type)))))
-    (handle-endpoint
+    (handle-endpoint-run-request
          user
-         (linkedin-share-request 
-          (get-val channel 'app-id)
-          (get-val channel 'app-secret)
-          (get-val user 'last-access-token)
-          (get-val user 'last-token-secret)
-          message)
+         `(linkedin-share-request 
+          ,(get-val channel 'app-id)
+          ,(get-val channel 'app-secret)
+          ,(get-val user 'last-access-token)
+          ,(get-val user 'last-token-secret)
+          ,message
+          :content-title ,content-title
+          :description ,description
+          :submited-url ,submited-url
+          :submitted-image-url ,submitted-image-url)
          :result-is-octets-p t)))
 
 (defun post-linkedin (user-id message)

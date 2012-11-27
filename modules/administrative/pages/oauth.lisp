@@ -1,7 +1,5 @@
 (in-package :dyb)
 
-
-
 (define-easy-handler (dybcallback :uri "/dyb/oauthcallback") (channel)
   (when channel
     (let* ((social-channel (get-social-channel channel))
@@ -95,8 +93,7 @@
                             (multiple-value-bind (result status ) 
                                 (linkedin-profile user)
                        
-                              (setf result (json:decode-json-from-string 
-                                            (babel:octets-to-string result)))
+                              
                               (when result
                                 (setf (get-val user 'user-id) (gpv result :id))
                                 (setf (get-val user 'channel-user-name) 
@@ -129,8 +126,7 @@
                                  (get-val user 'last-access-token)
                                  (get-val user 'last-token-secret)
                                  )                       
-                              (setf result (json:decode-json-from-string 
-                                            (babel:octets-to-string result)))
+                              
 
                               (when result
                                 (setf (get-val user 'user-id) (gpv result :id))
