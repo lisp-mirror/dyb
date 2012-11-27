@@ -90,7 +90,12 @@
                           (post-twitter  
                            from-user
                            (get-val action 'action-content)
-                           :image-path (get-val action 'image-url))
+                           :image-path (get-val action 'image-url)
+                           :link-url (if (or (blank-p (get-val action 'short-url))
+                                             (blank-p (get-val action 'post-url)))
+                                         (or (format-short-url
+                                              (get-val action 'short-url)) 
+                                             (get-val action 'post-url))))
                         (when error-message
                           (add-generic-action-log action 
                                               "Error"

@@ -1,7 +1,8 @@
 (in-package :dyb)
 
 (defun picture-tweet-request (app-id app-secret access-token access-secret message 
-                              image-path)
+                              image-path
+                              link-url)
   (let* ((stamp (format nil "~A" (get-unix-time)))
          (nonce (format nil "~A" (random 1234567)))
          (end-point  "https://api.twitter.com/1.1/statuses/update_with_media.json" ))
@@ -9,7 +10,9 @@
     (drakma:http-request 
      end-point
      :method :post
-     :parameters `(("status" . ,message)
+     :parameters `(("status" . ,(if link-url
+                                    (format nil "~A ~A" message link-url)
+                                    message))
                    ("media[]" . ,(pathname image-path)))
      :additional-headers
      `(("Authorization"
@@ -39,7 +42,7 @@
     :want-stream nil
     :preserve-uri nil)))
 
-(defun simple-tweet-request (app-id app-secret access-token access-secret message)
+(defun simple-tweet-request (app-id app-secret access-token access-secret message link-url)
   (let* ((stamp (format nil "~A" (get-unix-time)))
          (nonce (format nil "~A" (random 1234567)))
          (end-point  "https://api.twitter.com/1.1/statuses/update.json" ))
@@ -47,7 +50,9 @@
     (drakma:http-request 
      end-point
      :method :post
-     :parameters `(("status" . ,message))
+     :parameters `(("status" . ,(if link-url
+                                    (format nil "~A ~A" message link-url)
+                                    message)))
      :additional-headers
      `(("Authorization"
         ,@(build-auth-string
@@ -76,7 +81,7 @@
     :want-stream nil
     :preserve-uri nil)))
 
-(defun post-twitter (user message &key image-path)
+(defun post-twitter (user message &key image-path link-url)
   (when user
     (let ((channel (get-social-channel (get-val user 'channel-user-type))))
       (handle-endpoint
@@ -88,13 +93,15 @@
             (get-val user 'last-access-token)
             (get-val user 'last-token-secret)
             message
-            image-path)
+            image-path
+            link-url)
            (simple-tweet-request
             (get-val channel 'app-id)
             (get-val channel 'app-secret)
             (get-val user 'last-access-token)
             (get-val user 'last-token-secret)
-            message))
+            message
+            link-url))
        :result-is-octets-p t))))
 
 (defun twitter-favourite-request (app-id app-secret access-token access-secret tweet-id)
