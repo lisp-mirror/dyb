@@ -568,14 +568,14 @@ document.getElementById(\"~A\").submit();"
                   (:table
                       :style "text-align:center"
               
-                    (:tr
+                    #|(:tr
                      (:td
                       (unless (or editing-row
                                   (not (editable grid)))
                         (htm
                          (:table :class "table"
                            (:tr
-                            (htm
+                          (htm
                              (:td
                               (:a :href
                                   (js-link (js-render (editor grid)
@@ -597,6 +597,7 @@ document.getElementById(\"~A\").submit();"
                                                        :grid-name (name grid))
                                           :image "/appimgedit.png"
                                           :task "edit-all")))))))))))
+                    |#
                     (:tr
                      (:td
                       (when (error-message grid)
@@ -932,7 +933,11 @@ document.getElementById(\"~A\").submit();"
   `(("Export CSV"
      ,(format nil "window.open(\"/dyb/export-csv?grid=~a&script-name=~a\")"
               (name grid)
-              (script-name*)))))
+              (script-name*)))
+    ("Add"
+     ,(js-render (editor grid)
+                                                      (js-pair "grid-name" (name grid))
+                                                      (js-pair "action" "new")))))
 
 (defun add-actions-menu (grid)
   (drop-down-menu (list-grid-actions grid)))

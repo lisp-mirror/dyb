@@ -13,6 +13,15 @@
     mentions-only
     with-audit-data))
 
+(defmethod list-grid-actions (grid)
+  `(("Export CSV"
+     ,(format nil "window.open(\"/dyb/export-csv?grid=~a&script-name=~a\")"
+              (name grid)
+              (script-name*)))
+    ("Quick Post"
+     ,(js-render (editor grid)
+                 (js-pair "grid-name" (name grid))
+                 (js-pair "action" "new")))))
 
 (defclass grid-action (ajax-widget)
   ((grid :initarg :grid
