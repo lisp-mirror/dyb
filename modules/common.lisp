@@ -28,19 +28,19 @@
               (setf result (json::decode-json-from-string (babel:octets-to-string body)))
               (setf result (json::decode-json-from-string body))) 
 
-          
-          (if (or (assoc-path result error-path) 
-                  (assoc-path result :error) 
-                  (assoc-path result :errors))
-              (let ((error-message (or (assoc-path result error-path)
-                                       (assoc-path result :error :message)
-                                       (if (listp (cdr (assoc-path result :errors)))
-                                           (assoc-path result :errors :message)
-                                           (assoc-path result :errors)))))
+          (when (listp result)
+            (if (or (assoc-path result error-path) 
+                    (assoc-path result :error) 
+                    (assoc-path result :errors))
+                (let ((error-message (or (assoc-path result error-path)
+                                         (assoc-path result :error :message)
+                                         (if (listp (cdr (assoc-path result :errors)))
+                                             (assoc-path result :errors :message)
+                                             (assoc-path result :errors)))))
                 
-                (setf message (if (listp error-message)
-                                  (cdr error-message)
-                                  error-message)))))
+                  (setf message (if (listp error-message)
+                                    (cdr error-message)
+                                    error-message))))))
         (unless body
           
           (setf message "Endpoint returned no values."))))
