@@ -1,5 +1,44 @@
 (in-package :dyb)
 
+(defun picture-tweet-request (app-id app-secret access-token access-secret message 
+                              image-path)
+  (let* ((stamp (format nil "~A" (get-unix-time)))
+         (nonce (format nil "~A" (random 1234567)))
+         (end-point  "https://api.twitter.com/1.1/statuses/update_with_media.json" ))
+
+    (drakma:http-request 
+     end-point
+     :method :post
+     :parameters `(("status" . ,message)
+                   ("media[]" . ,(pathname image-path)))
+     :additional-headers
+     `(("Authorization"
+        ,@(build-auth-string
+           `(("oauth_consumer_key" ,app-id)
+             ("oauth_nonce" ,nonce)
+             ("oauth_signature"
+              ,(encode-signature
+                (hmac-sha1
+                 (signature-base-string
+                  :uri end-point 
+                  :request-method "POST"
+                  :parameters `(("oauth_consumer_key" ,app-id)
+                                ("oauth_nonce" ,nonce)
+                                ("oauth_signature_method" "HMAC-SHA1")
+                                ("oauth_timestamp" ,stamp)
+                                ("oauth_token" ,access-token)
+                                ("oauth_version" "1.0")
+                                ))
+                 (hmac-key  app-secret 
+                            access-secret))
+                  nil))
+             ("oauth_signature_method" "HMAC-SHA1")
+             ("oauth_timestamp" ,stamp)
+             ("oauth_token" ,access-token)
+             ("oauth_version" "1.0")))))
+    :want-stream nil
+    :preserve-uri nil)))
+
 (defun simple-tweet-request (app-id app-secret access-token access-secret message)
   (let* ((stamp (format nil "~A" (get-unix-time)))
          (nonce (format nil "~A" (random 1234567)))
@@ -37,17 +76,25 @@
     :want-stream nil
     :preserve-uri nil)))
 
-(defun post-twitter (user message)
+(defun post-twitter (user message &key image-path)
   (when user
     (let ((channel (get-social-channel (get-val user 'channel-user-type))))
       (handle-endpoint
        user
-       (simple-tweet-request
-                 (get-val channel 'app-id)
-                 (get-val channel 'app-secret)
-                 (get-val user 'last-access-token)
-                 (get-val user 'last-token-secret)
-                 message)
+       (if image-path
+           (picture-tweet-request
+            (get-val channel 'app-id)
+            (get-val channel 'app-secret)
+            (get-val user 'last-access-token)
+            (get-val user 'last-token-secret)
+            message
+            image-path)
+           (simple-tweet-request
+            (get-val channel 'app-id)
+            (get-val channel 'app-secret)
+            (get-val user 'last-access-token)
+            (get-val user 'last-token-secret)
+            message))
        :result-is-octets-p t))))
 
 (defun twitter-favourite-request (app-id app-secret access-token access-secret tweet-id)

@@ -89,7 +89,8 @@
                       (multiple-value-bind (result error-message)
                           (post-twitter  
                            from-user
-                           (get-val action 'action-content))
+                           (get-val action 'action-content)
+                           :image-path (get-val action 'image-url))
                         (when error-message
                           (add-generic-action-log action 
                                               "Error"
@@ -156,14 +157,22 @@
                (cond ((string-equal (get-val action 'action-type) "Post")
 
                       (multiple-value-bind (result error-message)
-                          (linkedin-share  
-                           from-user
-                           (get-val action 'action-content)
-                           :submited-url (or (format-short-url (get-val action 'short-url)) 
-                                             (get-val action 'post-url))
-                           :submitted-image-url (get-val action 'post-url)
+                          (if (string-equal (get-val from-user 'profile-type) "Page")
+                           (linkedin-company-share  
+                            from-user
+                            (get-val action 'action-content)
+                            :submited-url (or (format-short-url 
+                                               (get-val action 'short-url)) 
+                                              (get-val action 'post-url))
+                            :submitted-image-url (get-val action 'post-url))
+                           (linkedin-share  
+                            from-user
+                            (get-val action 'action-content)
+                            :submited-url (or (format-short-url (get-val action 'short-url)) 
+                                              (get-val action 'post-url))
+                            :submitted-image-url (get-val action 'post-url)
                            
-                           )
+                            ))
                         (when error-message
                           (add-generic-action-log action 
                                                   "Error"

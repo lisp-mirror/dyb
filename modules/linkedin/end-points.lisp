@@ -88,6 +88,71 @@
           :submitted-image-url ,submitted-image-url)
          :result-is-octets-p t)))
 
+(defun linkedin-company-share-request (app-id app-secret access-token 
+                       access-secret comment company-id
+                       &key content-title
+                       description submited-url
+                       submitted-image-url)
+  (let* ((stamp (format nil "~A" (get-unix-time)))
+         (nonce (format nil "~A" (random 1234567)))
+         (end-point  (format nil "http://api.linkedin.com/v1/companies/~A/updates" 
+                             company-id) )
+         (share (make-share comment content-title
+                            description submited-url
+                            submitted-image-url)))
+   
+    (drakma:http-request 
+     end-point  
+     :content-type "application/json"
+     :content share
+     :method :post    
+     :additional-headers
+     `(("x-li-format" . "json")
+       ("Authorization"
+        ,@(build-auth-string
+           `(("oauth_consumer_key" ,app-id)
+             ("oauth_nonce" ,nonce)
+             ("oauth_signature"
+              ,(encode-signature
+                (hmac-sha1
+                 (signature-base-string
+                  :uri end-point 
+                  :request-method "POST"
+                  :parameters `(("oauth_consumer_key" ,app-id)
+                                ("oauth_nonce" ,nonce)
+                                ("oauth_signature_method" "HMAC-SHA1")
+                                ("oauth_timestamp" ,stamp)
+                                ("oauth_token" ,access-token)
+                                ("oauth_version" "1.0")))
+                 (hmac-key  app-secret 
+                            access-secret))
+                nil))
+             ("oauth_signature_method" "HMAC-SHA1")
+             ("oauth_timestamp" ,stamp)
+             ("oauth_token" ,access-token)
+             ("oauth_version" "1.0")))))
+    :want-stream nil
+    :preserve-uri nil)))
+
+(defun linkedin-company-share (user message  &key content-title
+                       description submited-url
+                       submitted-image-url)
+  (let ((channel (if user (get-social-channel (get-val user 'channel-user-type)))))
+    (handle-endpoint-run-request
+         user
+         `(linkedin-company-share-request 
+          ,(get-val channel 'app-id)
+          ,(get-val channel 'app-secret)
+          ,(get-val user 'last-access-token)
+          ,(get-val user 'last-token-secret)
+          ,message
+          ,(get-val user 'user-id)
+          :content-title ,content-title
+          :description ,description
+          :submited-url ,submited-url
+          :submitted-image-url ,submitted-image-url)
+         :result-is-octets-p t)))
+
 (defun post-linkedin (user-id message)
   (let ((user (get-channel-user-by-user-id user-id)))
     (linkedin-share
