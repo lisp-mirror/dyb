@@ -11,36 +11,47 @@
 
         (cond ((string-equal (get-val action 'post-type) "Facebook")
                (cond ((string-equal (get-val action 'action-type) "Post")                  
-                      (multiple-value-bind (result error-message)
-                          (cond ((get-val action 'image-url)
-                                 (post-facebook-image (get-val action 'from-user-id)
-                                                      (get-val action 'action-content)
-                                                      (get-val action 'image-url)
-                                                      ))
-                                ((or (get-val action 'short-url) 
-                                     (get-val action 'post-url))
-                                 (post-facebook-url (get-val action 'from-user-id)
-                                                    (get-val action 'action-content)
-                                                    (or (format-short-url
-                                                         (get-val action 'short-url)) 
-                                                        (get-val action 'post-url))
-                                                      ))
-                                (t
-                                 (post-facebook (get-val action 'from-user-id) 
-                                         (get-val action 'action-content)))
-                                )
+                      (multiple-value-bind (result error-message)                        
+                          (cond
+                            ((and (blank-p (get-val action 'image-url))
+                                  (blank-p (get-val action 'post-url)))
+                             (post-facebook-link-image (get-val action 'from-user-id)
+                                                       (get-val action 'action-content)
+                                                       (or (format-short-url
+                                                            (get-val action 'short-url)) 
+                                                           (get-val action 'post-url))
+                                                       (get-val action 'image-url) 
+                                                       ))
+
+                            ((blank-p (get-val action 'image-url))
+                             (post-facebook-image (get-val action 'from-user-id)
+                                                  (get-val action 'action-content)
+                                                  (get-val action 'image-url)
+                                                  ))
+                            ((or (blank-p (get-val action 'short-url)) 
+                                 (blank-p (get-val action 'post-url)))
+                             (post-facebook-url (get-val action 'from-user-id)
+                                                (get-val action 'action-content)
+                                                (or (format-short-url
+                                                     (get-val action 'short-url)) 
+                                                    (get-val action 'post-url))
+                                                ))
+                            (t
+                             (post-facebook (get-val action 'from-user-id) 
+                                            (get-val action 'action-content)))
+                            )
                           
                         (when error-message
 
                           (add-generic-action-log action 
-                                              "Error"
-                                              error-message
-                                              "Pending"))
+                                                  "Error"
+                                                  error-message
+                                                  "Pending"))
                         (unless error-message
                           (add-generic-action-log action 
-                                              "Result"
-                                              result
-                                              "Completed"))))
+                                                  "Result"
+                                                  result
+                                                  "Completed"))))
                      ((string-equal (get-val action 'action-type) "Comment")
                       (multiple-value-bind (result error-message)
                           (comment-facebook (get-val action 'post-id)  

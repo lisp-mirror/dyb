@@ -144,13 +144,16 @@
                                         (get-val row 'post-url))
                                  
                                     :required nil)))
+                         
                          (render 
                           form-section
                           :label "Shortened Link"
                           :input (with-html-string
                                    (render-edit-field 
                                     "short-url"
-                                    (when (short-url row)
+                                    (if (and (or (blank-p (parameter "post-url"))
+                                                 (blank-p (get-val row 'post-url)))
+                                               (short-url row))
                                       (format-short-url (short-url row)))
                                     :type :span)))
                          (render 
@@ -271,7 +274,8 @@
             (to-user nil)
             (image (handle-upload (post-parameter "file")))
             (doc (editing-row grid))
-            (short-url (make-short-url (parameter "post-url"))))
+            (short-url (if (blank-p (parameter "post-url"))
+                           (make-short-url (parameter "post-url")))))
         
         (when doc
           (let ((date-time nil))
