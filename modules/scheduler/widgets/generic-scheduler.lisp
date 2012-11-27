@@ -5,6 +5,11 @@
    (current-doc :initarg nil))
   (:default-initargs :edit-inline nil))
 
+(defmethod list-grid-filters ((grid generic-actions-grid))
+  '(completed-actions
+    all-actions
+    with-audit-data))
+
 (defun get-generic-actions-data (grid &key filter search)
   (declare (ignore grid search))
   (find-docs 
@@ -17,10 +22,16 @@
                  (match-context-entities (get-val doc 'channel-user) )))
          (cond ((equal filter 'with-audit-data)
                 doc)
+               ((equal filter 'completed-actions)
+                (if (string-equal (get-val doc 'action-status) "Completed")
+                    doc))
+               ((equal filter 'all-actions)
+                doc)
                (t 
                 (if (not (string-equal 
                           (get-val doc 'doc-status) "superseded"))
-                    doc)))))
+                    (if (string-equal (get-val doc 'action-status) "Pending")
+                        doc))))))
    (generic-actions-collection)))
 
 (defmethod get-rows ((grid generic-actions-grid))
