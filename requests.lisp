@@ -107,18 +107,25 @@
 
 (defvar *widget-parameters*)
 
-(defmethod handle-request :around ((acceptor dyb-acceptor) request)
-  (cond ((or (current-user)
-             (equal (script-name request) "/dyb/login")
-             (alexandria:starts-with-subseq "/dyb/s/" (script-name request)))
-         (let (*print-pretty*
-               (*widget-parameters* nil))
-           (with-error-handling
-             (with-permissions
-               (call-next-method)))))
-        (t
-         (setf (session-value 'redirect-after-login)
-               (script-name*))
+(defun redirect-ajax-to-login ()
+  (json:encode-json-to-string
+   '(nil
+     "window.location='/dyb/login';")))
 
-         (redirect "/dyb/login")))) 
+(defmethod handle-request :around ((acceptor dyb-acceptor) request)
+  (let ((script-name (script-name request)))
+   (cond ((or (current-user)
+              (equal script-name "/dyb/login")
+              (alexandria:starts-with-subseq "/dyb/s/" script-name))
+          (let (*print-pretty*
+                (*widget-parameters* nil))
+            (with-error-handling
+              (with-permissions
+                (call-next-method)))))
+         ((alexandria:starts-with-subseq "/dyb/ajax/" script-name)
+          (redirect-ajax-to-login))
+         (t
+          (setf (session-value 'redirect-after-login)
+                script-name)
+          (redirect "/dyb/login"))))) 
 

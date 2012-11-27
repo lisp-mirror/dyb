@@ -619,8 +619,14 @@ document.getElementById(\"~A\").submit();"
 'sAjaxSource': '/dyb/ajax/TABLE?script-name=~a&id=~a',
 'sDom': '<\"tbl-searchbox clearfix\"flr,<\"clear\">>,<\"table_content\"t>,<\"widget-bottom\"ip<\"clear\">>',
 
-~:[~;'aoColumnDefs': [{'bSortable': false, 'aTargets': [~a]}]~],
-~:[~;'aaSorting': [[~a,~s]]~]
+~:[~;'aoColumnDefs': [{'bSortable': false, 'aTargets': [~a]}],~]
+~:[~;'aaSorting': [[~a,~s]],~]
+'fnServerData': function(sSource,aoData,fnCallback) {
+    $.getJSON(sSource, aoData, function(json) {
+        if($.isArray(json)) eval(json[1]);
+        else fnCallback(json);
+    });
+},
 })"
                   (sub-name grid "table")
                   (script-name*)
