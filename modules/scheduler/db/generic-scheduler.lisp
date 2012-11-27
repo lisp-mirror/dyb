@@ -104,7 +104,9 @@
                                 (string-equal to-user-id (get-val doc 'to-user-id))
                                 (string-equal action-type (get-val doc 'action-type))
                                 (string-equal action-content 
-                                              (get-val doc 'action-content)))))))
+                                              (get-val doc 'action-content))
+                                (string-equal (get-val doc 'action-status) "Pending"))))))
+;(break "~a" dup)
     (if dup
         dup
         (persist (make-generic-action channel-user post-id post-type 

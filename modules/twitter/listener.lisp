@@ -3,8 +3,8 @@
 (defun twitter-refresh-user-profiles (channel-user)
   (when channel-user
     (when (get-val channel-user 'last-access-token)
-      (twitter-verify-credentials
-                      channel-user))))
+      (twitter-profile
+       channel-user))))
 
 (defun twitter-refresh-profiles ()
   (dolist (user (coerce (channel-users) 'list ))

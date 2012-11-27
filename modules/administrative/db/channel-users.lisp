@@ -78,7 +78,11 @@
   (get-doc (channel-users-collection) auth-token :element 'request-token))
   
 (defun get-channel-user-by-user-id (user-id)
-  (get-doc (channel-users-collection) user-id :element 'user-id))
+  (find-doc 
+   (channel-users-collection) 
+   :test (lambda (doc)
+           (string-equal (format nil "~A" user-id)
+                         (format nil "~A" (get-val doc 'user-id))))))
 
 (defun get-channel-user-by-user-name (user-id)
   (get-doc (channel-users-collection) user-id :element 'channel-user-name))

@@ -29,6 +29,9 @@
                     (:div 
                      (:input :type "hidden" :name "tweet-id" 
                              :value tweet-id)
+;;TODO: handle ' intext
+                     (:input :type "hidden" :name "tweet-text" 
+                             :value (str (gpv current-post :text)))
 
                      (render form-section 
                              :label "As User"
@@ -51,15 +54,16 @@
 
 (defmethod action-handler ((widget twitter-retweet-form))
   (when (string-equal (parameter "action") "retweet-twitter")  
+
     (let* ((user (get-channel-user-by-user-id (parameter "user-id")))
           (action (add-generic-action
                    user
                     nil 
                     "Twitter"
-                    (parameter "user-id")
+                    (parameter "user-id") 
                     nil
                     "Retweet"
-                    t
+                    (parameter "tweet-text")
                     "Immediate"
                     (get-universal-time))))
       (multiple-value-bind (result error-message)
@@ -137,7 +141,7 @@
                     (parameter "user-id")
                     nil
                     "Reply"
-                    t
+                    (parameter "message")
                     "Immediate"
                     (get-universal-time))))
       (multiple-value-bind (result error-message)
