@@ -13,7 +13,7 @@
     mentions-only
     with-audit-data))
 
-(defmethod list-grid-actions (grid)
+(defmethod list-grid-actions ((grid generic-grid))
   `(("Export CSV"
      ,(format nil "window.open(\"/dyb/export-csv?grid=~a&script-name=~a\")"
               (name grid)
