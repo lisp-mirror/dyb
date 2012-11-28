@@ -253,30 +253,42 @@
                                     (:i :class "white-icons admin_user")
                                     (:b :class "caret"))
                                 (:ul :class "dropdown-menu"
-                                     (:li
-                                      (:a :href "/dyb/dashboard" "Dashboard"))
-                                     (:li
-                                      (:a :href "/dyb/clients" "Clients"))
-                                     (:li
-                                      (:a :href "/dyb/companies" "Companies"))
-                                     (:li
-                                      (:a :href "/dyb/channel-users" "Channel Users"))
-                                     (:li
-                                      (:a :href "/dyb/users" "Users"))
+                                     (if (check-permission-or-error "/dyb/dashboard")
+                                         (htm (:li
+                                               (:a :href "/dyb/dashboard" "Dashboard"))))
+                                     (if (check-permission-or-error "/dyb/clients")
+                                         (htm (:li
+                                               (:a :href "/dyb/clients" "Clients"))))
+                                     (if(check-permission-or-error "/dyb/companies")
+                                        (htm (:li
+                                              (:a :href "/dyb/companies" "Companies"))))
+                                     (if (check-permission-or-error "/dyb/channel-users" )
+                                         (htm (:li
+                                               (:a :href "/dyb/channel-users" 
+                                                   "Channel Users"))))
+
+                                     (if (check-permission-or-error "/dyb/users")
+                                         (htm (:li
+                                               (:a :href "/dyb/users" "Users"))))
                                     ;; (:li
                                     ;;  (:a :href "/dyb/country-town" "Country/Town"))
-                                     (:li
-                                      (:a :href "/dyb/permissions" "Permissions"))
+                                     (if (check-permission-or-error "/dyb/permissions")
+                                         (htm (:li
+                                               (:a :href "/dyb/permissions" "Permissions"))))
                                     ;; (:li
                                     ;;  (:a :href "/dyb/root-entities" "Root Entities"))
-                                     (:li
-                                      (:a :href "/dyb/entities" "Entities"))
-                                     (:li
-                                      (:a :href "/dyb/all-sorts" "Allsorts"))
-                                     (:li
-                                      (:a :href "/dyb/manual-updates" "Manual Stream Updates"))
-                                     (:li
-                                      (:a :href "/dyb/context" "Context"))
+                                     (if (check-permission-or-error "/dyb/entities")
+                                         (htm (:li
+                                               (:a :href "/dyb/entities" "Entities"))))
+                                     (if (check-permission-or-error "/dyb/all-sorts")
+                                         (htm (:li
+                                               (:a :href "/dyb/all-sorts" "Allsorts"))))
+                                     (if (check-permission-or-error "/dyb/manual-updates")
+                                         (htm (:li
+                                               (:a :href "/dyb/manual-updates" "Manual Stream Updates"))))
+                                     (if (check-permission-or-error "/dyb/context")
+                                         (htm (:li
+                                               (:a :href "/dyb/context" "Context"))))
                                      ;;(:li
                                      ;; (:a :href "/dyb/importer" "Importer"))
                                      (:li :class "divider")

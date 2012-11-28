@@ -18,6 +18,33 @@
 
 (defvar *permissions* ())
 
+(defun check-permission (uri &optional sub-permission)
+  (let ((user (current-user)))
+    (cond ((null user)
+           nil)
+          ((super-user-p user)
+           t)
+          (t
+           
+           (loop for (permitted-uri . sub-permissions) in (permissions user)
+                 do
+                 (cond ((not (equal permitted-uri uri))
+                        )
+                       ((or (null sub-permission)
+                            (member sub-permission sub-permissions
+                                    :test #'equal))
+                        (return t))
+                       (t 
+                        ;;(if (string-equal permitted-uri "/dyb/dashboard")
+                          ;;  (break "|~a|~A|~%~A~%~A" uri permitted-uri sub-permission sub-permissions))
+                        (return))))))))
+
+(defun check-permission-or-error (uri &optional sub-permissions)
+  ;;(or (check-permission uri sub-permissions)
+   ;;   (signal 'permission-denied))
+t
+  )
+
 (defmacro add-permission (name permissions)
   (check-type name string)
   `(load-time-value (setf (alexandria:assoc-value *permissions* ,name
@@ -34,7 +61,7 @@
        ,@(when (and uri (not for-everyone))
            `((add-permission ,uri ,permissions)
              ;;TODO: Put permission checking back once we know how permissions look.
-             ;;(check-permission ,uri)
+             ;;(check-permission-or-error ,uri)
              ))
        ,@body)))
 
