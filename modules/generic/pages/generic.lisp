@@ -222,7 +222,7 @@
                          ((string-equal (gpv col-val :update-type) "CMPY")
                           (gpv col-val :update-content :company-status-update :share :comment)))))
        
-       (:span :class "twitter-actions"
+       #|(:span :class "twitter-actions"
               (if (gpv col-val :is-likeable)
                   (htm (:span :class "action-icon" :title "Like"
                               (:a :href (js-link 
@@ -242,7 +242,9 @@
                                                     (js-pair "action" "comment-linkedin-form")
                                                     (js-pair "row_id" row-id))) 
                                   ;;(:img :src "/appimg/fb-like.png")
-                                  (str "Comment")))))))))))
+                                  (str "Comment"))))))
+       |#
+)))))
 
 
 (defun generic-grid-item-display (grid row payload row-id)
