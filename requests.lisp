@@ -25,25 +25,19 @@
           ((super-user-p user)
            t)
           (t
-           
            (loop for (permitted-uri . sub-permissions) in (permissions user)
                  do
-                 (cond ((not (equal permitted-uri uri))
-                        )
+                 (cond ((not (equal permitted-uri uri)))
                        ((or (null sub-permission)
                             (member sub-permission sub-permissions
                                     :test #'equal))
                         (return t))
                        (t 
-                        ;;(if (string-equal permitted-uri "/dyb/dashboard")
-                          ;;  (break "|~a|~A|~%~A~%~A" uri permitted-uri sub-permission sub-permissions))
                         (return))))))))
 
 (defun check-permission-or-error (uri &optional sub-permissions)
-  ;;(or (check-permission uri sub-permissions)
-   ;;   (signal 'permission-denied))
-t
-  )
+  (or (check-permission uri sub-permissions)
+      (signal 'permission-denied)))
 
 (defmacro add-permission (name permissions)
   (check-type name string)
@@ -60,8 +54,7 @@ t
     `(hunchentoot:define-easy-handler (,name ,@args :allow-other-keys t) ,lambda-list
        ,@(when (and uri (not for-everyone))
            `((add-permission ,uri ,permissions)
-             ;;TODO: Put permission checking back once we know how permissions look.
-             ;;(check-permission-or-error ,uri)
+             (check-permission-or-error ,uri)
              ))
        ,@body)))
 
