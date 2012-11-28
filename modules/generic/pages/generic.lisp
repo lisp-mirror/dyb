@@ -441,25 +441,26 @@
                 (list 'twitter "direct-message-form" "Direct Message")
                 (list 'twitter "assign-task-form" "Assign Task")
                ; (list 'twitter "highlight" "Highlight")
-                (list 'twitter "go-to-content" "Go To Content")
+               ; (list 'twitter "go-to-content" "Go To Content")
 
                 (list 'facebook "delete" "Delete")
                ; (list 'facebook "block-user" "Block User")
                 (list 'facebook "direct-message-form" "Direct Message")
                 (list 'facebook "assign-task-form" "Assign Task")
               ;  (list 'facebook "highlight" "Highlight")
-                (list 'facebook "go-to-content" "Go To Content")
+              ;  (list 'facebook "go-to-content" "Go To Content")
 
                 (list 'linkedin "delete" "Delete")
                ;; (list 'linkedin "direct-message-form" "Direct Message")
                 (list 'linkedin "assign-task-form" "Assign Task")
                 
                ; (list 'linkedin "highlight" "Highlight")
-                (list 'linkedin "go-to-content" "Go To Content")
+               ; (list 'linkedin "go-to-content" "Go To Content")
 
                 (list 'social-mention "delete" "Delete")
                 (list 'social-mention "assign-task-form" "Assign Task")
-                (list 'social-mention "go-to-content" "Go To Content")))
+                ;(list 'social-mention "go-to-content" "Go To Content")
+                ))
     (setf (sort-keys grid) '(3 created-date))
     (setf (initial-sort-column grid) '(3 :descending))
     
