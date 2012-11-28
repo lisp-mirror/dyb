@@ -73,3 +73,15 @@
                       insights)))
           (persist doc)
           )))))
+
+(defun parse-facebook-insights (channel-user insights)
+  (dolist (insight-raw (gpv insights :data))
+    (let* ((end-time (parse-facebook-created-at (gpv insight-raw :end-time)))
+           (insight (get-facebook-insight-by-name (gpv insight-raw :name)))
+           (dup (get-facebook-insight-value channel-user insight end-time)))
+      (unless dup
+        (persist (make-facebook-insight-value 
+                  channel-user
+                  insight
+                  (gpv insight-raw :name)
+                  end-time))))))

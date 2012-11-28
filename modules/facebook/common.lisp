@@ -1,7 +1,6 @@
 (in-package :dyb)
 
 (defun post-scheduled-action (action)
-
   (when action
     (when (string-equal (get-val action 'action-status) "Pending")
       
@@ -175,9 +174,7 @@
                             (get-val action 'action-content)
                             :submited-url (or (format-short-url (get-val action 'short-url)) 
                                               (get-val action 'post-url))
-                            :submitted-image-url (get-val action 'post-url)
-                           
-                            ))
+                            :submitted-image-url (get-val action 'post-url)))
                         (when error-message
                           (add-generic-action-log action 
                                                   "Error"
@@ -187,11 +184,11 @@
                           (add-generic-action-log action 
                                                   "Result"
                                                   result
-                                                  "Completed"))))))
-          )))))
+                                                  "Completed")))))))))))
 
 (defun post-scheduled-actions ()
   (dolist (action (coerce (generic-actions) 'list))
     (when (string-equal (get-val action 'action-status) "Pending")
-      (when (< (get-val action 'scheduled-date) (get-universal-time) )
+      (when (< (universal-to-gmt-0 (get-val action 'scheduled-date)) 
+               (universal-to-gmt-0 (get-universal-time)) )
         (post-scheduled-action action)))))
