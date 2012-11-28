@@ -20,12 +20,17 @@
       :parameters `(("message" . ,message)
                     ("oauth_token" . ,(get-val user 'last-access-token))))))
 
-(defun facebook-feed (user)
+(defun facebook-feed (user since)
   (handle-endpoint 
    user
    (drakma:http-request 
-           (format nil "https://graph.facebook.com/~A/feed?limit=2000&access_token=~A" 
+           (format nil "https://graph.facebook.com/~A/feed?limit=2000&since=~A&access_token=~A" 
                    (url-encode (get-val user 'user-id))
+                   (if since
+                       (if (stringp since)
+                           since
+                           (universal-time-to-unix-time since))
+                       (universal-time-to-unix-time (parse-date "01 Jan 2012")))
                    (get-val user 'last-access-token)))))
 
 (defun post-facebook (user-id message)
@@ -127,3 +132,12 @@
     (if profile
         (json:decode-json-from-string profile))))
 
+(defun post-insights (user post-id)
+  (handle-endpoint 
+     user
+     (drakma:http-request
+      (format nil "https://graph.facebook.com/~A/insights?period=week"
+              post-id)
+      :method :post
+      :content-length t     
+      :parameters `(("oauth_token" . ,(get-val user 'last-access-token))))))

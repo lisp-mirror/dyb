@@ -51,15 +51,25 @@
               (parse-facebook-created-at 
                (gpv post :updated--time)))
         (setf (payload dup) post)
-
+        (if (string-equal (get-val channel-user 'profile-type) "Page")
+            (let ((insights (post-insights channel-user (raw-post-id post 'facebook))))
+              (setf (gethash :insights (get-val dup 'post-data))
+                    insights)))
         (persist dup))
       (unless dup
         
-        (persist (make-generic-post 
-                  channel-user
-                  'facebook
-                  post
-                  stream-type
-                  (parse-facebook-created-at (gpv post :created--time))
-                  :last-change-date (parse-facebook-created-at 
-                                     (gpv post :updated--time))))))))
+        (let ((doc (make-generic-post 
+                             channel-user
+                             'facebook
+                             post
+                             stream-type
+                             (parse-facebook-created-at (gpv post :created--time))
+                             :last-change-date (parse-facebook-created-at 
+                                                (gpv post :updated--time))))
+              )
+          (if (string-equal (get-val channel-user 'profile-type) "Page")
+              (let ((insights (post-insights channel-user (raw-post-id post 'facebook))))
+                (setf (gethash :insights (get-val doc 'post-data))
+                      insights)))
+          (persist doc)
+          )))))

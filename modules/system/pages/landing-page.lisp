@@ -19,7 +19,7 @@
           	    
   (log-login "Login" (get-val login 'email) "Passed" "Login passed.")
   (set-cookie "expanded" :value "" :path "/")
-
+  (setf (session-max-time *session* ) 10800)
   (redirect "/dyb/dashboard"))
 
 (defmethod on-failure ((login login) &key)

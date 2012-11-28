@@ -182,6 +182,9 @@ is replaced with replacement."
 (defun unix-time-to-universal (unix-time)
   (+ unix-time  +unix-to-universal-time+))
 
+(defun universal-time-to-unix-time (universal-time)
+  (- universal-time +unix-to-universal-time+))
+
 (defvar *short-months*
   #("Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug" "Sep" "Oct" "Nov" "Dec"))
 

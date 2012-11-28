@@ -22,6 +22,8 @@
    (created-date 
     :accessor created-date :initarg :created-date
     :documentation "The creation date of the post. (Not the retrieval date that is the stamp).")
+   (post-data :initarg :post-data
+              :initform (make-hash-table :test 'equal))
    (last-change-date 
     :accessor last-change-date :initarg :last-change-date
     :documentation "The last time the post was changed. This should be used to sort inbox latest post activity. IE if a post has a new comment or something it should be brought to the users attetion."))
@@ -60,9 +62,10 @@
                  :last-change-date last-change-date
                  :payload-parser-version payload-parser-version))
 
-(add-collection (system-db) "generic-post" 
-                :collection-class 'dyb-collection
-                :load-from-file-p t)
+(unless (generic-post-collection)
+  (add-collection (system-db) "generic-post" 
+                  :collection-class 'dyb-collection
+                  :load-from-file-p t))
 
 (defgeneric gpkv (post &rest keys))
 
