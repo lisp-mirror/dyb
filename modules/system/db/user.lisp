@@ -35,6 +35,9 @@
    (last-context :initarg :last-context
                  :initform nil
                  :accessor last-context)
+   (preferences :initarg :preferences
+                :initform nil
+                :accessor preferences)
    (super-user-p :initarg :super-user-p
                  :initform nil
                  :accessor super-user-p))
@@ -60,8 +63,9 @@
     (values password salt)))
 
 (defun make-user (email password &key permissions
-                                      accessible-entities
-                                      super-user-p)
+                  accessible-entities
+                  preferences
+                  super-user-p)
   (multiple-value-bind (password salt)
       (make-password password)
     (make-instance 'user :key email :doc-type "user" 
@@ -71,6 +75,7 @@
                          :salt salt
                          :permissions permissions
                          :accessible-entities accessible-entities
+                         :preferences preferences
                          :super-user-p super-user-p)))
 
 (defun change-user (user new-password
@@ -128,3 +133,4 @@
               (setf u-list (append u-list (list (list (get-val doc 'email) 
                                                       (get-val doc 'email)))))))))
     u-list))
+

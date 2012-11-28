@@ -174,6 +174,28 @@ is replaced with replacement."
         (setf out (append out (list (cons (first split-pair) (second split-pair)))))))
     out))
 
+(defun universal-to-gmt-0 (time)
+  (multiple-value-bind (second minute hour date month year day daylight-p zone)
+      (decode-universal-time time)
+    (declare (ignore second minute hour date month year day daylight-p))
+    (let ((gmt (+ time (* zone (* 60 60)))))
+      (multiple-value-bind (s m h d mnth y)
+          (decode-universal-time gmt 0)
+        
+        (encode-universal-time  s m h d mnth y 0)))))
+
+
+
+(defun universal-time-between-inclusive (time from to)
+  (let ((gmt-time (universal-to-gmt-0 time)))
+    (and (>= gmt-time (universal-to-gmt-0 from))
+         (<= gmt-time (universal-to-gmt-0 to)))))
+
+(defun universal-time-between-exclusive (time from to)
+  (let ((gmt-time (universal-to-gmt-0 time)))
+    (and (> gmt-time (universal-to-gmt-0 from))
+         (< gmt-time (universal-to-gmt-0 to)))))
+
 (defconstant +unix-to-universal-time+ 2208988800)
 
 (defun get-unix-time (&optional (ut (get-universal-time)))
@@ -211,45 +233,4 @@ is replaced with replacement."
 
 
 
-(defun format-date (year month day)
-  (format nil "~d ~a ~d"  day (short-month-name month) year))
-
-(defun format-date-time (year month day hour min sec
-                        &optional timezone)
-  (declare (ignore timezone))
-  (format nil "~d ~a ~d ~@{~2,'0d~^:~}"
-          day (short-month-name month) year hour min sec))
-
-(defun format-universal-date (universal-date)  
-  (if (stringp universal-date)
-      universal-date
-      (multiple-value-bind (a b c day month year)
-          (decode-universal-time (or universal-date (get-universal-time)))
-        (declare (ignore a b c))
-        (format-date   year month day))))
-
-(defun format-universal-date-time (universal-date)  
-  (if (stringp universal-date)
-      universal-date
-      (multiple-value-bind (sec min hour day month year)
-          (decode-universal-time (or universal-date (get-universal-time)))
-        (format-date-time year month day hour min sec))))
-
-
-
-(defun string-to-date (date-string)
-  (if (stringp date-string)
-      (let ((split-date (split-string date-string #\space)))
-        (encode-universal-time  
-         0 0 0 
-         (parse-integer (first split-date)) 
-         (or (parse-integer (second split-date))
-             (+ 1 (or 
-                   (position (second split-date) *short-months* :test 'string-equal)
-                   (position (second split-date) *long-months* :test 'string-equal)))) 
-         (if (> (parse-integer (third split-date)) 1900) 
-             (parse-integer (third split-date))
-             1901)
-         ))
-      date-string))
 

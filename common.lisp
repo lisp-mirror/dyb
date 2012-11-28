@@ -169,6 +169,61 @@
     (when (and year month date)
       (encode-universal-time 0 0 0 date month year))))
 
+(defun string-to-date (date-string)
+  (if (stringp date-string)
+      (let ((split-date (split-string date-string #\space)))
+        (encode-universal-time  
+         0 0 0 
+         (parse-integer (first split-date)) 
+         (or (parse-integer (second split-date))
+             (+ 1 (or 
+                   (position (second split-date) *short-months* :test 'string-equal)
+                   (position (second split-date) *long-months* :test 'string-equal)))) 
+         (if (> (parse-integer (third split-date)) 1900) 
+             (parse-integer (third split-date))
+             1901)
+         ))
+      date-string))
+
+
+
+(defun universal-to-my-gmt (time &key zone)
+  (+ (universal-to-gmt-0 time) 
+     (* (if zone
+            zone
+            (if (current-user)
+                (if (preferences (current-user))
+                    (if (gethash :gmt (preferences (current-user)))
+                        (gethash :gmt (preferences (current-user)))
+                        2)
+                    2)
+                2)) 
+        (* 60 60))))
+
+(defun format-date (year month day)
+  (format nil "~d ~a ~d"  day (short-month-name month) year))
+
+(defun format-date-time (year month day hour min sec
+                        &optional timezone)
+  (declare (ignore timezone))
+  (format nil "~d ~a ~d ~@{~2,'0d~^:~}"
+          day (short-month-name month) year hour min sec))
+
+(defun format-universal-date (universal-date)  
+  (if (stringp universal-date)
+      universal-date
+      (multiple-value-bind (a b c day month year)
+          (decode-universal-time (or universal-date (get-universal-time)))
+        (declare (ignore a b c))
+        (format-date year month day))))
+
+(defun format-universal-date-time (universal-date)  
+  (if (stringp universal-date)
+      universal-date
+      (multiple-value-bind (sec min hour day month year)
+          (decode-universal-time 
+           (universal-to-my-gmt (or universal-date (get-universal-time))))
+        (format-date-time year month day hour min sec))))
 
 
 (defparameter *time-zone* 0)
