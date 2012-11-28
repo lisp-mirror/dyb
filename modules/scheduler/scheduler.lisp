@@ -1,28 +1,72 @@
 (in-package :dyb)
-#|
+
 (defun start-facebook-listener ()
   (bordeaux-threads:make-thread  
    (lambda ()
      (loop
         (sleep 600)
-        (update-facebook-posts-for-users)))))
+        (facebook-refresh-feeds)))))
 
-(defun start-facebook-scheduled-actions ()
+(start-facebook-listener)
+
+(defun start-facebook-slow-listener ()
+  (bordeaux-threads:make-thread  
+   (lambda ()
+     (loop
+        (sleep 86400)
+      
+        (facebook-refresh-friends)
+        (facebook-refresh-profiles)))))
+
+(start-facebook-slow-listener)
+
+(defun start-twitter-listener ()
   (bordeaux-threads:make-thread  
    (lambda ()
      (loop
         (sleep 600)
-        (post-facebook-scheduled-actions)))))
-|#
-;;(start-facebook-listener)
+        (twitter-refresh-home-timelines)
+        
+        ))))
 
-;(update-social-mention-for-searches)
+(start-twitter-listener)
 
-;;(listen-twitter-users)
+(defun start-twitter-slow-listener ()
+  (bordeaux-threads:make-thread  
+   (lambda ()
+     (loop
+        (sleep 86400)
+        (twitter-refresh-followers)
+        (twitter-refresh-profiles)))))
+
+(start-twitter-slow-listener)
+
+
+(defun start-linkedin-listener ()
+  (bordeaux-threads:make-thread  
+   (lambda ()
+     (loop
+        (sleep 600)
+      (linkedin-refresh-updates)))))
+
+(start-twitter-listener)
+
+(defun start-linkedin-slow-listener ()
+  (bordeaux-threads:make-thread  
+   (lambda ()
+     (loop
+        (sleep 86400)
+      (linkedin-refresh-connections)
+      (linkedin-refresh-profiles)))))
+
+(start-twitter-slow-listener)
+
+;;TODO: handle disconnects etcs
+;;(create-twitter-user-stream-listeners)
 
 #|
 (trivial-timers:schedule-timer 
- (trivial-timers:make-timer #'update-facebook-posts-for-users)
+ (trivial-timers:make-timer #'facebook-refresh-feeds)
  10
  :repeat-interval 360)
 |#

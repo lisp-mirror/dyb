@@ -253,14 +253,18 @@
                  message at-user)
        :result-is-octets-p t))))
 
-(defun twitter-home-timeline-request (app-id app-secret access-token access-secret)
+(defun twitter-home-timeline-request (app-id app-secret access-token access-secret
+                                      &key since-id)
   (let* ((stamp (format nil "~A" (get-unix-time)))
          (nonce (format nil "~A~A" (random 1234567) stamp))
          (end-point  "http://api.twitter.com/1.1/statuses/home_timeline.json?count=800"))
     
     (drakma:http-request 
      end-point
-     :method :get    
+     :method :get 
+     :parameters `(("since_id" . , (if since-id
+                                       since-id
+                                       0)))   
      :additional-headers
      `(("Authorization"
         ,@(build-auth-string
@@ -278,7 +282,10 @@
                                 ("oauth_signature_method" "HMAC-SHA1")
                                 ("oauth_timestamp" ,stamp)
                                 ("oauth_token" ,access-token)
-                                ("oauth_version" "1.0")))
+                                ("oauth_version" "1.0")
+                                ("since_id" ,(if since-id
+                                                 since-id
+                                                 0))))
                  (hmac-key  app-secret
                             access-secret))
                 nil))
@@ -288,7 +295,7 @@
              ("oauth_version" "1.0")))))
     :want-stream nil)))
 
-(defun twitter-home-timeline (user)
+(defun twitter-home-timeline (user &key since-id)
   (when user
     (let ((channel (get-social-channel (get-val user 'channel-user-type))))
       (handle-endpoint
@@ -297,7 +304,8 @@
                  (get-val channel 'app-id)
                  (get-val channel 'app-secret)
                  (get-val user 'last-access-token)
-                 (get-val user 'last-token-secret))
+                 (get-val user 'last-token-secret)
+                 :since-id since-id)
        :result-is-octets-p t))))
 
 (defun twitter-followers-request (app-id app-secret access-token access-secret)

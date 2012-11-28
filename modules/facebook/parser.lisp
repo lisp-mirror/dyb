@@ -79,6 +79,12 @@
     (let* ((end-time (parse-facebook-created-at (gpv insight-raw :end-time)))
            (insight (get-facebook-insight-by-name (gpv insight-raw :name)))
            (dup (get-facebook-insight-value channel-user insight end-time)))
+      
+      (unless insight
+        (setf insight (persist (make-facebook-insight (gpv insight-raw :name)
+                                                      (gpv insight-raw :title)
+                                                      (gpv insight-raw :description)
+                                                      (gpv insight-raw :period)))))
       (unless dup
         (persist (make-facebook-insight-value 
                   channel-user

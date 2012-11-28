@@ -175,7 +175,7 @@
         (encode-universal-time  
          0 0 0 
          (parse-integer (first split-date)) 
-         (or (parse-integer (second split-date))
+         (or (parse-integer (second split-date) :junk-allowed t)
              (+ 1 (or 
                    (position (second split-date) *short-months* :test 'string-equal)
                    (position (second split-date) *long-months* :test 'string-equal)))) 

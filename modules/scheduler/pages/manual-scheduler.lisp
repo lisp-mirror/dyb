@@ -31,7 +31,8 @@
     (when (parameter "get-facebook-data")
       (facebook-refresh-feeds)
       (facebook-refresh-friends)
-      (facebook-refresh-profiles))
+      (facebook-refresh-profiles)
+      (facebook-refresh-page-insights))
     (when (parameter "get-search-stream-data")
       (social-mention-refresh-searches))
     (when (parameter "schedule-actions")
@@ -45,6 +46,19 @@
       (linkedin-refresh-connections)
       (linkedin-refresh-profiles)
       )
+    (when (parameter "insights-history")
+      (bordeaux-threads:make-thread  
+       (lambda ()
+         (facebook-page-insights-history 
+          (string-to-date
+           (parameter "insights-history-start-date"))
+          (/ (-  (string-to-date
+                  (format-universal-date (get-universal-time)))
+                 (string-to-date
+                  (parameter "insights-history-start-date"))
+                 )
+             (* 60 60 24))))))
+    
 
     
 
@@ -70,5 +84,12 @@
                      :method :post
                      (:input :type "submit" :name "get-linkedin-updates" 
                              :value "Get LinkedIn Updates"))
+              (:form :name "fetch-data"
+                     :method :post
+                     (:input :type "submit" :name "insights-history" 
+                             :value "Get Facebook Insights History")
+                     (:input :type "date" :name "insights-history-start-date" 
+                             :value "01 Jun 2012")
+                     )
 
               (:p (:strong (str result)))))))

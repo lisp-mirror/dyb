@@ -5,13 +5,13 @@
     :accessor insight-name :initarg :insight-name
     :documentation "")
    (title 
-    :accessor title :initarg title
+    :accessor title :initarg :title
     :documentation "")
    (description 
-    :accessor description :initarg description
+    :accessor description :initarg :description
     :documentation "")
    (period 
-    :accessor period :initarg period
+    :accessor period :initarg :period
     :documentation ""))
   (:metaclass storable-class))
 
@@ -34,11 +34,12 @@
 (defmethod doc-collection ((doc facebook-insight))
   (facebook-insight-collection))
 
-(defun make-facebook-insight (insight-name title description)
+(defun make-facebook-insight (insight-name title description period)
   (make-instance 'facebook-insight
                  :key insight-name
                  :insight-name insight-name 
-                 :title title 
+                 :title title
+                 :period period
                  :description description))
 
 (unless (facebook-insight-collection)
@@ -55,7 +56,7 @@
    (value
     :accessor value :initarg :value
     :documentation "")
-   (end-time :initarg :date))
+   (end-time :initarg :end-time))
   (:metaclass storable-class))
 
 (defun facebook-insight-value-collection ()

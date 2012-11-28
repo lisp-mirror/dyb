@@ -141,3 +141,22 @@
       :method :post
       :content-length t     
       :parameters `(("oauth_token" . ,(get-val user 'last-access-token))))))
+
+(defun facebook-page-insights (user since until)
+  (handle-endpoint 
+   user
+   (drakma:http-request 
+           (format nil "https://graph.facebook.com/~A/insights?since=~A&until=~A&limit=10000&access_token=~A" 
+                   (url-encode (get-val user 'user-id))
+                   (if since
+                       (if (stringp since)
+                           since
+                           (universal-time-to-unix-time since))
+                       (universal-time-to-unix-time (parse-date "01 Jan 2012")))
+                   (if until
+                       (if (stringp until)
+                           until
+                           (universal-time-to-unix-time until))
+                       (universal-time-to-unix-time (parse-date "01 Jan 2012")))
+                   (get-val user 'last-access-token)))))
+

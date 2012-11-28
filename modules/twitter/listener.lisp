@@ -75,10 +75,11 @@
             (loop for i below 200
                for line = (read-line stream nil nil) 
                when (and line (> 1 0) (> (length line) 2))
-               do (parse-tweets 
-                   channel-user
-                   (list (json::decode-json-from-string line))
-                   'user-stream))
+               do (break "~A" line) 
+                 (parse-tweets 
+                  channel-user
+                  (list (json::decode-json-from-string line))
+                  'user-stream))
             (close stream)
             ;;(values)
             )))))
@@ -90,12 +91,10 @@
         ;(sleep 600)
         (twitter-user-stream-listener user)))))
 
-(defun create-twitter-user-stream-listners ()
+(defun create-twitter-user-stream-listeners ()
   (dolist (user (coerce (channel-users) 'list ))
-        (when (and user (string-equal (get-val user 'doc-status) "Active"))
-          ;;TODO: How to get error messages in for users without access tokens.
-          (when (string-equal (get-val user 'channel-user-type) "Twitter")
+        (when (string-equal (get-val user 'channel-user-type) "Twitter")
             (when (get-val user 'last-access-token)
-              (create-twitter-user-stream-listener user))))))
+              (create-twitter-user-stream-listener user)))))
 
 
