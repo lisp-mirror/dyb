@@ -174,27 +174,6 @@ is replaced with replacement."
         (setf out (append out (list (cons (first split-pair) (second split-pair)))))))
     out))
 
-(defun universal-to-gmt-0 (time)
-  (multiple-value-bind (second minute hour date month year day daylight-p zone)
-      (decode-universal-time time)
-    (declare (ignore second minute hour date month year day daylight-p))
-    (let ((gmt (+ time (* zone (* 60 60)))))
-      (multiple-value-bind (s m h d mnth y)
-          (decode-universal-time gmt 0)
-        
-        (encode-universal-time  s m h d mnth y 0)))))
-
-
-
-(defun universal-time-between-inclusive (time from to)
-  (let ((gmt-time (universal-to-gmt-0 time)))
-    (and (>= gmt-time (universal-to-gmt-0 from))
-         (<= gmt-time (universal-to-gmt-0 to)))))
-
-(defun universal-time-between-exclusive (time from to)
-  (let ((gmt-time (universal-to-gmt-0 time)))
-    (and (> gmt-time (universal-to-gmt-0 from))
-         (< gmt-time (universal-to-gmt-0 to)))))
 
 (defconstant +unix-to-universal-time+ 2208988800)
 

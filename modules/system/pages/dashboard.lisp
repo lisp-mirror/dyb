@@ -62,6 +62,48 @@
                                          :data)))))))
     count))
 
+(defun fb-fans-count ()
+  (let ((count 0)
+        (now (get-universal-time)))
+    (dolist (user (coerce (channel-users) 'list ))
+      (when (valid-channel-user user "Facebook")  
+        (let ((fans
+               (get-facebook-insight-values (get-channel-user-by-user-name "eMSdigital") 
+                                            (get-facebook-insight-by-name "page_fans")
+                                            (- (universal-to-gmt-0 now)  (* 60 60 24 5)) 
+                                            (universal-to-gmt-0 now))))
+
+          
+          (when fans
+            ;;(break "~A" fans)
+            (when (get-val fans 'value)
+              (incf count (get-val fans 'value)))))))
+    count))
+
+(defun fb-fans-adds-count (interval)
+  (let ((count 0)
+        (now (get-universal-time)))
+    (dolist (user (coerce (channel-users) 'list ))
+      (when (valid-channel-user user "Facebook")  
+        (loop for i from 0 to (- interval 1)
+             do
+             (let ((fans
+                    (get-facebook-insight-values 
+                     (get-channel-user-by-user-name "eMSdigital") 
+                     (get-facebook-insight-by-name "page_fan_adds")
+                     (- (universal-to-gmt-0 now)  (* 60 60 24 
+                                                     i )) 
+                     (- (universal-to-gmt-0 now)  (* 60 60 24 
+                                                     (- i 1) )))))
+
+          
+               (when fans
+                 
+                 (when (get-val fans 'value)
+                 ;;  (break "~A" (format-universal-date (get-val fans 'end-time)))
+                   (incf count (get-val fans 'value))))))))
+    count))
+
 (defun twitter-followers-count ()
   (let ((count 0))
     (dolist (user (coerce (channel-users) 'list ))
@@ -285,6 +327,8 @@
         (fb-likes-made (fb-likes-made 30))
         (twitter-retweets (twitter-retweets 30))
         (fb-friends-count (fb-friends-count))
+        (fb-fans-count (fb-fans-count))
+        (fb-fans-adds-count (fb-fans-adds-count 30))
         (twitter-followers-count (twitter-followers-count))
         (linkedin-connections-count (linkedin-connections-count)))
 
@@ -348,9 +392,11 @@
                                   "new-visits"
                                   (format nil "0,~A" 
                                           (+ fb-friends-count 
+                                             fb-fans-count
                                              twitter-followers-count
                                              linkedin-connections-count))
                                   (+ fb-friends-count 
+                                     fb-fans-count
                                      twitter-followers-count
                                      linkedin-connections-count)
                                   100)
@@ -367,21 +413,27 @@
                                   "Engagement"
                                   "weekly-sales"
                                   (format nil "0,~A" 
-                                          (+ fb-comments-made 
+                                          (+ fb-fans-adds-count 
+                                             fb-comments-made 
                                              fb-likes-made
                                              twitter-retweets))
-                                  (+ fb-comments-made 
-                                             fb-likes-made
-                                             twitter-retweets)
+                                  (+ fb-fans-adds-count 
+                                     fb-comments-made 
+                                     fb-likes-made
+                                     twitter-retweets)
                                   100)
                                    )
                             )
                        
                    (:div :class "row-fluid"
                             (str (network-size-graph `(
-                                                       ,(if (> (or fb-friends-count 0) 0)
+                                                       ,(if (> (or (+  fb-friends-count
+                                                                       fb-fans-count)
+                                                                   0))
                                                            `(("2012-11-21" 
-                                                             ,(or fb-friends-count 0) 
+                                                             ,(or (+  fb-friends-count
+                                                                       fb-fans-count) 
+                                                                  0) 
                                                              )
                                                             ("2012-11-22" 
                                                              ,(or fb-friends-count 0))))
@@ -412,7 +464,8 @@
                                          (:li
                                           (str (community-summary-item  
                                                 "All Accounts"
-                                                (+ fb-friends-count 
+                                                (+ fb-friends-count
+                                                   fb-fans-count
                                                    twitter-followers-count
                                                    linkedin-connections-count)
                                                 "/appimg/user-accounts.png"
@@ -463,7 +516,7 @@
                                               "Page Impressions" 
                                               (list "documents")
                                               "bar-chart" "span3"))
-                            (str (board-stats (format nil "0,~A" fb-friends-count)
+                            (str (board-stats (format nil "0,~A" fb-fans-count)
                                               "Total Fans" 
                                               (list "users")
                                               "bar-chart" "span3"))

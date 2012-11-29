@@ -26,7 +26,8 @@
        (parse-trim-integer (first split-time))
        (parse-trim-integer (third split))
        (month-number (second split)) 
-       (parse-trim-integer (sixth split))))))
+       (parse-trim-integer (sixth split))
+       0))))
 
 (defun parse-tweets (channel-user tweets stream-type)
   (if (not (gpv tweets :errors))

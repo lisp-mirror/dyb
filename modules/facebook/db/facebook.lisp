@@ -83,19 +83,26 @@
   (find-doc  
    (facebook-insight-value-collection)
     :test (lambda (doc)
-            (and 
-             (equal (id channel-user) (id (get-val doc 'channel-user)))
-             (string-equal (get-val (get-val doc 'insight) 'insight-name) 
-                           (get-val insight 'insight-name))
-             (<= start-time (get-val doc 'end-time) )
-             (>= end-time (get-val doc 'start-time) )))))
+            (when (equal (id channel-user) (id (get-val doc 'channel-user)))
+                (when (string-equal (get-val (get-val doc 'insight) 'insight-name) 
+                               (get-val insight 'insight-name))
+                  
+                    (when (and 
+                         (<= (universal-to-gmt-0 start-time)  
+                             (universal-to-gmt-0 (get-val doc 'end-time)))
+                         (>= (universal-to-gmt-0 end-time) 
+                             (universal-to-gmt-0 (get-val doc 'end-time))))
+                      
+                        doc))))))
+
+
 
 (defmethod doc-collection ((doc facebook-insight-value))
   (facebook-insight-value-collection))
 
 (defun make-facebook-insight-value (channel-user insight value end-time)
   (make-instance 'facebook-insight-value
-                 :key (list (id insight) end-time)
+                 :key (list (id channel-user) (id insight) end-time)
                  :channel-user channel-user
                  :insight insight
                  :value value
@@ -105,3 +112,28 @@
   (add-collection (system-db) "facebook-insight-values" 
                   :collection-class 'dyb-collection
                   :load-from-file-p t))
+
+#|
+
+(dolist (insight (coerce (facebook-insights) 'list))
+       (format t "======================================================================~%")
+       (format t "~A~%" (get-val insight 'insight-name))
+       (format t "======================================================================~%")
+       (format t "~A~%" (get-val insight 'description)))
+
+(let ((channel-user (get-channel-user-by-user-name "eMSdigital"))) 
+       (dolist (insight (coerce (facebook-insights) 'list))
+         (when (string-equal (get-val insight 'insight-name) "page_fan_adds")
+             (format t "===================================================================~%")
+             (format t "~A~%" (get-val insight 'insight-name))
+             (format t "===================================================================~%")
+             (dolist (value (find-docs 'list
+                                       (lambda (doc)
+                                         (string-equal 
+                                          (get-val (get-val doc 'insight) 'insight-name) 
+                                          (get-val insight 'insight-name)))
+                                       (facebook-insight-value-collection)))
+               (when (equal (id channel-user) (id (get-val value 'channel-user)))
+                 (format t "~A ~A~%" (format-universal-date-time (get-val value 'end-time))
+                         (get-val value 'value)))))))
+|#

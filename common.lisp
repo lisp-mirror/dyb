@@ -167,7 +167,7 @@
 (defun parse-date (date)
   (multiple-value-bind (year month date) (decode-date date)
     (when (and year month date)
-      (encode-universal-time 0 0 0 date month year))))
+      (encode-universal-time 0 0 0 date month year 0))))
 
 (defun string-to-date (date-string)
   (if (stringp date-string)
@@ -186,19 +186,28 @@
       date-string))
 
 
+(defun universal-to-gmt-0 (time)
+  (decode-universal-time time 
+                         (if (current-user)
+                             (if (preferences (current-user))
+                                 (if (gethash :gmt (preferences (current-user)))
+                                     (gethash :gmt (preferences (current-user)))
+                                     2)
+                                 2)
+                             2)))
 
 (defun universal-to-my-gmt (time &key zone)
   (+ (universal-to-gmt-0 time) 
-     (* (if zone
-            zone
-            (if (current-user)
-                (if (preferences (current-user))
-                    (if (gethash :gmt (preferences (current-user)))
-                        (gethash :gmt (preferences (current-user)))
+         (* (if zone
+                zone
+                (if (current-user)
+                    (if (preferences (current-user))
+                        (if (gethash :gmt (preferences (current-user)))
+                            (gethash :gmt (preferences (current-user)))
+                            2)
                         2)
-                    2)
-                2)) 
-        (* 60 60))))
+                    2)) 
+            (* 60 60))))
 
 (defun format-date (year month day)
   (format nil "~d ~a ~d"  day (short-month-name month) year))
@@ -213,7 +222,9 @@
   (if (stringp universal-date)
       universal-date
       (multiple-value-bind (a b c day month year)
-          (decode-universal-time (or universal-date (get-universal-time)))
+          (decode-universal-time 
+           (universal-to-my-gmt (or universal-date (get-universal-time)))
+           0)
         (declare (ignore a b c))
         (format-date year month day))))
 
@@ -221,8 +232,9 @@
   (if (stringp universal-date)
       universal-date
       (multiple-value-bind (sec min hour day month year)
-          (decode-universal-time 
-           (universal-to-my-gmt (or universal-date (get-universal-time))))
+          (decode-universal-time           
+           (universal-to-my-gmt (or universal-date (get-universal-time)))
+            0)
         (format-date-time year month day hour min sec))))
 
 

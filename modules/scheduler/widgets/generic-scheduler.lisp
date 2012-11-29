@@ -192,7 +192,9 @@
                                             (multiple-value-bind 
                                                   (second minute hour day month year)
                                                 (decode-universal-time 
-                                                 (get-val row 'scheduled-date))
+                                                 (universal-to-my-gmt
+                                                  (get-val row 'scheduled-date))
+                                                 0)
                                               (declare (ignore second day month year))
                                               (format nil "~2,'0d:~2,'0d" hour minute)))
                                         "00:00"
@@ -296,7 +298,9 @@
                   (decode-time-string (format nil "~A:00" (parameter "scheduled-time")))
                 (when second
                   (setf date-time 
-                        (encode-universal-time second minute hour day month year))
+                        (encode-universal-time 
+                         second minute hour day month year 
+                         0))
 
                   (cond ((xid doc)
 

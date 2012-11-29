@@ -108,16 +108,19 @@
               )))))))
 
 (defun facebook-page-insights-history (from-date days)
-  (dolist (user (coerce (channel-users) 'list ))       
-    (when (and user (string-equal (get-val user 'doc-status) "Active"))
-      ;;TODO: How to get error messages in for users without access tokens.
-      (when (string-equal (get-val user 'channel-user-type) "Facebook")
-        (when (get-val user 'last-access-token)
-          (loop for i upto (+ (get-universal-time) (* 60 60 24 days))
+  (when (and from-date days)
+    (dolist (user (coerce (channel-users) 'list ))       
+      (when (and user (string-equal (get-val user 'doc-status) "Active"))
+        ;;TODO: How to get error messages in for users without access tokens.
+        (when (string-equal (get-val user 'channel-user-type) "Facebook")
+          (when (get-val user 'last-access-token)
+          
+            (loop for i from 0 to (- days 1)
                do
                (multiple-value-bind (insights error)
-                   (facebook-page-insights-refresh user from-date)
-                 )))))))
+                     (facebook-page-insights-refresh user (+ from-date (* 60 60 24 i)))
+                   
+                   ))))))))
 
 (defun get-last-post-date (user)
   (let ((date 0))
