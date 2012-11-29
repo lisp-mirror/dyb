@@ -51,10 +51,11 @@
               (parse-facebook-created-at 
                (gpv post :updated--time)))
         (setf (payload dup) post)
-        (if (string-equal (get-val channel-user 'profile-type) "Page")
+       #| (if (string-equal (get-val channel-user 'profile-type) "Page")
             (let ((insights (post-insights channel-user (raw-post-id post 'facebook))))
               (setf (gethash :insights (get-val dup 'post-data))
                     insights)))
+        |#
         (persist dup))
       (unless dup
         
@@ -67,10 +68,10 @@
                              :last-change-date (parse-facebook-created-at 
                                                 (gpv post :updated--time))))
               )
-          (if (string-equal (get-val channel-user 'profile-type) "Page")
+          #|(if (string-equal (get-val channel-user 'profile-type) "Page")
               (let ((insights (post-insights channel-user (raw-post-id post 'facebook))))
                 (setf (gethash :insights (get-val doc 'post-data))
-                      insights)))
+                      insights)))|#
           (persist doc)
           )))))
 
