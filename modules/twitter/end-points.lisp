@@ -257,14 +257,17 @@
                                       &key since-id)
   (let* ((stamp (format nil "~A" (get-unix-time)))
          (nonce (format nil "~A~A" (random 1234567) stamp))
-         (end-point  "http://api.twitter.com/1.1/statuses/home_timeline.json?count=800"))
+         (end-point  (format nil "http://api.twitter.com/1.1/statuses/home_timeline.json?count=800&since=~A" (if since-id
+                    since-id
+                    0)))
+         (since (format nil "~A" (if since-id
+                                since-id
+                                0))))
     
     (drakma:http-request 
      end-point
      :method :get 
-     :parameters `(("since_id" . , (if since-id
-                                       since-id
-                                       0)))   
+     ;;:parameters `(("since_id" . ,since))   
      :additional-headers
      `(("Authorization"
         ,@(build-auth-string
@@ -283,9 +286,7 @@
                                 ("oauth_timestamp" ,stamp)
                                 ("oauth_token" ,access-token)
                                 ("oauth_version" "1.0")
-                                ("since_id" ,(if since-id
-                                                 since-id
-                                                 0))))
+                                ("since_id" ,since)))
                  (hmac-key  app-secret
                             access-secret))
                 nil))
