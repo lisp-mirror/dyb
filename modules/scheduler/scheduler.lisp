@@ -1,5 +1,15 @@
 (in-package :dyb)
 
+
+(defun start-actions-scheduler ()
+  (bordeaux-threads:make-thread  
+   (lambda ()
+     (loop
+        (sleep 120)
+        (post-scheduled-actions)))))
+
+(start-actions-scheduler)
+
 (defun start-facebook-listener ()
   (bordeaux-threads:make-thread  
    (lambda ()
