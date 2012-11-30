@@ -306,13 +306,16 @@
                   (if (parameter "post-url") 
                       20
                       0))))
+      
       (if (> len 140)
           (setf (error-message grid) (format nil "Images with message to long - ~A" 
                                              len)))
     
     
     
-      (when (<= len 140)
+      (when (or (and (string-equal (parameter "service") "twitter")  (<= len 140))
+                (string-equal (parameter "service") "Facebook")
+                (string-equal (parameter "service") "LinkedIn"))
         (when (and (blank-p (parameter "service")) 
                    (blank-p (parameter "channel-user")) 
                    (blank-p (parameter "scheduled-date")))
