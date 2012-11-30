@@ -144,7 +144,16 @@
                                                  (format nil "/dyb/images/~a" 
                                                          (file-namestring  (image-url row)))
                                                  :width 250
-                                                 :height 250))))
+                                                 :height 250)))
+                                     (render-edit-field 
+                                        "image-file"
+                                        (format nil "/dyb/images/~a" 
+                                                         (file-namestring  
+                                                          (or (parameter "image-file")
+                                            (get-val row 'image-url))))
+                                        
+                                 
+                                        :required nil))
                                    (:input :type "file" :name "file" :id "file"
                                            :style "display: inline-block;")))
                          (render 
@@ -289,66 +298,87 @@
     (unless (blank-p (parameter "channel-user"))
       (setf (error-message grid) "Please enter a user to post as."))
 
-    (when (and (blank-p (parameter "service")) 
-               (blank-p (parameter "channel-user")) 
-               (blank-p (parameter "scheduled-date")))
-      (let (
-            (to-user nil)
-            (image (handle-upload (post-parameter "file")))
-            (doc (editing-row grid))
-            (short-url (if (blank-p (parameter "post-url"))
-                           (make-short-url (parameter "post-url")))))
+    (let ((len (+ (length (parameter "action-content") )
+                  (if (or (post-parameter "file") 
+                          (blank-p (parameter "image-file"))) 
+                      20
+                      0) 
+                  (if (parameter "post-url") 
+                      20
+                      0))))
+      (if (> len 140)
+          (setf (error-message grid) (format nil "Images with message to long - ~A" 
+                                             len)))
+    
+    
+    
+      (when (<= len 140)
+        (when (and (blank-p (parameter "service")) 
+                   (blank-p (parameter "channel-user")) 
+                   (blank-p (parameter "scheduled-date")))
+
+          (let (
+                (to-user nil)
+                (image (if (post-parameter "file")
+                           (handle-upload (post-parameter "file"))
+                           (if (not (blank-p (parameter "image-file")))
+                               nil
+                               (parameter "image-file"))))
+                (doc (editing-row grid))
+                (short-url (if (blank-p (parameter "post-url"))
+                               (make-short-url (parameter "post-url")))))
+
         
-        (when doc
-          (let ((date-time nil))
-            (multiple-value-bind (year month day)
-                (decode-date-string (parameter "scheduled-date"))
-              (multiple-value-bind (second minute hour)
-                  (decode-time-string (format nil "~A:00" (parameter "scheduled-time")))
-                (when second
-                  (setf date-time 
-                        (encode-universal-time 
-                         second minute hour day month year 
-                         -2))
+            (when doc
+              (let ((date-time nil))
+                (multiple-value-bind (year month day)
+                    (decode-date-string (parameter "scheduled-date"))
+                  (multiple-value-bind (second minute hour)
+                      (decode-time-string (format nil "~A:00" (parameter "scheduled-time")))
+                    (when second
+                      (setf date-time 
+                            (encode-universal-time 
+                             second minute hour day month year 
+                             -2))
 
-                  (cond ((xid doc)
+                      (cond ((xid doc)
 
-                         (synq-edit-data doc)
-                         (setf
-                          (channel-user doc) (get-channel-user-by-user-id (parameter "channel-user"))
-                          (get-val doc 'action-status) (parameter "action-status")
-                          (post-type doc) (parameter "service")
-                          (from-user-id doc) (parameter "channel-user")
-                          (scheduled-date doc) date-time
-                          (image-url doc) (or image
-                                              (image-url doc))
-                          (short-url doc) short-url
-                          )
+                             (synq-edit-data doc)
+                             (setf
+                              (channel-user doc) (get-channel-user-by-user-id (parameter "channel-user"))
+                              (get-val doc 'action-status) (parameter "action-status")
+                              (post-type doc) (parameter "service")
+                              (from-user-id doc) (parameter "channel-user")
+                              (get-val doc 'image-url) image
+                              (scheduled-date doc) date-time
+                              (image-url doc) image
+                              (short-url doc) short-url
+                              )
                          
-                         (persist doc))
-                        (t
+                             (persist doc))
+                            (t
                          
-                         (persist (make-generic-action    
-                                   (get-channel-user-by-user-id (parameter "channel-user"))
-                                   nil 
-                                    (parameter "service")
+                             (persist (make-generic-action    
+                                       (get-channel-user-by-user-id (parameter "channel-user"))
+                                       nil 
+                                       (parameter "service")
                                     
-                                   (parameter "channel-user") 
-                                   to-user 
-                                   (parameter "action-type")
-                                   (parameter "action-content")
-                                   "Timed"
-                                   date-time
-                                   :image-url image
-                                   :post-url (parameter "post-url")
-                                   :short-url short-url
-                                   :action-status (parameter "action-status"))))))
-                (unless second
-                  (setf (error-message grid) minute))))
+                                       (parameter "channel-user") 
+                                       to-user 
+                                       (parameter "action-type")
+                                       (parameter "action-content")
+                                       "Timed"
+                                       date-time
+                                       :image-url image
+                                       :post-url (parameter "post-url")
+                                       :short-url short-url
+                                       :action-status (parameter "action-status"))))))
+                    (unless second
+                      (setf (error-message grid) minute))))
 
-            )
-          (finish-editing grid))
-        ;; (unless (or from-user to-user)
-        ;;     (setf (error-message grid) "User does not exist."))
-        ))))
+                )
+              (finish-editing grid))
+            ;; (unless (or from-user to-user)
+            ;;     (setf (error-message grid) "User does not exist."))
+            ))))))
  

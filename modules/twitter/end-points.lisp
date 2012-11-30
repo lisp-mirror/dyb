@@ -11,8 +11,8 @@
      end-point
      :method :post
      :parameters `(("status" . ,(if link-url
-                                    (format nil "~A ~A" message link-url)
-                                    message))
+                                    (format nil "~A ~A" (string-trim '(#\Space #\Tab #\Newline) message) link-url)
+                                    (string-trim '(#\Space #\Tab #\Newline) message)))
                    ("media[]" . ,(pathname image-path)))
      :additional-headers
      `(("Authorization"
@@ -51,8 +51,8 @@
      end-point
      :method :post
      :parameters `(("status" . ,(if link-url
-                                    (format nil "~A ~A" message link-url)
-                                    (string-trim " " message))))
+                                    (format nil "~A ~A" (string-trim '(#\Space #\Tab #\Newline) message) link-url)
+                                    (string-trim '(#\Space #\Tab #\Newline) message))))
      :additional-headers
      `(("Authorization"
         ,@(build-auth-string
@@ -82,8 +82,10 @@
     :preserve-uri nil)))
 
 (defun post-twitter (user message &key image-path link-url)
+
   (when user
     (let ((channel (get-social-channel (get-val user 'channel-user-type))))
+
       (handle-endpoint
        user
        (if image-path
