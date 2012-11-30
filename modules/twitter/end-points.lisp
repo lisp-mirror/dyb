@@ -52,7 +52,7 @@
      :method :post
      :parameters `(("status" . ,(if link-url
                                     (format nil "~A ~A" message link-url)
-                                    message)))
+                                    (string-trim " " message))))
      :additional-headers
      `(("Authorization"
         ,@(build-auth-string

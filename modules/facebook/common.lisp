@@ -85,6 +85,7 @@
                
                (cond ((or (string-equal (get-val action 'action-type) "Tweet")
                           (string-equal (get-val action 'action-type) "Post"))
+
                       (multiple-value-bind (result error-message)
                           (post-twitter  
                            from-user

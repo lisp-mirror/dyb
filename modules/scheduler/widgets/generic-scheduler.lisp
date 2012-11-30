@@ -109,7 +109,9 @@
                            (setf (value service) (or (parameter "service")
                                                      (get-val row 'post-type)))
                            (setf (value channel-user) (or (parameter "channel-user")
-                                                          (get-val row 'from-user-id)))
+                                                          (get-val 
+                                                           (get-val row 'channel-user)
+                                                           'user-id)))
                            (render form-section
                                    :label "Select To Channel"
                                    :input
@@ -195,7 +197,20 @@
                                         )
                                     :type :text
                                     :required t) 
-                                   (str "hh:mm")))))))
+                                   (str "hh:mm")))
+                         (render 
+                          form-section
+                          :label "Status"
+                          :input (with-html-string
+                                   (render-edit-field 
+                                    "action-status"
+                                    (or (parameter "action-status")
+                                        (get-val row 'action-status))
+                                    :type :select
+                                    :data (list (list "Pending" "Pending")
+                                                (list "Aborted" "Aborted")
+                                                (list "Completed" "Completed"))
+                                    :required t)))))))
             ("Action Logs" ,
              (with-html-string
                (:div :class "section _100" 
@@ -301,12 +316,15 @@
                          (synq-edit-data doc)
                          (setf
                           (channel-user doc) (get-channel-user-by-user-id (parameter "channel-user"))
+                          (get-val doc 'action-status) (parameter "action-status")
                           (post-type doc) (parameter "service")
-                               (from-user-id doc) (parameter "channel-user")
-                               (scheduled-date doc) date-time
-                               (image-url doc) (or image
-                                                   (image-url doc))
-                               (short-url doc) short-url)
+                          (from-user-id doc) (parameter "channel-user")
+                          (scheduled-date doc) date-time
+                          (image-url doc) (or image
+                                              (image-url doc))
+                          (short-url doc) short-url
+                          )
+                         
                          (persist doc))
                         (t
                          
@@ -323,7 +341,8 @@
                                    date-time
                                    :image-url image
                                    :post-url (parameter "post-url")
-                                   :short-url short-url)))))
+                                   :short-url short-url
+                                   :action-status (parameter "action-status"))))))
                 (unless second
                   (setf (error-message grid) minute))))
 
