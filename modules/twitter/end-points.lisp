@@ -50,6 +50,7 @@
     (drakma:http-request 
      end-point
      :method :post
+     ;;:content-type "application/x-www-form-urlencoded; charset=UTF-8"
      :parameters `(("status" . ,(if link-url
                                     (format nil "~A ~A" (string-trim '(#\Space #\Tab #\Newline) message) link-url)
                                     (string-trim '(#\Space #\Tab #\Newline) message))))
@@ -258,20 +259,24 @@
        :result-is-octets-p t))))
 
 (defun twitter-home-timeline-request (app-id app-secret access-token access-secret
-                                      &key since-id)
+                                     user-id &key since-id)
   (let* ((stamp (format nil "~A" (get-unix-time)))
          (nonce (format nil "~A~A" (random 1234567) stamp))
-         (end-point  (format nil "http://api.twitter.com/1.1/statuses/home_timeline.json?count=800&since=~A" (if since-id
-                    since-id
-                    0)))
+         (end-point  (format nil "http://api.twitter.com/1.1/statuses/home_timeline.json?user_id=~A&count=800&since_id=~A&include_rts=true&contributor_details=true" 
+                             user-id
+                             (if since-id
+                                 since-id
+                                 1)))
+        ;; (end-point "http://api.twitter.com/1.1/statuses/home_timeline.json")
          (since (format nil "~A" (if since-id
                                 since-id
-                                0))))
+                                1))))
     
     (drakma:http-request 
      end-point
      :method :get 
-     ;;:parameters `(("since_id" . ,since))   
+    ;; :parameters `(("count" . "800")
+    ;;               ("since-id" . ,since))   
      :additional-headers
      `(("Authorization"
         ,@(build-auth-string
@@ -283,14 +288,18 @@
                  (signature-base-string
                   :uri end-point 
                   :request-method "GET"
-                  :parameters `(("count" "800")
+                  :parameters `(("contributor_details" "true")
+                                ("count" "800")
+                                ("include_rts" "true")
                                 ("oauth_consumer_key" ,app-id)
                                 ("oauth_nonce" ,nonce)
                                 ("oauth_signature_method" "HMAC-SHA1")
                                 ("oauth_timestamp" ,stamp)
                                 ("oauth_token" ,access-token)
                                 ("oauth_version" "1.0")
-                                ("since_id" ,since)))
+                                ("since_id"  ,since)
+                                ("user_id" , (format nil "~A" user-id))
+                                ))
                  (hmac-key  app-secret
                             access-secret))
                 nil))
@@ -298,7 +307,8 @@
              ("oauth_timestamp" ,stamp)
              ("oauth_token" ,access-token)
              ("oauth_version" "1.0")))))
-    :want-stream nil)))
+    :want-stream nil
+    :preserve-uri nil)))
 
 (defun twitter-home-timeline (user &key since-id)
   (when user
@@ -310,6 +320,7 @@
                  (get-val channel 'app-secret)
                  (get-val user 'last-access-token)
                  (get-val user 'last-token-secret)
+                 (get-val user 'user-id)
                  :since-id since-id)
        :result-is-octets-p t))))
 

@@ -24,6 +24,7 @@
           request
         
         (when body
+
           (if result-is-octets-p
               (setf result (json::decode-json-from-string (babel:octets-to-string body)))
               (setf result (json::decode-json-from-string body))) 

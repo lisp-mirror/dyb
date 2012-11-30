@@ -47,6 +47,7 @@
                                    (parameter "oauth_verifier")
                                    :request-secret (get-val user 'request-secret)
                                    ))
+
               (unless (stringp body) 
                 (setf body (babel:octets-to-string body)))
               
@@ -92,7 +93,10 @@
                      (cond ((string-equal channel "LinkedIn")
                             (multiple-value-bind (result status ) 
                                 (linkedin-profile user)
-                       
+                       (break "~a" result)
+                              (unless (stringp result) 
+
+                                (setf result (babel:octets-to-string result)))
                               
                               (when result
                                 (setf (get-val user 'user-id) (gpv result :id))
@@ -105,6 +109,10 @@
                             (multiple-value-bind (result status error) 
                                 (facebook-profile user)                       
                               
+
+                              (unless (stringp result) 
+                                (setf result (babel:octets-to-string result)))
+
                               (when result
                                 (setf (get-val user 'user-id) (gpv result :id))
                                 (setf (get-val user 'channel-user-name) 
@@ -125,9 +133,13 @@
                                  (get-val social-channel 'app-secret)
                                  (get-val user 'last-access-token)
                                  (get-val user 'last-token-secret)
-                                 )                       
+                                 )              
+         
+                              (if (stringp result) 
+                                (setf result (json::decode-json-from-string result))
+                                (setf result (json::decode-json-from-string 
+                                              (babel:octets-to-string result))))
                               
-
                               (when result
                                 (setf (get-val user 'user-id) (gpv result :id))
                                 (setf (get-val user 'channel-user-name) 

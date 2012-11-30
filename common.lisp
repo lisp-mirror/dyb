@@ -1,5 +1,7 @@
 (in-package :dyb)
 
+(setf drakma:*drakma-default-external-format* (flexi-streams:make-external-format :utf-8))
+
 (defvar *public-dir* "/var/www/dyb.co.za/public/")
 
 (defparameter *extract-dir* "/var/www/dyb.co.za/extracts")
