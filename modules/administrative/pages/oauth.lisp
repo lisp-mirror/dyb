@@ -93,11 +93,7 @@
                      (cond ((string-equal channel "LinkedIn")
                             (multiple-value-bind (result status ) 
                                 (linkedin-profile user)
-                       (break "~a" result)
-                              (unless (stringp result) 
-
-                                (setf result (babel:octets-to-string result)))
-                              
+                       
                               (when result
                                 (setf (get-val user 'user-id) (gpv result :id))
                                 (setf (get-val user 'channel-user-name) 
@@ -109,10 +105,6 @@
                             (multiple-value-bind (result status error) 
                                 (facebook-profile user)                       
                               
-
-                              (unless (stringp result) 
-                                (setf result (babel:octets-to-string result)))
-
                               (when result
                                 (setf (get-val user 'user-id) (gpv result :id))
                                 (setf (get-val user 'channel-user-name) 
@@ -121,6 +113,7 @@
 
                                 (multiple-value-bind (accounts)
                                     (facebook-accounts user)
+
                                     (when accounts
                                       (setf (gethash "accounts" 
                                                      (get-val user 'user-data)) accounts)
