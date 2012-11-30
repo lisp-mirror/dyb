@@ -70,7 +70,9 @@
                                 ("oauth_timestamp" ,stamp)
                                 ("oauth_token" ,access-token)
                                 ("oauth_version" "1.0")
-                                ("status" ,message)))
+                                ("status" ,(if link-url
+                                    (format nil "~A ~A" (string-trim '(#\Space #\Tab #\Newline) message) link-url)
+                                    (string-trim '(#\Space #\Tab #\Newline) message)))))
                  (hmac-key  app-secret 
                             access-secret))
                   nil))
