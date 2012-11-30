@@ -33,7 +33,7 @@
        (parse-trim-integer (third split-date))
        (parse-trim-integer (second split-date)) 
        (parse-trim-integer (first split-date))
-       0)))
+       -2)))
   )
 
 (defun parse-facebook-posts (channel-user posts stream-type)

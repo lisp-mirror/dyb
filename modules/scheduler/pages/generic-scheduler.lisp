@@ -33,14 +33,9 @@
                           :printer
                           (lambda (doc)
                             (unless (stringp doc)
-                                                   
-                              (multiple-value-bind 
-                                    (second minute hour day month year)
-                                  (decode-universal-time 
-                                   doc)
-                                (declare 
-                                 (ignore second day month year))
-                                (format nil "~2,'0d:~2,'0d" hour minute))))
+                               (format-universal-time
+                                doc)                    
+                              ))
                           )
            (make-instance 'grid-column
                           :name 'action-status

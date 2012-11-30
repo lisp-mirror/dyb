@@ -189,14 +189,8 @@
                                     "scheduled-time"
                                     (or (parameter "scheduled-time")
                                         (if (get-val row 'scheduled-date)
-                                            (multiple-value-bind 
-                                                  (second minute hour day month year)
-                                                (decode-universal-time 
-                                                 (universal-to-my-gmt
-                                                  (get-val row 'scheduled-date))
-                                                 0)
-                                              (declare (ignore second day month year))
-                                              (format nil "~2,'0d:~2,'0d" hour minute)))
+                                            (format-universal-time 
+                                             (get-val row 'scheduled-date)))
                                         "00:00"
                                         )
                                     :type :text
@@ -300,7 +294,7 @@
                   (setf date-time 
                         (encode-universal-time 
                          second minute hour day month year 
-                         0))
+                         -2))
 
                   (cond ((xid doc)
 
