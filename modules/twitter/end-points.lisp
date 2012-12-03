@@ -12,7 +12,9 @@
      :method :post
      :parameters `(("status" . ,(if link-url
                                     (format nil "~A ~A" (string-trim '(#\Space #\Tab #\Newline) message) link-url)
-                                    (string-trim '(#\Space #\Tab #\Newline) message)))
+                                    (string-trim '(#\space #\tab #\newline 
+                                                   #\linefeed #\return) 
+                                                 message)))
                    ("media[]" . ,(pathname image-path)))
      :additional-headers
      `(("Authorization"

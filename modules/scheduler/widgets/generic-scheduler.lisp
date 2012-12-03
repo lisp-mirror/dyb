@@ -277,7 +277,7 @@
       (ensure-directories-exist *tmp-directory*)
       (let ((new-path (merge-pathnames (format nil "~(~32r~32r~)-~a"
                                                (random 99999) (get-universal-time)
-                                               name)
+                                                (replace-all name " " ""))
                                        *tmp-directory*)))
         (rename-file path new-path)
         (when (probe-file new-path)
@@ -307,7 +307,7 @@
                       20
                       0))))
       
-      (if (> len 140)
+      (if (and (string-equal (parameter "service") "twitter")  (<= len 140))
           (setf (error-message grid) (format nil "Images with message to long - ~A" 
                                              len)))
     
@@ -316,6 +316,7 @@
       (when (or (and (string-equal (parameter "service") "twitter")  (<= len 140))
                 (string-equal (parameter "service") "Facebook")
                 (string-equal (parameter "service") "LinkedIn"))
+
         (when (and (blank-p (parameter "service")) 
                    (blank-p (parameter "channel-user")) 
                    (blank-p (parameter "scheduled-date")))
@@ -326,12 +327,13 @@
                            (handle-upload (post-parameter "file"))
                            (if (not (blank-p (parameter "image-file")))
                                nil
-                               (parameter "image-file"))))
+                               (format nil "~~/hunchentoot-upload/~A"
+                                       (file-namestring (parameter "image-file"))))))
                 (doc (editing-row grid))
                 (short-url (if (blank-p (parameter "post-url"))
                                (make-short-url (parameter "post-url")))))
 
-        
+            
             (when doc
               (let ((date-time nil))
                 (multiple-value-bind (year month day)
@@ -348,7 +350,12 @@
 
                              (synq-edit-data doc)
                              (setf
-                              (channel-user doc) (get-channel-user-by-user-id (parameter "channel-user"))
+                              (channel-user doc) (get-channel-user-by-user-id 
+                                                  (parameter "channel-user"))
+                              (get-val doc 'action-content) (string-trim 
+                                                             '(#\space #\tab #\newline 
+                                                               #\linefeed #\return) 
+                                                             (parameter "action-content"))
                               (get-val doc 'action-status) (parameter "action-status")
                               (post-type doc) (parameter "service")
                               (from-user-id doc) (parameter "channel-user")
@@ -369,7 +376,8 @@
                                        (parameter "channel-user") 
                                        to-user 
                                        (parameter "action-type")
-                                       (parameter "action-content")
+                                       (string-trim '(#\Space #\Tab #\Newline) 
+                                                    (parameter "action-content"))
                                        "Timed"
                                        date-time
                                        :image-url image
@@ -380,6 +388,7 @@
                       (setf (error-message grid) minute))))
 
                 )
+
               (finish-editing grid))
             ;; (unless (or from-user to-user)
             ;;     (setf (error-message grid) "User does not exist."))

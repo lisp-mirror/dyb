@@ -108,19 +108,20 @@
                     ("link" . ,url)                  
                     ("oauth_token" . ,(get-val user 'last-access-token)))))))
 
-(defun post-facebook-link-image (user-id message url image-url)
+(defun post-facebook-link-image (user-id message url image-path)
   (let ((user (get-channel-user-by-user-id user-id)))
+
     (handle-endpoint 
      user
      (drakma:http-request
-      (format nil "https://graph.facebook.com/~A/feed"
+      (format nil "https://graph.facebook.com/~A/photos"
               user-id)
       :method :post
       :content-length t     
-      :parameters `(("message" . ,message)
-                   ("link" . ,url)
-                   ("picture" . ,image-url)                  
-                   ("oauth_token" . ,(get-val user 'last-access-token)))))))
+      :parameters `(("message" . ,(format nil "~A ~A"  message url))
+                    ("type" . "picture")
+                    ("source" . ,(pathname image-path))                  
+                    ("oauth_token" . ,(get-val user 'last-access-token)))))))
 
 (defun post-facebook-user-profile-no-auth (user-id)
   (let ((profile
