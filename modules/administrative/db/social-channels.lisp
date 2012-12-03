@@ -1,5 +1,24 @@
 (in-package :dyb)
 
+(defclass api-credentials ()
+  ((api-identity 
+     :initarg :api-identity
+     :accessor api-identity)
+   (secret 
+    :initarg :secret
+    :accessor secret
+    :documentation "At token or password that is used to authenticate the identity.")))
+
+(defclass rest-api ()
+  ((auth-type :initarg :auth-type
+                :initform nil
+                :documentation "OAuth1, OAuth2, Login, Plain Token, None")
+   (credentials :initarg :credentials
+                :accessor credentials
+                :documentation "Contains details needed to authenticate.")))
+
+
+
 (defclass uri-parameter ()
   ((parameter-name :initarg :parameter-name)
    (url-encode-p :initarg :url-encode-p)
