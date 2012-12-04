@@ -45,11 +45,30 @@
                       (list (assoc-path followers :ids)))
               (persist user))))))))
 
+(defun twitter-last-tweet-id (channel-user)
+  (let ((tweet-id 1))
+    (map-docs 'list
+              (lambda (doc)
+                (when (string-equal 
+                       (get-val (get-val doc 'channel-user) 
+                                'channel-user-name)
+                       (get-val channel-user 'channel-user-name))
+                  (when (string-equal (get-val doc 'post-type) "Twitter")
+                    (when (> (raw-post-id doc 'twitter) tweet-id)
+                      (setf tweet-id (raw-post-id doc 'twitter))
+                      nil))))
+               (generic-post-collection))
+    tweet-id))
+
+
 (defun twitter-refresh-home-timeline (channel-user)
   (when channel-user
     (when (get-val channel-user 'last-access-token)
-      (let* ((result (twitter-home-timeline
-                     channel-user)))
+      
+      
+      (let* ((since-id (twitter-last-tweet-id channel-user))
+             (result (twitter-home-timeline
+                      channel-user  :since-id since-id)))
         (parse-tweets 
          channel-user
          result
@@ -61,6 +80,7 @@
         ;;TODO: How to get error messages in for users without access tokens.
         (when (string-equal (get-val user 'channel-user-type) "Twitter")
           (when (get-val user 'last-access-token)
+
             (twitter-refresh-home-timeline user))))))
 
 (defun twitter-user-stream-listener (channel-user)

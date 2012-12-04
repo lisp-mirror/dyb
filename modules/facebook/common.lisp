@@ -1,6 +1,7 @@
 (in-package :dyb)
 
 (defun post-scheduled-action (action)
+
   (when action
     (when (string-equal (get-val action 'action-status) "Pending")
       

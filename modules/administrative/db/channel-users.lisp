@@ -85,7 +85,9 @@
                          (format nil "~A" (get-val doc 'user-id))))))
 
 (defun get-channel-user-by-user-name (user-id)
-  (get-doc (channel-users-collection) user-id :element 'channel-user-name))
+  (get-doc (channel-users-collection) user-id 
+           :element 'channel-user-name
+           :test #'string-equal))
 
 (defun get-channel-user-by-verification-code (code)
   (get-doc (channel-users-collection) code :element 'verification-code))

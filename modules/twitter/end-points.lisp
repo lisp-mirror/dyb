@@ -11,7 +11,10 @@
      end-point
      :method :post
      :parameters `(("status" . ,(if link-url
-                                    (format nil "~A ~A" (string-trim '(#\Space #\Tab #\Newline) message) link-url)
+                                    (format nil "~A ~A" (string-trim 
+                                                         '(#\space #\tab #\newline 
+                                                           #\linefeed #\return)
+                                                         message) link-url)
                                     (string-trim '(#\space #\tab #\newline 
                                                    #\linefeed #\return) 
                                                  message)))
@@ -50,41 +53,53 @@
          (end-point  "https://api.twitter.com/1.1/statuses/update.json" ))
 
     (drakma:http-request 
-     end-point
-     :method :post
-     ;;:content-type "application/x-www-form-urlencoded; charset=UTF-8"
-     :parameters `(("status" . ,(if link-url
-                                    (format nil "~A ~A" (string-trim '(#\Space #\Tab #\Newline) message) link-url)
-                                    (string-trim '(#\Space #\Tab #\Newline) message))))
-     :additional-headers
-     `(("Authorization"
-        ,@(build-auth-string
-           `(("oauth_consumer_key" ,app-id)
-             ("oauth_nonce" ,nonce)
-             ("oauth_signature"
-              ,(encode-signature
-                (hmac-sha1
-                 (signature-base-string
-                  :uri end-point 
-                  :request-method "POST"
-                  :parameters `(("oauth_consumer_key" ,app-id)
-                                ("oauth_nonce" ,nonce)
-                                ("oauth_signature_method" "HMAC-SHA1")
-                                ("oauth_timestamp" ,stamp)
-                                ("oauth_token" ,access-token)
-                                ("oauth_version" "1.0")
-                                ("status" ,(if link-url
-                                    (format nil "~A ~A" (string-trim '(#\Space #\Tab #\Newline) message) link-url)
-                                    (string-trim '(#\Space #\Tab #\Newline) message)))))
-                 (hmac-key  app-secret 
-                            access-secret))
-                  nil))
-             ("oauth_signature_method" "HMAC-SHA1")
-             ("oauth_timestamp" ,stamp)
-             ("oauth_token" ,access-token)
-             ("oauth_version" "1.0")))))
-    :want-stream nil
-    :preserve-uri nil)))
+                  end-point
+                  :method :post
+                  ;;:content-type "application/x-www-form-urlencoded; charset=UTF-8"
+                  :parameters `(("status" . ,(if link-url
+                                                 (format nil "~A ~A" 
+                                                         (string-trim 
+                                                          '(#\space #\tab #\newline 
+                                                            #\linefeed #\return) 
+                                                          message) link-url)
+                                                 (string-trim '(#\space #\tab #\newline 
+                                                                #\linefeed #\return) 
+                                                              message))))
+                  :additional-headers
+                  `(("Authorization"
+                     ,@(build-auth-string
+                        `(("oauth_consumer_key" ,app-id)
+                          ("oauth_nonce" ,nonce)
+                          ("oauth_signature"
+                           ,(encode-signature
+                             (hmac-sha1
+                              (signature-base-string
+                               :uri end-point 
+                               :request-method "POST"
+                               :parameters `(("oauth_consumer_key" ,app-id)
+                                             ("oauth_nonce" ,nonce)
+                                             ("oauth_signature_method" "HMAC-SHA1")
+                                             ("oauth_timestamp" ,stamp)
+                                             ("oauth_token" ,access-token)
+                                             ("oauth_version" "1.0")
+                                             ("status" ,(if link-url
+                                                            (format nil "~A ~A" 
+                                                                    (string-trim 
+                                                                     '(#\space #\tab #\newline 
+                                                                       #\linefeed #\return) 
+                                                                     message) link-url)
+                                                            (string-trim '(#\space #\tab #\newline 
+                                                                           #\linefeed #\return)
+                                                                         message)))))
+                              (hmac-key  app-secret 
+                                         access-secret))
+                             nil))
+                          ("oauth_signature_method" "HMAC-SHA1")
+                          ("oauth_timestamp" ,stamp)
+                          ("oauth_token" ,access-token)
+                          ("oauth_version" "1.0")))))
+                  :want-stream nil
+                  :preserve-uri nil)))
 
 (defun post-twitter (user message &key image-path link-url)
 
