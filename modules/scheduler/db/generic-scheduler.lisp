@@ -117,7 +117,8 @@
                                       :short-url short-url)))))
 
 (defun add-generic-action-log (action lable message status)
-  (when (> (length (get-val action 'action-log)) 5)
+
+  (when (>= (length (get-val action 'action-log)) 5)
     (setf (get-val action 'action-status) "Abandoned Retries")
     (persist action))
   (when (< (length (get-val action 'action-log)) 5)

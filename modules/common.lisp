@@ -36,12 +36,13 @@
                 (let ((error-message (or (assoc-path result error-path)
                                          (assoc-path result :error :message)
                                          (if (listp (cdr (assoc-path result :errors)))
-                                             (assoc-path result :errors :message)
+                                             (assoc-path (car (cdr (assoc-path result :errors))) :message)
                                              (assoc-path result :errors)))))
                 
                   (setf message (if (listp error-message)
                                     (cdr error-message)
                                     error-message))))))
+        ;(break "~A~%~A" message (assoc-path (car (cdr (assoc-path result :errors))) :message))
         (unless body
           
           (setf message "Endpoint returned no values."))))

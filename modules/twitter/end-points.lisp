@@ -5,21 +5,32 @@
                               link-url)
   (let* ((stamp (format nil "~A" (get-unix-time)))
          (nonce (format nil "~A" (random 1234567)))
+         (status (if link-url
+                     (format nil "~A ~A" 
+                             (string-trim 
+                              '(#\space #\tab #\newline 
+                                #\linefeed #\return) 
+                              message) link-url)
+                     (string-trim '(#\space #\tab #\newline 
+                                    #\linefeed #\return) 
+                                  message)))
          (end-point  "https://api.twitter.com/1.1/statuses/update_with_media.json" ))
 
     (drakma:http-request 
      end-point
      :method :post
-     :content (alist-to-url-encoded-string `(("status" . ,(if link-url
-                                                              (format nil "~A ~A" (string-trim 
-                                                                                   '(#\space #\tab #\newline 
-                                                                                     #\linefeed #\return)
-                                                                                   message) link-url)
-                                                              (string-trim '(#\space #\tab #\newline 
-                                                                             #\linefeed #\return) 
-                                                                           message)))
-                                             ("media[]" . ,(pathname image-path)))
-                                           +utf-8+)
+     :content-type "application/x-www-form-urlencoded; charset=UTF-8"
+
+     :parameters `(("status" . ,(if link-url
+                                     (format nil "~A ~A" (string-trim 
+                                                          '(#\space #\tab #\newline 
+                                                            #\linefeed #\return)
+                                                          message) link-url)
+                                     (string-trim '(#\space #\tab #\newline 
+                                                    #\linefeed #\return) 
+                                                  message)))
+                   ("media[]" . ,(pathname image-path)))
+     
      :additional-headers
      `(("Authorization"
         ,@(build-auth-string
@@ -37,6 +48,7 @@
                                 ("oauth_timestamp" ,stamp)
                                 ("oauth_token" ,access-token)
                                 ("oauth_version" "1.0")
+                               
                                 ))
                  (hmac-key  app-secret 
                             access-secret))
@@ -46,7 +58,7 @@
              ("oauth_token" ,access-token)
              ("oauth_version" "1.0")))))
     :want-stream nil
-    :preserve-uri nil)))
+    :preserve-uri t)))
 
 
 (defun simple-tweet-request (app-id app-secret access-token access-secret message link-url)
@@ -63,8 +75,6 @@
                                   message)))
          (end-point  "https://api.twitter.com/1.1/statuses/update.json" )
          )
-
-;(break "~A ~A ~A ~A ~A ~A" app-id app-secret access-token access-secret message link-url)
 
     (drakma:http-request 
                   end-point
