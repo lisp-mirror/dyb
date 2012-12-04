@@ -2,6 +2,17 @@
 
 (setf drakma:*drakma-default-external-format* (flexi-streams:make-external-format :utf-8))
 
+
+(defun alist-to-url-encoded-string (alist external-format)
+  (with-output-to-string (out)
+    (loop for first = t then nil
+          for (name . value) in alist
+          unless first do (write-char #\& out)
+          do (format out "~A~:[~;=~A~]"
+                     (url-encode   name external-format)
+                     value
+                     (url-encode value external-format)))))
+
 (defvar *public-dir* "/var/www/dyb.co.za/public/")
 
 (defparameter *extract-dir* "/var/www/dyb.co.za/extracts")

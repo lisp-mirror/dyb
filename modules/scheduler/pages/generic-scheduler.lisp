@@ -4,10 +4,9 @@
   (let* ((columns
           (list
            (make-instance 'grid-column
-                          :name 'channel-user
+                          :name 'post-type
                           :header "Channel"
-                          :printer (lambda (user)
-                                     (get-val user 'profile-type)))
+                         )
            (make-instance 'grid-column
                           :name 'channel-user
                           :header "User"
