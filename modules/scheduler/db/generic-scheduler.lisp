@@ -2,7 +2,7 @@
 
 (defclass generic-action-log ()
   ((stamp :initarg :stamp)
-   (lable :initarg :lable)
+   (label :initarg :label)
    (message :initarg :message))
   (:metaclass storable-class))
 
@@ -116,7 +116,7 @@
                                       :post-url post-url
                                       :short-url short-url)))))
 
-(defun add-generic-action-log (action lable message status)
+(defun add-generic-action-log (action label message status)
 
   (when (>= (length (get-val action 'action-log)) 5)
     (setf (get-val action 'action-status) "Abandoned Retries")
@@ -125,7 +125,7 @@
     
     (let ((log-entry (make-instance 'generic-action-log
                                     :stamp (get-universal-time)
-                                    :lable lable
+                                    :label label
                                     :message message)))
       (setf (get-val action 'action-status) status)
       (setf (get-val action 'action-log) 

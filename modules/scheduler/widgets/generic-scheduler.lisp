@@ -227,9 +227,7 @@
                      (let* ((columns
                              (list
                               (make-instance 'grid-column
-                                             :name 'lable
-                                             :header "Lable")
-
+                                             :name 'label)
                               (make-instance 'grid-column
                                              :name 'message
                                              :header "message")
