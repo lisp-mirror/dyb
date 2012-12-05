@@ -731,12 +731,15 @@ $(function(){
                           (:a :href "/dyb/generic-scheduler"
                               (:span :class "white-icons month_calendar")
                               "Scheduler")
-                          )
+                          (:li
+                           (:a :href "/dyb/generic-scheduler?action=new&grid-name=generic-actions-gridx"
+                               (:span :class "white-icons month_calendar")
+                               "Scheduler Quick Post")))
                          (:li
                           (:a :href "/dyb/tasks"
                               (:span :class "white-icons month_calendar")
-                              "Tasks")
-                          )
+                              "Tasks"))
+                         
                          (:li
                           (:a :href "/dyb/search-stream"
                               (:span :class "white-icons magnifying_glass")
