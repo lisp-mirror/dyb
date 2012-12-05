@@ -309,7 +309,7 @@
                       0))))
       
       (if (and (string-equal (parameter "service") "twitter")  (>= len 140))
-          (setf (error-message grid) (format nil "Images with message to long - ~A" 
+          (setf (error-message grid) (format nil "Message to long - ~A. (Remember that image and link url's are also counted.)" 
                                              len)))
     
     
