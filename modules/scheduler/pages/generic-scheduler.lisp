@@ -25,17 +25,8 @@
            (make-instance 'grid-column
                           :name 'scheduled-date
                           :header "Scheduled Date"
-                          :printer #'format-universal-date)
-           (make-instance 'grid-column
-                          :name 'scheduled-date
-                          :header "Scheduled Time"
-                          :printer
-                          (lambda (doc)
-                            (unless (stringp doc)
-                               (format-universal-time
-                                doc)                    
-                              ))
-                          )
+                          :printer #'format-universal-date-time)
+           
            (make-instance 'grid-column
                           :name 'action-status
                           :header "Status")))
@@ -45,7 +36,9 @@
                             :title "Schedule Messages"
                             :row-object-class 'generic-action)))
     (setf (get-val grid 'columns) columns)
-    
+    (setf (sort-keys grid) '(5 scheduled-date))
+    (setf (initial-sort-column grid) '(5 :descending))
+
     (render (make-widget 'page :name "generic-scheduler-page")
             :body (with-html-to-string ()
                     

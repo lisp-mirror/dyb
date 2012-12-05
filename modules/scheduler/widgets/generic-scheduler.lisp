@@ -204,8 +204,9 @@
                                              (get-val row 'scheduled-date)))
                                         "00:00"
                                         )
-                                    :type :text
-                                    :required t) 
+                                    :type :time
+                                    :required t)
+                                   
                                    (str "hh:mm")))
                          (render 
                           form-section
