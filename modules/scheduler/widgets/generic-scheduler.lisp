@@ -133,7 +133,14 @@
                                     (or (parameter "action-content") 
                                         (get-val row 'action-content))
                                     :required t
-                                    :type :textarea)))
+                                    :type :textarea)
+                                   (:div "Characters:"
+                                         (:span :id "message-length"
+                                               (str (length (or (parameter "action-content") 
+                                                                (get-val row 'action-content))))))
+                                   (defer-js
+                                       "$('[name=\"action-content\"]').bind('input propertychange',
+function() {$('#message-length').text($(this).val().length)})")))
                          (render 
                           form-section
                           :label "Add Image"
