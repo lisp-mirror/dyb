@@ -1,7 +1,9 @@
 (in-package :dyb)
 
 (defclass ajax-widget (widget)
-  ()
+  ((css-class :initarg :css-class
+              :initform nil
+              :accessor css-class))
   (:metaclass widget-class)
   (:include-js "/appjs/ajax.js"))
 
@@ -13,6 +15,7 @@
         (call-next-method))
       (with-html
         (:div :id (name widget)
+              :class (css-class widget)
               (call-next-method)))))
 
 (ht-simple-ajax:defun-ajax cl-ajax-render (script-name widget-id &rest args)

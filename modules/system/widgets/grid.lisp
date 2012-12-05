@@ -558,9 +558,9 @@ document.getElementById(\"~A\").submit();"
                          :collapsible t
                          :body (with-html-string
                                  (:div :class "widget-control"
-                                       (render filter))
-                                 (:div :class "widget-control pull-left"
-                                       (add-actions-menu grid))))
+                                       (render filter)
+                                       (:div :style "display:inline-block"
+                                        (add-actions-menu grid)))))
             (:div :class "widget-content"
                   (:div :class "widget-box"
                         (render-grid-rows grid :editing editing-row)))
@@ -873,7 +873,8 @@ document.getElementById(\"~A\").submit();"
 (defclass grid-filter-selector (ajax-widget)
   ((grid :initarg :grid
          :initform nil
-         :accessor grid)))
+         :accessor grid))
+  (:default-initargs :css-class "grid-filter"))
 
 (defmethod render ((widget grid-filter-selector) &key)
   (let* ((grid (grid widget))
@@ -890,34 +891,34 @@ document.getElementById(\"~A\").submit();"
                (filter-parameters grid))
       (setf (grid-filter grid) nil
             (filter-parameters grid) nil))
-    (with-html
-      (:div :class "grid-filter"
-            (when filters
-              (let ((select (make-widget 'select
-                                         :name (sub-name widget "filter-select")
-                                         :first-item "Clear Filter")))
-                (setf (on-change select)
-                      (js-render grid (js-value select)))
-                (when custom-filter
-                  (setf (grid-filter grid) custom-filter
-                        (filter-parameters grid) (get-parameters*))
-                  ;; a hack so that subsequent grids don't get confused
-                  (setf (slot-value *request* 'get-parameters)
-                        (remove "filter" (get-parameters*)
-                                :test #'equal
-                                :key #'car)))
-                (cond ((parameter (name select))
-                       (setf (grid-filter grid)
-                             (find (value select) filters
-                                   :test #'string-equal)))
-                      (t
-                       (setf (value select) (if custom-filter
-                                                (string-upcase custom-filter)
-                                                "Clear Filter")
-                             (items select)
-                             (mapcar #'string-capitalize filters))))
-                (js-render widget (js-value select))
-                (render select)))))))
+    (when filters
+      (with-html
+        (:label "Filter:")
+        (let ((select (make-widget 'select
+                                   :name (sub-name widget "filter-select")
+                                   :first-item "Clear Filter")))
+          (setf (on-change select)
+                (js-render grid (js-value select)))
+          (when custom-filter
+            (setf (grid-filter grid) custom-filter
+                  (filter-parameters grid) (get-parameters*))
+            ;; a hack so that subsequent grids don't get confused
+            (setf (slot-value *request* 'get-parameters)
+                  (remove "filter" (get-parameters*)
+                          :test #'equal
+                          :key #'car)))
+          (cond ((parameter (name select))
+                 (setf (grid-filter grid)
+                       (find (value select) filters
+                             :test #'string-equal)))
+                (t
+                 (setf (value select) (if custom-filter
+                                          (string-upcase custom-filter)
+                                          "Clear Filter")
+                       (items select)
+                       (mapcar #'string-capitalize filters))))
+          (js-render widget (js-value select))
+          (render select))))))
 
 ;;;
 
@@ -925,12 +926,13 @@ document.getElementById(\"~A\").submit();"
 
 (defun drop-down-menu (items)
   (with-html
-    (:div :class "btn-group pull-right"
+    (:div :class "btn-group"
+          :style "display:inline-block"
           (:button :data-toggle "dropdown" 
                    :class "btn dropdown-toggle" 
                    (:i :class "icon-cog"
                        (:span :class "caret")))
-          (:ul :class "dropdown-menu"
+          (:ul :class "dropdown-menu pull-right"
                (loop for (title js) in items
                      do
                      (htm (:li (:a :href (js-link js)
@@ -942,8 +944,8 @@ document.getElementById(\"~A\").submit();"
               (script-name*)))
     ("Add"
      ,(js-render (editor grid)
-                                                      (js-pair "grid-name" (name grid))
-                                                      (js-pair "action" "new")))))
+                 (js-pair "grid-name" (name grid))
+                 (js-pair "action" "new")))))
 
 (defun add-actions-menu (grid)
   (drop-down-menu (list-grid-actions grid)))
