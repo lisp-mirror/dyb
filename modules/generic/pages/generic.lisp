@@ -437,6 +437,7 @@
                 (list 'social-mention "assign-task-form" "Assign Task")
                 ;(list 'social-mention "go-to-content" "Go To Content")
                 ))
+    (setf (not-sorting-columns grid) '(0 1 2 4 ))
     (setf (sort-keys grid) '(3 created-date))
     (setf (initial-sort-column grid) '(3 :descending))
     
