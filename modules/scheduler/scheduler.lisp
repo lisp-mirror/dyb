@@ -1,73 +1,128 @@
 (in-package :dyb)
 
+(defclass error-log (doc)
+  ((task-name :initarg :task-name
+              :initform nil
+              :accessor task-name)
+   (condition-class :initarg :condition-class
+                    :initform nil
+                    :accessor condition-class)
+   (printed-condition :initarg :printed-condition
+                      :initform nil
+                      :accessor printed-condition)
+   (backtrace :initarg :backtrace
+              :initform nil
+              :accessor backtrace))
+  (:metaclass storable-class))
 
-(defun start-actions-scheduler ()
+(defun error-log-collection ()
+  (get-collection (system-db) "error-log"))
+
+(defun error-logs ()
+  (docs (error-log-collection)))
+
+(defmethod doc-collection ((doc error-log))
+  (error-log-collection))
+
+(add-collection (system-db) "error-log" 
+                :collection-class 'dyb-collection
+                :load-from-file-p t)
+
+(defun log-error (task-name condition)
+  (persist (make-instance 'error-log
+                          :task-name task-name
+                          :condition-class (class-name (class-of condition))
+                          :backtrace
+                          (with-output-to-string (*debug-io*)
+                            (sb-debug:backtrace))
+                          :printed-condition (princ-to-string condition))))
+
+;;;
+
+(defun start-task-thread (task-name function)
   (bordeaux-threads:make-thread  
    (lambda ()
      (loop
-        (sleep 120)
-        (post-scheduled-actions)))))
+      (sleep 3)
+      (block nil
+        (handler-bind ((serious-condition
+                         (lambda (condition)
+                           (log-error task-name condition)
+                           (return))))
+          (funcall function)))))
+   :name task-name))
+
+(defun start-actions-scheduler ()
+  (start-task-thread
+   "post-scheduled-actions"
+   (lambda ()
+     (loop
+      (post-scheduled-actions)
+      (sleep 120)))))
 
 (start-actions-scheduler)
 
 (defun start-facebook-listener ()
-  (bordeaux-threads:make-thread  
+  (start-task-thread
+   "facebook-refresh-feeds"
    (lambda ()
      (loop
-        (sleep 600)
-        (facebook-refresh-feeds)))))
+      (facebook-refresh-feeds)
+      (sleep 600)))))
 
 (start-facebook-listener)
 
 (defun start-facebook-slow-listener ()
-  (bordeaux-threads:make-thread  
+  (start-task-thread
+   "facebook-refresh-friends-and-profiles"
    (lambda ()
      (loop
-        (sleep 86400)
-      
-        (facebook-refresh-friends)
-        (facebook-refresh-profiles)))))
+      (facebook-refresh-friends)
+      (facebook-refresh-profiles)
+      (sleep 86400)))))
 
 (start-facebook-slow-listener)
 
 (defun start-twitter-listener ()
-  (bordeaux-threads:make-thread  
+  (start-task-thread
+   "twitter-refresh-home-timelines"
    (lambda ()
      (loop
-        (sleep 600)
-        (twitter-refresh-home-timelines)
-        
-        ))))
+      (twitter-refresh-home-timelines)
+      (sleep 600)))))
 
 (start-twitter-listener)
 
 (defun start-twitter-slow-listener ()
-  (bordeaux-threads:make-thread  
+  (start-task-thread
+   "twitter-refresh-followers-and-profiles"
    (lambda ()
      (loop
-        (sleep 86400)
-        (twitter-refresh-followers)
-        (twitter-refresh-profiles)))))
+      (twitter-refresh-followers)
+      (twitter-refresh-profiles)
+      (sleep 86400)))))
 
 (start-twitter-slow-listener)
 
 
 (defun start-linkedin-listener ()
-  (bordeaux-threads:make-thread  
+  (start-task-thread
+   "linkedin-refresh-updates"
    (lambda ()
      (loop
-        (sleep 600)
-      (linkedin-refresh-updates)))))
+      (linkedin-refresh-updates)
+      (sleep 600)))))
 
 (start-twitter-listener)
 
 (defun start-linkedin-slow-listener ()
-  (bordeaux-threads:make-thread  
+  (start-task-thread
+   "linkedin-refresh-connections-and-profiles"
    (lambda ()
      (loop
-        (sleep 86400)
       (linkedin-refresh-connections)
-      (linkedin-refresh-profiles)))))
+      (linkedin-refresh-profiles)
+      (sleep 86400)))))
 
 (start-twitter-slow-listener)
 
