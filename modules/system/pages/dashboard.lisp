@@ -22,29 +22,29 @@
                 (:h5 (esc header)))
           (:div :class "widget-content"
                 (:table (:tr (:td :style "vertical-align:top;"
-                                  (:img  :style "padding :10px;" :src "/appimg/save.png"))
+                                  (:img  :style "padding :10px;" 
+                                         :src "/appimg/save.png"))
                              (:td 
                               (:div :style "padding :10px"
                                     (str content)))))))))
-
 
 (defun interval-days (days)
   (* days 24 60 60))
 
 (defun within-date-range (interval date)
-  (and (>
-        date
-        (- (get-universal-time) (interval-days interval) ))
-       (<
-        date
-        (+ (get-universal-time) (interval-days interval) ))))
-
+  (>
+   date
+   (- (get-universal-time) (interval-days interval) )))
 
 (defun posts-scheduled (interval)
   (find-docs 'vector 
              (lambda (doc)
-               (if (match-entities doc (context))
-                   (within-date-range interval (get-val doc 'scheduled-date))))
+
+               (when (match-context-entities (get-val doc 'channel-user))
+
+                 (when (within-date-range interval 
+                                          (get-val doc 'scheduled-date))
+                   (string-equal (get-val doc 'action-status) "completed"))))
              (generic-actions-collection)))
 
 (defun posts-scheduled-count (interval)
@@ -56,10 +56,11 @@
       (when (valid-channel-user user "Facebook")  
         (if (get-val user 'user-data)
                 (if (gethash "friends" (get-val user 'user-data))
-                    (incf count (length (assoc-path
-                                         (gethash "friends"
-                                                  (get-val user 'user-data))
-                                         :data)))))))
+                    (incf count 
+                          (length (assoc-path
+                                   (gethash "friends"
+                                            (get-val user 'user-data))
+                                   :data)))))))
     count))
 
 (defun fb-fans-count ()
@@ -68,14 +69,15 @@
     (dolist (user (coerce (channel-users) 'list ))
       (when (valid-channel-user user "Facebook")  
         (let ((fans
-               (get-facebook-insight-values (get-channel-user-by-user-name "eMSdigital") 
-                                            (get-facebook-insight-by-name "page_fans")
-                                            (- (universal-to-gmt-0 now)  (* 60 60 24 5)) 
-                                            (universal-to-gmt-0 now))))
-
+               (get-facebook-insight-values 
+                user 
+                (get-facebook-insight-by-name "page_fans")
+                (- (universal-to-gmt-0 now)  (* 60 60 24 5)) 
+                (universal-to-gmt-0 now))))
           
+          ;;(break "~A ~A" fans user)
           (when fans
-            ;;(break "~A" fans)
+            
             (when (get-val fans 'value)
               (incf count (get-val fans 'value)))))))
     count))
@@ -89,14 +91,12 @@
              do
              (let ((fans
                     (get-facebook-insight-values 
-                     (get-channel-user-by-user-name "eMSdigital") 
+                     user 
                      (get-facebook-insight-by-name "page_fan_adds")
                      (- (universal-to-gmt-0 now)  (* 60 60 24 
                                                      i )) 
                      (- (universal-to-gmt-0 now)  (* 60 60 24 
                                                      (- i 1) )))))
-
-          
                (when fans
                  
                  (when (get-val fans 'value)
@@ -332,15 +332,19 @@
         (twitter-followers-count (twitter-followers-count))
         (linkedin-connections-count (linkedin-connections-count)))
 
-  #|  (break "~A ~A ~A ~A ~A ~A ~A"
+
+
+    #|(break "~A ~A ~A ~A ~A ~A ~A"
            posts-scheduled-count
            fb-comments-made
            fb-likes-made
            twitter-retweets
            fb-friends-count
+           fb-fans-count
+           fb-fans-adds-count
            twitter-followers-count 
-           linkedin-connections-count)
-    |#
+           linkedin-connections-count)|#
+    
     (with-html
       (render page
               :body 

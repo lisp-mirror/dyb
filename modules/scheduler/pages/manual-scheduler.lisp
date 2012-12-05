@@ -47,21 +47,18 @@
       (linkedin-refresh-profiles)
       )
     (when (parameter "insights-history")
-      (bordeaux-threads:make-thread  
-       (lambda ()
-         (facebook-page-insights-history 
-          (string-to-date
-           (parameter "insights-history-start-date"))
-          (/ (-  (string-to-date
-                  (format-universal-date (get-universal-time)))
-                 (string-to-date
-                  (parameter "insights-history-start-date"))
-                 )
-             (* 60 60 24))))))
+      (let ((get-date 
+             (if (blank-p (parameter "insights-history-start-date"))
+                 (string-to-date (parameter "insights-history-start-date"))
+                 (string-to-date "01 Jun 2012"))))
+        (bordeaux-threads:make-thread  
+         (lambda ()
+           (facebook-page-insights-history 
+            get-date
+            (/ (- (get-universal-time)
+                   get-date)
+               (* 60 60 24)))))))
     
-
-    
-
     (render page :body
             (with-html-to-string ()
               (:form :name "fetch-data"
@@ -89,7 +86,5 @@
                      (:input :type "submit" :name "insights-history" 
                              :value "Get Facebook Insights History")
                      (:input :type "date" :name "insights-history-start-date" 
-                             :value "01 Jun 2012")
-                     )
-
+                             :value "01 Jun 2012"))
               (:p (:strong (str result)))))))
