@@ -734,7 +734,7 @@ $(function(){
                           (:li
                            (:a :href "/dyb/generic-scheduler?action=new&grid-name=generic-actions-gridx"
                                (:span :class "white-icons month_calendar")
-                               "Scheduler Quick Post")))
+                               "Quick Post")))
                          (:li
                           (:a :href "/dyb/tasks"
                               (:span :class "white-icons month_calendar")
