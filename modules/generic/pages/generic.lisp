@@ -18,16 +18,15 @@
                        (str (gpv col-val :title)))
                       (if (gpv col-val :user)
                           (htm
-                           (:span :class "twitter-user" (:a :href (gpv col-val :user--link) (gpv col-val :user)))))
-                     ;; (:span :class "timestamp"
-                     ;;        (str (format-universal-date-time  
-                     ;;              (unix-time-to-universal 
-                     ;;               (gpv col-val :timestamp)))))
+                           (:span :class "twitter-user" 
+                                  (:a :href (gpv col-val :user--link) 
+                                      (gpv col-val :user)))))
                       (:span :class "post-content"
-                             (str (gpv col-val :description)))
+                             (str (linkify (gpv col-val :description))))
                       (:span :class "twitter-actions"
                              (:span :class "action-icon" :title "Go to Content"
-                                    (:a :href (gpv col-val :link) (:img :src "/appimg/go-to-content.png"))))
+                                    (:a :href (gpv col-val :link) 
+                                        (:img :src "/appimg/go-to-content.png"))))
 
                       )))))
 
@@ -49,10 +48,8 @@
        (:span :class "twitter-user" 
               (:a :href (format nil "http://www.twitter.com/~A" 
                                 (gpv col-val :user :screen--name))))
-       ;;(:span :class "timestamp"
-       ;;       (str (gpv col-val :created--at)))
        (:span :class "post-content"
-              (str (gpv col-val :text)))
+              (str (linkify (gpv col-val :text))))
        (:span :class "twitter-actions"
               (:span :class "action-icon" :title "Reply"
                      (:a :href (js-link 
@@ -107,17 +104,14 @@
         :class "post-title"
         :target "_blank"
         :href (format nil "http://www.facebook.com/~A" (gpv col-val :id))
-        (str (gpv col-val :from :name)))
-;;       (:span :class "timestamp"
-;;              (str (gpv col-val :created--time)))
-       
+        (str (gpv col-val :from :name)))     
        (:span :class "post-content"
               (if (not (or (gpv col-val :message) (gpv col-val :story)))
                   (if (and (string-equal (gpv col-val :type) "photo")
                            (string-equal (gpv col-val :status--type) "added_photos"))
                       (htm  (str (gpv col-val :name )))
                       (htm (str "MISSING TEXT report to info@dyb.co.za")))
-                  (htm (str (or (gpv col-val :message) (gpv col-val :story))))))
+                  (htm (str (linkify (or (gpv col-val :message) (gpv col-val :story)))))))
        (if (gpv col-val :actions)
            (htm (:span :class "twitter-actions"
                        (:span :class "action-icon" :title "Like"
@@ -213,38 +207,17 @@
                                        (gpv col-val :update-content :person :id))
                                       ((string-equal (gpv col-val :update-type) "CMPY")
                                        (gpv col-val :update-content :company :id))))))
-      ;; (:span :class "timestamp"
-      ;;        (str (format-universal-date-time (unix-time-to-universal (truncate (/ (gpv col-val :timestamp) 1000))))))
+
        (:span :class "post-content"
               (str (cond ((string-equal (gpv col-val :update-type) "SHAR")
-                          (or (gpv col-val :update-content :person :current-share :content :description)
-                              (gpv col-val :update-content :person :current-share :comment)))
+                          (linkify 
+                           (or (gpv col-val :update-content :person 
+                                    :current-share :content :description)
+                               (gpv col-val :update-content :person 
+                                    :current-share :comment))))
                          ((string-equal (gpv col-val :update-type) "CMPY")
-                          (gpv col-val :update-content :company-status-update :share :comment)))))
-       
-       #|(:span :class "twitter-actions"
-              (if (gpv col-val :is-likeable)
-                  (htm (:span :class "action-icon" :title "Like"
-                              (:a :href (js-link 
-                                         (js-render (editor grid)
-                                                    (js-pair "grid-name" (name grid))
-                                                    (js-pair "action" "like-linkedin-form")
-                                                    (js-pair "row_id" row-id))) 
-                                  ;;(:img :src "/appimg/fb-like.png")
-                                  (str "Like")
-                                  ))))
-                                       
-              (if (gpv col-val :is-commentable)
-                  (htm (:span :class "action-icon" :title "Comment"
-                              (:a :href (js-link 
-                                         (js-render (editor grid)
-                                                    (js-pair "grid-name" (name grid))
-                                                    (js-pair "action" "comment-linkedin-form")
-                                                    (js-pair "row_id" row-id))) 
-                                  ;;(:img :src "/appimg/fb-like.png")
-                                  (str "Comment"))))))
-       |#
-)))))
+                          (linkify (gpv col-val :update-content :company-status-update 
+                                        :share :comment)))))))))))
 
 
 (defun generic-grid-item-display (grid row payload row-id)
@@ -271,7 +244,8 @@
            (if (gpv payload :image)
                (htm
                 (:div :class "post-image-thumb"
-                      (:a :href (gpv payload :image) :title "Click to view the full size image"
+                      (:a :href (gpv payload :image) 
+                          :title "Click to view the full size image"
                           (:img :src (gpv payload :image))
                           ))))
            ))
