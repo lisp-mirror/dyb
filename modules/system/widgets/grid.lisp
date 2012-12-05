@@ -898,10 +898,10 @@ document.getElementById(\"~A\").submit();"
             (filter-parameters grid) nil))
     (when filters
       (with-html
-        (:label "Filter:")
+        (:label "Filter by:")
         (let ((select (make-widget 'select
                                    :name (sub-name widget "filter-select")
-                                   :first-item "Clear Filter")))
+                                   :first-item "Select All")))
           (setf (on-change select)
                 (js-render grid (js-value select)))
           (when custom-filter
@@ -919,7 +919,7 @@ document.getElementById(\"~A\").submit();"
                 (t
                  (setf (value select) (if custom-filter
                                           (string-upcase custom-filter)
-                                          "Clear Filter")
+                                          "Select All")
                        (items select)
                        (mapcar #'string-capitalize filters))))
           (js-render widget (js-value select))
