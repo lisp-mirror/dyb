@@ -4,7 +4,8 @@
   ()
   (:metaclass widget-class)
   (:include-css "/appcss/posts.css")
-  (:default-initargs :edit-inline nil))
+  (:default-initargs :edit-inline nil
+                     :not-sorting-columns '(1)))
 
 (defmethod list-grid-filters ((grid generic-grid))
   '(facebook-only

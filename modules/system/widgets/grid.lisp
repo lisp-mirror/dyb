@@ -62,6 +62,9 @@
               :accessor sort-keys
               :documentation
               "A plist of (column-number key)")
+   (not-sorting-columns :initarg :not-sorting-columns
+                        :initform nil
+                        :accessor not-sorting-columns) 
    (initial-sort-column :initarg :initial-sort-column
                         :initform '(0 :ascending)
                         :accessor initial-sort-column
@@ -604,7 +607,7 @@ document.getElementById(\"~A\").submit();"
                         (htm
                          (:div :class "edit-form-error"
                                (esc (error-message grid))))))))
-                  (str footer))
+                   (str footer))
             (render editor))
       (defer-js
           (format nil "$('#~a').dataTable({
@@ -619,7 +622,7 @@ document.getElementById(\"~A\").submit();"
 'sAjaxSource': '/dyb/ajax/TABLE?script-name=~a&id=~a',
 'sDom': '<\"tbl-searchbox clearfix\"flr,<\"clear\">>,<\"table_content\"t>,<\"widget-bottom\"ip<\"clear\">>',
 
-~:[~;'aoColumnDefs': [{'bSortable': false, 'aTargets': [~a]}],~]
+'aoColumnDefs': [{'bSortable': false, 'aTargets': [~{~a~^,~}]}],
 ~:[~;'aaSorting': [[~a,~s]],~]
 'fnServerData': function(sSource,aoData,fnCallback) {
     $.getJSON(sSource, aoData, function(json) {
@@ -631,8 +634,10 @@ document.getElementById(\"~A\").submit();"
                   (sub-name grid "table")
                   (script-name*)
                   (name grid)
-                  (editable grid)
-                  (length (columns grid))
+                  (if (editable grid)
+                      (cons (length (columns grid))
+                            (not-sorting-columns grid))
+                      (not-sorting-columns grid))
                   (not (equal (initial-sort-column grid)
                               '(0 :ascending)))
                   (car (initial-sort-column grid))
