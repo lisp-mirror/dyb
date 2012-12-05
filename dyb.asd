@@ -11,12 +11,9 @@
                alexandria
                cl-ppcre
                csv-parser
-             
                ironclad
                cl-json
                ht-simple-ajax
-             
-             
                closer-mop
                cl-jpeg
                xdb2
@@ -25,7 +22,7 @@
                split-sequence
                trivial-timers
                cl-smtp
-               )
+               closure-html)
   :serial t
   :components ((:file "packages")
                (:file "utils")

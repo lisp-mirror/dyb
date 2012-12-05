@@ -681,4 +681,52 @@
                                 (first (cdr (assoc-path result :errors))) :message)
                                (assoc-path result :error :message))))
                      (values result status nil)))))))))
+;;;
 
+(defvar *allowed-html-tags*
+  '("a"))
+
+(defvar *current-html-tags* ())
+
+(defclass filter-sink (chtml::sink)
+  ())
+
+(defun make-filter-sink ()
+  (make-instance 'filter-sink
+                 :encoding "UTF-8"
+                 :ystream
+                 (runes:make-rod-ystream
+                  :encoding (runes:find-output-encoding "UTF-8"))))
+
+(defun find-pt-child (name pt)
+  (find name (chtml:pt-children pt)
+        :key #'chtml:pt-name))
+
+(defun parse-html (string)
+  (find-pt-child :body
+                 (chtml:parse (coerce string 'runes:rod) nil)))
+
+(defmethod hax:start-element ((sink filter-sink) name attributes)
+  (when (find name *allowed-html-tags*
+              :test #'equalp)
+    (push name *current-html-tags*)
+    (call-next-method)))
+
+(defmethod hax:end-element ((sink filter-sink) name)
+  (when (find name *allowed-html-tags*
+              :test #'equalp)
+    (pop *current-html-tags*)
+    (call-next-method)))
+
+(defmethod hax:characters ((sink filter-sink) data)
+  (if (equal (car *current-html-tags*) "a")
+      (call-next-method)
+      (chtml::sink-write-rod (%linkify-string data) sink)))
+
+(defun %linkify-string (text)
+  (ppcre:regex-replace-all "((http://|www.)\\S+)" text "<a href='\\1'>\\1</a>"))
+
+(defun linkify (string)
+  (chtml:serialize-pt
+   (parse-html string)
+   (make-filter-sink)))
