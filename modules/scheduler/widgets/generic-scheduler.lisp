@@ -304,14 +304,13 @@
                           (blank-p (parameter "image-file"))) 
                       20
                       0) 
-                  (if (parameter "post-url") 
+                  (if (blank-p (parameter "post-url")) 
                       20
                       0))))
       
-      (if (and (string-equal (parameter "service") "twitter")  (<= len 140))
+      (if (and (string-equal (parameter "service") "twitter")  (>= len 140))
           (setf (error-message grid) (format nil "Images with message to long - ~A" 
                                              len)))
-    
     
     
       (when (or (and (string-equal (parameter "service") "twitter")  (<= len 140))
