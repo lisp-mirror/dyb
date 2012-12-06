@@ -1,8 +1,10 @@
 (in-package :dyb)
 
 (defclass generic-actions-grid (grid)
-  ((parent-grid :initarg :parent-grid)
-   (current-doc :initarg nil))
+  ((current-doc :initarg nil)
+   (date :initarg :date
+               :initform nil
+               :accessor date))
   (:default-initargs :edit-inline nil))
 
 (defmethod list-grid-filters ((grid generic-actions-grid))
@@ -10,29 +12,48 @@
     all-actions
     with-audit-data))
 
-(defun get-generic-actions-data (grid &key filter search)
-  (declare (ignore grid search))
-  (find-docs 
-   'vector
-   (lambda (doc)
+(defun least-universal-date (date)
+  (multiple-value-bind (year month day) (decode-date date)
+    (encode-universal-time 0 0 0 day month year *time-zone*)))
 
-     (if (or (not (get-val doc 'channel-user))
-             (if (stringp (get-val doc 'channel-user))
-                 nil
-                 (match-context-entities (get-val doc 'channel-user) )))
-         (cond ((equal filter 'with-audit-data)
-                doc)
-               ((equal filter 'completed-actions)
-                (if (string-equal (get-val doc 'action-status) "Completed")
-                    doc))
-               ((equal filter 'all-actions)
-                doc)
-               (t 
-                (if (not (string-equal 
-                          (get-val doc 'doc-status) "superseded"))
-                    (if (string-equal (get-val doc 'action-status) "Pending")
-                        doc))))))
-   (generic-actions-collection)))
+(defun greatest-universal-date (date)
+  (multiple-value-bind (year month day) (decode-date date)
+    (encode-universal-time 59 59 23 day month year *time-zone*)))
+
+(defun make-day-date-range (date)
+  (when date
+    (values (least-universal-date date)
+            (greatest-universal-date date))))
+
+(defun get-generic-actions-data (grid &key filter search)
+  (declare (ignore search))
+  (multiple-value-bind (start-time end-time) (make-day-date-range (date grid))
+    (find-docs 
+     'vector
+     (lambda (doc)
+       (cond ((and (get-val doc 'channel-user)
+                   (not (stringp (get-val doc 'channel-user)))
+                   (not (match-context-entities (get-val doc 'channel-user))))
+              nil)
+             ((and start-time end-time
+                   (or (not (scheduled-date doc))
+                       (not (<= start-time
+                                (scheduled-date doc)
+                                end-time))))
+              nil)
+             ((equal filter 'with-audit-data)
+              doc)
+             ((equal filter 'completed-actions)
+              (if (string-equal (get-val doc 'action-status) "Completed")
+                  doc))
+             ((equal filter 'all-actions)
+              doc)
+             (t 
+              (if (not (string-equal 
+                        (get-val doc 'doc-status) "superseded"))
+                  (if (string-equal (get-val doc 'action-status) "Pending")
+                      doc)))))
+     (generic-actions-collection))))
 
 (defmethod get-rows ((grid generic-actions-grid))
   (setf (rows grid)
@@ -41,8 +62,7 @@
                           :search (search-term grid))))
 
 (defclass generic-action-logs-grid (grid)
-  ((parent-grid :initarg :parent-grid)
-   (current-doc :initarg nil))
+  ((current-doc :initarg nil))
   (:default-initargs :edit-inline nil))
 
 (defun get-generic-action-logs-data (grid &key filter search)
@@ -398,4 +418,32 @@ function() {$('#message-length').text($(this).val().length)})")))
             ;; (unless (or from-user to-user)
             ;;     (setf (error-message grid) "User does not exist."))
             ))))))
- 
+
+;;;
+
+(defclass date-selector (ajax-widget)
+  ((grid :initarg :grid
+         :initform nil
+         :accessor grid)))
+(defmethod render ((widget date-selector) &key)
+  (let* ((raw-date (get-parameter "date"))
+         (date (and raw-date
+                    (parse-date raw-date))))
+    (setf (date (grid widget)) date)
+    (with-html
+      (:label "Date:"
+              (:input :type "text"
+                      :class "datepicker"
+                      :id "grid-date"
+                      :value (and (date (grid widget))
+                                  (format-universal-date (date (grid widget))))
+                      :onchange (js-render widget (js-value "grid-date"))))
+      (defer-js "$('.datepicker').datepicker({dateFormat: 'dd M yy'})"))))
+
+(defmethod action-handler ((widget date-selector))
+  (let* ((raw-date (post-parameter "grid-date"))
+         (date (and raw-date
+                    (parse-date raw-date))))
+    (when raw-date
+      (setf (date (grid widget)) date)
+      (update-table (grid widget)))))

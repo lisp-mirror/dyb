@@ -403,8 +403,6 @@
 (defun gps-cord-formatter (value)
   (format nil "~17$" value))
 
-
-
 (defun decode-date-string (date)
   (ppcre:register-groups-bind
       (day month year) ("(\\d+)\\s+(\\w+)\\s+(\\d+)" date)

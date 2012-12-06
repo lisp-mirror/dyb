@@ -34,10 +34,13 @@
                             ;;:columns columns
                             :edit-inline nil
                             :title "Schedule Messages"
-                            :row-object-class 'generic-action)))
+                            :row-object-class 'generic-action))
+         (date-selector (make-widget 'date-selector
+                                     :grid grid)))
     (setf (get-val grid 'columns) columns)
     (setf (sort-keys grid) '(5 scheduled-date))
     (setf (initial-sort-column grid) '(5 :descending))
+    (setf (toolbar-widget grid) date-selector)
 
     (render (make-widget 'page :name "generic-scheduler-page")
             :body (with-html-to-string ()

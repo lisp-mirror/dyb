@@ -49,9 +49,10 @@
           args-scripts))
 
 (defun js-value (widget)
-  (format nil "[~s, document.getElementById(~s).value]"
-          (name widget)
-          (name widget)))
+  (let ((name (if (typep widget 'widget)
+                  (name widget)
+                  widget)))
+    (format nil "[~s, document.getElementById(~s).value]" name name)))
 
 (defun js-pair (key value)
   (format nil "[~s, ~s]" key value))

@@ -86,7 +86,10 @@
           :accessor css-span)
    (action-widget :initarg :action-widget
                   :initform nil
-                  :accessor action-widget)))
+                  :accessor action-widget)
+   (toolbar-widget :initarg :toolbar-widget
+                        :initform nil
+                        :accessor toolbar-widget)))
 
 (defclass grid-column ()
   ((header :initarg :header
@@ -609,6 +612,10 @@ document.getElementById(\"~A\").submit();"
                                (esc (error-message grid))))))))
                    (str footer))
             (render editor))
+      (when (toolbar-widget grid)
+        (defer-js (format nil "$('#~a .grid-widget').html(~s)"
+                          (name grid)
+                          (substitute #\Space #\Newline (render-to-string (toolbar-widget grid))))))
       (defer-js
           (format nil "$('#~a').dataTable({
 'bProcessing': true,
@@ -620,7 +627,7 @@ document.getElementById(\"~A\").submit();"
             'sLengthMenu': \"<span class='lenghtMenu'> _MENU_</span><span class='lengthLabel'>Entries per page:</span>\",
         },
 'sAjaxSource': '/dyb/ajax/TABLE?script-name=~a&id=~a',
-'sDom': '<\"tbl-searchbox clearfix\"flr,<\"clear\">>,<\"table_content\"t>,<\"widget-bottom\"ip<\"clear\">>',
+'sDom': '<\"tbl-searchbox clearfix\"f~:[~;@<\"grid-widget\">~]lr,<\"clear\">>,<\"table_content\"t>,<\"widget-bottom\"ip<\"clear\">>',
 
 'aoColumnDefs': [{'bSortable': false, 'aTargets': [~{~a~^,~}]}],
 ~:[~;'aaSorting': [[~a,~s]],~]
@@ -629,11 +636,11 @@ document.getElementById(\"~A\").submit();"
         if($.isArray(json)) eval(json[1]);
         else fnCallback(json);
     });
-},
-})"
+}})"
                   (sub-name grid "table")
                   (script-name*)
                   (name grid)
+                  (toolbar-widget grid)
                   (if (editable grid)
                       (cons (length (columns grid))
                             (not-sorting-columns grid))

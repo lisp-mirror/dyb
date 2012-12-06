@@ -288,3 +288,20 @@ tr.altrow td {
     display: inline-block;
     margin-left: 4px;
 }
+
+.grid-widget {
+    display: inline-block;
+}
+
+.grid-widget label {
+    display: inline-block;
+    margin-left: 20px;
+}
+
+.grid-widget input {
+    width: auto;
+}
+
+.dataTables_filter {
+	width: auto;
+}

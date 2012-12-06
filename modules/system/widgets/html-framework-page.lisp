@@ -404,17 +404,17 @@ if (okToRefresh)
 
 
 
-      "<!-- javascript
+       "<!-- javascript
        ================================================== -->
        <!-- Placed at the end of the document so the pages load faster -->"
-#|      (:script :src "/js/jquery.js")
-                                                   (:script :src "/js/jquery-ui-1.8.16.custom.min.js")
-                                                   (:script :src "/js/bootstrap.min.js")
-                                                   (:script :src "/js/prettify.js")
-                                                   (:script :src "/js/jquery.sparkline.min.js")
-                                                   (:script :src "/js/accordion.jquery.js")
-                                                   (:script :src "/js/jquery.nicescroll.min.js")
-                                                   |#
+       #|      (:script :src "/js/jquery.js")
+       (:script :src "/js/jquery-ui-1.8.16.custom.min.js")
+       (:script :src "/js/bootstrap.min.js")
+       (:script :src "/js/prettify.js")
+       (:script :src "/js/jquery.sparkline.min.js")
+       (:script :src "/js/accordion.jquery.js")
+       (:script :src "/js/jquery.nicescroll.min.js")
+       |#
 
 "<script src=\"/js/jquery.js\"></script>
       <script type='text/javascript' src=\"http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.11/jquery-ui.min.js\"></script>
@@ -474,13 +474,10 @@ if (okToRefresh)
 
        (str bottom-java-script)
 
-       (:script "$(\"#inline-datepicker\").datepicker({
+       (:script "$('#inline-datepicker').datepicker({
+   dateFormat: 'dd M yy',
    onSelect: function(dateText, inst) {
-      var dateAsString = dateText; //the first parameter of this function
-      var dateAsObject = $(this).datepicker( 'getDate' ); //the getDate method
-      //alert (dateText);
-      //$(\"#inline-datepicker\").submit();
-      window.location.replace(\"/dyb/generic-scheduler\");
+      window.location.replace('/dyb/generic-scheduler?date=' + dateText);
 
    }
 });
@@ -495,7 +492,7 @@ if (okToRefresh)
       "</html>")))
 
 #|
-"<script>
+       "<script>
 
 $(function(){
   var line1=[['26-Jul-12', 295], ['2-Aug-12', 296], ['9-Aug-12', 295], ['16-Aug-12', 294],
@@ -666,7 +663,7 @@ $(function(){
   );
 });
 </script>"
-|#
+       |#
 
 (defclass html-framework-page (widget)
   ((title :initarg :title
@@ -746,14 +743,14 @@ $(function(){
                               "Search Streams")
                          #| (:ul :class "acitem" :style "display:none;"
 
-                               (:li
-                                (:a :href "/dyb/search-stream" "Search Streams"))
+                          (:li
+                          (:a :href "/dyb/search-stream" "Search Streams"))
 
 
 
-                               (:li
-                                (:a :href "/dyb/search-stream-feedback" "Search Stream Data"))
-                               )|#
+                          (:li
+                          (:a :href "/dyb/search-stream-feedback" "Search Stream Data"))
+                          )|#
                           )
                          )
                     (:div :id "side-accordion"
@@ -763,13 +760,9 @@ $(function(){
                                           :data-parent "#side-accordion"
                                           :data-toggle "collapse"
                                           (:i :class "nav-icon month_calender")
-                                          (str "Todays Event")))
+                                          "Todays Event"))
                                 (:div :class "accordion-content"
-                                      (:div :id "inline-datepicker" :altField "shit" ;:style "font-size:8px;"
-
-                                            :value "12-02-2012"
-                                            (:intput :id "shit" :type "hidden" ;;:onchange "(alert 'shit');";; "document.getElementById(\"shit\").submit();"
-                                                     ))))))
+                                      (:div :id "inline-datepicker" )))))
 
               (:div :id "main-content"
                     (:div :class "container-fluid"
