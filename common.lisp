@@ -1,6 +1,6 @@
 (in-package :dyb)
 
-(setf drakma:*drakma-default-external-format* (flexi-streams:make-external-format :utf-8))
+(setf drakma:*drakma-default-external-format* :utf-8)
 
 (defun alist-to-url-encoded-string (alist external-format)
   (with-output-to-string (out)
