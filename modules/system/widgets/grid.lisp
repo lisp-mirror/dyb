@@ -117,6 +117,13 @@
                        :initform nil
                        :accessor editor-init-values)))
 
+(define-condition grid-error (simple-error)
+  ())
+
+(defun grid-error (control-string &rest args)
+  (error 'grid-error :format-control control-string
+                     :format-arguments args))
+
 (defmethod initialize-instance :after ((column grid-column) &key)
   (with-slots (header name) column
     (when (and name (not header))
@@ -341,9 +348,13 @@ document.getElementById(\"~A\").submit();"
 
 (defmethod action-handler ((grid grid))
   (when (equal (name grid) (parameter "grid-name"))
-    (handle-action grid
-                   (find-symbol (string-upcase (parameter "action"))
-                                #.*package*))))
+    (handler-case
+        (handle-action grid
+                       (find-symbol (string-upcase (parameter "action"))
+                                    #.*package*))
+      (grid-error (c)
+        (setf (error-message grid)
+              (princ-to-string c))))))
 
 (defun render-grid-header (widget)
   (with-html

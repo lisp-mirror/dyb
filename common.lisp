@@ -376,16 +376,14 @@
               (month-number month)
               (parse-integer day)))))
 
-(defun decode-time-string(time)
-  (let ((time-match "(\\d{2}):(\\d{2}):(\\d{2})"))
-    (if (cl-ppcre:scan time-match time )
-        (cl-ppcre:register-groups-bind 
-            ((#'parse-integer hour min sec)) 
-            (time-match time)
-          (values sec min hour)))))
+(defun decode-time-string (time)
+  (ppcre:register-groups-bind 
+      ((#'parse-integer hour min sec)) 
+      ("(\\d{1,2}):(\\d{1,2})(?::(\\d{1,2}))?" time)
+    (values  hour min (or sec 0))))
 
 (defun decode-time-string-check (time)
-  (multiple-value-bind (second minute hour)
+  (multiple-value-bind (hour minute second)
         (decode-time-string time)
     (cond ((> hour 24)
            (values nil "Hour can not be more than 24."))
@@ -395,7 +393,7 @@
            (values nil "No time value can be less than 0."))
           ((and (= hour 24) (or (> minute 0) (> second 0)))
            (values nil "Time can not be more than 24 hours."))
-          (t (values second minute hour)))))
+          (t (values hour minute second)))))
 
 (defun decode-date (date)
   (etypecase date

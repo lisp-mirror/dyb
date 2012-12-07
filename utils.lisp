@@ -41,9 +41,23 @@ divided by char."
 (defun intern-key (value)
   (intern (format nil "~:@(~a~)" value) "KEYWORD"))
 
+;;; That's a strange name choice
 (defun blank-p (value)
   (and value
        (not (equal value ""))))
+
+(defun trim-whitespace (string)
+  (string-trim '(#\Space #\Newline #\Tab #\Return) string))
+
+(defun clean-white-space (string)
+  (if (stringp string)
+      (ppcre:regex-replace-all " +" (trim-whitespace string)
+                               " ")
+      string))
+
+(defun empty-p (value)
+  (or (null value)
+      (equal (trim-whitespace value) "")))
 
 (defun slot-val (instance slot-name)
   (if (and instance
