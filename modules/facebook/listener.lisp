@@ -67,8 +67,8 @@
                                             'channel-user-name) 
                                    (get-val user 'channel-user-name))
                      (if (get-val doc 'end-time)
-                         (if (> (universal-to-gmt-0 (get-val doc 'end-time))
-                                (universal-to-gmt-0 date))
+                         (if (> (get-val doc 'end-time)
+                                date)
                              (setf date (get-val doc 'end-time))))))
                (facebook-insight-value-collection))
     date))
@@ -136,16 +136,13 @@
 
 (defun facebook-refresh-feeds ()
   (dolist (user (coerce (channel-users) 'list ))
-     (when (and user (string-equal (get-val user 'doc-status) "Active"))
+    (when (and user (string-equal (get-val user 'doc-status) "Active"))
       ;;TODO: How to get error messages in for users without access tokens.
       (when (string-equal (get-val user 'channel-user-type) "Facebook")
         (when (get-val user 'last-access-token)
           (let ((last-date (get-last-post-date user)))
-
             (multiple-value-bind (posts error)
                 (facebook-feed user (if (> last-date 0)
                                         last-date))
               (unless error
-                (parse-facebook-posts user posts 'facebook-feed)
-              
-                ))))))))
+                (parse-facebook-posts user posts 'facebook-feed)))))))))

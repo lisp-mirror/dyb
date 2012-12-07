@@ -24,14 +24,15 @@
   (handle-endpoint 
    user
    (drakma:http-request 
-           (format nil "https://graph.facebook.com/~A/feed?limit=2000&since=~A&access_token=~A" 
-                   (url-encode (get-val user 'user-id))
-                   (if since
-                       (if (stringp since)
-                           since
-                           (universal-time-to-unix-time (universal-to-gmt-0 since)))
-                       (universal-time-to-unix-time (parse-date "01 Jan 2012")))
-                   (get-val user 'last-access-token)))))
+    (format nil "https://graph.facebook.com/~A/feed?limit=2000&since=~A&access_token=~A" 
+            (url-encode (get-val user 'user-id))
+            (etypecase since
+              (string since)
+              (integer
+               (universal-time-to-unix-time since))
+              (null
+               (universal-time-to-unix-time (parse-date "01 Jan 2012"))))
+            (get-val user 'last-access-token)))))
 
 (defun post-facebook (user-id message)
   (let ((user (get-channel-user-by-user-id user-id)))
@@ -152,7 +153,7 @@
                    (if since
                        (if (stringp since)
                            since
-                           (universal-time-to-unix-time (universal-to-gmt-0 since)))
+                           (universal-time-to-unix-time since))
                        (universal-time-to-unix-time (parse-date "01 Jan 2012")))
                    (if until
                        (if (stringp until)

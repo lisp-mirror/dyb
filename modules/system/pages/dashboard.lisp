@@ -72,8 +72,8 @@
                (get-facebook-insight-values 
                 user 
                 (get-facebook-insight-by-name "page_fans")
-                (- (universal-to-gmt-0 now)  (* 60 60 24 5)) 
-                (universal-to-gmt-0 now))))
+                (- now  (* 60 60 24 5)) 
+                now)))
           
           ;;(break "~A ~A" fans user)
           (when fans
@@ -93,10 +93,8 @@
                     (get-facebook-insight-values 
                      user 
                      (get-facebook-insight-by-name "page_fan_adds")
-                     (- (universal-to-gmt-0 now)  (* 60 60 24 
-                                                     i )) 
-                     (- (universal-to-gmt-0 now)  (* 60 60 24 
-                                                     (- i 1) )))))
+                     (- now (* 60 60 24 i)) 
+                     (- now (* 60 60 24 (- i 1))))))
                (when fans
                  
                  (when (get-val fans 'value)

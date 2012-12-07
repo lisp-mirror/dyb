@@ -25,7 +25,6 @@
            (split-time (split-string
                         (first (split-string (second split) #\+))
                         #\:)))
-      
       (encode-universal-time 
        (parse-trim-integer (third split-time))
        (parse-trim-integer (second split-time))
@@ -33,8 +32,7 @@
        (parse-trim-integer (third split-date))
        (parse-trim-integer (second split-date)) 
        (parse-trim-integer (first split-date))
-       -2)))
-  )
+       (time-zone)))))
 
 (defun parse-facebook-posts (channel-user posts stream-type)
   (dolist (post (gpv posts :data))

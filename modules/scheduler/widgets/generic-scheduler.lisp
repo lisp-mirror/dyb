@@ -14,11 +14,11 @@
 
 (defun least-universal-date (date)
   (multiple-value-bind (year month day) (decode-date date)
-    (encode-universal-time 0 0 0 day month year *time-zone*)))
+    (encode-universal-time 0 0 0 day month year (time-zone))))
 
 (defun greatest-universal-date (date)
   (multiple-value-bind (year month day) (decode-date date)
-    (encode-universal-time 59 59 23 day month year *time-zone*)))
+    (encode-universal-time 59 59 23 day month year (time-zone))))
 
 (defun make-day-date-range (date)
   (when date
@@ -369,7 +369,7 @@ function() {$('#message-length').text($(this).val().length)})")))
                       (setf date-time 
                             (encode-universal-time 
                              second minute hour day month year 
-                             -2))
+                             (time-zone)))
 
                       (cond ((xid doc)
 

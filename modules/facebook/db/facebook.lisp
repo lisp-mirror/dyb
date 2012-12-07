@@ -82,18 +82,14 @@
 (defun get-facebook-insight-values (channel-user insight start-time end-time)
   (find-doc  
    (facebook-insight-value-collection)
-    :test (lambda (doc)
-            (when (equal (id channel-user) (id (get-val doc 'channel-user)))
-                (when (string-equal (get-val (get-val doc 'insight) 'insight-name) 
-                               (get-val insight 'insight-name))
-                  
-                    (when (and 
-                         (<= (universal-to-gmt-0 start-time)  
-                             (universal-to-gmt-0 (get-val doc 'end-time)))
-                         (>= (universal-to-gmt-0 end-time) 
-                             (universal-to-gmt-0 (get-val doc 'end-time))))
-                      
-                        doc))))))
+   :test (lambda (doc)
+           (when (and
+                  (equal (id channel-user) (id (get-val doc 'channel-user)))
+                  (string-equal (get-val (get-val doc 'insight) 'insight-name) 
+                                (get-val insight 'insight-name))
+                  (<= start-time (get-val doc 'end-time))
+                  (>= end-time (get-val doc 'end-time)))
+             doc))))
 
 
 

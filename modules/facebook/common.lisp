@@ -192,7 +192,6 @@
   (dolist (action (coerce (generic-actions) 'list))
     (when (string-equal (get-val action 'action-status) "Pending")
       (let ((now (get-universal-time)))
-        
-        (when (< (universal-to-my-gmt (get-val action 'scheduled-date))
-                 (universal-to-my-gmt now))
+        (when (< (get-val action 'scheduled-date)
+                 now)
           (post-scheduled-action action))))))
