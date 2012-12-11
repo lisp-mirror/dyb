@@ -447,7 +447,7 @@ function() {$('#message-length').text($(this).val().length)})")))
               (finish-editing grid))
             ;; (unless (or from-user to-user)
             ;;     (setf (error-message grid) "User does not exist."))
-            ))))))
+            )))))
 
 
 ;;;
