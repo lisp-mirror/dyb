@@ -88,6 +88,7 @@
       (format nil "https://graph.facebook.com/~A/photos"
               user-id)
       :method :post
+      :content-type "application/x-www-form-urlencoded; charset=UTF-8"
       :content-length t     
       :parameters `(("message" . ,message)
                     ("type" . "picture")

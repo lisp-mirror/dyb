@@ -321,6 +321,41 @@ function() {$('#message-length').text($(this).val().length)})")))
         (t (c)
           (grid-error (princ-to-string c)))))))
 
+(defvar *string-substitution*
+  '((#\FIGURE_DASH "-")
+    (#\EN_DASH "-")
+    (#\EM_DASH "-")
+    (#\HYPHEN "-")
+    (#\MACRON "-")
+    (#\DOUBLE_LOW_LINE "_")
+    (#\COMBINING_GRAVE_ACCENT "'")
+    (#\COMBINING_ACUTE_ACCENT "'")
+    (#\RIGHT_SINGLE_QUOTATION_MARK "'")
+    (#\LEFT_SINGLE_QUOTATION_MARK "'")
+    (#\GREEK_TONOS "'")
+    (#\SINGLE_HIGH-REVERSED-9_QUOTATION_MARK "'")
+    (#\SINGLE_LOW-9_QUOTATION_MARK "'")
+    (#\DOUBLE_ACUTE_ACCENT "\"")
+    (#\LEFT_DOUBLE_QUOTATION_MARK "\"")
+    (#\RIGHT_DOUBLE_QUOTATION_MARK "\"")
+    (#\DOUBLE_LOW-9_QUOTATION_MARK "\"")
+    (#\… "...")
+    ))
+
+
+
+(defun sanitize-string (string)
+  (if #+sbcl(typep string 'simple-base-string)
+      #-sbcl nil
+      string
+      (with-output-to-string (str)
+        (loop for char across string
+              for subst = (cadr (assoc char *string-substitution* :test #'char=))
+              do (if subst
+                     (write-string subst str)
+                     (write-char char str))))))
+
+
 (defmethod handle-action ((grid generic-actions-grid) (action (eql 'save)))
   (setf (error-message grid) nil)
   (when (and (string-equal (parameter "form-id") "schedule-action-form"))
@@ -355,43 +390,65 @@ function() {$('#message-length').text($(this).val().length)})")))
               (short-url (if (blank-p (parameter "post-url"))
                              (make-short-url (parameter "post-url")))))
             
-          (when doc
-            (let ((date-time (parse-action-date)))
-              (cond ((xid doc)
-                     (synq-edit-data doc)
-                     (setf
-                      (channel-user doc) (get-channel-user-by-user-id 
-                                          (parameter "channel-user"))
-                      (get-val doc 'action-content) (string-trim 
-                                                     '(#\space #\tab #\newline 
-                                                       #\linefeed #\return) 
-                                                     (parameter "action-content"))
-                      (get-val doc 'action-status) (parameter "action-status")
-                      (post-type doc) (parameter "service")
-                      (from-user-id doc) (parameter "channel-user")
-                      (get-val doc 'image-url) image
-                      (scheduled-date doc) date-time
-                      (image-url doc) image
-                      (short-url doc) short-url)
-                     (persist doc))
-                    (t
-                     (persist (make-generic-action
-                               (get-channel-user-by-user-id (parameter "channel-user"))
-                               nil 
-                               (parameter "service")
+            (when doc
+              (let ((date-time nil))
+                (multiple-value-bind (year month day)
+                    (decode-date-string (parameter "scheduled-date"))
+                  (multiple-value-bind (second minute hour)
+                      (decode-time-string (format nil "~A:00" (parameter "scheduled-time")))
+                    (when second
+                      (setf date-time 
+                            (encode-universal-time 
+                             second minute hour day month year 
+                             -2))
+
+                      (cond ((xid doc)
+
+                             (synq-edit-data doc)
+                             (setf
+                              (channel-user doc) (get-channel-user-by-user-id 
+                                                  (parameter "channel-user"))
+                              (get-val doc 'action-content) (string-trim 
+                                                             '(#\space #\tab #\newline 
+                                                               #\linefeed #\return) 
+                                                             (parameter "action-content"))
+                              (get-val doc 'action-status) (sanitize-string (parameter "action-status"))
+                              (post-type doc) (parameter "service")
+                              (from-user-id doc) (parameter "channel-user")
+                              (get-val doc 'image-url) image
+                              (scheduled-date doc) date-time
+                              (image-url doc) image
+                              (short-url doc) short-url
+                              )
+                         
+                             (persist doc))
+                            (t
+                         
+                             (persist (make-generic-action    
+                                       (get-channel-user-by-user-id (parameter "channel-user"))
+                                       nil 
+                                       (parameter "service")
                                     
-                               (parameter "channel-user") 
-                               to-user 
-                               (parameter "action-type")
-                               (string-trim '(#\Space #\Tab #\Newline) 
-                                            (parameter "action-content"))
-                               "Timed"
-                               date-time
-                               :image-url image
-                               :post-url (parameter "post-url")
-                               :short-url short-url
-                               :action-status (parameter "action-status"))))))
-            (finish-editing grid)))))))
+                                       (parameter "channel-user") 
+                                       to-user 
+                                       (parameter "action-type")
+                                       (string-trim '(#\space #\tab #\newline 
+                                                            #\linefeed #\return) 
+                                                    (parameter "action-content"))
+                                       "Timed"
+                                       date-time
+                                       :image-url image
+                                       :post-url (parameter "post-url")
+                                       :short-url short-url
+                                       :action-status (sanitize-string (parameter "action-status")))))))
+                    (unless second
+                      (setf (error-message grid) minute)))))
+
+              (finish-editing grid))
+            ;; (unless (or from-user to-user)
+            ;;     (setf (error-message grid) "User does not exist."))
+            ))))))
+
 
 ;;;
 
