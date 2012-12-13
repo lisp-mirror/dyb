@@ -374,7 +374,7 @@ function() {$('#message-length').text($(this).val().length)})")))
                   (if (blank-p (parameter "post-url")) 
                       20
                       0))))
-      (if (and (equal (parameter "service") "twitter")
+      (if (and (string-equal (parameter "service") "twitter")
                (>= len 140))
           (grid-error "Message to long - ~A. (Remember that image and link url's are also counted.)"
                       len))
