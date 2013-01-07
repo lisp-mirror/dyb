@@ -344,7 +344,8 @@
            linkedin-connections-count)|#
     
     (with-html
-      (render page
+      "We are in the process of converting data for new metrics calculations over the next 48 hours. We appologize for ano inconvenience."
+      #|(render page
               :body 
               (with-html-to-string ()
                 (:div :class "container-fluid"
@@ -577,5 +578,7 @@
                             )
                 
                       
-                      ))))))
+                      )))|#
+
+)))
 
