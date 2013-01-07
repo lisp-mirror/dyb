@@ -348,7 +348,7 @@
       (render page
               :body 
               (with-html-to-string ()
-                "We are in the process of converting data over the next 72 hours for new metrics calculations. We appologize for any inconvenience."
+                "We are in the process of converting data over the next 72 hours for new metrics calculations. We apologize for any inconvenience."
                 #|
 
                 (:div :class "container-fluid"
