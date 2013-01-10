@@ -63,7 +63,9 @@
                                    :data)))))))
     count))
 
-(defun fb-fans-count ()
+
+
+(defun fb-insight-count (insight-name)
   (let ((count 0)
         (now (get-universal-time)))
     (dolist (user (coerce (channel-users) 'list ))
@@ -71,36 +73,58 @@
         (let ((fans
                (get-facebook-insight-values 
                 user 
-                (get-facebook-insight-by-name "page_fans")
+                (get-facebook-insight-by-name insight-name)
                 (- now  (* 60 60 24 5)) 
                 now)))
-          
-          ;;(break "~A ~A" fans user)
+
           (when fans
             
             (when (get-val fans 'value)
               (incf count (get-val fans 'value)))))))
     count))
 
-(defun fb-fans-adds-count (interval)
+(defun fb-insight-interval-count (insight-name interval)
   (let ((count 0)
         (now (get-universal-time)))
     (dolist (user (coerce (channel-users) 'list ))
+      (when (valid-channel-user user "Facebook")
+        (dolist (insights (get-facebook-insight-values 
+                           user 
+                           (get-facebook-insight-by-name insight-name) 
+                           (- now (* 60 60 24 interval))
+                           now))
+          (when insights
+            (when (get-val insights 'value)
+              (incf count (get-val insights 'value)))))))
+    count))
+
+(defun fb-fans-count ()
+  (fb-insight-count "page_fans"))
+
+(defun fb-fans-adds-count (interval)
+  (fb-insight-interval-count "page_fan_adds" interval))
+
+(defun fb-like-adds-count (interval)
+  (fb-insight-interval-count "page_like_adds" interval))
+
+
+(defun fb-insight-range-count (insight-name start-date end-date)
+  (let ((count 0))
+    (dolist (user (coerce (channel-users) 'list ))
       (when (valid-channel-user user "Facebook")  
-        (loop for i from 0 to (- interval 1)
-             do
-             (let ((fans
+        (let ((fans
                     (get-facebook-insight-values 
                      user 
-                     (get-facebook-insight-by-name "page_fan_adds")
-                     (- now (* 60 60 24 i)) 
-                     (- now (* 60 60 24 (- i 1))))))
+                     (get-facebook-insight-by-name insight-name)
+                     start-date 
+                     end-date)))
                (when fans
-                 
                  (when (get-val fans 'value)
-                 ;;  (break "~A" (format-universal-date (get-val fans 'end-time)))
-                   (incf count (get-val fans 'value))))))))
+                   (incf count (get-val fans 'value)))))))
     count))
+
+(defun fb-like-adds-range-count (start-date end-date)
+  (fb-insight-range-count "page_like_adds" start-date end-date))
 
 (defun twitter-followers-count ()
   (let ((count 0))
@@ -319,16 +343,23 @@
 
 (define-easy-handler (dashboard-page :uri "/dyb/dashboard") ()
   
-  (let ((page (make-widget 'page :name "dashboard-page"))
-        (posts-scheduled-count (posts-scheduled-count 30))
-        (fb-comments-made (fb-comments-made 30))
-        (fb-likes-made (fb-likes-made 30))
-        (twitter-retweets (twitter-retweets 30))
-        (fb-friends-count (fb-friends-count))
-        (fb-fans-count (fb-fans-count))
-        (fb-fans-adds-count (fb-fans-adds-count 30))
-        (twitter-followers-count (twitter-followers-count))
-        (linkedin-connections-count (linkedin-connections-count)))
+  (let* ((interval 7)
+         (now (get-universal-time))
+         (interval-start-date (- now (* 60 60 24 interval)))
+         (interval-end-date now)
+         (previous-interval-start-date (- now (* 60 60 24 (* interval 2))))
+         (previous-interval-end-date (- now (* 60 60 24 interval)) )
+         (page (make-widget 'page :name "dashboard-page"))
+         (posts-scheduled-count (posts-scheduled-count interval))
+         (fb-comments-made (fb-comments-made interval))
+         (fb-likes-made (fb-likes-made interval))
+         (twitter-retweets (twitter-retweets interval))
+         (fb-friends-count (fb-friends-count))
+         (fb-fans-count (fb-fans-count))
+         (fb-fans-adds-count (fb-fans-adds-count interval))
+         (fb-like-adds-count (fb-like-adds-count interval))
+         (twitter-followers-count (twitter-followers-count))
+         (linkedin-connections-count (linkedin-connections-count)))
 
 
 
@@ -348,8 +379,8 @@
       (render page
               :body 
               (with-html-to-string ()
-                "We are in the process of converting data over the next 72 hours for new metrics calculations. We apologize for any inconvenience."
-                #|
+                ;;"We are in the process of converting data over the next 72 hours for new metrics calculations. We apologize for any inconvenience."
+                
 
                 (:div :class "container-fluid"
                       (:div :class "page-header"
@@ -514,22 +545,44 @@
                                  "FACEBOOK") )
                       (:div :class "row-fluid"
                             
-                            (str (board-stats (format nil "0,~A" fb-likes-made) 
+                            (str (board-stats (format nil "~A,~A" 
+                                                      (fb-like-adds-range-count 
+                                                       (- now (* 60 60 24 (* interval 2))) 
+                                                       (- now (* 60 60 24 interval)))
+                                                      (fb-like-adds-range-count 
+                                                       (- now (* 60 60 24 interval)) 
+                                                       now)) 
                                               "New Likes" 
                                               (list "facebook_like") 
                                               "bar-chart" "span3"))
-                            (str (board-stats (format nil "0,~A" 0)
+                            (str (board-stats (format nil "~A,~A" 
+                                                      (fb-insight-range-count 
+                                                       "page_views" 
+                                                       previous-interval-start-date 
+                                                       previous-interval-end-date)
+                                                      (fb-insight-range-count 
+                                                       "page_views" 
+                                                       interval-start-date 
+                                                       interval-end-date))
                                               "Page Impressions" 
                                               (list "documents")
                                               "bar-chart" "span3"))
-                            (str (board-stats (format nil "0,~A" fb-fans-count)
+                            (str (board-stats (format nil "~A,~A" 
+                                                      (fb-insight-range-count 
+                                                       "page_fans" 
+                                                       previous-interval-start-date 
+                                                       previous-interval-end-date)
+                                                      (fb-insight-range-count 
+                                                       "page_fans" 
+                                                       interval-start-date 
+                                                       interval-end-date))
                                               "Total Fans" 
                                               (list "users")
                                               "bar-chart" "span3"))
-                            (str (board-stats "0,0"
+                            #|(str (board-stats "0,0"
                                               "Demographics" 
                                               (list "male_contour" "female_contour")
-                                              "pie-chart" "span2"))
+                                              "pie-chart" "span2"))|#
                             )
                       
                       
@@ -551,11 +604,12 @@
                                               "Total Fans" 
                                               (list "users")
                                               "bar-chart" "span3"))
-                            (str (board-stats "0,0"
+                            #|(str (board-stats "0,0"
                                               "Demographics" 
                                               (list "male_contour" "female_contour")
-                                              "pie-chart" "span2"))
+                                              "pie-chart" "span2"))|#
                             )
+                      #|
                       (:div :class "page-header"
                             (:h3 (:span :class "black-icons linkedin" 
                                         :style "margin-top:1px;" )
@@ -579,8 +633,8 @@
                                               (list "male_contour" "female_contour")
                                               "pie-chart" "span2"))
                             )
-                
+                |#
                       
-                      ))|#
-)))))
+                      ))
+))))
 

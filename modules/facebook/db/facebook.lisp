@@ -80,16 +80,20 @@
              (equal end-time (get-val doc 'end-time) )))))
 
 (defun get-facebook-insight-values (channel-user insight start-time end-time)
-  (find-doc  
-   (facebook-insight-value-collection)
-   :test (lambda (doc)
+(when (stringp insight)
+  (break "~A" insight))
+  (find-docs  
+   'list
+   (lambda (doc)
            (when (and
                   (equal (id channel-user) (id (get-val doc 'channel-user)))
                   (string-equal (get-val (get-val doc 'insight) 'insight-name) 
                                 (get-val insight 'insight-name))
                   (<= start-time (get-val doc 'end-time))
                   (>= end-time (get-val doc 'end-time)))
-             doc))))
+             doc))
+   (facebook-insight-value-collection)
+   ))
 
 
 
