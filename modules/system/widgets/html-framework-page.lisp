@@ -363,8 +363,11 @@
  font-size:12px;
 }
 ")
+       "
+"
        (page-include-css)
-
+       "
+"
        "<script type=\"text/javaScript\">
 function timedRefresh(timeoutPeriod) {
 var okToRefresh = confirm(\"Do you really want to refresh the page?\");
