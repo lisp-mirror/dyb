@@ -214,6 +214,14 @@
      (* (- (time-zone)) 
         (* 60 60))))
 
+(defun format-date-dash (year month day)
+  (format nil "~d-~d-~d"  year month day))
+
+(defun format-universal-date-dash (universal-date)  
+  (if (stringp universal-date)
+      universal-date
+      (multiple-value-call #'format-date-dash (decode-date universal-date))))
+
 (defun format-date (year month day)
   (format nil "~d ~a ~d"  day (short-month-name month) year))
 

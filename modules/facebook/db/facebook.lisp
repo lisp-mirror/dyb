@@ -80,8 +80,6 @@
              (equal end-time (get-val doc 'end-time) )))))
 
 (defun get-facebook-insight-values (channel-user insight start-time end-time)
-(when (stringp insight)
-  (break "~A" insight))
   (find-docs  
    'list
    (lambda (doc)

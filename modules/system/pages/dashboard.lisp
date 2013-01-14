@@ -78,9 +78,9 @@
                 now)))
 
           (when fans
-            
-            (when (get-val fans 'value)
-              (incf count (get-val fans 'value)))))))
+            (dolist (fan fans)
+              (when (get-val fan 'value)
+                (incf count (get-val fan 'value))))))))
     count))
 
 (defun fb-insight-interval-count (insight-name interval)
@@ -94,6 +94,7 @@
                            (- now (* 60 60 24 interval))
                            now))
           (when insights
+            
             (when (get-val insights 'value)
               (incf count (get-val insights 'value)))))))
     count))
@@ -119,8 +120,9 @@
                      start-date 
                      end-date)))
                (when fans
-                 (when (get-val fans 'value)
-                   (incf count (get-val fans 'value)))))))
+                 (dolist (fan fans)
+                   (when (get-val fan 'value)
+                     (incf count (get-val fan 'value))))))))
     count))
 
 (defun fb-like-adds-range-count (start-date end-date)
@@ -263,9 +265,9 @@
                                   (str title))
                             ))))))
 
-(defun network-size-graph (data)
+(defun network-size-graph (min-date max-date data)
   (with-html-string
-    (:div :class "span4"
+    (:div :class "span9"
           (:div :class "graph-wrap"
                 (:div :class "chart-block"
                       (let ((network-size 
@@ -275,7 +277,10 @@
                         (setf (get-val network-size 'data) data)
                         (setf (title network-size) "Current Network Size")
                         (setf (x network-size)
-                              '(:type :date
+                              `(:type :date
+                                :tick-interval "1 days"
+                                :min ,min-date
+                                :max ,max-date
                                 :tick-options (:format-string "%b&nbsp;%#d")))
                         (setf (y network-size)
                               '(:type :log
@@ -341,6 +346,16 @@
                                 ))
                         (render engagement)))))))
 
+
+(defun facebook-last-insight ()
+  (dolist (user (coerce (channel-users) 'list ))
+      (when (match-context-entities user)
+        (when (and user (string-equal (get-val user 'doc-status) "Active"))
+          ;;TODO: How to get error messages in for users without access tokens.
+          (when (string-equal (get-val user 'channel-user-type) "Facebook")
+            (when (get-val user 'last-access-token)
+              (return-from facebook-last-insight  (get-last-insight-date user))))))))
+
 (define-easy-handler (dashboard-page :uri "/dyb/dashboard") ()
   
   (let* ((interval 7)
@@ -379,7 +394,7 @@
       (render page
               :body 
               (with-html-to-string ()
-                "We are testing dashboard calculations. We apologize for any inconvenience."
+                (str (format nil "Facebook insights recalculated up to ~A. We apologize for any inconvenience." (format-universal-date-time (facebook-last-insight))))
                 
 
                 (:div :class "container-fluid"
@@ -413,7 +428,7 @@
                                   ))
                       (:div :class "page-header"
                             (:h3 "OVERVIEW") )
-                      (:div :class "row-fluid"
+                     #| (:div :class "row-fluid"
                             (:form :name "dash-date-form"
                              (str "From" )
                              (:input :type "text" 
@@ -423,6 +438,7 @@
                              (:input :type "text" 
                                      :name "to-date" 
                                      :value (parameter "to-date"))))
+                      |#
                       (:div :class "row-fluid"
                             (str (dash-small-stat-graph 
                                   "Reach"
@@ -461,30 +477,121 @@
                                   100)
                                    )
                             )
-                       
+                      #|(break "~A" `((,(format nil "\"~A\""
+                                              (format-universal-date-dash (- now (* 60 60 24 8))))
+                                      ,(fb-insight-range-count 
+                                        "page_fans" 
+                                        (- now (* 60 60 24 8)) 
+                                        (- now (* 60 60 24 7)))))) |#
                    (:div :class "row-fluid"
-                            (str (network-size-graph `(
-                                                       ,(if (> (or (+  fb-friends-count
-                                                                       fb-fans-count)
-                                                                   0))
-                                                           `(("2012-11-21" 
-                                                             ,(or (+  fb-friends-count
-                                                                       fb-fans-count) 
-                                                                  0) 
-                                                             )
-                                                            ("2012-11-22" 
-                                                             ,(or fb-friends-count 0))))
-                                                       ,(if (> (or twitter-followers-count 0) 0)
-                                                           `(("2012-11-21" 
-                                                             ,(or twitter-followers-count 0))
-                                                            ("2012-11-22" 
-                                                             ,(or twitter-followers-count 0))))
-                                                        (if (> (or linkedin-connections-count 0) 0)
-                                                            `(("2012-11-21" 
-                                                               ,(or linkedin-connections-count 0))
-                                                              ("2012-11-22" 
-                                                               ,(or linkedin-connections-count 0)))))))
-                            (str (engagement-graph `((("Likes" ,fb-likes-made)
+                            (str (network-size-graph
+                                  (format-universal-date-dash (- now (* 60 60 24 8)))
+                                  (format-universal-date-dash (- now (* 60 60 24 1)))
+                                  `(
+                                    #|
+                                    ,(if (> (or (+  fb-friends-count
+                                    fb-fans-count)
+                                    0))
+                                    `(("2012-11-21" 
+                                    ,(or (+  fb-friends-count
+                                    fb-fans-count) 
+                                    0) 
+                                    )
+                                    ("2012-11-22" 
+                                    ,(or fb-friends-count 0))))
+                                    |#
+                                    `(("2013-01-06";,(format nil "\"~A\"" (format-universal-date-dash (- now (* 60 60 24 8))))
+                                        ,(fb-insight-range-count 
+                                          "page_fans" 
+                                          (- now (* 60 60 24 8)) 
+                                          (- now (* 60 60 24 7))))
+                                      #|
+                                      (,(format-universal-date-dash (- now (* 60 60 24 7)))
+                                        ,(fb-insight-range-count 
+                                          "page_fans" 
+                                          (- now (* 60 60 24 7)) 
+                                          (- now (* 60 60 24 6))))
+                                      (,(format-universal-date-dash (- now (* 60 60 24 6)))
+                                        ,(fb-insight-range-count 
+                                          "page_fans" 
+                                          (- now (* 60 60 24 6)) 
+                                          (- now (* 60 60 24 5))))
+                                      (,(format-universal-date-dash (- now (* 60 60 24 5)))
+                                        ,(fb-insight-range-count 
+                                          "page_fans" 
+                                          (- now (* 60 60 24 5)) 
+                                          (- now (* 60 60 24 4))))
+                                      (,(format-universal-date-dash (- now (* 60 60 24 4)))
+                                        ,(fb-insight-range-count 
+                                          "page_fans" 
+                                          (- now (* 60 60 24 4)) 
+                                          (- now (* 60 60 24 3))))
+                                      (,(format-universal-date-dash (- now (* 60 60 24 3)))
+                                        ,(fb-insight-range-count 
+                                          "page_fans" 
+                                          (- now (* 60 60 24 3)) 
+                                          (- now (* 60 60 24 2))))
+                                      (,(format-universal-date-dash (- now (* 60 60 24 2)))
+                                        ,(fb-insight-range-count 
+                                          "page_fans" 
+                                          (- now (* 60 60 24 2)) 
+                                          (- now (* 60 60 24 1))))
+                                      (,(format-universal-date-dash (- now (* 60 60 24 1)))
+                                        ,(fb-insight-range-count 
+                                          "page_fans" 
+                                          (- now (* 60 60 24 1)) 
+                                          (- now )))
+                                      |#
+                                      )
+                                     
+                                     ,(if (> (or twitter-followers-count 0) 0)
+                                          `(("2013-01-06" 
+                                             ,(or twitter-followers-count 0))
+                                           #|
+                                            ("2013-1-7" 
+                                             ,(or twitter-followers-count 0))
+                                            ("2013-1-8" 
+                                             ,(or twitter-followers-count 0))
+                                            ("2013-1-9" 
+                                             ,(or twitter-followers-count 0))
+                                            ("2013-1-10" 
+                                             ,(or twitter-followers-count 0))
+                                            ("2013-1-11" 
+                                             ,(or twitter-followers-count 0))
+                                            ("2013-1-12" 
+                                             ,(or twitter-followers-count 0))
+                                            ("2013-1-13" 
+                                             ,(or twitter-followers-count 0))
+                                            |#
+                                            ))
+                                     (if (> (or linkedin-connections-count 0) 0)
+                                         `(("2013-01-06" 
+                                            ,(or linkedin-connections-count 0))
+                                           #|
+                                           ("2013-1-7" 
+                                            ,(or linkedin-connections-count 0))
+                                           ("2013-1-8" 
+                                            ,(or linkedin-connections-count 0))
+                                           ("2013-1-9" 
+                                            ,(or linkedin-connections-count 0))
+                                           ("2013-1-10" 
+                                            ,(or linkedin-connections-count 0))
+                                           ("2013-1-11" 
+                                            ,(or linkedin-connections-count 0))
+                                           ("2013-1-12" 
+                                            ,(or linkedin-connections-count 0))
+                                           ("2013-1-13" 
+                                            ,(or linkedin-connections-count 0))
+                                           |#
+                                           ))
+                                           
+                                     
+                                     )))
+                            
+                            
+                            )
+                   (:div :class "row-fluid"
+                         (str (engagement-graph `((("Likes" ,fb-likes-made)
                                                       ("Clicks" 0)
                                                       ("Comments" ,fb-comments-made)
                                                       ("Retweets" ,twitter-retweets)
@@ -492,8 +599,7 @@
                                                       ("Posts" ,posts-scheduled-count)
                                                       ("Mentions" 0)
                                                       ("Direct Messages" 0)))))
-                            
-                            (:div :class "span2"
+                         (:div :class "span2"
                                   (:div :class "summary"
                                         (:h4 "CURRENT COMMUNITY SIZE")
                                         (:br)
@@ -508,9 +614,7 @@
                                                 "/appimg/user-accounts.png"
                                                 "All Accounts"
                                                 nil
-                                                ))
-                                          
-                                          )
+                                                )))
                                          (:li
                                           (str (community-summary-item  
                                                 " Facebook"
@@ -539,43 +643,101 @@
                                                 "LinkedIn Connections"
                                                 t
                                                 )))))))
-                      (:div :class "page-header"
+                   (:div :class "page-header"
                             (:h3 (:span :class "black-icons facebook" 
                                         :style "margin-top:1px;" )
-                                 "FACEBOOK") )
+                                 "FACEBOOK (Last 7 Days)") )
                       (:div :class "row-fluid"
                             
-                            (str (board-stats (format nil "~A,~A" 
+                            (str (board-stats (format nil "~A,~A,~A,~A,~A,~A,~A" 
                                                       (fb-like-adds-range-count 
-                                                       (- now (* 60 60 24 (* interval 2))) 
-                                                       (- now (* 60 60 24 interval)))
+                                                       (- now (* 60 60 24 8)) 
+                                                       (- now (* 60 60 24 7)))
                                                       (fb-like-adds-range-count 
-                                                       (- now (* 60 60 24 interval)) 
-                                                       now)) 
+                                                       (- now (* 60 60 24 7)) 
+                                                       (- now (* 60 60 24 6)))
+                                                      (fb-like-adds-range-count 
+                                                       (- now (* 60 60 24 6)) 
+                                                       (- now (* 60 60 24 5)))
+                                                      (fb-like-adds-range-count 
+                                                       (- now (* 60 60 24 5)) 
+                                                       (- now (* 60 60 24 4)))
+                                                      (fb-like-adds-range-count 
+                                                       (- now (* 60 60 24 4)) 
+                                                       (- now (* 60 60 24 3)))
+                                                      (fb-like-adds-range-count 
+                                                       (- now (* 60 60 24 3)) 
+                                                       (- now (* 60 60 24 2)))
+                                                      (fb-like-adds-range-count 
+                                                       (- now (* 60 60 24 2)) 
+                                                       (- now (* 60 60 24 1)))
+                                                      ) 
                                               "New Likes" 
                                               (list "facebook_like") 
                                               "bar-chart" "span3"))
-                            (str (board-stats (format nil "~A,~A" 
+                            (str (board-stats (format nil "~A,~A,~A,~A,~A,~A,~A" 
                                                       (fb-insight-range-count 
                                                        "page_views" 
-                                                       previous-interval-start-date 
-                                                       previous-interval-end-date)
+                                                       (- now (* 60 60 24 8)) 
+                                                       (- now (* 60 60 24 7)))
                                                       (fb-insight-range-count 
                                                        "page_views" 
-                                                       interval-start-date 
-                                                       interval-end-date))
+                                                       (- now (* 60 60 24 7)) 
+                                                       (- now (* 60 60 24 6)))
+                                                      (fb-insight-range-count 
+                                                       "page_views" 
+                                                       (- now (* 60 60 24 6)) 
+                                                       (- now (* 60 60 24 5)))
+                                                      (fb-insight-range-count 
+                                                       "page_views" 
+                                                       (- now (* 60 60 24 5)) 
+                                                       (- now (* 60 60 24 4)))
+                                                      (fb-insight-range-count 
+                                                       "page_views" 
+                                                       (- now (* 60 60 24 4)) 
+                                                       (- now (* 60 60 24 3)))
+                                                      (fb-insight-range-count 
+                                                       "page_views" 
+                                                       (- now (* 60 60 24 3)) 
+                                                       (- now (* 60 60 24 2)))
+                                                      (fb-insight-range-count 
+                                                       "page_views" 
+                                                       (- now (* 60 60 24 2)) 
+                                                       (- now (* 60 60 24 1)))
+                                                      )
                                               "Page Impressions" 
                                               (list "documents")
                                               "bar-chart" "span3"))
-                            (str (board-stats (format nil "~A,~A" 
+                            (str (board-stats (format nil "~A,~A,~A,~A,~A,~A,~A" 
                                                       (fb-insight-range-count 
                                                        "page_fans" 
-                                                       previous-interval-start-date 
-                                                       previous-interval-end-date)
+                                                       (- now (* 60 60 24 8)) 
+                                                       (- now (* 60 60 24 7)))
                                                       (fb-insight-range-count 
                                                        "page_fans" 
-                                                       interval-start-date 
-                                                       interval-end-date))
+                                                       (- now (* 60 60 24 7)) 
+                                                       (- now (* 60 60 24 6)))
+                                                      (fb-insight-range-count 
+                                                       "page_fans" 
+                                                       (- now (* 60 60 24 6)) 
+                                                       (- now (* 60 60 24 5)))
+                                                      (fb-insight-range-count 
+                                                       "page_fans" 
+                                                       (- now (* 60 60 24 5)) 
+                                                       (- now (* 60 60 24 4)))
+                                                      (fb-insight-range-count 
+                                                       "page_fans" 
+                                                       (- now (* 60 60 24 4)) 
+                                                       (- now (* 60 60 24 3)))
+                                                      (fb-insight-range-count 
+                                                       "page_fans" 
+                                                       (- now (* 60 60 24 3)) 
+                                                       (- now (* 60 60 24 2)))
+                                                      (fb-insight-range-count 
+                                                       "page_fans" 
+                                                       (- now (* 60 60 24 2)) 
+                                                       (- now (* 60 60 24 1)))
+                                                      )
                                               "Total Fans" 
                                               (list "users")
                                               "bar-chart" "span3"))
@@ -635,6 +797,8 @@
                             )
                 |#
                       
-                      ))
+                      )
+                
+                )
 ))))
 
