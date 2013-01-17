@@ -9,8 +9,7 @@
    :text
    :define-easy-handler
    :data
-   :next-sequence
-   :fmt)
+   :next-sequence)
   
   (:export
    :with-html-to-string

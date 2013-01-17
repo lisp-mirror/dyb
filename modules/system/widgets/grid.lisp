@@ -503,8 +503,8 @@ document.getElementById(\"~A\").submit();"
 (defun update-table (grid)
   (loop for parent in (ancestor-grids grid)
      do
-     (defer-js (fmt "updateTable('~a-table')" (name parent))))
-  (defer-js (fmt "updateTable('~a-table')" (name grid))))
+     (defer-js (frmt "updateTable('~a-table')" (name parent))))
+  (defer-js (frmt "updateTable('~a-table')" (name grid))))
 
 (defun open-dialog (widget grid &key (width 900) (height 500))
   (defer-js (format nil "$('#~a').dialog({width: ~A, height: ~A,~@

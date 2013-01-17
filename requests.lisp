@@ -64,13 +64,13 @@
   ())
 
 (defmethod render ((widget error-page) &key condition)
-  (let ((title (fmt "Error - ~a" (script-name*))))
+  (let ((title (frmt "Error - ~a" (script-name*))))
     (render (make-widget 'page :name "error" :title title)
             :body
             (with-html-to-string ()
               (:div :class "error-description"
                     (:strong :style "color: red;"
-                     "Error: ")
+                             "Error: ")
                     (princ condition))))))
 
 (defmethod hunchentoot:maybe-invoke-debugger ((condition error))

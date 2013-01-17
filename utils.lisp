@@ -11,11 +11,11 @@ divided by char."
           collect (subseq string i j)
           while j))
 
-(defun fmt (control-string &rest args)
+(defun frmt (control-string &rest args)
   (apply #'format nil control-string args))
 
 (defun fmt-float (n)
-  (fmt "~,2f" n))
+  (frmt "~,2f" n))
 
 (defun format-money (value &key (include-comma t))
   (typecase value

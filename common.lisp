@@ -463,10 +463,10 @@
           (str body))))
 
 (defun js-link (&rest code)
-  (fmt "javascript:{~{~a~^,~}}" code))
+  (frmt "javascript:{~{~a~^,~}}" code))
 
 (defun sub-name (widget name)
-  (fmt "~a-~a" (name widget) name))
+  (frmt "~a-~a" (name widget) name))
 
 (defun defer-js (code)
   (push code (getf *widget-parameters* :javascript-defer)))

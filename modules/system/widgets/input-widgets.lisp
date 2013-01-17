@@ -117,8 +117,8 @@
         for i from 0
         for checkbox = (make-widget 'checkbox
                                     :name (sub-name checkbox-list
-                                                    (fmt "~a-~a-~a"
-                                                         parent level i))
+                                                    (frmt "~a-~a-~a"
+                                                          parent level i))
                                     :description description
                                     :value selected
                                     :on-change (on-change checkbox-list)
@@ -127,13 +127,13 @@
                                     :on-click (when (check-all checkbox-list)
                                                 "updateCheckAll(this)")
                                     :style (and (plusp level)
-                                                (fmt "margin-left: ~apx;" (* 10 level))))
+                                                (frmt "margin-left: ~apx;" (* 10 level))))
         when change
         do (setf (value checkbox) selected
                  (description checkbox) description)
         do (setf (style checkbox)
                  (and (plusp level)
-                      (fmt "padding-left: ~apx;" (* 10 level))))
+                      (frmt "padding-left: ~apx;" (* 10 level))))
         collect (list* checkbox
                        (%create-checkboxes checkbox-list
                                            sub
@@ -180,7 +180,7 @@
     (let ((box (make-widget 'checkbox
                             :description "Check All"
                             :name (sub-name checkbox-list "all")
-                            :on-click (fmt "checkAll(this)" ())
+                            :on-click (frmt "checkAll(this)" ())
                             :on-change (on-change checkbox-list)
                             :submit-on-change
                             (submit-on-change checkbox-list))))
@@ -329,12 +329,12 @@ Please select a legal one"
           ;(value widget) (car values)
           )
     (when next-select
-      (defer-js (fmt "$('#~a select').trigger('change')" (name widget)))
-      (defer-js (fmt "$('#~a select').change(function(){~a;})"
-                     (name widget)
-                     (js-render next-select (fmt "[~s, $('#~a select').val()]"
-                                                 (name widget)
-                                                 (name widget))))))
+      (defer-js (frmt "$('#~a select').trigger('change')" (name widget)))
+      (defer-js (frmt "$('#~a select').change(function(){~a;})"
+                      (name widget)
+                      (js-render next-select (frmt "[~s, $('#~a select').val()]"
+                                                   (name widget)
+                                                   (name widget))))))
     (call-next-method)))
 
 (defgeneric retrieve-values (chained-select select values))
