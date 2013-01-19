@@ -40,7 +40,8 @@ $(function () {
     barSpacing: 2,
     barColor: '#0077bc',
     negBarColor: '#ea5409',
-    zeroColor: '#ff0000'});
+    zeroColor: '#ff0000',
+        chartRangeMin: '0'});
 	
 	 $('.composite-line').sparkline('html', { fillColor: false, width: '100'+'%',
 	  height: '80',
@@ -60,23 +61,27 @@ $(function () {
     $("#new-visits").sparkline('html', {
         type: 'bar',
         barColor: '#3366cc',
-        height: '25'
+        height: '25',
+        chartRangeMin: '0'
     });
 
     $("#weekly-sales").sparkline('html', {
         type: 'bar',
         barColor: '#3366cc',
-        height: '25'
+        height: '25',
+        chartRangeMin: '0'
     });
     $("#unique-visits").sparkline('html', {
         type: 'bar',
         barColor: '#3366cc',
-        height: '25'
+        height: '25',
+        chartRangeMin: '0'
     });
     $("#weekly-visit").sparkline('html', {
         type: 'bar',
         barColor: '#3366cc',
-        height: '25'
+        height: '25',
+        chartRangeMin: '0'
     });
     $('#weekly-visit').sparkline([4, 1, 5, 7, 9, 9], {
         composite: true,
