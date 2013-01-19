@@ -396,7 +396,7 @@
            (make-instance 
             'grid-column
             :name 'created-date
-            :header "Created"
+            :header "Posted"
             
             :printer #'format-universal-date-time)
            (make-instance 'grid-column

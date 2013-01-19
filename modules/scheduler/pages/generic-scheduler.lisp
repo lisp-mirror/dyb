@@ -5,13 +5,15 @@
           (list
            (make-instance 'grid-column
                           :name 'post-type
-                          :header "Channel"
-                         )
+                          :header "Channel")
            (make-instance 'grid-column
                           :name 'channel-user
-                          :header "User"
+                          :header "Channel Id"
                           :printer (lambda (user)
-                                     (get-val user 'channel-user-name)))  
+                                     (get-val user 'channel-user-name)))
+           (make-instance 'grid-column
+                          :name 'user
+                          :header "User")
            (make-instance 'grid-column
                           :name 'schedule-type
                           :header "Scheduled Type")

@@ -1,4 +1,4 @@
-(in-package :dyb)
+      (in-package :dyb)
 
 (defclass graph (ajax-widget)
   ((data :initarg :data
@@ -9,18 +9,18 @@
           :accessor title)
    )
   (:include-js "/appcss/site_style.css"
-   "/js/jquery.jqplot.min.js"
-   "/js/chart/jqplot.highlighter.min.js"
-   "/js/chart/jqplot.cursor.min.js"
-   "/js/chart/jqplot.barRenderer.min.js"
-   "/js/chart/jqplot.pointLabels.min.js"
-   "/js/chart/jqplot.dateAxisRenderer.min.js"
-   "/js/chart/jqplot.pieRenderer.min.js"
-   "/js/chart/jqplot.donutRenderer.min.js"
-   "/js/chart/jqplot.categoryAxisRenderer.min.js"
-   "/js/chart/jqplot.logAxisRenderer.min.js"
-   "/js/chart/jqplot.canvasTextRenderer.min.js"
-   "/js/chart/jqplot.canvasAxisTickRenderer.min.js")
+   "/js/jplot/jquery.jqplot.min.js"
+   "/js/jplot/plugins/jqplot.highlighter.min.js"
+   "/js/jplot/plugins/jqplot.cursor.min.js"
+   "/js/jplot/plugins/jqplot.barRenderer.min.js"
+   "/js/jplot/plugins/jqplot.pointLabels.min.js"
+   "/js/jplot/plugins/jqplot.dateAxisRenderer.min.js"
+   "/js/jplot/plugins/jqplot.pieRenderer.min.js"
+   "/js/jplot/plugins/jqplot.donutRenderer.min.js"
+   "/js/jplot/plugins/jqplot.categoryAxisRenderer.min.js"
+   "/js/jplot/plugins/jqplot.logAxisRenderer.min.js"
+   "/js/jplot/plugins/jqplot.canvasTextRenderer.min.js"
+   "/js/jplot/plugins/jqplot.canvasAxisTickRenderer.min.js")
   (:metaclass widget-class))
 
 (defclass line-graph (graph)

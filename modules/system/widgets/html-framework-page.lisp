@@ -359,15 +359,13 @@
 
        (:link :id "themes" :rel "stylesheet" :href "/css/theme-blue.css")
        (:style
-        "div.ui-datepicker{
+        "div.ui-datepicker {
  font-size:12px;
 }
 ")
-       "
-"
+       
        (page-include-css)
-       "
-"
+
        "<script type=\"text/javaScript\">
 function timedRefresh(timeoutPeriod) {
 var okToRefresh = confirm(\"Do you really want to refresh the page?\");

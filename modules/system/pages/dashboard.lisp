@@ -106,7 +106,7 @@
   (fb-insight-interval-count "page_fan_adds" interval))
 
 (defun fb-like-adds-count (interval)
-  (fb-insight-interval-count "page_like_adds" interval))
+  (fb-insight-interval-count "page_fan_adds" interval))
 
 
 (defun fb-insight-range-count (insight-name start-date end-date)
@@ -126,7 +126,7 @@
     count))
 
 (defun fb-like-adds-range-count (start-date end-date)
-  (fb-insight-range-count "page_like_adds" start-date end-date))
+  (fb-insight-range-count "page_fan_adds" start-date end-date))
 
 (defun twitter-followers-count ()
   (let ((count 0))
@@ -138,6 +138,35 @@
                                    (gethash "followers"
                                             (get-val user 'user-data))
                                    :ids)))))))
+    (if (> count 0)
+        (- count 1)
+        count)))
+
+(defun twitter-followers-day-range-count (start-date end-date)
+  (let ((count 0))
+    (dolist (user (coerce (channel-users) 'list ))
+      (when (valid-channel-user user "Twitter")
+        (when (and (>= (get-val user 'stamp-date) start-date)
+                   (<= (get-val user 'stamp-date) end-date))
+          (if (get-val user 'user-data)
+            (when (gethash "followers" (get-val user 'user-data))
+              (incf count (length (assoc-path
+                                   (gethash "followers"
+                                            (get-val user 'user-data))
+                                   :ids))))))
+        (unless (and (>= (get-val user 'stamp-date) start-date)
+                   (<= (get-val user 'stamp-date) end-date))
+          (let ((val 0))
+            (dolist (old (get-val user 'old-versions))
+              (when (gethash "followers" (get-val old 'user-data))
+                (setf val (length (assoc-path
+                                   (gethash "followers"
+                                            (get-val old 'user-data))
+                                   :ids))))
+              )
+            (incf count val)))
+
+        ))
     (if (> count 0)
         (- count 1)
         count)))
@@ -284,6 +313,7 @@
                                 :tick-options (:format-string "%b&nbsp;%#d")))
                         (setf (y network-size)
                               '(:type :log
+                                :min -1
                                 :tick-options (:format-string "")))
                         (setf (grid network-size)
                               '(:background "#fff"
@@ -356,10 +386,18 @@
             (when (get-val user 'last-access-token)
               (return-from facebook-last-insight  (get-last-insight-date user))))))))
 
+(defun universal-today ()
+  (multiple-value-bind (sec min hour day month year)
+          (decode-universal-time           
+           (get-universal-time)
+           (time-zone))
+    (declare (ignore sec min hour))
+    (encode-universal-time 0 0 0 day month year (time-zone))))
+
 (define-easy-handler (dashboard-page :uri "/dyb/dashboard") ()
   
   (let* ((interval 7)
-         (now (get-universal-time))
+         (now (universal-today))
          (interval-start-date (- now (* 60 60 24 interval)))
          (interval-end-date now)
          (previous-interval-start-date (- now (* 60 60 24 (* interval 2))))
@@ -374,7 +412,72 @@
          (fb-fans-adds-count (fb-fans-adds-count interval))
          (fb-like-adds-count (fb-like-adds-count interval))
          (twitter-followers-count (twitter-followers-count))
-         (linkedin-connections-count (linkedin-connections-count)))
+         (linkedin-connections-count (linkedin-connections-count)
+           )
+         (fb-fans-8  (fb-insight-range-count 
+                     "page_fans" 
+                     (- now (* 60 60 24 8)) 
+                     (- now (* 60 60 24 7))))
+         (fb-fans-7 (fb-insight-range-count 
+                     "page_fans" 
+                     (- now (* 60 60 24 7)) 
+                     (- now (* 60 60 24 6))))
+         (fb-fans-6 (fb-insight-range-count 
+                     "page_fans" 
+                     (- now (* 60 60 24 6)) 
+                     (- now (* 60 60 24 5))))
+         (fb-fans-5 (fb-insight-range-count 
+                     "page_fans" 
+                     (- now (* 60 60 24 5)) 
+                     (- now (* 60 60 24 4))))
+         (fb-fans-4 (fb-insight-range-count 
+                     "page_fans" 
+                     (- now (* 60 60 24 4)) 
+                     (- now (* 60 60 24 3))))
+         (fb-fans-3 (fb-insight-range-count 
+                     "page_fans" 
+                     (- now (* 60 60 24 3)) 
+                     (- now (* 60 60 24 2))))
+         (fb-fans-2 (fb-insight-range-count 
+                     "page_fans" 
+                     (- now (* 60 60 24 2)) 
+                     (- now (* 60 60 24 1))))
+         (twit-fans-1 (fb-insight-range-count 
+                     "page_fans" 
+                     (- now (* 60 60 24 1)) 
+                     now))
+         (twit-fans-8 (twitter-followers-day-range-count
+                      
+                     (- now (* 60 60 24 8)) 
+                     (- now (* 60 60 24 7))))
+         (twit-fans-7 (twitter-followers-day-range-count 
+                      
+                     (- now (* 60 60 24 7)) 
+                     (- now (* 60 60 24 6))))
+         (twit-fans-6 (twitter-followers-day-range-count 
+                      
+                     (- now (* 60 60 24 6)) 
+                     (- now (* 60 60 24 5))))
+         (twit-fans-5 (twitter-followers-day-range-count 
+                      
+                     (- now (* 60 60 24 5)) 
+                     (- now (* 60 60 24 4))))
+         (twit-fans-4 (twitter-followers-day-range-count 
+                      
+                     (- now (* 60 60 24 4)) 
+                     (- now (* 60 60 24 3))))
+         (twit-fans-3 (twitter-followers-day-range-count 
+                      
+                     (- now (* 60 60 24 3)) 
+                     (- now (* 60 60 24 2))))
+         (twit-fans-2 (twitter-followers-day-range-count 
+                      
+                     (- now (* 60 60 24 2)) 
+                     (- now (* 60 60 24 1))))
+         (twit-fans-1 (twitter-followers-day-range-count 
+                      
+                     (- now (* 60 60 24 1)) 
+                     now)))
 
 
 
@@ -394,7 +497,7 @@
       (render page
               :body 
               (with-html-to-string ()
-                (str (format nil "Facebook insights recalculated up to ~A. We apologize for any inconvenience." (format-universal-date-time (facebook-last-insight))))
+               ;; (str (format nil "Facebook insights recalculated up to ~A. We apologize for any inconvenience." (format-universal-date-time (facebook-last-insight))))
                 
 
                 (:div :class "container-fluid"
@@ -408,7 +511,7 @@
                             (:div :class "row-fluid"
                                   (str (dash-menu-item "Inbox" 
                                                        "mail_blk" 
-                                                       "/dyb/generix"))
+                                                       "/dyb/generic"))
                                   (str (dash-menu-item "Scheduler" 
                                                        "month_calendar_blk" 
                                                        "/dyb/generic-scheduler"))
@@ -500,90 +603,100 @@
                                     ("2012-11-22" 
                                     ,(or fb-friends-count 0))))
                                     |#
-                                    `(("2013-01-06";,(format nil "\"~A\"" (format-universal-date-dash (- now (* 60 60 24 8))))
-                                        ,(fb-insight-range-count 
-                                          "page_fans" 
-                                          (- now (* 60 60 24 8)) 
-                                          (- now (* 60 60 24 7))))
-                                      #|
+                                    ((,(format-universal-date-dash (- now (* 60 60 24 8)))
+                                        ,fb-fans-8)
+                                      
                                       (,(format-universal-date-dash (- now (* 60 60 24 7)))
-                                        ,(fb-insight-range-count 
-                                          "page_fans" 
-                                          (- now (* 60 60 24 7)) 
-                                          (- now (* 60 60 24 6))))
-                                      (,(format-universal-date-dash (- now (* 60 60 24 6)))
-                                        ,(fb-insight-range-count 
-                                          "page_fans" 
-                                          (- now (* 60 60 24 6)) 
-                                          (- now (* 60 60 24 5))))
+                                        ,fb-fans-7)
+                                      
+                                     (,(format-universal-date-dash (- now (* 60 60 24 6)))
+                                        ,fb-fans-6)
+                                    
                                       (,(format-universal-date-dash (- now (* 60 60 24 5)))
-                                        ,(fb-insight-range-count 
-                                          "page_fans" 
-                                          (- now (* 60 60 24 5)) 
-                                          (- now (* 60 60 24 4))))
+                                        ,fb-fans-5)
+
                                       (,(format-universal-date-dash (- now (* 60 60 24 4)))
-                                        ,(fb-insight-range-count 
-                                          "page_fans" 
-                                          (- now (* 60 60 24 4)) 
-                                          (- now (* 60 60 24 3))))
-                                      (,(format-universal-date-dash (- now (* 60 60 24 3)))
-                                        ,(fb-insight-range-count 
-                                          "page_fans" 
-                                          (- now (* 60 60 24 3)) 
-                                          (- now (* 60 60 24 2))))
-                                      (,(format-universal-date-dash (- now (* 60 60 24 2)))
-                                        ,(fb-insight-range-count 
-                                          "page_fans" 
-                                          (- now (* 60 60 24 2)) 
-                                          (- now (* 60 60 24 1))))
+                                        ,fb-fans-4)
+
+                                   ;;   (,(format-universal-date-dash (- now (* 60 60 24 3)))
+                                   ;;     ,fb-fans-3)
+
+                                   ;;   (,(format-universal-date-dash (- now (* 60 60 24 2)))
+                                    ;;    ,fb-fans-2)
+                                   
+ #|
                                       (,(format-universal-date-dash (- now (* 60 60 24 1)))
-                                        ,(fb-insight-range-count 
-                                          "page_fans" 
-                                          (- now (* 60 60 24 1)) 
-                                          (- now )))
-                                      |#
+                                        ,fb-fans-1)
+                                     |#
+                                      
                                       )
                                      
-                                     ,(if (> (or twitter-followers-count 0) 0)
-                                          `(("2013-01-06" 
-                                             ,(or twitter-followers-count 0))
-                                           #|
-                                            ("2013-1-7" 
-                                             ,(or twitter-followers-count 0))
-                                            ("2013-1-8" 
-                                             ,(or twitter-followers-count 0))
-                                            ("2013-1-9" 
-                                             ,(or twitter-followers-count 0))
-                                            ("2013-1-10" 
-                                             ,(or twitter-followers-count 0))
-                                            ("2013-1-11" 
-                                             ,(or twitter-followers-count 0))
-                                            ("2013-1-12" 
-                                             ,(or twitter-followers-count 0))
-                                            ("2013-1-13" 
-                                             ,(or twitter-followers-count 0))
-                                            |#
-                                            ))
-                                     (if (> (or linkedin-connections-count 0) 0)
-                                         `(("2013-01-06" 
+                                     ((,(format-universal-date-dash (- now (* 60 60 24 8))) 
+                                        ,(if (= twit-fans-8 0)
+                                             twitter-followers-count
+                                             twit-fans-8))
+                                           
+                                      (,(format-universal-date-dash (- now (* 60 60 24 7))) 
+                                       ,(if (= twit-fans-7 0)
+                                             twitter-followers-count
+                                             twit-fans-7))
+                                      
+                                      (,(format-universal-date-dash (- now (* 60 60 24 6))) 
+                                       ,(if (= twit-fans-6 0)
+                                            twitter-followers-count
+                                             twit-fans-6))
+                                     
+                                      (,(format-universal-date-dash (- now (* 60 60 24 5)))
+                                       ,(if (= twit-fans-5 0)
+                                             twitter-followers-count
+                                             twit-fans-5))
+
+                                      (,(format-universal-date-dash (- now (* 60 60 24 4))) 
+                                       ,(if (= twit-fans-4 0)
+                                             twitter-followers-count
+                                             twit-fans-4))
+ 
+                                      (,(format-universal-date-dash (- now (* 60 60 24 3))) 
+                                        ,(if (= twit-fans-3 0)
+                                             twitter-followers-count
+                                             twit-fans-3))
+
+                                      (,(format-universal-date-dash (- now (* 60 60 24 2))) 
+                                        ,(if (= twit-fans-2 0)
+                                             twitter-followers-count
+                                             twit-fans-2))
+                                      
+                                      (,(format-universal-date-dash (- now (* 60 60 24 1))) 
+                                        ,(if (= twit-fans-1 0)
+                                             twitter-followers-count
+                                             twit-fans-1))
+                                            
+                                      )
+                                     ((,(format-universal-date-dash (- now (* 60 60 24 8))) 
                                             ,(or linkedin-connections-count 0))
-                                           #|
-                                           ("2013-1-7" 
+                                           
+                                           (,(format-universal-date-dash (- now (* 60 60 24 7))) 
                                             ,(or linkedin-connections-count 0))
-                                           ("2013-1-8" 
+                                      
+                                           (,(format-universal-date-dash (- now (* 60 60 24 6))) 
                                             ,(or linkedin-connections-count 0))
-                                           ("2013-1-9" 
+                                     
+                                           (,(format-universal-date-dash (- now (* 60 60 24 5))) 
                                             ,(or linkedin-connections-count 0))
-                                           ("2013-1-10" 
+
+                                           (,(format-universal-date-dash (- now (* 60 60 24 4))) 
                                             ,(or linkedin-connections-count 0))
-                                           ("2013-1-11" 
+
+                                           (,(format-universal-date-dash (- now (* 60 60 24 3))) 
                                             ,(or linkedin-connections-count 0))
-                                           ("2013-1-12" 
+
+                                           (,(format-universal-date-dash (- now (* 60 60 24 2))) 
                                             ,(or linkedin-connections-count 0))
-                                           ("2013-1-13" 
+ 
+                                           (,(format-universal-date-dash (- now (* 60 60 24 1))) 
                                             ,(or linkedin-connections-count 0))
-                                           |#
-                                           ))
+                                           
+                                           )
                                            
                                      
                                      )))
@@ -618,7 +731,7 @@
                                          (:li
                                           (str (community-summary-item  
                                                 " Facebook"
-                                                fb-friends-count
+                                                fb-fans-count
                                                 "/appimg/Facebook_Light_Logo.png"
                                                 "Facebook Friends"
                                                 t
@@ -649,7 +762,7 @@
                                  "FACEBOOK (Last 7 Days)") )
                       (:div :class "row-fluid"
                             
-                            (str (board-stats (format nil "~A,~A,~A,~A,~A,~A,~A" 
+                            (str (board-stats  (format nil "~A,~A,~A,~A,~A,~A,~A" 
                                                       (fb-like-adds-range-count 
                                                        (- now (* 60 60 24 8)) 
                                                        (- now (* 60 60 24 7)))
@@ -671,7 +784,7 @@
                                                       (fb-like-adds-range-count 
                                                        (- now (* 60 60 24 2)) 
                                                        (- now (* 60 60 24 1)))
-                                                      ) 
+                                                      )
                                               "New Likes" 
                                               (list "facebook_like") 
                                               "bar-chart" "span3"))
@@ -708,35 +821,16 @@
                                               "Page Impressions" 
                                               (list "documents")
                                               "bar-chart" "span3"))
-                            (str (board-stats (format nil "~A,~A,~A,~A,~A,~A,~A" 
-                                                      (fb-insight-range-count 
-                                                       "page_fans" 
-                                                       (- now (* 60 60 24 8)) 
-                                                       (- now (* 60 60 24 7)))
-                                                      (fb-insight-range-count 
-                                                       "page_fans" 
-                                                       (- now (* 60 60 24 7)) 
-                                                       (- now (* 60 60 24 6)))
-                                                      (fb-insight-range-count 
-                                                       "page_fans" 
-                                                       (- now (* 60 60 24 6)) 
-                                                       (- now (* 60 60 24 5)))
-                                                      (fb-insight-range-count 
-                                                       "page_fans" 
-                                                       (- now (* 60 60 24 5)) 
-                                                       (- now (* 60 60 24 4)))
-                                                      (fb-insight-range-count 
-                                                       "page_fans" 
-                                                       (- now (* 60 60 24 4)) 
-                                                       (- now (* 60 60 24 3)))
-                                                      (fb-insight-range-count 
-                                                       "page_fans" 
-                                                       (- now (* 60 60 24 3)) 
-                                                       (- now (* 60 60 24 2)))
-                                                      (fb-insight-range-count 
-                                                       "page_fans" 
-                                                       (- now (* 60 60 24 2)) 
-                                                       (- now (* 60 60 24 1)))
+                            (str (board-stats 
+                                              (format nil "~A,~A,~A,~A,~A,~A,~A" 
+                                                      fb-fans-8
+                                                      fb-fans-7
+                                                      fb-fans-6
+                                                      fb-fans-5
+                                                      fb-fans-4
+                                                      fb-fans-3
+                                                      fb-fans-2
+                                                      
                                                       )
                                               "Total Fans" 
                                               (list "users")
@@ -754,9 +848,16 @@
                                  "TWITTER") )
                       (:div :class "row-fluid"
                             
-                            (str (board-stats (format nil "0,~A" twitter-followers-count) 
+                            (str (board-stats (format nil "~A,~A,~A,~A,~A,~A,~A" 
+                                                      (- twit-fans-8 twit-fans-7)
+                                                      (- twit-fans-7 twit-fans-6)
+                                                      (- twit-fans-6 twit-fans-5)
+                                                      (- twit-fans-5 twit-fans-4)
+                                                      (- twit-fans-4 twit-fans-3)
+                                                      (- twit-fans-3 twit-fans-2)
+                                                      (- twit-fans-2 twit-fans-1)) 
                                               "New Followers" 
-                                              (list "facebook_like") 
+                                              (list "users") 
                                               "bar-chart" "span3"))
                             (str (board-stats (format nil "0,~A" 0)
                                               "Page Impressions" 

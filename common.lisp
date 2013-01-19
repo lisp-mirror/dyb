@@ -232,18 +232,19 @@
           day (short-month-name month) year hour min sec))
 
 (defun format-universal-date (universal-date)  
-  (if (stringp universal-date)
-      universal-date
-      (multiple-value-call #'format-date (decode-date universal-date))))
+  (when universal-date
+      (if (stringp universal-date)
+          universal-date
+          (multiple-value-call #'format-date (decode-date universal-date)))))
 
 (defun format-universal-date-time (universal-date)  
   (if (stringp universal-date)
-      universal-date
-      (multiple-value-bind (sec min hour day month year)
-          (decode-universal-time           
-           (or universal-date (get-universal-time))
-           (time-zone))
-        (format-date-time year month day hour min sec))))
+        universal-date
+        (multiple-value-bind (sec min hour day month year)
+            (decode-universal-time           
+             (or universal-date (get-universal-time))
+             (time-zone))
+          (format-date-time year month day hour min sec))))
 
 
 (defun format-universal-time (universal-date)  
