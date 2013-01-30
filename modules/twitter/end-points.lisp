@@ -513,3 +513,70 @@
              ("oauth_token" ,access-token)
              ("oauth_version" "1.0")))))
     :want-stream t)))
+
+
+(defun twitter-search-request (app-id app-secret access-token access-secret
+                                     user-id &key since-id)
+  (let* ((stamp (format nil "~A" (get-unix-time)))
+         (nonce (format nil "~A~A" (random 1234567) stamp))
+         (end-point  (format nil "http://api.twitter.com/1.1/statuses/home_timeline.json?user_id=~A&count=800&since_id=~A&include_rts=true&contributor_details=true" 
+                             user-id
+                             (if since-id
+                                 since-id
+                                 1)))
+        ;; (end-point "http://api.twitter.com/1.1/statuses/home_timeline.json")
+         (since (format nil "~A" (if since-id
+                                since-id
+                                1))))
+    
+    (drakma:http-request 
+     end-point
+     :method :get 
+    ;; :parameters `(("count" . "800")
+    ;;               ("since-id" . ,since))   
+     :additional-headers
+     `(("Authorization"
+        ,@(build-auth-string
+           `(("oauth_consumer_key" ,app-id)
+             ("oauth_nonce" ,nonce)
+             ("oauth_signature"
+              ,(encode-signature
+                (hmac-sha1
+                 (signature-base-string
+                  :uri end-point 
+                  :request-method "GET"
+                  :parameters `(("contributor_details" "true")
+                                ("count" "800")
+                                ("include_rts" "true")
+                                ("oauth_consumer_key" ,app-id)
+                                ("oauth_nonce" ,nonce)
+                                ("oauth_signature_method" "HMAC-SHA1")
+                                ("oauth_timestamp" ,stamp)
+                                ("oauth_token" ,access-token)
+                                ("oauth_version" "1.0")
+                                ("since_id"  ,since)
+                                ("user_id" , (format nil "~A" user-id))
+                                ))
+                 (hmac-key  app-secret
+                            access-secret))
+                nil))
+             ("oauth_signature_method" "HMAC-SHA1")
+             ("oauth_timestamp" ,stamp)
+             ("oauth_token" ,access-token)
+             ("oauth_version" "1.0")))))
+    :want-stream nil
+    :preserve-uri nil)))
+
+(defun twitter-search (user &key since-id)
+  (when user
+    (let ((channel (get-social-channel (get-val user 'channel-user-type))))
+      (handle-endpoint
+       user
+       (twitter-search-request
+                 (get-val channel 'app-id)
+                 (get-val channel 'app-secret)
+                 (get-val user 'last-access-token)
+                 (get-val user 'last-token-secret)
+                 (get-val user 'user-id)
+                 :since-id since-id)
+       :result-is-octets-p t))))

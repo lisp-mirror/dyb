@@ -423,19 +423,17 @@ Please select a legal one"
 
 (defun get-channel-users (service)
   (loop for doc across (docs (channel-users-collection))
-       when (match-context-entities doc)
-     when (if (string-equal (get-val doc 'channel-user-type) service)              
-              (if (get-val doc 'channel-user-name)
-                  (get-val doc 'channel-user-name)
-                  ))
+     when (and (match-context-entities doc)
+               (string-equal (get-val doc 'channel-user-type) service)
+               (get-val doc 'channel-user-name))
+       
      collect (list (get-val doc 'user-id)
-                   (get-val doc 'channel-user-name)))
-
-  )
+                   (get-val doc 'channel-user-name))))
 
 (defmethod retrieve-values ((chain-select channel-user-select) select values)
   (destructuring-bind (&optional service) values
    (let ((position (position select (selects chain-select))))
+;;(break "~A ~A ~A" service (get-channels-list) (get-channel-users "Twitter"))
      (case position
        (0 (get-channels-list))
        (1 (get-channel-users service))))))

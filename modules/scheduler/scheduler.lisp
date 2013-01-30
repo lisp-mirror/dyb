@@ -59,8 +59,8 @@
      (loop
       (post-scheduled-actions)
       (sleep 120)))))
-
-(start-actions-scheduler)
+(if (string-equal *installation* "Live Serve")
+    (start-actions-scheduler))
 
 (defun start-facebook-listener ()
   (start-task-thread
@@ -69,8 +69,8 @@
      (loop
       (facebook-refresh-feeds)
       (sleep 600)))))
-
-(start-facebook-listener)
+(if (string-equal *installation* "Live Serve")
+    (start-facebook-listener))
 
 (defun start-facebook-slow-listener ()
   (start-task-thread
@@ -80,8 +80,8 @@
       (facebook-refresh-friends)
       (facebook-refresh-profiles)
       (sleep 86400)))))
-
-(start-facebook-slow-listener)
+(if (string-equal *installation* "Live Serve")
+    (start-facebook-slow-listener))
 
 (defun start-twitter-listener ()
   (start-task-thread
@@ -90,8 +90,8 @@
      (loop
       (twitter-refresh-home-timelines)
       (sleep 600)))))
-
-(start-twitter-listener)
+(if (string-equal *installation* "Live Serve")
+    (start-twitter-listener))
 
 (defun start-twitter-slow-listener ()
   (start-task-thread
@@ -101,8 +101,8 @@
       (twitter-refresh-followers)
       (twitter-refresh-profiles)
       (sleep 86400)))))
-
-(start-twitter-slow-listener)
+(if (string-equal *installation* "Live Serve")
+    (start-twitter-slow-listener))
 
 
 (defun start-linkedin-listener ()
@@ -112,8 +112,8 @@
      (loop
       (linkedin-refresh-updates)
       (sleep 600)))))
-
-(start-twitter-listener)
+(if (string-equal *installation* "Live Serve")
+    (start-twitter-listener))
 
 (defun start-linkedin-slow-listener ()
   (start-task-thread
@@ -123,8 +123,8 @@
       (linkedin-refresh-connections)
       (linkedin-refresh-profiles)
       (sleep 86400)))))
-
-(start-twitter-slow-listener)
+(if (string-equal *installation* "Live Serve")
+    (start-twitter-slow-listener))
 
 ;;TODO: handle disconnects etcs
 ;;(create-twitter-user-stream-listeners)

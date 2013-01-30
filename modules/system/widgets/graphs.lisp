@@ -318,7 +318,8 @@ drawBaseline: false
      (setf (series widget)
            '((:color "#00FFFF"
               :label "TW"
-              :style "diamond")
+              ;;:style "diamond"
+              )
              (:color "#0000FF"
               :label "FB"
               :style "filledSquare"
