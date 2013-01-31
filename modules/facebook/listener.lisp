@@ -126,11 +126,17 @@
   (let ((date 0))
     (find-docs 'list 
                (lambda (doc)
-                 (if (string-equal (get-val (get-val doc 'channel-user) 
-                                            'channel-user-name) 
-                                   (get-val user 'channel-user-name))
-                     (if (> (get-val doc 'created-date) date)
-                         (setf date (get-val doc 'created-date)))))
+                 (when (string-equal (get-val doc 'post-type) "Facebook")
+                   (when (get-val doc 'channel-user)
+                     (typecase  (get-val doc 'channel-user)
+                       (channel-user 
+                        (if (string-equal (get-val (get-val doc 'channel-user) 
+                                                   'channel-user-name) 
+                                          (get-val user 'channel-user-name))
+                            (if (> (get-val doc 'created-date) date)
+                                (setf date (get-val doc 'created-date)))))
+                       )
+                     )))
                (generic-post-collection))
     date))
 

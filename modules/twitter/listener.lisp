@@ -49,14 +49,18 @@
   (let ((tweet-id 1))
     (map-docs 'list
               (lambda (doc)
-                (when (string-equal 
-                       (get-val (get-val doc 'channel-user) 
-                                'channel-user-name)
-                       (get-val channel-user 'channel-user-name))
-                  (when (string-equal (get-val doc 'post-type) "Twitter")
-                    (when (> (raw-post-id doc 'twitter) tweet-id)
-                      (setf tweet-id (raw-post-id doc 'twitter))
-                      nil))))
+                (when (string-equal (get-val doc 'post-type) "Twitter")
+                  (when (get-val doc 'channel-user)
+                  
+                    (typecase (get-val doc 'channel-user)
+                      (channel-user
+                       (when (string-equal 
+                              (get-val (get-val doc 'channel-user) 
+                                       'channel-user-name)
+                              (get-val channel-user 'channel-user-name))
+                         (when (> (raw-post-id doc 'twitter) tweet-id)
+                             (setf tweet-id (raw-post-id doc 'twitter))
+                             nil)))))))
                (generic-post-collection))
     tweet-id))
 
