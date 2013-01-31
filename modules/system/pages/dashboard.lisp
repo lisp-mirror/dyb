@@ -163,6 +163,24 @@
   (fb-insight-interval-count "page_fan_adds" interval))
 
 
+(defun fb-insight-range (insight-name start-date end-date)
+  (let ((range))
+    (dolist (user (coerce (channel-users) 'list ))
+      (when (valid-channel-user user "Facebook")  
+        (let ((fans
+                    (get-facebook-insight-values 
+                     user 
+                     (get-facebook-insight-by-name insight-name)
+                     start-date 
+                     end-date)))
+               (when fans
+                 (dolist (fan fans)
+                   (break "fan ~A" fan)
+                   (when (get-val fan 'value)
+                     (setf range (append range (list (list (format-universal-date-dash (get-val fan 'end-time)) 
+                                                           (get-val fan 'value)))))))))))
+    range))
+
 (defun fb-insight-range-count (insight-name start-date end-date)
   (let ((count 0))
     (dolist (user (coerce (channel-users) 'list ))
@@ -196,16 +214,7 @@
         (- count 1)
         count)))
 
-; Gets a Hashtable 'ht' and a Sort-Function 'sort-fn'
-; Optional Parameter: 'by' can be :keys or :values
-; Returns a sorted Hashtable of key-value-Pairs
-(defun sort-hash-table (ht sort-fn &optional &key (by :keys))
-  (let ((sorted-entries nil))
-    (maphash #'(lambda (k v) (push (cons k v) sorted-entries)) ht)
-    (let ((sort-key #'car))
-      (if (equal by :values)
-	  (setf sort-key #'cdr))
-      (sort sorted-entries sort-fn :key sort-key))))
+
 
 (defun twitter-followers-day-range (start-date end-date)
   (let ((followers (make-hash-table :test 'equal))
@@ -230,25 +239,17 @@
            
             (dolist (old (get-val user 'old-versions))
                 (setf stamp-date (universal-dat-strip-time (get-val old 'stamp-date)))
-                
-
-
                 (when (and (>= stamp-date start-date)
                              (<= stamp-date end-date))
 
-
-
-                  (unless (equal previous-stamp-date stamp-date)
+                  (when (not (equal previous-stamp-date stamp-date))
                     (when (gethash "followers" (get-val old 'user-data))   
-
                       
                       (setf (gethash stamp-date followers) 
                             (length (assoc-path
                                      (gethash "followers"
                                               (get-val old 'user-data))
-                                     :ids)))
-                      
-                      ))
+                                     :ids)))))
                   (setf previous-stamp-date stamp-date))))))
     (maphash 
      (lambda (date value)
@@ -256,14 +257,11 @@
                                     (list (list date 
                                                 value)))))
      followers)
-   ;; (break "? ~A" followers-list)
     (dolist (follow (sort followers-list #'< :key #'car))
-      
       (setf final-list (append
                             final-list
                             (list (list (format-universal-date-dash (first follow))
                                         (second follow)))) ))
-    ;;(break " ?? ~A" final-list)
     final-list))
 
 
@@ -515,15 +513,15 @@
                         (setf (legend network-size)
                               '(:show t :placement :outside))
                         (setf (series network-size)
-                              '((:color "#00FFFF"
+                              '((:show-marker nil
+                                 :color "#00FFFF"
                                  :label "TW")
-                                (:color "#0000FF"
+                                (:show-marker nil
+                                 :color "#0000FF"
                                  :label "FB")
-                                (:color "#04B45F"
-                                 :label "LNK")
-                                (:color "#d44703"
-                                 :label "Total"
-                                 :style "x")))
+                                (:show-marker nil
+                                 :color "#04B45F"
+                                 :label "LNK")))
                         (setf (series-defaults network-size) 
                               '(:show "true"
                                 :xaxis "xaxis"
@@ -682,8 +680,6 @@
   (multiple-value-bind (interval interval-start-date interval-end-date)
       (calc-date-interval)
 
-    
-
     (let* ((page (make-widget 'page :name "dashboard-page"))
            (now (universal-today))
            (previous-interval-start-date 
@@ -749,9 +745,14 @@
 
            (twitter-followers-interval-list 
             (twitter-followers-day-range
-                    interval-start-date 
-                    interval-end-date))
+             interval-start-date 
+             interval-end-date))
 
+           (fb-fans-interval-list
+            (fb-insight-range
+             "page_fans" 
+             interval-start-date 
+             interval-end-date))
            
 
            (linkedin-connections-count (linkedin-connections-count))
@@ -1095,13 +1096,22 @@
                                   (:div :class "widget-head"
                                         (:h5 (:i :class "black-icons month_calendar")
                                              (str "Network")))
-                                  ;;(break "~A" `((,@twitter-followers-interval-list)))
+                                  (break "~A" `((,@twitter-followers-interval-list)
+                                                      ,(if fb-fans-interval-list
+                                                          `(,@fb-fans-interval-list))))
                                   (:div :class "widget-content"
                                         (:div :class "widget-box"
                                               (str (network-size-graph  
                                                     (format-universal-date-dash interval-start-date)
                                                     (format-universal-date-dash interval-end-date)
-                                                    `((,@twitter-followers-interval-list))
+                                                    (if (and twitter-followers-interval-list fb-fans-interval-list)
+                                                        `((,@twitter-followers-interval-list)
+                                                          (,@fb-fans-interval-list))
+                                                        (if twitter-followers-interval-list
+                                                            `((,@twitter-followers-interval-list))
+                                                            (if fb-fans-interval-list
+                                                                `((,@fb-fans-interval-list)) )))
+                                                    
                                                     
                                                     ))
                                               )
@@ -1294,30 +1304,30 @@
                       
                       
                       #|
-                                                      (:div :class "page-header"
-(:h3 (:span :class "black-icons linkedin" 
-:style "margin-top:1px;" )
-"LINKEDIN") )
-                                                      (:div :class "row-fluid"
+    (:div :class "page-header"
+                (:h3 (:span :class "black-icons linkedin" 
+                :style "margin-top:1px;" )
+                "LINKEDIN") )
+    (:div :class "row-fluid"
                             
-(str (board-stats (format nil "0,~A" linkedin-connections-count) 
-"New Connections" 
-(list "facebook_like") 
-"bar-chart" "span3"))
-(str (board-stats (format nil "0,~A" 0)
-"Page Impressions" 
-(list "documents")
-"bar-chart" "span3"))
-(str (board-stats (format nil "0,~A" linkedin-connections-count)
-"Total Followers" 
-(list "users")
-"bar-chart" "span3"))
-(str (board-stats "0,0"
-"Demographics" 
-(list "male_contour" "female_contour")
-"pie-chart" "span2"))
-)
-                                                      |#)
+                (str (board-stats (format nil "0,~A" linkedin-connections-count) 
+                "New Connections" 
+                (list "facebook_like") 
+                "bar-chart" "span3"))
+                (str (board-stats (format nil "0,~A" 0)
+                "Page Impressions" 
+                (list "documents")
+                "bar-chart" "span3"))
+                (str (board-stats (format nil "0,~A" linkedin-connections-count)
+                "Total Followers" 
+                (list "users")
+                "bar-chart" "span3"))
+                (str (board-stats "0,0"
+                "Demographics" 
+                (list "male_contour" "female_contour")
+                "pie-chart" "span2"))
+                )
+    |#)
                 
                 )
 ))))

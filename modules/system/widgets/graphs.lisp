@@ -68,6 +68,11 @@
      (json:as-object-member (key)
        (princ value json:*json-output*))))
 
+
+(defun format-graph-series-marker-options (options)
+
+  )
+
 (defun format-graph-series (series)
   (with-output-to-string (json:*json-output*)
     (json:with-array ()
@@ -77,10 +82,14 @@
               (json:with-object ()
                 (json-getf options :label)
                 (json-getf options :fill)
-                (json:as-object-member ("markerOptions")
-                  (json:with-object ()
-                    (json-getf options :style)
-                    (json-getf options :size)))))))))
+                (json-getf options :show-marker)
+                (if (getf options :marker-options)
+                    (json-encode-key "markerOptions"
+                                     (with-json-object
+                                       (json-getf (getf options :marker-options) :show)
+                                       (json-getf (getf options :marker-options) :style)
+                                       (json-getf (getf options :marker-options) :size)))
+                    )))))))
 
 (defparameter *graph-renderer-types*
   '(:date "$.jqplot.DateAxisRenderer"
@@ -116,8 +125,8 @@
 
     (if (getf options :animation)
         (json-encode-key "animation"
-                                 (format-graph-series-renderer-options-animation 
-                                  (getf options :animation))))))
+                         (format-graph-series-renderer-options-animation 
+                          (getf options :animation))))))
 
 
 
@@ -318,7 +327,7 @@ drawBaseline: false
      (setf (series widget)
            '((:color "#00FFFF"
               :label "TW"
-              ;;:style "diamond"
+              :style "diamond"
               )
              (:color "#0000FF"
               :label "FB"
