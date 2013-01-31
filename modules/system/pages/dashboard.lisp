@@ -719,11 +719,20 @@
     
     (when (and (not (empty-p (parameter "interval-start-date")))
                (not (empty-p (parameter "interval-end-date"))))
-      
-        (setf start-date (string-to-date (parameter "interval-start-date")))
-        (setf end-date (string-to-date (parameter "interval-end-date")))
+
+      (setf start-date (string-to-date (parameter "interval-start-date")))
+
+      (setf end-date (string-to-date (parameter "interval-end-date")))
+
+      (unless (> end-date start-date)
+        (setf start-date (- today (* +24h-secs+ interval)))
+        (setf end-date today)
+        )
+      (when (> end-date start-date)
+        
+        
         (setf interval (truncate (/ (- end-date start-date)
-                                     +24h-secs+))))
+                                    +24h-secs+)))))
     
     (unless (and (not (empty-p (parameter "interval-start-date")))
                  (not (empty-p (parameter "interval-end-date")))
@@ -1068,7 +1077,7 @@
                                         (:div :class "widget-box"
                                               (:div :class "row-fluid"
                                                     (str (engagement-graph `((("Likes" ,fb-fans-adds-count)
-                                                                              ("Clicks" ,fb-page-impressions-count)
+                                                                             ;; ("Clicks" ,fb-page-impressions-count)
                                                                               ("Comments" ,fb-comments-count)
                                                                               ("Retweets" ,twitter-retweets)
                                                    
