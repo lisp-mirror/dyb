@@ -1,5 +1,7 @@
 (in-package :dyb)
 
+
+
 (setf *random-state* (make-random-state t))
 
 (setf hunchentoot:*catch-errors-p* nil)
@@ -45,3 +47,7 @@
 (if (string-equal *installation* "Live Serve")
   (setf *site-url* "http://dxw.co.za/")
   (setf *site-url* "http://local.dataxware.co.za/"))
+
+(unless (string-equal *installation* "Live Serve")
+  (declaim (optimize (speed 0) (space 0) (debug 3)))
+  )

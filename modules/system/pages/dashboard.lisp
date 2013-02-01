@@ -535,7 +535,7 @@
                                   (str title))
                             ))))))
 
-(defun network-size-graph (min-date max-date data)
+(defun network-size-graph (min-date max-date data interval)
   
   (with-html-string
     (:div :class "span9"
@@ -549,7 +549,11 @@
                         (setf (title network-size) "Current Network Size")
                         (setf (x network-size)
                               `(:type :date
-                                :tick-interval "7 days"
+                                      :tick-interval (if (<= interval 7)
+                                                         "1 days"
+                                                         (if (and (> interval 7) (< interval 100))
+                                                             "7 days"
+                                                             "30 days"))
                                 :min ,min-date
                                 :max ,max-date
                                 :tick-options (:format-string "%b&nbsp;%#d")))
@@ -780,6 +784,11 @@
           (setf range-string (format nil "~A,~A" range-string val))))
     range-string))
 
+(defun fix-nan (value)
+  (if value
+      value
+      0))
+
 (define-easy-handler (dashboard-page :uri "/dyb/dashboard") ()
 
   (multiple-value-bind (interval interval-start-date interval-end-date)
@@ -969,6 +978,7 @@
                       
                       (str (interval-selection))
 
+
                       (:div :class "row-fluid"
           (:div :class "nonboxy-widget"
                 (:div :class "widget-head"
@@ -1062,9 +1072,9 @@
                                                             `((,@twitter-followers-interval-list))
                                                             (if fb-fans-interval-list
                                                                 `((,@fb-fans-interval-list)) )))
+                                                      
                                                     
-                                                    
-                                                    ))
+                                                     interval))
                                               )
                                         )))
                       (:div :class "row-fluid"
@@ -1093,7 +1103,7 @@
                                                                   (str (community-summary-item  
                                                                         "All Accounts"
                                                                         (+ 
-                                                                         (or-zero-x fb-fans-interval-list )
+                                                                         (or-zero-x (reverse fb-fans-interval-list) )
                                                                          ;;fb-fans-count
                                                                          twitter-followers-count
                                                                          ;;linkedin-connections-count
@@ -1106,7 +1116,7 @@
                                                                  (:li
                                                                   (str (community-summary-item  
                                                                         " Facebook"
-                                                                        (or-zero-x fb-fans-interval-list )
+                                                                        (or-zero-x (reverse fb-fans-interval-list) )
                                                                         "/appimg/Facebook_Light_Logo.png"
                                                                         "Facebook Friends"
                                                                         t
@@ -1184,13 +1194,13 @@
                                
                                (board-stats 
                                 (format nil "~A,~A,~A,~A,~A,~A,~A" 
-                                        (- (nth 6 new-followers) (nth 7 new-followers))
-                                        (- (nth 5 new-followers) (nth 6 new-followers))
-                                        (- (nth 4 new-followers) (nth 5 new-followers))
-                                        (- (nth 3 new-followers) (nth 4 new-followers))
-                                        (- (nth 2 new-followers) (nth 3 new-followers))
-                                        (- (nth 1 new-followers) (nth 2 new-followers))
-                                        (- (nth 0 new-followers) (nth 1 new-followers)))
+                                        (- (fix-nan (nth 6 new-followers)) (fix-nan (nth 7 new-followers)))
+                                        (- (fix-nan (nth 5 new-followers)) (fix-nan (nth 6 new-followers)))
+                                        (- (fix-nan (nth 4 new-followers)) (fix-nan (nth 5 new-followers)))
+                                        (- (fix-nan (nth 3 new-followers)) (fix-nan (nth 4 new-followers)))
+                                        (- (fix-nan (nth 2 new-followers)) (fix-nan (nth 3 new-followers)))
+                                        (- (fix-nan (nth 1 new-followers)) (fix-nan (nth 2 new-followers)))
+                                        (- (fix-nan (nth 0 new-followers)) (fix-nan (nth 1 new-followers))))
                                   
                                   
                                 "New Followers" 
