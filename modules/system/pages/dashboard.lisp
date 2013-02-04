@@ -317,23 +317,30 @@
                             :--total)))))))
     count))
 
-(defun fb-comment-dates-count (interval payload)
+
+
+
+(defun fb-comment-dates-count (payload start-date end-date)
   (let ((count 0))
     
     (dolist (comment  (gpv payload :comments :data))
-      (when (within-date-range 
-             interval 
-             (parse-facebook-created-at (gpv comment :created--time)))
+      
+      (when (and (<= start-date (parse-facebook-created-at (gpv comment :created--time))) 
+                 (>= end-date (parse-facebook-created-at (gpv comment :created--time)))
+             )
         (incf count)))
     count))
 
-(defun fb-comments-made (interval)
+(defun fb-comments-made (start-date end-date)
   (let ((count 0))
     (loop for post across (generic-posts) 
-       when (match-entities (channel-user post) (context))
+       when (match-context-entities (channel-user post) )
+       when (string-equal (get-val post 'post-type) "Facebook")
        do (incf count (fb-comment-dates-count 
-                       interval 
-                       (get-val post 'payload))))
+                        
+                       (get-val post 'payload)
+                       start-date
+                       end-date)))
     count))
 
 (defun fb-likes-dates-count (interval payload)
@@ -551,7 +558,8 @@
                               `(:type :date
                                       :tick-interval (if (<= interval 7)
                                                          "1 days"
-                                                         (if (and (> interval 7) (< interval 100))
+                                                         (if (and (> interval 7) 
+                                                                  (< interval 100))
                                                              "7 days"
                                                              "30 days"))
                                 :min ,min-date
@@ -813,13 +821,23 @@
 
            (fb-comments-count 
             (fb-insight-range-count 
-             "page_comment_adds" 
+             "page_comment_adds"  ;;depreciated
              interval-start-date 
              interval-end-date))
 
            (fb-comments-previous-count 
             (fb-insight-range-count 
-             "page_comment_adds" 
+             "page_comment_adds" ;;depreciated
+             previous-interval-start-date 
+             previous-interval-end-date))
+
+           (fb-comments-made-count 
+            (fb-comments-made 
+             interval-start-date 
+             interval-end-date))
+
+           (fb-comments-made-previous-count 
+            (fb-comments-made 
              previous-interval-start-date 
              previous-interval-end-date))
 
@@ -1036,11 +1054,13 @@
                                            posts-scheduled-previous-count 
                                            posts-scheduled-count)))
                                   (str (let ((prev (+ fb-fans-adds-previous-count
-                                                      fb-comments-count 
+                                                      ;;fb-comments-previous-count 
+                                                      fb-comments-made-previous-count
                                                       ;;fb-likes-made-count
                                                       twitter-retweets))
                                              (cur (+ fb-fans-adds-count
-                                                     fb-comments-count 
+                                                     ;;fb-comments-count 
+                                                     fb-comments-made-count
                                                      ;;fb-likes-made-count
                                                      twitter-retweets)))
                                          (dash-small-stat-graph 
@@ -1074,6 +1094,7 @@
                                                                 `((,@fb-fans-interval-list)) )))
                                                       
                                                     
+
                                                      interval))
                                               )
                                         )))
@@ -1088,7 +1109,8 @@
                                               (:div :class "row-fluid"
                                                     (str (engagement-graph `((("Likes" ,fb-fans-adds-count)
                                                                              ;; ("Clicks" ,fb-page-impressions-count)
-                                                                              ("Comments" ,fb-comments-count)
+                                                                              ("Comments" ,fb-comments-made-count;;fb-comments-count
+                                                                                          )
                                                                               ("Retweets" ,twitter-retweets)
                                                    
                                                                               ("Posts" ,posts-scheduled-count)

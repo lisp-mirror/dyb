@@ -717,7 +717,7 @@ $(function(){
                     (:ul :class "side-nav accordion_mnu collapsible"
                          (:li
                           (:a :href "/dyb/dashboard"
-                              (:span :class "white-icons computer_imac")
+                              (:span :class "white-icons exposé")
                               (str "Dashboard")))
 
                          (:li
@@ -731,11 +731,11 @@ $(function(){
                               "Scheduler")
                           (:li
                            (:a :href "/dyb/generic-scheduler?action=new&grid-name=generic-actions-gridx"
-                               (:span :class "white-icons month_calendar")
+                               (:span :class "white-icons create_write")
                                "Quick Post")))
                          (:li
                           (:a :href "/dyb/tasks"
-                              (:span :class "white-icons month_calendar")
+                              (:span :class "white-icons laptop")
                               "Tasks"))
                          
                          (:li
