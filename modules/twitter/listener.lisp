@@ -45,7 +45,7 @@
                       (list (assoc-path followers :ids)))
               (persist user))))))))
 
-(defun twitter-last-tweet-id (channel-user)
+(defun twitter-last-tweet-id (channel-user &key time-line)
   (let ((tweet-id 1))
     (map-docs 'list
               (lambda (doc)
@@ -59,7 +59,10 @@
                                        'channel-user-name)
                               (get-val channel-user 'channel-user-name))
                          (when (> (raw-post-id doc 'twitter) tweet-id)
-                             (setf tweet-id (raw-post-id doc 'twitter))
+                           (if time-line
+                               (if (equal time-line (get-val doc 'payload-source))
+                                   (setf tweet-id (raw-post-id doc 'twitter)))
+                               (setf tweet-id (raw-post-id doc 'twitter)))
                              nil)))))))
                (generic-post-collection))
     tweet-id))
@@ -70,13 +73,24 @@
     (when (get-val channel-user 'last-access-token)
       
       
-      (let* ((since-id (twitter-last-tweet-id channel-user))
+      (let* ((since-id (twitter-last-tweet-id channel-user :time-line 'home-timeline))
              (result (twitter-home-timeline
                       channel-user  :since-id since-id)))
         (parse-tweets 
          channel-user
          result
          'home-timeline)))))
+
+(defun twitter-refresh-mention-timeline (channel-user)
+  (when channel-user
+    (when (get-val channel-user 'last-access-token)
+       (let* ((since-id (twitter-last-tweet-id channel-user :time-line 'mention-timeline))
+             (result (twitter-mention-timeline
+                      channel-user  :since-id since-id)))
+        (parse-tweets 
+         channel-user
+         result
+         'mention-timeline)))))
 
 (defun twitter-refresh-home-timelines ()
   (dolist (user (coerce (channel-users) 'list ))
@@ -85,7 +99,8 @@
         (when (string-equal (get-val user 'channel-user-type) "Twitter")
           (when (get-val user 'last-access-token)
 
-            (twitter-refresh-home-timeline user))))))
+            (twitter-refresh-home-timeline user)
+            (twitter-refresh-mention-timeline user))))))
 
 (defun twitter-user-stream-listener (channel-user)
   (when channel-user
