@@ -81,6 +81,18 @@
          result
          'home-timeline)))))
 
+
+
+(defun twitter-refresh-home-timelines ()
+  (dolist (user (coerce (channel-users) 'list ))
+      (when (and user (string-equal (get-val user 'doc-status) "Active"))
+        ;;TODO: How to get error messages in for users without access tokens.
+        (when (string-equal (get-val user 'channel-user-type) "Twitter")
+          (when (get-val user 'last-access-token)
+
+            (twitter-refresh-home-timeline user)
+            )))))
+
 (defun twitter-refresh-mention-timeline (channel-user)
   (when channel-user
     (when (get-val channel-user 'last-access-token)
@@ -92,14 +104,14 @@
          result
          'mention-timeline)))))
 
-(defun twitter-refresh-home-timelines ()
+(defun twitter-refresh-mention-timelines ()
   (dolist (user (coerce (channel-users) 'list ))
       (when (and user (string-equal (get-val user 'doc-status) "Active"))
         ;;TODO: How to get error messages in for users without access tokens.
         (when (string-equal (get-val user 'channel-user-type) "Twitter")
           (when (get-val user 'last-access-token)
 
-            (twitter-refresh-home-timeline user)
+            
             (twitter-refresh-mention-timeline user))))))
 
 (defun twitter-user-stream-listener (channel-user)

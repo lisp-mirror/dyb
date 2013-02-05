@@ -91,10 +91,22 @@
    "twitter-refresh-home-timelines"
    (lambda ()
      (loop
-      (twitter-refresh-home-timelines)
+        (twitter-refresh-home-timelines)
+        
       (sleep 600)))))
 (if (string-equal *installation* "Live Serve")
     (start-twitter-listener))
+
+(defun start-twitter-mention-listener ()
+  (start-task-thread
+   "twitter-refresh-home-timelines"
+   (lambda ()
+     (loop
+        
+        (twitter-refresh-mention-timelines)
+      (sleep 600)))))
+(if (string-equal *installation* "Live Serve")
+    (start-twitter-mention-listener))
 
 (defun start-twitter-slow-listener ()
   (start-task-thread
