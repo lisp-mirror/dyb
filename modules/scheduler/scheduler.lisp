@@ -77,8 +77,11 @@
    "facebook-refresh-friends-and-profiles"
    (lambda ()
      (loop
-      (facebook-refresh-friends)
-      (facebook-refresh-profiles)
+        (facebook-refresh-friends)
+        (facebook-refresh-profiles)
+        (facebook-page-insights-history   
+         (- (universal-today) (* 60 60 24 10))
+         10)
       (sleep 86400)))))
 (if (string-equal *installation* "Live Serve")
     (start-facebook-slow-listener))
@@ -125,6 +128,19 @@
       (sleep 86400)))))
 (if (string-equal *installation* "Live Serve")
     (start-twitter-slow-listener))
+
+
+(defun start-social-mention-slow-listener ()
+  (start-task-thread
+   "facebook-refresh-friends-and-profiles"
+   (lambda ()
+     (loop
+      (social-mention-refresh-searches)     
+      (sleep 86400)))))
+(if (string-equal *installation* "Live Serve")
+    (start-social-mention-slow-listener))
+
+
 
 ;;TODO: handle disconnects etcs
 ;;(create-twitter-user-stream-listeners)
