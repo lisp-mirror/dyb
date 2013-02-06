@@ -67,6 +67,30 @@
                (generic-post-collection))
     tweet-id))
 
+(defun twitter-first-tweet-id (channel-user &key time-line)
+  (let ((tweet-id 1))
+    (map-docs 'list
+              (lambda (doc)
+                (when (string-equal (get-val doc 'post-type) "Twitter")
+                  (when (get-val doc 'channel-user)
+                  
+                    (typecase (get-val doc 'channel-user)
+                      (channel-user
+                       (when (string-equal 
+                              (get-val (get-val doc 'channel-user) 
+                                       'channel-user-name)
+                              (get-val channel-user 'channel-user-name))
+                         (if (= tweet-id 1)
+                             (setf tweet-id (raw-post-id doc 'twitter)))
+                         (when (< (raw-post-id doc 'twitter) tweet-id)
+                           (if time-line
+                               (if (equal time-line (get-val doc 'payload-source))
+                                   (setf tweet-id (raw-post-id doc 'twitter)))
+                               (setf tweet-id (raw-post-id doc 'twitter)))
+                             nil)))))))
+               (generic-post-collection))
+    tweet-id))
+
 
 (defun twitter-refresh-home-timeline (channel-user)
   (when channel-user
@@ -81,6 +105,28 @@
          result
          'home-timeline)))))
 
+(defun twitter-refresh-home-timeline-history (channel-user)
+  (when channel-user
+    (when (get-val channel-user 'last-access-token)
+      
+      
+      (let* ((max-id (twitter-first-tweet-id channel-user :time-line 'home-timeline))
+             (result (twitter-home-timeline
+                      channel-user  :max-id max-id)))
+        (parse-tweets 
+         channel-user
+         result
+         'home-timeline)))))
+
+(defun twitter-refresh-home-timelines-history ()
+  (dolist (user (coerce (channel-users) 'list ))
+      (when (and user (string-equal (get-val user 'doc-status) "Active"))
+        ;;TODO: How to get error messages in for users without access tokens.
+        (when (string-equal (get-val user 'channel-user-type) "Twitter")
+          (when (get-val user 'last-access-token)
+
+            (twitter-refresh-home-timeline-history user)
+            )))))
 
 
 (defun twitter-refresh-home-timelines ()

@@ -38,7 +38,9 @@
     (when (parameter "schedule-actions")
       (post-scheduled-actions))
     (when (parameter "get-twitter-old")
+      (twitter-refresh-home-timelines-history)
       (setf result (twitter-refresh-home-timelines))
+      
       (twitter-refresh-followers)
       (twitter-refresh-profiles))
     (when (parameter "get-linkedin-updates")
@@ -50,7 +52,7 @@
       (let ((get-date 
              (if (blank-p (parameter "insights-history-start-date"))
                  (string-to-date (parameter "insights-history-start-date"))
-                 (string-to-date "01 Jun 2012"))))
+                 (string-to-date "01 Jun 2011"))))
         (bordeaux-threads:make-thread  
          (lambda ()
            (facebook-page-insights-history 
