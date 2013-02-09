@@ -55,7 +55,9 @@
 (defmethod action-handler ((widget twitter-retweet-form))
   (when (string-equal (parameter "action") "retweet-twitter")  
 
-    (let* ((user (get-channel-user-by-user-id (parameter "user-id")))
+    (let* ((user (get-channel-user-by-user-id 
+                  (parameter "user-id")
+                  "Twitter"))
           (action (add-generic-action
                    user
                     nil 
@@ -133,7 +135,9 @@
 
 (defmethod action-handler ((widget twitter-reply-form))
   (when (string-equal (parameter "action") "reply-twitter")  
-    (let* ((user (get-channel-user-by-user-id (parameter "user-id")))
+    (let* ((user (get-channel-user-by-user-id 
+                  (parameter "user-id")
+                  "Twitter"))
           (action (add-generic-action
                    user
                     nil 
@@ -209,7 +213,9 @@
   (when (string-equal (parameter "action") "favourite-twitter")  
     (setf (get-val widget 'message) nil)
     
-    (let* ((user (get-channel-user-by-user-id (parameter "user-id")))
+    (let* ((user (get-channel-user-by-user-id 
+                  (parameter "user-id")
+                  "Twitter"))
           (action (add-generic-action 
                    user
                    (parameter "tweet-id") 

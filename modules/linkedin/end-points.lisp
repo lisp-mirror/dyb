@@ -154,7 +154,9 @@
          :result-is-octets-p t)))
 
 (defun post-linkedin (user-id message)
-  (let ((user (get-channel-user-by-user-id user-id)))
+  (let ((user (get-channel-user-by-user-id 
+               user-id
+               "LinkedIn")))
     (linkedin-share
      user
      message)))

@@ -31,11 +31,11 @@
               (integer
                (universal-time-to-unix-time since))
               (null
-               (universal-time-to-unix-time (parse-date "01 Jan 2012"))))
+               (universal-time-to-unix-time (parse-date "01 Jan 2011"))))
             (get-val user 'last-access-token)))))
 
 (defun post-facebook (user-id message)
-  (let ((user (get-channel-user-by-user-id user-id)))
+  (let ((user (get-channel-user-by-user-id user-id "Facebook")))
     (handle-endpoint 
      user
      (drakma:http-request
@@ -69,7 +69,7 @@
                    (get-val user 'last-access-token)))))
 
 (defun post-facebook-image-url (user-id message image-url)
-  (let ((user (get-channel-user-by-user-id user-id)))
+  (let ((user (get-channel-user-by-user-id user-id "Facebook")))
     (handle-endpoint 
      user
      (drakma:http-request
@@ -81,7 +81,7 @@
                     ("oauth_token" . ,(get-val user 'last-access-token)))))))
 
 (defun post-facebook-image (user-id message image-path)
-  (let ((user (get-channel-user-by-user-id user-id)))
+  (let ((user (get-channel-user-by-user-id user-id "Facebook")))
     (handle-endpoint 
      user
      (drakma:http-request
@@ -98,7 +98,7 @@
 
 
 (defun post-facebook-url (user-id message url)
-  (let ((user (get-channel-user-by-user-id user-id)))
+  (let ((user (get-channel-user-by-user-id user-id "Facebook")))
     (handle-endpoint 
      user
      (drakma:http-request
@@ -111,7 +111,7 @@
                     ("oauth_token" . ,(get-val user 'last-access-token)))))))
 
 (defun post-facebook-link-image (user-id message url image-path)
-  (let ((user (get-channel-user-by-user-id user-id)))
+  (let ((user (get-channel-user-by-user-id user-id "Facebook")))
 
     (handle-endpoint 
      user
@@ -155,11 +155,11 @@
                        (if (stringp since)
                            since
                            (universal-time-to-unix-time since))
-                       (universal-time-to-unix-time (parse-date "01 Jan 2012")))
+                       (universal-time-to-unix-time (parse-date "01 Jan 2011")))
                    (if until
                        (if (stringp until)
                            until
                            (universal-time-to-unix-time until))
-                       (universal-time-to-unix-time (parse-date "01 Jan 2012")))
+                       (universal-time-to-unix-time (parse-date "01 Jan 2011")))
                    (get-val user 'last-access-token)))))
 

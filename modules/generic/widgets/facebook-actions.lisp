@@ -56,7 +56,9 @@
 
 (defmethod action-handler ((widget fb-post-comment-form))
   (when (string-equal (parameter "action") "post-facebook-comment")  
-    (let* ((user (get-channel-user-by-user-id (parameter "user-id")))
+    (let* ((user (get-channel-user-by-user-id 
+                  (parameter "user-id")
+                  "Facebook"))
            (action (add-generic-action 
                     user
                     (parameter "post-id") 
@@ -140,7 +142,9 @@
 (defmethod action-handler ((widget fb-like-post-form))
   (when (string-equal (parameter "action") "post-facebook-like")  
     (setf (get-val widget 'message) nil)
-    (let* ((user (get-channel-user-by-user-id (parameter "user-id")))
+    (let* ((user (get-channel-user-by-user-id 
+                  (parameter "user-id")
+                  "Facebook"))
            (action (add-generic-action 
                    user
                    (parameter "post-id") 

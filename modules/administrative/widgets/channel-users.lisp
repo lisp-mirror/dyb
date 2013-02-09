@@ -198,7 +198,9 @@
              (dolist (account (gpv accounts :data))
         
                (unless (string-equal (gpv account :category) "Application")
-                 (let ((user (get-channel-user-by-user-id (gpv account :id))))
+                 (let ((user (get-channel-user-by-user-id 
+                              (gpv account :id)
+                              (parameter "channel-user-type"))))
 
                    (when user
                      (setf (get-val user 'last-access-token) (gpv account :access-token))

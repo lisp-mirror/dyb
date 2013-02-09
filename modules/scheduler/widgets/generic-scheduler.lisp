@@ -397,7 +397,8 @@ function() {$('#message-length').text($(this).val().length)})")))
                      (synq-edit-data doc)
                      (setf
                       (channel-user doc) (get-channel-user-by-user-id 
-                                          (parameter "channel-user"))
+                                          (parameter "channel-user")
+                                          (parameter "service"))
                       (get-val doc 'action-content) 
                       (string-trim 
                        '(#\space #\tab #\newline 
@@ -413,7 +414,9 @@ function() {$('#message-length').text($(this).val().length)})")))
                      (persist doc))
                     (t
                      (persist (make-generic-action
-                               (get-channel-user-by-user-id (parameter "channel-user"))
+                               (get-channel-user-by-user-id 
+                                (parameter "channel-user")
+                                (parameter "service"))
                                nil 
                                (parameter "service")
                                     

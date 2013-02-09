@@ -205,7 +205,8 @@
                                    (:module "db"
                                             :serial t
                                             :components
-                                            ((:file "generic-entry")))
+                                            ((:file "generic-entry")
+                                             (:file "generic-insights")))
                                    (:module "widgets"
                                             :serial t
                                             :components

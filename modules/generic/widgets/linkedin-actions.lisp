@@ -51,7 +51,9 @@
 
 (defmethod action-handler ((widget linkedin-like-form))
    (when (string-equal (parameter "action") "like-linkedin")  
-     (let* ((user (get-channel-user-by-user-id (parameter "user-id")))
+     (let* ((user (get-channel-user-by-user-id 
+                   (parameter "user-id")
+                   "LinkedIn"))
             (action (add-generic-action 
                      user
                      nil 
@@ -135,7 +137,9 @@
   (when (string-equal (parameter "action") "comment-linkein")  
     (setf (get-val widget 'message) nil)
     
-    (let* ((user (get-channel-user-by-user-id (parameter "user-id")))
+    (let* ((user (get-channel-user-by-user-id 
+                  (parameter "user-id")
+                  "LinkedIn"))
           (action (add-generic-action 
                    user
                    nil 

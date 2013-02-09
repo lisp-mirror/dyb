@@ -200,6 +200,25 @@ is replaced with replacement."
 (defun universal-time-to-unix-time (universal-time)
   (- universal-time +unix-to-universal-time+))
 
+(defvar *day-names*
+    '("Monday" "Tuesday" "Wednesday"
+      "Thursday" "Friday" "Saturday"
+      "Sunday"))
+
+(defvar *short-day-names*
+    '("Mon" "Tue" "Wed"
+      "Thu" "Fri" "Sat"
+      "Sun"))
+
+(defun day-of-week (day month year)
+    "Returns the day of the week as an integer.
+Monday is 0."
+    (nth-value
+     6
+     (decode-universal-time
+      (encode-universal-time 0 0 0 day month year 0)
+      0)))
+
 (defvar *short-months*
   #("Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug" "Sep" "Oct" "Nov" "Dec"))
 

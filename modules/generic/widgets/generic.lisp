@@ -175,7 +175,9 @@
 (defmethod action-handler ((widget post-form))
   (when (string-equal (parameter "action") "post-to-channel")
     (let ((grid (grid widget))
-          (channel-user (get-channel-user-by-user-id (parameter "channel-user"))))
+          (channel-user (get-channel-user-by-user-id 
+                         (parameter "channel-user")
+                         (parameter "service"))))
       (cond ((string-equal (parameter "service") "facebook")
              (let ((action (add-generic-post-action (parameter "service")
                                                     channel-user

@@ -80,23 +80,16 @@
     (when insight-raw
       (let* ((value (car (gpv insight-raw :values)))
              (end-time (parse-facebook-created-at (gpv value :end--time)))
-             (insight (get-facebook-insight-by-name (gpv insight-raw :name)))
-             (dup (get-facebook-insight-value channel-user insight end-time)))
-      
-        (unless insight
-          (setf insight (persist (make-facebook-insight (gpv insight-raw :name)
-                                                        (gpv insight-raw :title)
-                                                        (gpv insight-raw :description)
-                                                        (gpv insight-raw :period)))))
+             (insight (gpv insight-raw :name))
+             (dup (get-generic-insight-value channel-user insight end-time)))   
         (when value
           (when (or (not dup) (not (get-val dup 'value)))
             (when dup
               (setf (get-val dup 'value) (gpv value :value))
               (setf (get-val dup 'end-time) end-time)
-              (persist dup)
-              )
+              (persist dup))
             (unless dup
-              (persist (make-facebook-insight-value 
+              (persist (make-generic-insight-value 
                         channel-user 
                         insight
                         (gpv value :value)

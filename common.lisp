@@ -598,9 +598,9 @@
 (defun valid-channel-user (user channel)
   (when (match-context-entities user)  
     (when (and user (string-equal (get-val user 'doc-status) "Active")) 
-      (when (string-equal (get-val user 'channel-user-type) channel)   
-        (if (get-val user 'user-data)
-            user)))))
+      (if (string-equal (get-val user 'channel-user-type) channel)   
+        user
+        ))))
 
 
 (defun http-call (url method &key content content-type parameters headers return-type)

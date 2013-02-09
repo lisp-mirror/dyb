@@ -1,5 +1,24 @@
 (in-package :dyb)
 
+
+(defun twitter-valid-user (channel-user)
+  (if (and channel-user (string-equal (get-val channel-user 'doc-status) "Active"))
+    (if (string-equal (get-val channel-user 'channel-user-type) "Twitter")
+      (if (get-val channel-user 'last-access-token)
+        channel-user))))
+
+(defun twitter-request-handler (channel-user request-function result-function 
+                                 &key request-args result-args)
+  (when (facebook-valid-user channel-user)
+          (multiple-value-bind (result error)
+              (apply request-function channel-user request-args)
+            (unless error            
+              (when (and result result-function)
+              
+                (apply result-function channel-user (if result-args
+                                                        (list result-args (list result))
+                                                        (list result)) ))))))
+
 (defun twitter-refresh-user-profiles (channel-user)
   (when channel-user
     (when (get-val channel-user 'last-access-token)
@@ -8,21 +27,26 @@
 
 (defun twitter-refresh-profiles ()
   (dolist (user (coerce (channel-users) 'list ))
-      (when (and user (string-equal (get-val user 'doc-status) "Active"))
-        ;;TODO: How to get error messages in for users without access tokens.
-        (when (string-equal (get-val user 'channel-user-type) "Twitter")
-          (when (get-val user 'last-access-token)
+      (when (twitter-valid-user user)
             (multiple-value-bind (profile error)
                 (twitter-refresh-user-profiles user)
               (unless error
-                (unless (get-val user 'user-data)
-                  (setf (get-val user 'user-data) (make-hash-table :test 'equal)))
-                
-                (setf (gethash "profile"
-                               (get-val user 'user-data))
-                      profile)
-              (persist user))
-              ))))))
+                (when profile
+                  (let* ((end-time (universal-today))
+                         (dup (get-generic-insight-value 
+                               user 
+                               "twitter-profile" end-time)))
+                    (when (or (not dup) (not (get-val dup 'value)))
+                      (when dup
+                        (setf (get-val dup 'value) profile)
+                        (setf (get-val dup 'end-time) end-time)
+                        (persist dup))
+                      (unless dup
+                        (persist (make-generic-insight-value 
+                                  user 
+                                  "twitter-profile"
+                                  profile
+                                  end-time)))))))))))
 
 (defun twitter-refresh-user-followers (channel-user)
   (when channel-user
@@ -31,19 +55,26 @@
 
 (defun twitter-refresh-followers ()
   (dolist (user (coerce (channel-users) 'list ))
-      (when (and user (string-equal (get-val user 'doc-status) "Active"))
-        ;;TODO: How to get error messages in for users without access tokens.
-        (when (string-equal (get-val user 'channel-user-type) "Twitter")
-          (when (get-val user 'last-access-token)
+      (when (twitter-valid-user user)
             (multiple-value-bind (followers error)
                 (twitter-refresh-user-followers user)
               (unless error
-                (unless (get-val user 'user-data)
-                  (setf (get-val user 'user-data) (make-hash-table :test 'equal)))
-                (setf (gethash "followers"
-                               (get-val user 'user-data))
-                      (list (assoc-path followers :ids)))
-              (persist user))))))))
+                (when followers
+                  (let* ((end-time (universal-today))
+                         (dup (get-generic-insight-value 
+                               user 
+                               "twitter-followers" end-time)))
+                    (when (or (not dup) (not (get-val dup 'value)))
+                      (when dup
+                        (setf (get-val dup 'value) (list (assoc-path followers :ids)))
+                        (setf (get-val dup 'end-time) end-time)
+                        (persist dup))
+                      (unless dup
+                        (persist (make-generic-insight-value 
+                                  user 
+                                  "twitter-followers"
+                                  (list (assoc-path followers :ids))
+                                  end-time)))))))))))
 
 (defun twitter-last-tweet-id (channel-user &key time-line)
   (let ((tweet-id 1))
@@ -95,9 +126,7 @@
 (defun twitter-refresh-home-timeline (channel-user)
   (when channel-user
     (when (get-val channel-user 'last-access-token)
-      
-      
-      (let* ((since-id (twitter-last-tweet-id channel-user :time-line 'home-timeline))
+       (let* ((since-id (twitter-last-tweet-id channel-user :time-line 'home-timeline))
              (result (twitter-home-timeline
                       channel-user  :since-id since-id)))
         (parse-tweets 
@@ -108,8 +137,6 @@
 (defun twitter-refresh-home-timeline-history (channel-user)
   (when channel-user
     (when (get-val channel-user 'last-access-token)
-      
-      
       (let* ((max-id (twitter-first-tweet-id channel-user :time-line 'home-timeline))
              (result (twitter-home-timeline
                       channel-user  :max-id max-id)))
@@ -131,13 +158,10 @@
 
 (defun twitter-refresh-home-timelines ()
   (dolist (user (coerce (channel-users) 'list ))
-      (when (and user (string-equal (get-val user 'doc-status) "Active"))
-        ;;TODO: How to get error messages in for users without access tokens.
-        (when (string-equal (get-val user 'channel-user-type) "Twitter")
-          (when (get-val user 'last-access-token)
+      (when (twitter-valid-user user)
 
             (twitter-refresh-home-timeline user)
-            )))))
+            )))
 
 (defun twitter-refresh-mention-timeline (channel-user)
   (when channel-user
@@ -152,13 +176,8 @@
 
 (defun twitter-refresh-mention-timelines ()
   (dolist (user (coerce (channel-users) 'list ))
-      (when (and user (string-equal (get-val user 'doc-status) "Active"))
-        ;;TODO: How to get error messages in for users without access tokens.
-        (when (string-equal (get-val user 'channel-user-type) "Twitter")
-          (when (get-val user 'last-access-token)
-
-            
-            (twitter-refresh-mention-timeline user))))))
+      (when (twitter-valid-user user)
+            (twitter-refresh-mention-timeline user))))
 
 (defun twitter-user-stream-listener (channel-user)
   (when channel-user

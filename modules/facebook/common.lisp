@@ -5,8 +5,12 @@
   (when action
     (when (string-equal (get-val action 'action-status) "Pending")
       
-      (let ((from-user (or (get-channel-user-by-user-name (get-val action 'from-user-id))
-                           (get-channel-user-by-user-id (get-val action 'from-user-id)))
+      (let ((from-user (or (get-channel-user-by-user-name 
+                            (get-val action 'from-user-id)
+                            (get-val action 'post-type))
+                           (get-channel-user-by-user-id 
+                            (get-val action 'from-user-id)
+                            (get-val action 'post-type)))
               ))
 
         (cond ((string-equal (get-val action 'post-type) "Facebook")
