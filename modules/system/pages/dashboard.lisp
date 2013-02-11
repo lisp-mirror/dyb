@@ -33,14 +33,63 @@
        (when (match-context-entities (get-val doc 'channel-user))
          (when (and (>= (get-val doc 'scheduled-date) start-date)
                     (<= (get-val doc 'scheduled-date) end-date))
-           (string-equal (get-val doc 'action-status) "completed")
-           (if post-type
+           (if (string-equal (get-val doc 'action-status) "completed")
                (if (string-equal post-type (get-val doc 'post-type))
-                   (incf count 1))
-               (incf count 1))
+                       (incf count 1)))
+           
            )))
      (generic-actions-collection))
     count))
+
+(defun posts-scheduled-range (start-date end-date &key post-type)
+  (let (
+        (range)
+        (sorted-range)
+        (final-range)
+        (data-hash (make-hash-table :test 'equal)))
+    (find-docs 
+     'vector 
+     (lambda (doc)
+       (when (match-context-entities (get-val doc 'channel-user))
+         (when (and (>= (get-val doc 'scheduled-date) start-date)
+                    (<= (get-val doc 'scheduled-date) end-date))
+           (when (string-equal (get-val doc 'action-status) "completed")
+               (when (string-equal post-type (get-val doc 'post-type))
+                 (let ((current-val (gethash (universal-date-strip-time
+                                              (get-val doc 'scheduled-date))
+                                             data-hash))
+                       (val 0))
+                   (if current-val
+                     (setf val current-val))
+                   (setf val (incf val))
+                   (setf (gethash (universal-date-strip-time
+                                   (get-val doc 'scheduled-date))
+                                  data-hash)
+                         val))))
+           )))
+     (generic-actions-collection))
+    (maphash  
+     (lambda (key val)
+       (setf range
+             (append range 
+                     (list 
+                      (list 
+                       key
+                        
+                       val)))))
+     data-hash
+     )
+    (setf sorted-range (sort range #'> :key #'car))
+    (dolist (post sorted-range)
+      (setf final-range 
+            (append final-range 
+                    (list 
+                     (list (format-universal-date-dash (first post))
+                           (second post)))))
+      )
+    final-range))
+
+
 
 (defun insight-count (channel insight-name &key target-date)
   (let ((count 0)
@@ -250,109 +299,21 @@
 (defun twitter-followers-count ()
 
    (compound-insight-count "Twitter" "twitter-profile" :followers--count)
-#|  (let ((count 0))
-    (dolist (user (coerce (channel-users) 'list ))
-      (when (valid-channel-user user "Twitter")  
-        (if (get-val user 'user-data)
-            (when (gethash "followers" (get-val user 'user-data))
-              (incf count (length (assoc-path
-                                   (gethash "followers"
-                                            (get-val user 'user-data))
-                                   :ids)))))))
-    (if (> count 0)
-        (- count 1)
-        count))
-|#
-  )
+)
 
 
 (defun twitter-followers-day-range (start-date end-date)
 
   (compound-insight-range "Twitter" "twitter-profile" 
                           start-date end-date 
-                          :followers--count)
-#|
-  (let ((followers (make-hash-table :test 'equal))
-        (followers-list)
-        (final-list))
-    (dolist (user (coerce (channel-users) 'list ))
-      (let ((stamp-date (universal-date-strip-time (get-val user 'stamp-date)))
-            (previous-stamp-date))
-        (when (valid-channel-user user "Twitter")
-            (when (and (>= stamp-date start-date)
-                       (<= stamp-date end-date))
-              (if (get-val user 'user-data)
-                  (when (gethash "followers" (get-val user 'user-data))
-
-                    (setf (gethash stamp-date followers)
-                          (length (assoc-path
-                                   (gethash "followers"
-                                            (get-val user 'user-data))
-                                   :ids)))
-                    
-                    (setf previous-stamp-date stamp-date))))
-           
-            (dolist (old (get-val user 'old-versions))
-                (setf stamp-date (universal-date-strip-time (get-val old 'stamp-date)))
-                (when (and (>= stamp-date start-date)
-                             (<= stamp-date end-date))
-
-                  (when (not (equal previous-stamp-date stamp-date))
-                    (when (gethash "followers" (get-val old 'user-data))   
-                      
-                      (setf (gethash stamp-date followers) 
-                            (length (assoc-path
-                                     (gethash "followers"
-                                              (get-val old 'user-data))
-                                     :ids)))))
-                  (setf previous-stamp-date stamp-date))))))
-    (maphash 
-     (lambda (date value)
-       (setf followers-list (append followers-list 
-                                    (list (list date 
-                                                value)))))
-     followers)
-    (dolist (follow (sort followers-list #'< :key #'car))
-      (setf final-list (append
-                            final-list
-                            (list (list (format-universal-date-dash (first follow))
-                                        (second follow)))) ))
-    final-list)
-|#
-)
+                          :followers--count))
 
 
 
 
 (defun twitter-followers-day-range-count (start-date end-date)
   (compound-insight-range-last-val "Twitter" "twitter-profile"  
-                                start-date end-date :followers--count)
-  #|(let ((count 0))
-    (dolist (user (coerce (channel-users) 'list ))
-      (when (valid-channel-user user "Twitter")
-        (when (and (>= (get-val user 'stamp-date) start-date)
-                   (<= (get-val user 'stamp-date) end-date))
-          (if (get-val user 'user-data)
-            (when (gethash "followers" (get-val user 'user-data))
-              (incf count (length (assoc-path
-                                   (gethash "followers"
-                                            (get-val user 'user-data))
-                                   :ids))))))
-        (unless (and (>= (get-val user 'stamp-date) start-date)
-                   (<= (get-val user 'stamp-date) end-date))
-          (let ((val 0))
-            (dolist (old (get-val user 'old-versions))
-              (when (gethash "followers" (get-val old 'user-data))
-                (setf val (length (assoc-path
-                                   (gethash "followers"
-                                            (get-val old 'user-data))
-                                   :ids)))))
-            (incf count val)))))
-    (if (> count 0)
-        (- count 1)
-        count))
-  |#
-  )
+                                start-date end-date :followers--count))
 
 (defun linkedin-connections-count ()
   (let ((count 0))
@@ -396,49 +357,22 @@
                        end-date)))
     count))
 
+
+(defun twitter-at-mentions (start-date end-date)
+  (let ((count 0))
+    (loop for post across (generic-posts) 
+       when (match-context-entities (channel-user post) )
+       when (string-equal (get-val post 'post-type) "Twitter")
+       when (and (<= start-date (get-val post 'created-date)) 
+                 (>= end-date (get-val post 'created-date)))
+       when (string-equal (get-val post 'payload-type) "mentions-timeline")
+       do (incf count))
+    count))
+
 (defun twitter-retweet-day-range (start-date end-date)
 
   (compound-insight-range "Twitter" "twitter-profile" 
-                          start-date end-date (list :status :retweet--count))
-
-  #|(let ((retweets (make-hash-table :test 'equal))
-        (retweets-list)
-        (final-list))
-    (dolist (channel-user (coerce (channel-users) 'list ))
-      (when (valid-channel-user channel-user "Twitter")
-        (find-docs   
-         'list
-         (lambda (doc)
-                 (let ((date (universal-date-strip-time 
-                               (get-val doc 'end-time))))
-                   (when (and 
-                          (equal (id channel-user) (id (get-val doc 'channel-user)))
-                          (string-equal (get-val doc 'insight) 
-                                        "twitter-profile")
-                          (and (>= date 
-                                   start-date)
-                               (<= date 
-                                   end-date)))
-
-                     (setf (gethash date retweets)
-                           (gpv
-                            (get-val doc 'value)
-                            :status :retweet--count))
-                     )))
-         (generic-insight-value-collection))))
-    (maphash 
-     (lambda (date value)
-       (setf retweets-list (append retweets-list 
-                                    (list (list date 
-                                                value)))))
-     retweets)
-    (dolist (follow (sort retweets-list #'< :key #'car))
-      (setf final-list (append
-                            final-list
-                            (list (list (format-universal-date-dash (first follow))
-                                        (second follow)))) ))
-    final-list)|#
-  )
+                          start-date end-date (list :status :retweet--count)))
 
 
 
@@ -447,32 +381,7 @@
 (defun twitter-retweet-day-range-count (start-date end-date)
   (compound-insight-range-count "Twitter" "twitter-profile"
                                  start-date end-date
-                                (list :status :retweet--count))
-  #|(let ((count 0))
-    (dolist (channel-user (coerce (channel-users) 'list ))
-      (when (valid-channel-user channel-user "Twitter")
-        (find-docs   
-         'list
-         (lambda (doc)
-                 (let ((date (universal-date-strip-time 
-                               (get-val doc 'end-time))))
-                   (when (and 
-                          (equal (id channel-user) (id (get-val doc 'channel-user)))
-                          (string-equal (get-val doc 'insight) 
-                                        "twitter-profile")
-                          (and (>= date 
-                                   start-date)
-                               (<= date 
-                                   end-date)))
-                     (incf count (gpv
-                            (get-val doc 'value)
-                            :status :retweet--count)))))
-         (generic-insight-value-collection))))
-    (if (> count 0)
-        (- count 1)
-        count))
-  |#
-  )
+                                (list :status :retweet--count)))
 
 (defun twitter-statuses-day-range-count (start-date end-date)
   (compound-insight-range-count "Twitter" "twitter-profile"
@@ -844,6 +753,20 @@
              previous-interval-start-date 
              previous-interval-end-date))
          
+           (fb-story-adds-count 
+            (insight-range-count 
+             "Facebook"
+             "page_story_adds" 
+             interval-start-date 
+             interval-end-date))
+
+           (fb-story-adds-previous-count 
+            (insight-range-count
+             "Facebook"
+             "page_story_adds" 
+             previous-interval-start-date 
+             previous-interval-end-date))
+
            (fb-fans-interval-list
             (insight-range
              "Facebook"
@@ -921,6 +844,16 @@
             (twitter-followers-day-range
              previous-interval-start-date 
              previous-interval-end-date))
+           
+           (twitter-at-mentions-count
+            (twitter-at-mentions 
+             interval-start-date 
+             interval-end-date ))
+
+           (twitter-at-mentions-previous-count
+            (twitter-at-mentions 
+             previous-interval-start-date 
+             previous-interval-end-date))
 
            (tweets-scheduled-count
             (posts-scheduled-range-count 
@@ -933,6 +866,19 @@
              previous-interval-start-date 
              previous-interval-end-date
              :post-type "Twitter"))
+           
+           (tweets-scheduled-list
+            (posts-scheduled-range 
+             interval-start-date 
+             interval-end-date
+             :post-type "Twitter"))
+
+           (tweets-scheduled-previous-list
+            (posts-scheduled-range 
+             previous-interval-start-date 
+             previous-interval-end-date
+             :post-type "Twitter"))
+           
 
 
            (linkedin-connections-count (linkedin-connections-count))
@@ -994,23 +940,27 @@
                       (:div :class "widget-box"
 
                             (if (string-equal (get-val (current-user) 'email) "admin@dyb.co.za")
-                                (htm (str (format nil "fb-fans=~A | fb-page-impressions=~A | twit-followers=~A | tweets=~A | tweet-impressions=~A | twit-retweets=~A | linkedin-conn=~A "
+                                (htm (str (format nil "fb-fans=~A | fb-page-impressions=~A | fb-story-adds-~A | twit-followers=~A | tweets=~A | tweet-impressions=~A | twit-mentions=~A | twit-retweets=~A | linkedin-conn=~A "
                                                   (or-zero (reverse fb-fans-interval-list))
                                                   fb-page-impressions-count
+                                                  fb-story-adds-count
                                                   twitter-followers-count                                                  
                                                   tweets-scheduled-count                                                 
                                                   (* twitter-followers-count
-                                                     tweets-scheduled-count)                                          
+                                                     tweets-scheduled-count)
+                                                  twitter-at-mentions-previous-count
                                                   twitter-retweets
                                                   linkedin-connections-count
                                                   ))
-                                     (str (format nil "<BR/>fb-fans=~A | fb-page-impressions=~A | twit-followers=~A | tweets=~A | tweet-impressions=~A | twit-retweets=~A | linkedin-conn=~A "
+                                     (str (format nil "<BR/>fb-fans=~A | fb-page-impressions=~A | fb-story-adds-~A | twit-followers=~A | tweets=~A | tweet-impressions=~A | twit-mentions=~A | twit-retweets=~A | linkedin-conn=~A "
                                                   (or-zero (reverse fb-fans-interval-previous-list))
                                                   fb-page-impressions-previous-count
+                                                  fb-story-adds-previous-count
                                                   twitter-followers-previous-count                                                  
                                                   tweets-scheduled-previous-count                                                 
                                                   (* twitter-followers-previous-count
-                                                     tweets-scheduled-previous-count)                                          
+                                                     tweets-scheduled-previous-count)
+                                                  twitter-at-mentions-count
                                                   twitter-retweets-previous
                                                   linkedin-connections-count
                                                   ))))
@@ -1023,6 +973,7 @@
                                                      (* twitter-followers-previous-count
                                                         tweets-scheduled-previous-count)      
                                                      twitter-retweets-previous
+                                                     twitter-at-mentions-previous-count
                                                      linkedin-connections-count))
                                               (cur (+  
                                                     (or-zero (reverse fb-fans-interval-list))
@@ -1031,6 +982,7 @@
                                                     (* twitter-followers-count
                                                        tweets-scheduled-count)
                                                     twitter-retweets
+                                                    twitter-at-mentions-count
                                                     linkedin-connections-count)))
                                          (dash-small-stat-graph  
                                           "Reach"
@@ -1053,13 +1005,15 @@
                                   (str (let ((prev (+ fb-fans-adds-previous-count
                                                     
                                                       fb-comments-made-previous-count
-                                                   
-                                                      twitter-retweets))
+                                                      fb-story-adds-previous-count
+                                                      twitter-retweets
+                                                      twitter-at-mentions-previous-count))
                                              (cur (+ fb-fans-adds-count
                                                     
                                                      fb-comments-made-count
-                                                   
-                                                     twitter-retweets)))
+                                                     fb-story-adds-count
+                                                     twitter-retweets
+                                                     twitter-at-mentions-count)))
                                          (dash-small-stat-graph 
                                           "Engagement"
                                           "weekly-sales"
@@ -1106,12 +1060,11 @@
                                               (:div :class "row-fluid"
                                                     (str (engagement-graph `((("Likes" ,fb-fans-adds-count)
                                                                              ;; ("Clicks" ,fb-page-impressions-count)
-                                                                              ("Comments" ,fb-comments-made-count
-                                                                                          )
+                                                                              ("Comments" ,fb-comments-made-count)
                                                                               ("Retweets" ,twitter-retweets)
                                                    
-                                                                              ("Posts" ,posts-scheduled-count)
-                                                                              ("Mentions" 0)
+                                                                              ("FB Shares" ,fb-story-adds-count)
+                                                                              ("Mentions" ,twitter-at-mentions-count)
                                                                               ("Direct Messages" 0)))))
                                                     (:div :class "span2"
                                                           (:div :class "summary"
@@ -1225,12 +1178,25 @@
                                 "New Followers" 
                                 (list "users") 
                                 "bar-chart" "span3")))
-                            (str (board-stats  
-                                               (create-bar-range-string 
-                                                twitter-retweets-list  7)
-                                              "Impressions" 
-                                              (list "documents")
-                                              "bar-chart" "span3"))
+                            (str 
+                             (let ((followers (strip-dates-from-range 
+                                                 (reverse twitter-followers-interval-list) 7))
+                                    (tweets (strip-dates-from-range 
+                                             tweets-scheduled-list 7)))
+                                (board-stats  
+                               
+                                 (format nil "~A,~A,~A,~A,~A,~A,~A" 
+                                         (* (fix-nan (nth 6  followers) ) (fix-nan (nth 6 tweets)))
+                                         (* (fix-nan (nth 5  followers) ) (fix-nan (nth 5 tweets)))
+                                         (* (fix-nan (nth 4  followers) ) (fix-nan (nth 4 tweets)))
+                                         (* (fix-nan (nth 3  followers) ) (fix-nan (nth 3 tweets)))
+                                         (* (fix-nan (nth 2  followers) ) (fix-nan (nth 2 tweets)))
+                                         (* (fix-nan (nth 1  followers) ) (fix-nan (nth 1 tweets)))
+                                         (* (fix-nan (nth 0  followers) ) (fix-nan (nth 0 tweets)))
+                                        )
+                                 "Impressions" 
+                                 (list "documents")
+                                 "bar-chart" "span3")))
                             
                             (str
                              

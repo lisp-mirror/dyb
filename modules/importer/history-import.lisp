@@ -49,14 +49,14 @@
   (dolist (user (coerce (channel-users) 'list ))
     (when (string-equal (get-val user 'channel-user-type) channel)
       (when user
-        (create-insight
+        (create-insight-value
          user
          insight-name
          (gethash data-name (get-val user 'user-data))
          (universal-date-strip-time (get-val user 'stamp-date)))
         (dolist (old (get-val user 'old-versions))
           (when (gethash data-name (get-val old 'user-data))
-            (create-insight 
+            (create-insight-value 
              user
              insight-name
              (gethash data-name (get-val old 'user-data))
