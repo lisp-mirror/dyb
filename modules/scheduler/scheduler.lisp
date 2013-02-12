@@ -99,7 +99,7 @@
 
 (defun start-twitter-mention-listener ()
   (start-task-thread
-   "twitter-refresh-home-timelines"
+   "twitter-refresh-mention-timelines"
    (lambda ()
      (loop
         
