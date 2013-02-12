@@ -38,7 +38,8 @@
              (equal (id channel-user) (id (get-val doc 'channel-user)))
              (string-equal (get-val doc 'insight) 
                            insight)
-             (equal end-time (get-val doc 'end-time) )))))
+             (equal (universal-date-strip-time end-time) 
+                    (universal-date-strip-time (get-val doc 'end-time)) )))))
 
 (defun get-generic-insight-values (channel-user insight start-time end-time)
   (find-docs  

@@ -422,7 +422,7 @@
                                  (htm (:span :class "label-green" 
                                              (str (format nil "~A%" (truncate total-percent) ))))
                                  (htm (:span :class "label-red" 
-                                             (str (format nil "~A%" (truncate total-percent) ))))))))))))
+                                             (str (format nil "~A%" (truncate (* total-percent -1)) ))))))))))))
 
 (defun community-summary-item (title count icon alt style-p)
   (with-html-string
@@ -542,19 +542,21 @@
 
 
 (defun calc-prev-cur-percentage (prev cur)
-  (if (> prev cur)
-      (if (not (= prev 0))
-          (* (/ (- cur
-                         prev)
-                      prev)
-                   100)
-          100)
-      (if (not (= cur 0))
-          (* (/ (- prev
-                   cur)
-                cur)
-             -100)
-          -100)))
+  (if (and (= prev 0) (= cur 0))
+      0
+      (if (> prev cur)
+          (if (not (= prev 0))
+              (* (/ (- cur
+                       prev)
+                    prev)
+                 100)
+              100)
+          (if (not (= cur 0))
+              (* (/ (- prev
+                       cur)
+                    cur)
+                 -100)
+              -100))))
 
 (defun interval-selection ()
   (with-html-to-string ()
@@ -726,7 +728,8 @@
             (fb-comments-made 
              previous-interval-start-date 
              previous-interval-end-date))
-
+           #|
+           page_fans are lifetime
            (fb-fans-count 
             (insight-count 
              "Facebook"
@@ -738,7 +741,7 @@
              "Facebook"
              "page_fans"
              :target-date previous-interval-end-date))
-
+           |#
            (fb-fans-adds-count 
             (insight-range-count 
              "Facebook"
@@ -788,12 +791,21 @@
              interval-start-date 
              interval-end-date))
 
+           (fb-fans-adds-interval-previous-list
+            (insight-range
+             "Facebook"
+             "page_fan_adds" 
+             previous-interval-start-date 
+             previous-interval-end-date))
+
            (fb-impressions-interval-list
             (insight-range
              "Facebook"
              "page_impressions" 
              interval-start-date 
              interval-end-date))
+
+           
 
            (fb-page-impressions-count
             (insight-range-count 
@@ -940,10 +952,15 @@
                       (:div :class "widget-box"
 
                             (if (string-equal (get-val (current-user) 'email) "admin@dyb.co.za")
-                                (htm (str (format nil "fb-fans=~A | fb-page-impressions=~A | fb-story-adds-~A | twit-followers=~A | tweets=~A | tweet-impressions=~A | twit-mentions=~A | twit-retweets=~A | linkedin-conn=~A "
+                                (htm (str (format nil "fb-fans=~A | fb-fan-adds=~A | fb-page-impressions=~A  | fb-page-comments=~A | fb-story-adds=~A | fb-shares=~A | twit-followers=~A | tweets=~A | tweet-impressions=~A | twit-mentions=~A | twit-retweets=~A | linkedin-conn=~A "
                                                   (or-zero (reverse fb-fans-interval-list))
+                                                  fb-fans-adds-count
                                                   fb-page-impressions-count
+                                                  fb-comments-made-count
                                                   fb-story-adds-count
+                                                  (- fb-story-adds-count 
+                                                     fb-fans-adds-count
+                                                     fb-comments-made-count)
                                                   twitter-followers-count                                                  
                                                   tweets-scheduled-count                                                 
                                                   (* twitter-followers-count
@@ -952,10 +969,15 @@
                                                   twitter-retweets
                                                   linkedin-connections-count
                                                   ))
-                                     (str (format nil "<BR/>fb-fans=~A | fb-page-impressions=~A | fb-story-adds-~A | twit-followers=~A | tweets=~A | tweet-impressions=~A | twit-mentions=~A | twit-retweets=~A | linkedin-conn=~A "
+                                     (str (format nil "<BR/>fb-fans=~A | fb-fan-adds=~A | fb-page-impressions=~A  | fb-page-comments=~A | fb-story-adds=~A | fb-shares=~A | twit-followers=~A | tweets=~A | tweet-impressions=~A | twit-mentions=~A | twit-retweets=~A | linkedin-conn=~A "
                                                   (or-zero (reverse fb-fans-interval-previous-list))
+                                                  fb-fans-adds-previous-count
                                                   fb-page-impressions-previous-count
+                                                  fb-comments-made-previous-count
                                                   fb-story-adds-previous-count
+                                                  (- fb-story-adds-previous-count 
+                                                     fb-fans-adds-previous-count
+                                                     fb-comments-made-previous-count)
                                                   twitter-followers-previous-count                                                  
                                                   tweets-scheduled-previous-count                                                 
                                                   (* twitter-followers-previous-count
@@ -991,7 +1013,7 @@
                                                   prev
                                                   cur)  
                                           cur
-                                          (calc-prev-cur-percentage prev cur))))
+                                          (calc-prev-cur-percentage prev cur) )))
                                   (str (dash-small-stat-graph 
                                           "Activity"
                                           "unique-visits"
@@ -1005,13 +1027,17 @@
                                   (str (let ((prev (+ fb-fans-adds-previous-count
                                                     
                                                       fb-comments-made-previous-count
-                                                      fb-story-adds-previous-count
+                                                      (- fb-story-adds-count 
+                                                         fb-fans-adds-count
+                                                         fb-comments-made-count)
                                                       twitter-retweets
                                                       twitter-at-mentions-previous-count))
                                              (cur (+ fb-fans-adds-count
                                                     
                                                      fb-comments-made-count
-                                                     fb-story-adds-count
+                                                     (- fb-story-adds-previous-count 
+                                                        fb-fans-adds-previous-count
+                                                        fb-comments-made-previous-count)
                                                      twitter-retweets
                                                      twitter-at-mentions-count)))
                                          (dash-small-stat-graph 
