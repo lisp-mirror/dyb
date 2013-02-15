@@ -829,6 +829,20 @@
              previous-interval-start-date 
              previous-interval-end-date))
 
+           (fb-fans-removes-interval-list
+            (insight-range
+             "Facebook"
+             "page_fan_removes" 
+             interval-start-date 
+             interval-end-date))
+
+           (fb-fans-removes-interval-previous-list
+            (insight-range
+             "Facebook"
+             "page_fan_removes" 
+             previous-interval-start-date 
+             previous-interval-end-date))
+
            (fb-impressions-interval-list
             (insight-range
              "Facebook"
@@ -1205,6 +1219,11 @@
                                                 fb-fans-interval-list 7)
                                               "Total Fans" 
                                               (list "users")
+                                              "bar-chart" "span3"))
+                            (str (board-stats  (create-bar-range-string 
+                                                fb-fans-removes-interval-list 7) 
+                                              "Unlikes" 
+                                              (list "facebook_unlike") 
                                               "bar-chart" "span3"))
                             #|(str (board-stats "0,0"
                             "Demographics" 

@@ -379,7 +379,7 @@
                                      user-id &key since-id)
   (let* ((stamp (format nil "~A" (get-unix-time)))
          (nonce (format nil "~A~A" (random 1234567) stamp))
-         (end-point  (format nil "http://api.twitter.com/1.1/statuses/mentions_timeline.json?user_id=~A&count=800&since_id=~A&include_rts=true&contributor_details=true" 
+         (end-point  (format nil "http://api.twitter.com/1.1/statuses/mentions_timeline.json?user_id=~A&count=800&since_id=~A&include_rts=true&include_entities=true&contributor_details=true" 
                              user-id
                              (if since-id
                                  since-id
@@ -407,8 +407,9 @@
                   :request-method "GET"
                   :parameters `(("contributor_details" "true")
                                 ("count" "800")
+                                ("include_entities" "true")
                                 ("include_rts" "true")
-                                ("oauth_consumer_key" ,app-id)
+                                 ("oauth_consumer_key" ,app-id)
                                 ("oauth_nonce" ,nonce)
                                 ("oauth_signature_method" "HMAC-SHA1")
                                 ("oauth_timestamp" ,stamp)
