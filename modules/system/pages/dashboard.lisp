@@ -1,5 +1,7 @@
 (in-package :dyb)
 
+
+
 (defun universal-today ()
   (multiple-value-bind (sec min hour day month year)
           (decode-universal-time           
@@ -25,6 +27,30 @@
           (setf value (second val)))))
     value))
 
+(defun retweets-of-my-tweets ()
+  (find-docs 'list
+                (lambda (doc)
+                  (typecase (get-val doc 'channel-user) 
+                    (channel-user 
+                     (when (and
+                            (gpv (get-val doc 'payload) :retweeted)
+                            (string-equal 
+                             (format nil "~A" 
+                                     (get-val (get-val doc 'channel-user) 'user-id))
+                             (gpv (get-val doc 'payload) :user :id--str)))
+                       (break "~A" doc)))))
+                (generic-post-collection)))
+#|
+(find-docs 'list
+                (lambda (doc)
+                  (typecase (get-val doc 'channel-user) 
+                    (channel-user 
+                     (when (and
+                            (search "#Algorith" (gpv (get-val doc 'payload) :text))
+                            )
+                       doc))))
+                (generic-post-collection))
+|#
 (defun posts-scheduled-range-count (start-date end-date &key post-type)
   (let ((count 0))
     (find-docs 
@@ -33,9 +59,12 @@
        (when (match-context-entities (get-val doc 'channel-user))
          (when (and (>= (get-val doc 'scheduled-date) start-date)
                     (<= (get-val doc 'scheduled-date) end-date))
-           (if (string-equal (get-val doc 'action-status) "completed")
-               (if (string-equal post-type (get-val doc 'post-type))
-                       (incf count 1)))
+           (when (string-equal (get-val doc 'action-status) "completed")
+            
+             (if post-type
+                 (when (string-equal post-type (get-val doc 'post-type))
+                   (incf count 1))
+                 (incf count 1)))
            
            )))
      (generic-actions-collection))
@@ -506,7 +535,7 @@
                                 :shadow "false"))
                         (render network-size)))))))
 
-(defun engagement-graph (data)
+(defun engagement-graph (data data-lables)
   (with-html-string
     (:div :class "span6"
           (:div :class "graph-wrap"
@@ -514,7 +543,9 @@
                       (let ((engagement 
                              (make-widget
                               'line-graph :name "engagementgraph"
-                              :data data)))
+                              :data data
+                              :data-lables data-lables)))
+                        (setf (get-val engagement 'data-lables) data-lables)
                         (setf (get-val engagement 'data) data)
                         (setf (title engagement) "Engagement by Type")
                         
@@ -572,21 +603,21 @@
                                    
                              (:div :class "widget-box"
                                    (:div :class "row-fluid"
-                                         (:div :class "span1"
+                                         (:div :class "span2"
                                                (:input :type :radio 
                                                        :id "shit"
                                                        :name "dashboard-interval" 
                                                        :value "7 Days"
                                                        :checked (string-equal (parameter "dashboard-interval") "7 Days")
                                                        (str "7 Days")))
-                                         (:div :class "span1"
+                                         (:div :class "span2"
                                                (:input :type :radio 
                                                        :name "dashboard-interval" 
                                                        :value "30 Days"
                                                        :checked (or (string-equal (parameter "dashboard-interval") "30 Days")
                                                                     (not (parameter "dashboard-interval")))
                                                        (str "30 Days")))
-                                         (:div :class "span1"
+                                         (:div :class "span2"
                                                (:input :type :radio 
                                                        :name "dashboard-interval" 
                                                        :value "365 Days"
@@ -1027,17 +1058,17 @@
                                   (str (let ((prev (+ fb-fans-adds-previous-count
                                                     
                                                       fb-comments-made-previous-count
-                                                      (- fb-story-adds-count 
-                                                         fb-fans-adds-count
-                                                         fb-comments-made-count)
-                                                      twitter-retweets
+                                                      ;;(- fb-story-adds-count 
+                                                      ;;   fb-fans-adds-count
+                                                      ;;   fb-comments-made-count)
+                                                      twitter-retweets-previous
                                                       twitter-at-mentions-previous-count))
                                              (cur (+ fb-fans-adds-count
                                                     
                                                      fb-comments-made-count
-                                                     (- fb-story-adds-previous-count 
-                                                        fb-fans-adds-previous-count
-                                                        fb-comments-made-previous-count)
+                                                     ;;(- fb-story-adds-previous-count 
+                                                     ;;   fb-fans-adds-previous-count
+                                                     ;;   fb-comments-made-previous-count)
                                                      twitter-retweets
                                                      twitter-at-mentions-count)))
                                          (dash-small-stat-graph 
@@ -1089,9 +1120,14 @@
                                                                               ("Comments" ,fb-comments-made-count)
                                                                               ("Retweets" ,twitter-retweets)
                                                    
-                                                                              ("FB Shares" ,fb-story-adds-count)
+                                                                              ;;("FB Shares" ,fb-story-adds-count)
                                                                               ("Mentions" ,twitter-at-mentions-count)
-                                                                              ("Direct Messages" 0)))))
+                                                                              ("Direct Messages" 0)))
+                                                                           (format nil "[~A,~A,~A,~A]" 
+                                                                                   fb-fans-adds-count 
+                                                                                   fb-comments-made-count 
+                                                                                   twitter-retweets
+                                                                                   twitter-at-mentions-count)))
                                                     (:div :class "span2"
                                                           (:div :class "summary"
                                                                 (:h4 "CURRENT COMMUNITY SIZE")

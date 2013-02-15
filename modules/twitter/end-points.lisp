@@ -294,11 +294,11 @@
                                      since-id
                                      1)))
          (end-point (if max-id
-                        (format nil "http://api.twitter.com/1.1/statuses/home_timeline.json?user_id=~A&count=800&max_id=~A&include_rts=true&contributor_details=true" 
+                        (format nil "http://api.twitter.com/1.1/statuses/home_timeline.json?user_id=~A&count=800&max_id=~A&include_rts=true&include_entities=true&contributor_details=true" 
                                        user-id
                                        max-id
                                        )
-                        (format nil "http://api.twitter.com/1.1/statuses/home_timeline.json?user_id=~A&count=800&since_id=~A&include_rts=true&contributor_details=true" 
+                        (format nil "http://api.twitter.com/1.1/statuses/home_timeline.json?user_id=~A&count=800&since_id=~A&include_rts=true&include_entities=true&contributor_details=true" 
                                        user-id
                                        since
                                        )))
@@ -324,6 +324,7 @@
                   :parameters (if max-id
                                   `(("contributor_details" "true")
                                     ("count" "800")
+                                    ("include_entities" "true")
                                     ("include_rts" "true")
                                     ("max_id" ,(format nil "~A" max-id))
                                     ("oauth_consumer_key" ,app-id)
@@ -337,6 +338,7 @@
                                     )
                                   `(("contributor_details" "true")
                                     ("count" "800")
+                                    ("include_entities" "true")
                                     ("include_rts" "true")
                                     ;;("max_id" ,(format nil "~A" max-id))
                                     ("oauth_consumer_key" ,app-id)
@@ -377,7 +379,7 @@
                                      user-id &key since-id)
   (let* ((stamp (format nil "~A" (get-unix-time)))
          (nonce (format nil "~A~A" (random 1234567) stamp))
-         (end-point  (format nil "http://api.twitter.com/1.1/statuses/mention_timeline.json?user_id=~A&count=800&since_id=~A&include_rts=true&contributor_details=true" 
+         (end-point  (format nil "http://api.twitter.com/1.1/statuses/mentions_timeline.json?user_id=~A&count=800&since_id=~A&include_rts=true&contributor_details=true" 
                              user-id
                              (if since-id
                                  since-id

@@ -191,7 +191,7 @@
             (loop for i below 200
                for line = (read-line stream nil nil) 
                when (and line (> 1 0) (> (length line) 2))
-               do (break "~A" line) 
+               do ;; (break "~A" line) 
                  (parse-tweets 
                   channel-user
                   (list (json::decode-json-from-string line))

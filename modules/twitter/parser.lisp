@@ -38,7 +38,9 @@
              (find-doc (generic-post-collection)
                        :test
                        (lambda (doc)
-                         (equal (raw-post-id tweet 'twitter) (raw-post-id doc 'twitter))))))
+                         (and
+                          (equal channel-user (get-val doc 'channel-user) )
+                          (equal (raw-post-id tweet 'twitter) (raw-post-id doc 'twitter)))))))
         (when dup
           ;;TODO: Update changed-date? 
           (setf (payload dup) tweet)

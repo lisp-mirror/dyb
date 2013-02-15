@@ -47,7 +47,10 @@
            :accessor legend)
    (cursor :initarg :cursor
            :initform nil
-           :accessor cursor))
+           :accessor cursor)
+   (data-lables :initarg :data-lables
+           :initform nil
+           :accessor data-lables))
   (:metaclass widget-class))
 
 
@@ -148,8 +151,16 @@
         (json-getf options :shadow))
     (if (getf options :renderer-options)
         (json-encode-key :renderer-options
-                                 (format-graph-series-renderer-options 
-                                  (getf options :renderer-options))))))
+                         
+                         (with-json-object 
+                           (json-getf (getf options :renderer-options) :show-data-labels))
+                         ))
+    #|(if (getf options :renderer-options)
+        (json-encode-key :renderer-options
+                         (format-graph-series-renderer-options 
+                          (getf options :renderer-options))))
+    |#
+    ))
 
 (defun format-graph-axis (options)
   (with-json-object
@@ -223,7 +234,7 @@ var plot1 = $.jqplot(\"~A\", ~a, {
     }*/
 
   
-
+ /*
 axesDefaults: {
 rendererOptions: {
  
@@ -231,7 +242,9 @@ baselineWidth: 1.5,
 baselineColor: '#444444',
 drawBaseline: false
 }
+
 }
+*/
 });
 
 "
@@ -249,7 +262,16 @@ drawBaseline: false
        (format-graph-highlighter (highlighter widget))
        (format-graph-legend (legend widget))
        (format-graph-cursor (cursor widget))
-       (format-graph-series-defaults (series-defaults widget)))))
+       (if (string-equal (name widget) "engagementgraph")
+           (format nil " {
+        renderer: $.jqplot.PieRenderer, 
+        rendererOptions: {
+        showDataLabels: \"true\", 
+        sliceMargin: 4,
+        dataLabels: ~A 
+        }
+        }" (data-lables widget))
+           (format-graph-series-defaults (series-defaults widget))))))
 
  (defparameter *graph-data*
    '((("2012-07-26" 39) ("2012-07-27" 39) ("2012-07-28" 39) ("2012-07-29" 39)
