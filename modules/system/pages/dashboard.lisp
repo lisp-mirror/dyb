@@ -1,7 +1,5 @@
 (in-package :dyb)
 
-
-
 (defun universal-today ()
   (multiple-value-bind (sec min hour day month year)
           (decode-universal-time           
@@ -40,6 +38,7 @@
                              (gpv (get-val doc 'payload) :user :id--str)))
                        (break "~A" doc)))))
                 (generic-post-collection)))
+
 #|
 (find-docs 'list
                 (lambda (doc)
@@ -51,6 +50,7 @@
                        doc))))
                 (generic-post-collection))
 |#
+
 (defun posts-scheduled-range-count (start-date end-date &key post-type)
   (let ((count 0))
     (find-docs 
@@ -64,15 +64,12 @@
              (if post-type
                  (when (string-equal post-type (get-val doc 'post-type))
                    (incf count 1))
-                 (incf count 1)))
-           
-           )))
+                 (incf count 1))))))
      (generic-actions-collection))
     count))
 
 (defun posts-scheduled-range (start-date end-date &key post-type)
-  (let (
-        (range)
+  (let ((range)
         (sorted-range)
         (final-range)
         (data-hash (make-hash-table :test 'equal)))
@@ -94,28 +91,21 @@
                    (setf (gethash (universal-date-strip-time
                                    (get-val doc 'scheduled-date))
                                   data-hash)
-                         val))))
-           )))
+                         val)))))))
      (generic-actions-collection))
     (maphash  
      (lambda (key val)
        (setf range
              (append range 
-                     (list 
-                      (list 
-                       key
-                        
-                       val)))))
-     data-hash
-     )
+                     (list (list key val)))))
+     data-hash)
     (setf sorted-range (sort range #'> :key #'car))
     (dolist (post sorted-range)
       (setf final-range 
             (append final-range 
                     (list 
                      (list (format-universal-date-dash (first post))
-                           (second post)))))
-      )
+                           (second post))))))
     final-range))
 
 
@@ -130,8 +120,7 @@
         ;;Need to make adjustments for dates because insights that are behind
         (let* ((start-date (if (equal the-day (universal-today))
                               (- the-day  (* 60 60 24 4))
-                              (- the-day  (* 60 60 24 1))
-                              ))
+                              (- the-day  (* 60 60 24 1))))
               (end-date (if (equal the-day (universal-today))
                               (- the-day  (* 60 60 24 3))
                               the-day))
@@ -177,15 +166,15 @@
     (dolist (user (coerce (channel-users) 'list ))
       (when (valid-channel-user user channel)  
         (let ((fans
-                    (get-generic-insight-values 
-                     user 
-                     insight-name
-                     start-date 
-                     end-date)))
-               (when fans
-                 (dolist (fan fans)
-                   (when (get-val fan 'value)
-                     (incf count (get-val fan 'value))))))))
+               (get-generic-insight-values 
+                user 
+                insight-name
+                start-date 
+                end-date)))
+          (when fans
+            (dolist (fan fans)
+              (when (get-val fan 'value)
+                (incf count (get-val fan 'value))))))))
     count))
 
 
@@ -246,33 +235,6 @@
                                             (list keys)))))))))))))
     range))
 
-(defun compound-insight-range-test ( start-date end-date keys)
-  (let ((range)
-        (insight-name "twitter-profile")
-        
-        (user (get-channel-user-by-user-name "CamafSA" "twitter")))
-    (let ((insights
-                    (get-generic-insight-values 
-                     user 
-                     insight-name
-                     start-date 
-                     end-date)))
-               (when insights
-
-                 (dolist (insight insights)
-                   (when (get-val insight 'value)
-                     (setf range 
-                           (append range 
-                                   (list 
-                                    (list 
-                                     (format-universal-date-dash (get-val insight 'end-time)) 
-                                     (apply #'gpv
-                                        (get-val insight 'value)
-                                        (if (listp keys)
-                                            keys
-                                            (list keys)))))))))))
-    range))
-
 (defun compound-insight-range-count (channel insight start-date end-date keys)
   (let ((count 0))
     (dolist (channel-user (coerce (channel-users) 'list ))
@@ -325,52 +287,51 @@
          (generic-insight-value-collection))))
     count))
 
-(defun twitter-followers-count ()
-
-   (compound-insight-count "Twitter" "twitter-profile" :followers--count)
-)
-
-
-(defun twitter-followers-day-range (start-date end-date)
-
-  (compound-insight-range "Twitter" "twitter-profile" 
-                          start-date end-date 
-                          :followers--count))
-
-
-
-
-(defun twitter-followers-day-range-count (start-date end-date)
-  (compound-insight-range-last-val "Twitter" "twitter-profile"  
-                                start-date end-date :followers--count))
 
 (defun linkedin-connections-count ()
   (let ((count 0))
     (dolist (user (coerce (channel-users) 'list ))
       (when (valid-channel-user user "LinkedIn")  
         (when (get-val user 'user-data)
-            (when (gethash "connections" (get-val user 'user-data))
-              (if (gpv
-                           (gethash "connections"
-                                    (get-val user 'user-data))
-                           :--total)
-               (incf count (gpv
-                            (gethash "connections"
-                                     (get-val user 'user-data))
-                            :--total)))))))
+          (when (gethash "connections" (get-val user 'user-data))
+            (if (gpv
+                 (gethash "connections"
+                          (get-val user 'user-data))
+                 :--total)
+                (incf count (gpv
+                             (gethash "connections"
+                                      (get-val user 'user-data))
+                             :--total)))))))
     count))
 
 
+(defun fb-post-likes (start-date end-date)
+  (let ((count 0))
+    (loop for post across (generic-posts) 
+       when (match-context-entities (channel-user post) )
+       when (string-equal (get-val post 'post-type) 
+                          "Facebook")
+       when (get-val post 'payload)
+       when (gpv (get-val post 'payload) :likes :count)
+       when  (and (<= start-date 
+                      (parse-facebook-created-at 
+                       (gpv (get-val post 'payload) :created--time))) 
+                  (>= end-date 
+                      (parse-facebook-created-at 
+                       (gpv (get-val post 'payload) :created--time))))
+       do (incf count (gpv (get-val post 'payload) :likes :count)))
+    count))
 
 
 (defun fb-comment-dates-count (payload start-date end-date)
-  (let ((count 0))
-    
+  (let ((count 0))   
     (dolist (comment  (gpv payload :comments :data))
-      
-      (when (and (<= start-date (parse-facebook-created-at (gpv comment :created--time))) 
-                 (>= end-date (parse-facebook-created-at (gpv comment :created--time)))
-             )
+      (when (and (<= start-date 
+                     (parse-facebook-created-at 
+                      (gpv comment :created--time))) 
+                 (>= end-date 
+                     (parse-facebook-created-at 
+                      (gpv comment :created--time))))
         (incf count)))
     count))
 
@@ -378,7 +339,8 @@
   (let ((count 0))
     (loop for post across (generic-posts) 
        when (match-context-entities (channel-user post) )
-       when (string-equal (get-val post 'post-type) "Facebook")
+       when (string-equal (get-val post 'post-type) 
+                          "Facebook")
        do (incf count (fb-comment-dates-count 
                         
                        (get-val post 'payload)
@@ -398,24 +360,6 @@
        do (incf count))
     count))
 
-(defun twitter-retweet-day-range (start-date end-date)
-
-  (compound-insight-range "Twitter" "twitter-profile" 
-                          start-date end-date (list :status :retweet--count)))
-
-
-
-
-
-(defun twitter-retweet-day-range-count (start-date end-date)
-  (compound-insight-range-count "Twitter" "twitter-profile"
-                                 start-date end-date
-                                (list :status :retweet--count)))
-
-(defun twitter-statuses-day-range-count (start-date end-date)
-  (compound-insight-range-count "Twitter" "twitter-profile"
-                                 start-date end-date
-                                :statuses--count))
 
 
 (defun dash-menu-item (title icon href) 
@@ -728,261 +672,286 @@
       value
       0))
 
-(define-easy-handler (dashboard-page :uri "/dyb/dashboard") ()
+(defun set-calc-vals (istd iend
+                      prev-istd 
+                      prev-iend)
+  (let ((calc-values (make-hash-table :test 'equal)))
+    (flet ((sv (key val)
+             (setf (gethash key calc-values) val)))
 
+      (sv 'posts-scheduled-count 
+          (posts-scheduled-range-count 
+           istd 
+           iend))
+
+      (sv 'posts-scheduled-prev-count 
+          (posts-scheduled-range-count 
+           prev-istd 
+           prev-iend))
+
+      (sv 'fb-comments-made-count 
+          (fb-comments-made 
+           istd 
+           iend))
+
+      (sv 'fb-comments-made-prev-count 
+          (fb-comments-made 
+           prev-istd 
+           prev-iend))
+
+      (sv 'fb-fans-adds-count 
+          (insight-range-count 
+           "Facebook"
+           "page_fan_adds" 
+           istd 
+           iend))
+               
+      (sv 'fb-fans-adds-prev-count 
+          (insight-range-count
+           "Facebook"
+           "page_fan_adds" 
+           prev-istd 
+           prev-iend))
+         
+      (sv 'fb-story-adds-count 
+          (insight-range-count 
+           "Facebook"
+           "page_story_adds" 
+           istd 
+           iend))
+
+      (sv 'fb-story-adds-prev-count 
+          (insight-range-count
+           "Facebook"
+           "page_story_adds" 
+           prev-istd 
+           prev-iend))
+
+      (sv 'fb-fans-interval-list
+          (insight-range
+           "Facebook"
+           "page_fans" 
+           istd 
+           iend))
+           
+      (sv 'fb-fans-interval-prev-list
+          (insight-range
+           "Facebook"
+           "page_fans" 
+           prev-istd 
+           prev-iend))
+           
+      (sv 'fb-fans-adds-interval-list
+          (insight-range
+           "Facebook"
+           "page_fan_adds" 
+           istd 
+           iend))
+
+      (sv 'fb-fans-adds-interval-prev-list
+          (insight-range
+           "Facebook"
+           "page_fan_adds" 
+           prev-istd 
+           prev-iend))
+
+      (sv 'fb-fans-removes-interval-list
+          (insight-range
+           "Facebook"
+           "page_fan_removes" 
+           istd 
+           iend))
+
+      (sv 'fb-fans-removes-interval-prev-list
+          (insight-range
+           "Facebook"
+           "page_fan_removes" 
+           prev-istd 
+           prev-iend))
+
+      (sv 'fb-impressions-interval-list
+          (insight-range
+           "Facebook"
+           "page_impressions" 
+           istd 
+           iend))
+
+      (sv 'fb-page-impressions-count
+          (insight-range-count 
+           "Facebook"
+           "page_impressions" 
+           istd 
+           iend))
+
+      (sv 'fb-page-impressions-prev-count
+          (insight-range-count 
+           "Facebook"
+           "page_impressions" 
+           prev-istd 
+           prev-iend))
+
+      (sv 'fb-post-likes-count
+          (fb-post-likes
+           istd 
+           iend ))
+
+      (sv 'fb-post-likes-prev-count
+          (fb-post-likes
+           prev-istd 
+           prev-iend ))
+
+
+      (sv 'twitter-retweets-list 
+          (compound-insight-range 
+           "Twitter" "twitter-profile" 
+           istd 
+           iend 
+           (list :status :retweet--count)))
+
+      (sv 'twitter-retweets 
+          (compound-insight-range-count 
+           "Twitter" "twitter-profile"
+           istd 
+           iend
+           (list :status :retweet--count))
+          )
+
+      (sv 'twitter-retweets-prev 
+          (compound-insight-range-count 
+           "Twitter" "twitter-profile"
+           prev-istd 
+           prev-iend
+           (list :status :retweet--count))
+          )
+
+      (sv 'twitter-followers-count 
+          (compound-insight-range-last-val 
+           "Twitter" "twitter-profile"  
+           istd 
+           iend
+           :followers--count))
+
+      (sv 'twitter-followers-prev-count 
+          (compound-insight-range-last-val 
+           "Twitter" "twitter-profile"  
+           prev-istd 
+           prev-iend
+           :followers--count))
+
+      (sv 'twitter-followers-interval-list
+          (compound-insight-range 
+           "Twitter" "twitter-profile" 
+           istd 
+           iend
+           :followers--count))
+
+      (sv 'twitter-followers-interval-prev-list 
+          (compound-insight-range 
+           "Twitter" "twitter-profile" 
+           prev-istd 
+           prev-iend
+           :followers--count))
+           
+      (sv 'twitter-at-mentions-count
+          (twitter-at-mentions 
+           istd 
+           iend ))
+
+      (sv 'twitter-at-mentions-prev-count
+          (twitter-at-mentions 
+           prev-istd 
+           prev-iend))
+
+      (sv 'tweets-scheduled-count
+          (posts-scheduled-range-count 
+           istd 
+           iend
+           :post-type "Twitter"))
+
+      (sv 'tweets-scheduled-prev-count
+          (posts-scheduled-range-count 
+           prev-istd 
+           prev-iend
+           :post-type "Twitter"))
+           
+      (sv 'tweets-scheduled-list
+          (posts-scheduled-range 
+           istd 
+           iend
+           :post-type "Twitter"))
+      (sv 'tweets-sheduled-prev-list
+          (posts-scheduled-range 
+           prev-istd 
+           prev-iend
+           :post-type "Twitter"))
+          
+      )
+    calc-values))
+
+
+
+(define-easy-handler (dashboard-page :uri "/dyb/dashboard") ()
   (multiple-value-bind (interval interval-start-date interval-end-date)
       (calc-date-interval)
-
-    (let* ((page (make-widget 'page :name "dashboard-page"))
-           (now (universal-today))
-           (previous-interval-start-date 
-            (- now (* +24h-secs+ (* interval 2))))
-           (previous-interval-end-date 
-            (- now (* +24h-secs+ interval)))
-
-           (posts-scheduled-count 
-            (posts-scheduled-range-count 
-             interval-start-date 
-             interval-end-date))
-
-           (posts-scheduled-previous-count 
-            (posts-scheduled-range-count 
-             previous-interval-start-date 
-             previous-interval-end-date))
-
-           (fb-comments-made-count 
-            (fb-comments-made 
-             interval-start-date 
-             interval-end-date))
-
-           (fb-comments-made-previous-count 
-            (fb-comments-made 
-             previous-interval-start-date 
-             previous-interval-end-date))
-           #|
-           page_fans are lifetime
-           (fb-fans-count 
-            (insight-count 
-             "Facebook"
-             "page_fans"
-             :target-date interval-end-date))
-
-           (fb-fans-previous-count 
-            (insight-count 
-             "Facebook"
-             "page_fans"
-             :target-date previous-interval-end-date))
-           |#
-           (fb-fans-adds-count 
-            (insight-range-count 
-             "Facebook"
-             "page_fan_adds" 
-             interval-start-date 
-             interval-end-date))
-
-           (fb-fans-adds-previous-count 
-            (insight-range-count
-             "Facebook"
-             "page_fan_adds" 
-             previous-interval-start-date 
-             previous-interval-end-date))
-         
-           (fb-story-adds-count 
-            (insight-range-count 
-             "Facebook"
-             "page_story_adds" 
-             interval-start-date 
-             interval-end-date))
-
-           (fb-story-adds-previous-count 
-            (insight-range-count
-             "Facebook"
-             "page_story_adds" 
-             previous-interval-start-date 
-             previous-interval-end-date))
-
-           (fb-fans-interval-list
-            (insight-range
-             "Facebook"
-             "page_fans" 
-             interval-start-date 
-             interval-end-date))
+    (let* (
            
-           (fb-fans-interval-previous-list
-            (insight-range
-             "Facebook"
-             "page_fans" 
-             previous-interval-start-date 
-             previous-interval-end-date))
-           
-           (fb-fans-adds-interval-list
-            (insight-range
-             "Facebook"
-             "page_fan_adds" 
-             interval-start-date 
-             interval-end-date))
+               (page (make-widget 'page :name "dashboard-page"))
+               (now (universal-today))
+               (previous-interval-start-date 
+                (- now (* +24h-secs+ (* interval 2))))
+               (previous-interval-end-date 
+                (- now (* +24h-secs+ interval)))
 
-           (fb-fans-adds-interval-previous-list
-            (insight-range
-             "Facebook"
-             "page_fan_adds" 
-             previous-interval-start-date 
-             previous-interval-end-date))
+               (calc-values (set-calc-vals 
+                             interval-start-date 
+                             interval-end-date
+                             previous-interval-start-date 
+                             previous-interval-end-date))
 
-           (fb-fans-removes-interval-list
-            (insight-range
-             "Facebook"
-             "page_fan_removes" 
-             interval-start-date 
-             interval-end-date))
-
-           (fb-fans-removes-interval-previous-list
-            (insight-range
-             "Facebook"
-             "page_fan_removes" 
-             previous-interval-start-date 
-             previous-interval-end-date))
-
-           (fb-impressions-interval-list
-            (insight-range
-             "Facebook"
-             "page_impressions" 
-             interval-start-date 
-             interval-end-date))
 
            
-
-           (fb-page-impressions-count
-            (insight-range-count 
-             "Facebook"
-             "page_impressions" 
-             interval-start-date 
-             interval-end-date))
-
-           (fb-page-impressions-previous-count
-            (insight-range-count 
-             "Facebook"
-             "page_impressions" 
-             previous-interval-start-date 
-             previous-interval-end-date))
-
-
-           (twitter-retweets-list 
-            (twitter-retweet-day-range
-             interval-start-date 
-             interval-end-date))
-
-           (twitter-retweets 
-            (twitter-retweet-day-range-count 
-             interval-start-date 
-             interval-end-date))
-
-           (twitter-retweets-previous 
-            (twitter-retweet-day-range-count 
-             previous-interval-start-date 
-             previous-interval-end-date))
-
-           (twitter-followers-count 
-            (twitter-followers-day-range-count 
-             interval-start-date 
-             interval-end-date))
-
-           (twitter-followers-previous-count 
-            (twitter-followers-day-range-count 
-             previous-interval-start-date 
-             previous-interval-end-date))
-
-           (twitter-followers-interval-list 
-            (twitter-followers-day-range
-             interval-start-date 
-             interval-end-date))
-
-           (twitter-followers-interval-previous-list 
-            (twitter-followers-day-range
-             previous-interval-start-date 
-             previous-interval-end-date))
-           
-           (twitter-at-mentions-count
-            (twitter-at-mentions 
-             interval-start-date 
-             interval-end-date ))
-
-           (twitter-at-mentions-previous-count
-            (twitter-at-mentions 
-             previous-interval-start-date 
-             previous-interval-end-date))
-
-           (tweets-scheduled-count
-            (posts-scheduled-range-count 
-             interval-start-date 
-             interval-end-date
-             :post-type "Twitter"))
-
-           (tweets-scheduled-previous-count
-            (posts-scheduled-range-count 
-             previous-interval-start-date 
-             previous-interval-end-date
-             :post-type "Twitter"))
-           
-           (tweets-scheduled-list
-            (posts-scheduled-range 
-             interval-start-date 
-             interval-end-date
-             :post-type "Twitter"))
-
-           (tweets-scheduled-previous-list
-            (posts-scheduled-range 
-             previous-interval-start-date 
-             previous-interval-end-date
-             :post-type "Twitter"))
-           
-
-
            (linkedin-connections-count (linkedin-connections-count))
            )
 
+      (flet ((gv (key)
+                (gethash key   calc-values)))
 
-  ;; (break "~A" twitter-followers-interval-list)
-    (with-html
+        (with-html
       
-      (render page
-              :body 
-              (with-html-to-string ()
-               ;; (str (format nil "Facebook insights recalculated up to ~A. We apologize for any inconvenience." (format-universal-date-time (facebook-last-insight))))
-                
-                
-                
-                (:div :class "container-fluid"
-                      #|
-    (:div :class "page-header"
-                      (:h1 "Dashboard"))
-    (:ul :class "breadcrumb"
-                      (:li (:a :href "#" "Home")
-                      (:span :class "divider" "&raquo;"))
-                      (:li :class "active" "Dashboard"))
-    (:div :class "dashboard-widget"
-                      (:div :class "row-fluid"
-                      (str (dash-menu-item "Inbox" 
-                      "mail_blk" 
-                      "/dyb/generic"))
-                      (str (dash-menu-item "Scheduler" 
-                      "month_calendar_blk" 
-                      "/dyb/generic-scheduler"))
-                      (str (dash-menu-item "Search Streams" 
-                      "magnifying_glass_blk" 
-                      "/dyb/search-stream"))
-                      (str (dash-menu-item "Reporting" 
-                      "graph_blk" 
-                      "#"))
-                      (str (dash-menu-item "Settings" 
-                      "cog_2_blk" 
-                      "#"))
-                      (str (dash-menu-item "Help" 
-                      "help_blk" 
-                      "#"))
+          (render page
+                  :body 
+                  (with-html-to-string ()
+                    (:div :class "container-fluid"
+                          #|
+                          (:div :class "page-header"
+                          (:h1 "Dashboard"))
+                          (:ul :class "breadcrumb"
+                          (:li (:a :href "#" "Home")
+                          (:span :class "divider" "&raquo;"))
+                          (:li :class "active" "Dashboard"))
+                          (:div :class "dashboard-widget"
+                          (:div :class "row-fluid"
+                          (str (dash-menu-item "Inbox" 
+                          "mail_blk" 
+                          "/dyb/generic"))
+                          (str (dash-menu-item "Scheduler" 
+                          "month_calendar_blk" 
+                          "/dyb/generic-scheduler"))
+                          (str (dash-menu-item "Search Streams" 
+                          "magnifying_glass_blk" 
+                          "/dyb/search-stream"))
+                          (str (dash-menu-item "Reporting" 
+                          "graph_blk" 
+                          "#"))
+                          (str (dash-menu-item "Settings" 
+                          "cog_2_blk" 
+                          "#"))
+                          (str (dash-menu-item "Help" 
+                          "help_blk" 
+                          "#"))
                                   
-                      ))
-    |#
+                          ))
+                          |#
                       
                       (str (interval-selection))
 
@@ -996,60 +965,26 @@
                 (:div :class "widget-content"
                       (:div :class "widget-box"
 
-                            (if (string-equal (get-val (current-user) 'email) "admin@dyb.co.za")
-                                (htm (str (format nil "fb-fans=~A | fb-fan-adds=~A | fb-page-impressions=~A  | fb-page-comments=~A | fb-story-adds=~A | fb-shares=~A | twit-followers=~A | tweets=~A | tweet-impressions=~A | twit-mentions=~A | twit-retweets=~A | linkedin-conn=~A "
-                                                  (or-zero (reverse fb-fans-interval-list))
-                                                  fb-fans-adds-count
-                                                  fb-page-impressions-count
-                                                  fb-comments-made-count
-                                                  fb-story-adds-count
-                                                  (- fb-story-adds-count 
-                                                     fb-fans-adds-count
-                                                     fb-comments-made-count)
-                                                  twitter-followers-count                                                  
-                                                  tweets-scheduled-count                                                 
-                                                  (* twitter-followers-count
-                                                     tweets-scheduled-count)
-                                                  twitter-at-mentions-previous-count
-                                                  twitter-retweets
-                                                  linkedin-connections-count
-                                                  ))
-                                     (str (format nil "<BR/>fb-fans=~A | fb-fan-adds=~A | fb-page-impressions=~A  | fb-page-comments=~A | fb-story-adds=~A | fb-shares=~A | twit-followers=~A | tweets=~A | tweet-impressions=~A | twit-mentions=~A | twit-retweets=~A | linkedin-conn=~A "
-                                                  (or-zero (reverse fb-fans-interval-previous-list))
-                                                  fb-fans-adds-previous-count
-                                                  fb-page-impressions-previous-count
-                                                  fb-comments-made-previous-count
-                                                  fb-story-adds-previous-count
-                                                  (- fb-story-adds-previous-count 
-                                                     fb-fans-adds-previous-count
-                                                     fb-comments-made-previous-count)
-                                                  twitter-followers-previous-count                                                  
-                                                  tweets-scheduled-previous-count                                                 
-                                                  (* twitter-followers-previous-count
-                                                     tweets-scheduled-previous-count)
-                                                  twitter-at-mentions-count
-                                                  twitter-retweets-previous
-                                                  linkedin-connections-count
-                                                  ))))
+                            
                             (:div :class "row-fluid"
                             
                                   (str (let* ((prev (+  
-                                                     (or-zero (reverse fb-fans-interval-previous-list))
-                                                     fb-page-impressions-previous-count
-                                                     twitter-followers-previous-count
-                                                     (* twitter-followers-previous-count
-                                                        tweets-scheduled-previous-count)      
-                                                     twitter-retweets-previous
-                                                     twitter-at-mentions-previous-count
+                                                     (or-zero (reverse (gv '(gv 'fb-fans-interval-prev-list))))
+                                                     (gv 'fb-page-impressions-prev-count)
+                                                     (gv 'twitter-followers-prev-count)
+                                                     (* (gv 'twitter-followers-prev-count)
+                                                        (gv 'tweets-scheduled-prev-count))      
+                                                     (gv 'twitter-retweets-prev)
+                                                     (gv 'twitter-at-mentions-prev-count)
                                                      linkedin-connections-count))
                                               (cur (+  
-                                                    (or-zero (reverse fb-fans-interval-list))
-                                                    fb-page-impressions-count
-                                                    twitter-followers-count
-                                                    (* twitter-followers-count
-                                                       tweets-scheduled-count)
-                                                    twitter-retweets
-                                                    twitter-at-mentions-count
+                                                    (or-zero (reverse (gv 'fb-fans-interval-list)))
+                                                    (gv 'fb-page-impressions-count)
+                                                    (gv 'twitter-followers-count)
+                                                    (* (gv 'twitter-followers-count)
+                                                       (gv 'tweets-scheduled-count))
+                                                    (gv 'twitter-retweets)
+                                                    (gv 'twitter-at-mentions-count)
                                                     linkedin-connections-count)))
                                          (dash-small-stat-graph  
                                           "Reach"
@@ -1063,28 +998,28 @@
                                           "Activity"
                                           "unique-visits"
                                           (format nil "~A,~A" 
-                                                  posts-scheduled-previous-count
-                                                  posts-scheduled-count)
-                                          posts-scheduled-count
+                                                  (gv 'posts-scheduled-prev-count)
+                                                  (gv 'posts-scheduled-count))
+                                          (gv 'posts-scheduled-count)
                                           (calc-prev-cur-percentage 
-                                           posts-scheduled-previous-count 
-                                           posts-scheduled-count)))
-                                  (str (let ((prev (+ fb-fans-adds-previous-count
+                                           (gv 'posts-scheduled-prev-count) 
+                                           (gv 'posts-scheduled-count))))
+                                  (str (let ((prev (+ (gv 'fb-fans-adds-prev-count)
                                                     
-                                                      fb-comments-made-previous-count
-                                                      ;;(- fb-story-adds-count 
-                                                      ;;   fb-fans-adds-count
-                                                      ;;   fb-comments-made-count)
-                                                      twitter-retweets-previous
-                                                      twitter-at-mentions-previous-count))
-                                             (cur (+ fb-fans-adds-count
+                                                      (gv 'fb-comments-made-prev-count)
+                                                      ;;(- (gv 'fb-story-adds-count) 
+                                                      ;;   (gv 'fb-fans-adds-count)
+                                                      ;;   (gv 'fb-comments-made-count))
+                                                      (gv 'twitter-retweets-prev)
+                                                      (gv 'twitter-at-mentions-prev-count)))
+                                             (cur (+ (gv 'fb-fans-adds-count)
                                                     
-                                                     fb-comments-made-count
-                                                     ;;(- fb-story-adds-previous-count 
-                                                     ;;   fb-fans-adds-previous-count
-                                                     ;;   fb-comments-made-previous-count)
-                                                     twitter-retweets
-                                                     twitter-at-mentions-count)))
+                                                     (gv 'fb-comments-made-count)
+                                                     ;;(- (gv 'fb-story-adds-prev-count) 
+                                                     ;;   (gv 'fb-fans-adds-prev-count)
+                                                     ;;   (gv 'fb-comments-made-prev-count))
+                                                     (gv 'twitter-retweets)
+                                                     (gv 'twitter-at-mentions-count))))
                                          (dash-small-stat-graph 
                                           "Engagement"
                                           "weekly-sales"
@@ -1107,13 +1042,13 @@
                                               (str (network-size-graph  
                                                     (format-universal-date-dash interval-start-date)
                                                     (format-universal-date-dash interval-end-date)
-                                                    (if (and twitter-followers-interval-list fb-fans-interval-list)
-                                                        `((,@twitter-followers-interval-list)
-                                                          (,@fb-fans-interval-list))
-                                                        (if twitter-followers-interval-list
-                                                            `((,@twitter-followers-interval-list))
-                                                            (if fb-fans-interval-list
-                                                                `((,@fb-fans-interval-list)) )))
+                                                    (if (and (gv 'twitter-followers-interval-list) (gv 'fb-fans-interval-list))
+                                                        `((,@(gv 'twitter-followers-interval-list))
+                                                          (,@(gv 'fb-fans-interval-list)))
+                                                        (if (gv 'twitter-followers-interval-list)
+                                                            `((,@(gv 'twitter-followers-interval-list)))
+                                                            (if (gv 'fb-fans-interval-list)
+                                                                `((,@(gv 'fb-fans-interval-list))) )))
                                                       
                                                     
 
@@ -1129,19 +1064,19 @@
                                   (:div :class "widget-content"
                                         (:div :class "widget-box"
                                               (:div :class "row-fluid"
-                                                    (str (engagement-graph `((("Likes" ,fb-fans-adds-count)
-                                                                             ;; ("Clicks" ,fb-page-impressions-count)
-                                                                              ("Comments" ,fb-comments-made-count)
-                                                                              ("Retweets" ,twitter-retweets)
+                                                    (str (engagement-graph `((("Post Likes" ,(gv 'fb-post-likes-count))
+                                                                             ;; ("Clicks" ,(gv 'fb-page-impressions-count))
+                                                                              ("Comments" ,(gv 'fb-comments-made-count))
+                                                                              ("Retweets" ,(gv 'twitter-retweets))
                                                    
-                                                                              ;;("FB Shares" ,fb-story-adds-count)
-                                                                              ("Mentions" ,twitter-at-mentions-count)
+                                                                              ;;("FB Shares" ,(gv 'fb-story-adds-count))
+                                                                              ("Mentions" ,(gv 'twitter-at-mentions-count))
                                                                               ("Direct Messages" 0)))
                                                                            (format nil "[~A,~A,~A,~A]" 
-                                                                                   fb-fans-adds-count 
-                                                                                   fb-comments-made-count 
-                                                                                   twitter-retweets
-                                                                                   twitter-at-mentions-count)))
+                                                                                   (gv 'fb-post-likes-count) 
+                                                                                   (gv 'fb-comments-made-count) 
+                                                                                   (gv 'twitter-retweets)
+                                                                                   (gv 'twitter-at-mentions-count))))
                                                     (:div :class "span2"
                                                           (:div :class "summary"
                                                                 (:h4 "CURRENT COMMUNITY SIZE")
@@ -1151,9 +1086,9 @@
                                                                   (str (community-summary-item  
                                                                         "All Accounts"
                                                                         (+ 
-                                                                         (or-zero (reverse fb-fans-interval-list) )
+                                                                         (or-zero (reverse (gv 'fb-fans-interval-list)) )
                                                                          ;;fb-fans-count
-                                                                         twitter-followers-count
+                                                                         (gv 'twitter-followers-count)
                                                                          ;;linkedin-connections-count
                                                                          ;;TODO: linkeded in followers
                                                                          )
@@ -1164,7 +1099,7 @@
                                                                  (:li
                                                                   (str (community-summary-item  
                                                                         " Facebook"
-                                                                        (or-zero (reverse fb-fans-interval-list) )
+                                                                        (or-zero (reverse (gv 'fb-fans-interval-list)) )
                                                                         "/appimg/Facebook_Light_Logo.png"
                                                                         "Facebook Friends"
                                                                         t
@@ -1174,7 +1109,7 @@
                                                                  (:li
                                                                   (str (community-summary-item  
                                                                         " Twitter"
-                                                                        twitter-followers-count
+                                                                        (gv 'twitter-followers-count)
                                                                         "/appimg/twitter-bird-white-on-blue.png"
                                                                         "Twitter Followers"
                                                                         t
@@ -1205,24 +1140,24 @@
                                               (:div :class "row-fluid"
                             
                             (str (board-stats  (create-bar-range-string 
-                                                fb-fans-adds-interval-list 7) 
-                                              "New Likes" 
+                                                (gv 'fb-fans-adds-interval-list) 7) 
+                                              "New Page Likes" 
                                               (list "facebook_like") 
                                               "bar-chart" "span3"))
                             (str (board-stats (create-bar-range-string 
-                                                fb-impressions-interval-list 7)
+                                               (gv 'fb-impressions-interval-list) 7)
                                               "Page Impressions" 
                                               (list "documents")
                                               "bar-chart" "span3"))
                             (str (board-stats 
                                               (create-bar-range-string 
-                                                fb-fans-interval-list 7)
+                                                (gv 'fb-fans-interval-list) 7)
                                               "Total Fans" 
                                               (list "users")
                                               "bar-chart" "span3"))
                             (str (board-stats  (create-bar-range-string 
-                                                fb-fans-removes-interval-list 7) 
-                                              "Unlikes" 
+                                                (gv 'fb-fans-removes-interval-list) 7) 
+                                              "Page Unlikes" 
                                               (list "facebook_unlike") 
                                               "bar-chart" "span3"))
                             #|(str (board-stats "0,0"
@@ -1231,7 +1166,10 @@
                             "pie-chart" "span2"))|#
                             )))))
                    
-                (:div :class "row-fluid"
+                
+                      
+                      
+                      (:div :class "row-fluid"
                             (:div :class "nonboxy-widget"
                                   (:div :class "widget-head"
                                         (:h5 (:i :class "black-icons twitter")
@@ -1243,7 +1181,7 @@
                             
                             (str 
                              (let ((new-followers (strip-dates-from-range 
-                                                   (reverse twitter-followers-interval-list) 8)))
+                                                   (reverse (gv 'twitter-followers-interval-list)) 8)))
                                
                                (board-stats 
                                 (format nil "~A,~A,~A,~A,~A,~A,~A" 
@@ -1261,9 +1199,9 @@
                                 "bar-chart" "span3")))
                             (str 
                              (let ((followers (strip-dates-from-range 
-                                                 (reverse twitter-followers-interval-list) 7))
+                                                 (reverse (gv 'twitter-followers-interval-list)) 7))
                                     (tweets (strip-dates-from-range 
-                                             tweets-scheduled-list 7)))
+                                             (gv 'tweets-scheduled-list) 7)))
                                 (board-stats  
                                
                                  (format nil "~A,~A,~A,~A,~A,~A,~A" 
@@ -1282,7 +1220,7 @@
                             (str
                              
                              (board-stats (create-bar-range-string 
-                                                twitter-followers-interval-list 7)
+                                                (gv 'twitter-followers-interval-list) 7)
                                               "Total Fans" 
                                               (list "users")
                                               "bar-chart" "span3"))
@@ -1291,17 +1229,17 @@
                             (list "male_contour" "female_contour")
                             "pie-chart" "span2"))|#
                             )))))
-                      
-                      
-                      
+
+
+
                       
                       
                       #|
-    (:div :class "page-header"
+                          (:div :class "page-header"
                 (:h3 (:span :class "black-icons linkedin" 
                 :style "margin-top:1px;" )
                 "LINKEDIN") )
-    (:div :class "row-fluid"
+                          (:div :class "row-fluid"
                             
                 (str (board-stats (format nil "0,~A" linkedin-connections-count) 
                 "New Connections" 
@@ -1320,10 +1258,24 @@
                 (list "male_contour" "female_contour")
                 "pie-chart" "span2"))
                 )
-    |#)
-                
-                )
-))))
+                          |#)
+                    (:div :class "row-fluid"
+                            (:div :class "nonboxy-widget"
+                            
+                                  (when (string-equal (get-val (current-user) 'email) "admin@dyb.co.za")
+                                      (htm 
+                                        (:table 
+                                         (:tr 
+                                          (:th  :style "border: 1px solid black;" "Key")
+                                          (:th  :style "border: 1px solid black;" "Value"))
+                                         (maphash (lambda (key val)
+                                                    (htm (:tr
+                                                          (:td :style "border: 1px solid black; width: 250px;" (str key))
+                                                          (:td :style "border: 1px solid black;" (str val)))))
+                                                  calc-values))
+                                        ))))
+)
+)))))
 
   )
 
