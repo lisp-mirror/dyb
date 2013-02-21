@@ -31,7 +31,6 @@
                       )))))
 
 (defun twitter-post-display (grid row col-val row-id)
-;(break "~A~%~A" col-val (gpv col-val :entities :urls :expanded--url)) 
  (with-html-to-string ()
     (:div 
      :class "nonboxy-widget"
@@ -42,10 +41,12 @@
        (:a
         :class "post-title"        
         :target "_blank"
-        :href (format nil "http://www.twitter.com/~A" 
-                      (gpv col-val :entities :urls :expanded--url))
+        :href (format nil "http://www.twitter.com/~A/statuses/~A" 
+                      (gpv col-val :user :screen--name)
+                      (gpv col-val :id--str))
         (str (gpv col-val :user :name)))
        (:span :class "twitter-user" 
+
               (:a :href (format nil "http://www.twitter.com/~A" 
                                 (gpv col-val :user :screen--name))))
        (:span :class "post-content"
