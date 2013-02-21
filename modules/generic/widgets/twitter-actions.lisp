@@ -111,7 +111,8 @@
                              (with-html-to-string ()
                                (render-edit-field
                                 "user-id" 
-                                (parameter "user-id")
+                                (or (parameter "user-id") 
+                                    (first (first (get-channel-users-list "Twitter" nil))))
                                 :data (get-channel-users-list "Twitter" nil)
                                 :required t
                                 :type :select)))

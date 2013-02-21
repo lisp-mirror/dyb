@@ -6,7 +6,10 @@
         :accessor url)
    (short :initarg :short
               :initform nil
-              :accessor short))
+              :accessor short)
+   (click-count :initarg :click-count
+                :initform 0
+                :accessor click-count))
   (:metaclass storable-class))
 
 (defun short-url-collection ()
@@ -30,6 +33,12 @@
                      url)
         return (short short-url)))
 
+(defun find-short-url-object (url)
+  (loop for short-url across (short-urls)
+        when (equalp (url short-url)
+                     url)
+        return short-url))
+
 (defun make-short-url (url)
   (or (find-short-url url)
       (loop for short = (format nil "~(~32r~)" (random 999999))
@@ -37,7 +46,8 @@
             return
             (let ((new (make-instance 'short-url
                                       :url url
-                                      :short short)))
+                                      :short short
+                                      :click-count 0)))
               (persist new)
               short))))
 

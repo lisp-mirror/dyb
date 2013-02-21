@@ -25,19 +25,94 @@
           (setf value (second val)))))
     value))
 
-(defun retweets-of-my-tweets ()
-  (find-docs 'list
-                (lambda (doc)
-                  (typecase (get-val doc 'channel-user) 
-                    (channel-user 
-                     (when (and
-                            (gpv (get-val doc 'payload) :retweeted)
-                            (string-equal 
-                             (format nil "~A" 
-                                     (get-val (get-val doc 'channel-user) 'user-id))
-                             (gpv (get-val doc 'payload) :user :id--str)))
-                       (break "~A" doc)))))
-                (generic-post-collection)))
+
+(defun short-url-clicks (start-date end-date)
+
+  (let ((count 0))
+    (find-docs 'list
+               (lambda (doc)
+                 (typecase (get-val doc 'channel-user) 
+                   (channel-user
+                    (when (string-equal (get-val doc 'post-type) "Twitter")
+                      (when (and
+                             (match-context-entities (get-val doc 'channel-user))
+                             (gpv (get-val doc 'payload) :entities :urls)                  
+                             (and (>= (get-val doc 'created-date) start-date)
+                                  (<= (get-val doc 'created-date) end-date)))
+                        (dolist (url (gpv (get-val doc 'payload) :entities :urls))
+                         (let ((short-url 
+                                (find-short-url-object (last (split-string url #\/)))))
+                           (when short-url
+                               (incf count (or (click-count short-url) 0)))))
+                        )))))
+               (generic-post-collection))
+    count))
+
+(defun retweets-of-my-tweets (start-date end-date)
+  (let ((count 0))
+    (find-docs 'list
+               (lambda (doc)
+                 (typecase (get-val doc 'channel-user) 
+                   (channel-user
+                    (when (string-equal (get-val doc 'post-type) "Twitter")
+                      (when (and
+                             (match-context-entities (get-val doc 'channel-user))
+                             (> (or (gpv (get-val doc 'payload) :retweet--count) 0) 0)
+                             (string-equal 
+                              (get-val (get-val doc 'channel-user) 'channel-user-name) 
+                              (gpv (get-val doc 'payload) :user :screen--name))
+                             (and (>= (get-val doc 'created-date) start-date)
+                                  (<= (get-val doc 'created-date) end-date)))
+                        (incf count (or (gpv (get-val doc 'payload) :retweet--count) 0))
+                        doc)))))
+               (generic-post-collection))
+    count))
+
+(defun mentions-of-me-in-tweets (start-date end-date)
+  (let ((count 0))
+    (find-docs 'list
+               (lambda (doc)
+                 (typecase (get-val doc 'channel-user) 
+                   (channel-user
+                    (when (string-equal (get-val doc 'post-type) "Twitter")
+                      (when (and
+                             (match-context-entities (get-val doc 'channel-user))
+                             (gpv (get-val doc 'payload) :entities :user--mentions)
+                             
+                             (and (>= (get-val doc 'created-date) start-date)
+                                  (<= (get-val doc 'created-date) end-date)))
+                        (dolist (mention (gpv (get-val doc 'payload) :entities :user--mentions))
+                         (when (string-equal
+                                (get-val (get-val doc 'channel-user) 'channel-user-name)
+                                (gpv mention :screen--name))
+                           (incf count)))
+                        )))))
+               (generic-post-collection))
+    count))
+
+
+(defun mentions-of-me-in-tweets-mentioner-followers (start-date end-date)
+  (let ((count 0))
+    (find-docs 'list
+               (lambda (doc)
+                 (typecase (get-val doc 'channel-user) 
+                   (channel-user
+                    (when (string-equal (get-val doc 'post-type) "Twitter")
+                      (when (and
+                             (match-context-entities (get-val doc 'channel-user))
+                             (gpv (get-val doc 'payload) :entities :user--mentions)
+                             
+                             (and (>= (get-val doc 'created-date) start-date)
+                                  (<= (get-val doc 'created-date) end-date)))
+                        (dolist (mention (gpv (get-val doc 'payload) :entities :user--mentions))
+                         (when (string-equal
+                                (get-val (get-val doc 'channel-user) 'channel-user-name)
+                                (gpv mention :screen--name))
+                           (incf count (gpv (get-val doc 'payload) :user :followers--count))))
+                        )))))
+               (generic-post-collection))
+    count))
+
 
 #|
 (find-docs 'list
@@ -801,13 +876,29 @@
            prev-iend ))
 
 
-      (sv 'twitter-retweets-list 
+     #| (sv 'twitter-retweets-list 
           (compound-insight-range 
            "Twitter" "twitter-profile" 
            istd 
            iend 
            (list :status :retweet--count)))
+      |#
 
+      
+      (sv 'twitter-retweets 
+          (retweets-of-my-tweets
+           istd 
+           iend
+           )
+          )
+      
+      (sv 'twitter-retweets-prev 
+          (retweets-of-my-tweets
+           prev-istd 
+           prev-iend
+           )
+          )
+      #|
       (sv 'twitter-retweets 
           (compound-insight-range-count 
            "Twitter" "twitter-profile"
@@ -823,7 +914,7 @@
            prev-iend
            (list :status :retweet--count))
           )
-
+      |#
       (sv 'twitter-followers-count 
           (compound-insight-range-last-val 
            "Twitter" "twitter-profile"  
@@ -853,14 +944,26 @@
            :followers--count))
            
       (sv 'twitter-at-mentions-count
-          (twitter-at-mentions 
+          (mentions-of-me-in-tweets ;;twitter-at-mentions 
            istd 
            iend ))
 
       (sv 'twitter-at-mentions-prev-count
-          (twitter-at-mentions 
+          (mentions-of-me-in-tweets;; twitter-at-mentions 
            prev-istd 
            prev-iend))
+
+     (sv 'twitter-at-mentions-followers-count
+          (mentions-of-me-in-tweets-mentioner-followers
+           istd 
+           iend ))
+
+      (sv 'twitter-at-mentions-followers-prev-count
+          (mentions-of-me-in-tweets-mentioner-followers
+           prev-istd 
+           prev-iend))
+
+
 
       (sv 'tweets-scheduled-count
           (posts-scheduled-range-count 
@@ -884,7 +987,22 @@
            prev-istd 
            prev-iend
            :post-type "Twitter"))
+      (sv 'tweets-retweeted-own-count
+          (retweets-of-my-tweets
+           istd 
+           iend
+           ))
+      (sv 'mentions-of-me-in-tweets-count
+            (mentions-of-me-in-tweets
+             istd 
+             iend
+             ))
           
+      (sv 'short-url-clicks-count
+       (short-url-clicks
+        istd 
+        iend))
+
       )
     calc-values))
 
@@ -1065,15 +1183,17 @@
                                         (:div :class "widget-box"
                                               (:div :class "row-fluid"
                                                     (str (engagement-graph `((("Post Likes" ,(gv 'fb-post-likes-count))
-                                                                             ;; ("Clicks" ,(gv 'fb-page-impressions-count))
+                                                                              ("Shortner Clicks" ,(gv 'short-url-clicks-count))
                                                                               ("Comments" ,(gv 'fb-comments-made-count))
                                                                               ("Retweets" ,(gv 'twitter-retweets))
                                                    
                                                                               ;;("FB Shares" ,(gv 'fb-story-adds-count))
                                                                               ("Mentions" ,(gv 'twitter-at-mentions-count))
-                                                                              ("Direct Messages" 0)))
+                                                                              ;;("Direct Messages" 0)
+                                                                              ))
                                                                            (format nil "[~A,~A,~A,~A]" 
                                                                                    (gv 'fb-post-likes-count) 
+                                                                                   (gv 'short-url-clicks-count)
                                                                                    (gv 'fb-comments-made-count) 
                                                                                    (gv 'twitter-retweets)
                                                                                    (gv 'twitter-at-mentions-count))))
