@@ -1,5 +1,25 @@
 (in-package :dyb)
 
+(defun request-with-auth1 (app-id app-secret 
+                           access-token access-secret 
+                           nonce stamp
+                           signature-base-string)
+  `(("Authorization"
+        ,@(build-auth-string
+           `(("oauth_consumer_key" ,app-id)
+             ("oauth_nonce" ,nonce)
+             ("oauth_signature"
+              ,(encode-signature
+                (hmac-sha1
+                 signature-base-string
+                 (hmac-key app-secret 
+                           access-secret))
+                  nil))
+             ("oauth_signature_method" "HMAC-SHA1")
+             ("oauth_timestamp" ,stamp)
+             ("oauth_token" ,access-token)
+             ("oauth_version" "1.0"))))))
+
 (defun picture-tweet-request (app-id app-secret access-token access-secret message 
                               image-path
                               link-url)
@@ -741,3 +761,58 @@
          channel-user
          (list result)
          'history-import)))))
+
+
+
+(defun twitter-direct-messages-request (app-id app-secret access-token access-secret
+                                      &key since-id)
+  (let* ((stamp (format nil "~A" (get-unix-time)))
+         (nonce (format nil "~A~A" (random 1234567) stamp))
+         (end-point  (format nil "https://api.twitter.com/1.1/direct_messages.json?count=200&since_id=~A&include_entities=true" 
+                            
+                             (if since-id
+                                 since-id
+                                 1)))
+         (since (format nil "~A" (if since-id
+                                since-id
+                                1))))
+    (drakma:http-request 
+     end-point
+     :method :get 
+
+     :additional-headers
+     (request-with-auth1 app-id app-secret 
+                         access-token access-secret
+                         nonce stamp
+                         (signature-base-string
+                          :uri end-point 
+                          :request-method "GET"
+                          :parameters `(
+                                        ("count" "200")
+                                        ("include_entities" "true")
+                                        
+                                        ("oauth_consumer_key" ,app-id)
+                                        ("oauth_nonce" ,nonce)
+                                        ("oauth_signature_method" "HMAC-SHA1")
+                                        ("oauth_timestamp" ,stamp)
+                                        ("oauth_token" ,access-token)
+                                        ("oauth_version" "1.0")
+                                        ("since_id"  ,since)
+                                        )))
+    
+    :want-stream nil
+    :preserve-uri nil)))
+
+(defun twitter-direct-messages (user &key since-id)
+  (when user
+    (let ((channel (get-social-channel (get-val user 'channel-user-type))))
+      (handle-endpoint
+       user
+       (twitter-direct-messages-request
+                 (get-val channel 'app-id)
+                 (get-val channel 'app-secret)
+                 (get-val user 'last-access-token)
+                 (get-val user 'last-token-secret)
+                 
+                 :since-id since-id)
+       :result-is-octets-p t))))

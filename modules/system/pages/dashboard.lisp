@@ -27,7 +27,6 @@
 
 
 (defun short-url-clicks (start-date end-date)
-
   (let ((count 0))
     (find-docs 'list
                (lambda (doc)
@@ -617,55 +616,66 @@
                            (str "Dashboard Interval")))
 
                 (:div :class "widget-content"
-                      (:form :name "dash-date-form" :action ""  :method "post"
+                      (:div :class "row-fluid"
+                            (:form :name "dash-date-form" :action ""  :method "post"
                                  
                                    
-                             (:div :class "widget-box"
-                                   (:div :class "row-fluid"
-                                         (:div :class "span2"
-                                               (:input :type :radio 
-                                                       :id "shit"
-                                                       :name "dashboard-interval" 
-                                                       :value "7 Days"
-                                                       :checked (string-equal (parameter "dashboard-interval") "7 Days")
-                                                       (str "7 Days")))
-                                         (:div :class "span2"
-                                               (:input :type :radio 
-                                                       :name "dashboard-interval" 
-                                                       :value "30 Days"
-                                                       :checked (or (string-equal (parameter "dashboard-interval") "30 Days")
-                                                                    (not (parameter "dashboard-interval")))
-                                                       (str "30 Days")))
-                                         (:div :class "span2"
-                                               (:input :type :radio 
-                                                       :name "dashboard-interval" 
-                                                       :value "365 Days"
-                                                       :checked (string-equal (parameter "dashboard-interval") "365 Days")
-                                                       (str "365 Days"))))
-                                   (:div :class "row-fluid"
-                                         (:div :class "span5"
-                                               (str "From Date")
-                                               (render-edit-field 
-                                                "interval-start-date"
-                                                (parameter "interval-start-date")
-                                                :type :date
-                                                :required nil
-                                                :width "100px")
-                                               (str " To Date")
-                                               (render-edit-field 
-                                                "interval-end-date"
-                                                (parameter "interval-end-date")
-                                                :type :date
-                                                :required nil
-                                                :width "100px")
-                                               ))
-                                   )
-                             (:div :class "widget-bottom"
-                                   (:input :type "submit" 
-                                    
-                                           :class "btn btn-info" 
-                                           :name "set-dash-interval" 
-                                           :value "Set Interval"))))))))
+                                   (:div :class "widget-box"
+                                         (:div :class "row-fluid"
+                                               (:div :class "span2"
+                                                     (:input :type :radio 
+                                                             :id "shit"
+                                                             :name "dashboard-interval" 
+                                                             :value "7 Days"
+                                                             :checked (string-equal (parameter "dashboard-interval") "7 Days")
+                                                             (str "7 Days")))
+                                               (:div :class "span2"
+                                                     (:input :type :radio 
+                                                             :name "dashboard-interval" 
+                                                             :value "30 Days"
+                                                             :checked (or (string-equal (parameter "dashboard-interval") "30 Days")
+                                                                          (not (parameter "dashboard-interval")))
+                                                             (str "30 Days")))
+                                               (:div :class "span2"
+                                                     (:input :type :radio 
+                                                             :name "dashboard-interval" 
+                                                             :value "365 Days"
+                                                             :checked (string-equal (parameter "dashboard-interval") "365 Days")
+                                                             (str "365 Days"))))
+                                         (:div :class "row-fluid"
+                                               (:div :class "span5"
+                                                     (str "From Date")
+                                                     (render-edit-field 
+                                                      "interval-start-date"
+                                                      (parameter "interval-start-date")
+                                                      :type :date
+                                                      :required nil
+                                                      :width "100px")
+                                                     (str " To Date")
+                                                     (render-edit-field 
+                                                      "interval-end-date"
+                                                      (parameter "interval-end-date")
+                                                      :type :date
+                                                      :required nil
+                                                      :width "100px")
+                                                     ))
+                                         )
+                                   (:div :class "widget-bottom"
+                                         (:input :type "submit"                                     
+                                                 :class "btn btn-info" 
+                                                 :name "set-dash-interval" 
+                                                 :value "GO"))
+                                   ))
+                      (:div :class "row-fluid"
+                            (:br)
+                            (:form :name "dash-date-form" :action ""  :method "post"
+                        
+                                   (:div :class "widget-bottom"
+                                         (:input :type "submit"                                     
+                                                 :class "btn btn-info" 
+                                                 :name "clear-selection" 
+                                                 :value "Clear Selection"))))
+                      )))))
 
 (defun dashboard-overview ()
   (with-html-to-string ()
@@ -1003,6 +1013,11 @@
         istd 
         iend))
 
+      (sv 'short-url-clicks-prev-count
+       (short-url-clicks
+         prev-istd 
+         prev-iend))
+
       )
     calc-values))
 
@@ -1129,7 +1144,8 @@
                                                       ;;   (gv 'fb-fans-adds-count)
                                                       ;;   (gv 'fb-comments-made-count))
                                                       (gv 'twitter-retweets-prev)
-                                                      (gv 'twitter-at-mentions-prev-count)))
+                                                      (gv 'twitter-at-mentions-prev-count)
+                                                      (gv 'short-url-clicks-prev-count)))
                                              (cur (+ (gv 'fb-fans-adds-count)
                                                     
                                                      (gv 'fb-comments-made-count)
@@ -1137,7 +1153,8 @@
                                                      ;;   (gv 'fb-fans-adds-prev-count)
                                                      ;;   (gv 'fb-comments-made-prev-count))
                                                      (gv 'twitter-retweets)
-                                                     (gv 'twitter-at-mentions-count))))
+                                                     (gv 'twitter-at-mentions-count)
+                                                     (gv 'short-url-clicks-count))))
                                          (dash-small-stat-graph 
                                           "Engagement"
                                           "weekly-sales"
@@ -1191,7 +1208,7 @@
                                                                               ("Mentions" ,(gv 'twitter-at-mentions-count))
                                                                               ;;("Direct Messages" 0)
                                                                               ))
-                                                                           (format nil "[~A,~A,~A,~A]" 
+                                                                           (format nil "[~A,~A,~A,~A,~A]" 
                                                                                    (gv 'fb-post-likes-count) 
                                                                                    (gv 'short-url-clicks-count)
                                                                                    (gv 'fb-comments-made-count) 
