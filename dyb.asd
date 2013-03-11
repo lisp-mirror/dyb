@@ -232,15 +232,12 @@
                                             :serial t
                                             :components
                                             ((:file "generic-scheduler")
-                                             ))
+                                             (:file "log-viewer")))
                                    (:module "pages"
                                             :serial t
                                             :components
                                             ((:file "generic-scheduler")
-                                             (:file "manual-scheduler")))
-                                   
-                   
-                                   ))
+                                             (:file "manual-scheduler")))))
                          (:module "tasks"
                                   :serial t
                                   :components
