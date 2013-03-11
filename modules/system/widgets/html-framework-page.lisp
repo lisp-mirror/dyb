@@ -286,6 +286,9 @@
                                      (if (check-permission "/dyb/manual-updates")
                                          (htm (:li
                                                (:a :href "/dyb/manual-updates" "Manual Stream Updates"))))
+                                     (if (check-permission "/dyb/error-log")
+                                         (htm (:li
+                                               (:a :href "/dyb/error-log" "Error Log"))))
                                      (if (check-permission "/dyb/context")
                                          (htm (:li
                                                (:a :href "/dyb/context" "Context"))))

@@ -42,14 +42,19 @@
 (defun start-task-thread (task-name function)
   (bordeaux-threads:make-thread  
    (lambda ()
-     (loop
-      (sleep 3)
-      (block nil
-        (handler-bind ((serious-condition
-                         (lambda (condition)
-                           (log-error task-name condition)
-                           (return))))
-          (funcall function)))))
+     (let ((sleep-time 3))
+       (loop
+        (sleep sleep-time)
+        (block nil
+          (handler-bind ((serious-condition
+                           (lambda (condition)
+                             (setf sleep-time
+                                   (min (* sleep-time 2)
+                                        (* 60 60)))
+                             (log-error task-name condition)
+                             (return))))
+            (funcall function)
+            (setf sleep-time 3))))))
    :name task-name))
 
 (defun start-actions-scheduler ()
