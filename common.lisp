@@ -694,7 +694,7 @@
       (chtml::sink-write-rod (%linkify-string data) sink)))
 
 (defun %linkify-string (text)
-  (ppcre:regex-replace-all "((http://|www.)\\S+)" text "<a href='\\1'>\\1</a>"))
+  (ppcre:regex-replace-all "((http://|www.)\\S+)" text "<a target=\"_blank\" href='\\1'>\\1</a>"))
 
 (defun linkify (string)
   (chtml:serialize-pt
