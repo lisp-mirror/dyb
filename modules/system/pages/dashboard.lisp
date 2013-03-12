@@ -559,9 +559,10 @@
            (:span :class "summary-title" (str title))))
 ;;TODO: Add date range
 
-(defun board-stats (range title icons chart span)
+(defun board-stats (range title icons chart span &key tooltip )
   (with-html-string
     (:div :class span
+         
           (:div
                 :class "board-stats"
                 (:div :class "statistics-wrap"
@@ -569,6 +570,7 @@
                             (:div :class (format nil "stat-chart ~A" chart)
                                   (str range))
                             (:div :class "stat-info"
+                                   :title tooltip
                                   (dolist (icon icons)
                                     (htm (:span :class (format nil "black-icons ~A" icon))))
                                   (str title))
@@ -1452,23 +1454,27 @@
                                                 (gv 'fb-fans-adds-interval-list) 7) 
                                               "New Page Likes" 
                                               (list "facebook_like") 
-                                              "bar-chart" "span3"))
+                                              "bar-chart" "span3"
+                                              :tooltip "The number of new people who have liked your Page."))
                             (str (board-stats (create-bar-range-string 
                                                (gv 'fb-impressions-interval-list) 7)
                                               "Page Impressions" 
                                               (list "documents")
-                                              "bar-chart" "span3"))
+                                              "bar-chart" "span3"
+                                              :tooltip "The total number of impressions seen of any content associated with your Page."))
                             (str (board-stats 
                                               (create-bar-range-string 
                                                 (gv 'fb-fans-interval-list) 7)
                                               "Total Fans" 
                                               (list "users")
-                                              "bar-chart" "span3"))
+                                              "bar-chart" "span3"
+                                              :tooltip "The total number of people who have liked your Page."))
                             (str (board-stats  (create-bar-range-string 
                                                 (gv 'fb-fans-removes-interval-list) 7) 
                                               "Page Unlikes" 
                                               (list "facebook_unlike") 
-                                              "bar-chart" "span3"))
+                                              "bar-chart" "span3"
+                                              :tooltip "Unlikes of your Page."))
                             #|(str (board-stats "0,0"
                             "Demographics" 
                             (list "male_contour" "female_contour")
@@ -1505,7 +1511,8 @@
                                   
                                 "New Followers" 
                                 (list "users") 
-                                "bar-chart" "span3")))
+                                "bar-chart" "span3"
+                                :tooltip "Then number of new followers aquired.")))
                             (str 
                              (let* ((tweets-followers (multiply-ranges (list (gv 'tweets-scheduled-list)
                                                                             (gv 'twitter-followers-interval-list))) )
@@ -1529,7 +1536,8 @@
                                         )
                                  "Impressions" 
                                  (list "documents")
-                                 "bar-chart" "span3")))
+                                 "bar-chart" "span3"
+                                 :tooltip "The number of tweets scheduled * followers + mentions in tweets.")))
                             
                             (str
                              
@@ -1537,7 +1545,8 @@
                                                 (gv 'twitter-followers-interval-list) 7)
                                               "Total Fans" 
                                               (list "users")
-                                              "bar-chart" "span3"))
+                                              "bar-chart" "span3"
+                                              :tooltip "Total number of followers."))
                             (str 
                              (let ((new-followers (strip-dates-from-range 
                                                    (reverse (gv 'twitter-followers-interval-list)) 8)))
@@ -1555,7 +1564,8 @@
                                   
                                 "Un-Followed" 
                                 (list "users") 
-                                "bar-chart" "span3")))
+                                "bar-chart" "span3"
+                                :tooltip "The number of followers that was lost.")))
                             #|(str (board-stats "0,0"
                             "Demographics" 
                             (list "male_contour" "female_contour")
