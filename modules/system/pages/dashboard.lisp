@@ -84,6 +84,7 @@
                          (when (string-equal
                                 (get-val (get-val doc 'channel-user) 'channel-user-name)
                                 (gpv mention :screen--name))
+                           ;(break "~A" (get-val doc 'payload))
                            (incf count)))
                         )))))
                (generic-post-collection))
@@ -111,6 +112,56 @@
                         )))))
                (generic-post-collection))
     count))
+
+(defun mentions-of-me-in-tweets-mentioner-followers-range (start-date end-date)
+  (let ((range)
+        (sorted-range)
+        (final-range)
+        (data-hash (make-hash-table :test 'equal)))
+
+    (find-docs 'list
+               (lambda (doc)
+                 (typecase (get-val doc 'channel-user) 
+                   (channel-user
+                    (when (string-equal (get-val doc 'post-type) "Twitter")
+                      (when (and
+                             (match-context-entities (get-val doc 'channel-user))
+                             (gpv (get-val doc 'payload) :entities :user--mentions)
+                             
+                             (and (>= (get-val doc 'created-date) start-date)
+                                  (<= (get-val doc 'created-date) end-date)))
+                        (dolist (mention (gpv (get-val doc 'payload) :entities :user--mentions))
+                         (when (string-equal
+                                (get-val (get-val doc 'channel-user) 'channel-user-name)
+                                (gpv mention :screen--name))
+                           (let ((current-val (gethash (universal-date-strip-time
+                                                        (get-val doc 'created-date))
+                                                       data-hash))
+                                 (val 0))
+                             (if current-val
+                                 (setf val current-val))
+                             (setf val (incf val (gpv (get-val doc 'payload) :user :followers--count)))
+                             (setf (gethash (universal-date-strip-time
+                                             (get-val doc 'created-date))
+                                            data-hash)
+                                   val))
+                           ))
+                        )))))
+               (generic-post-collection))
+    (maphash  
+     (lambda (key val)
+       (setf range
+             (append range 
+                     (list (list key val)))))
+     data-hash)
+    (setf sorted-range (sort range #'> :key #'car))
+    (dolist (post sorted-range)
+      (setf final-range 
+            (append final-range 
+                    (list 
+                     (list (format-universal-date-dash (first post))
+                           (second post))))))
+    final-range))
 
 
 #|
@@ -277,15 +328,22 @@
             (dolist (insight insights)
               (when (get-val insight 'value)
                 ;;TODO: Do we need to check for 0 incase 3 days is not enough?
-                (setf count (apply #'gpv
-                                        (get-val insight 'value)
-                                        (if (listp keys)
-                                            keys
-                                            (list keys))))))))))
+                (let ((date (get-val insight 'end-time))
+                      (prev-date))
+                  (unless (equal prev-date date)
+                    (setf count (apply #'gpv
+                                       (get-val insight 'value)
+                                       (if (listp keys)
+                                           keys
+                                           (list keys)))))
+                  (setf prev-date date))))))))
     count))
 
 (defun compound-insight-range (channel insight-name start-date end-date keys)
-  (let ((range))
+  (let ((range)
+        (sorted-range)
+        (final-range)
+        (data-hash (make-hash-table :test 'equal)))
     (dolist (user (coerce (channel-users) 'list ))
       (when (valid-channel-user user channel)  
         (let ((insights
@@ -297,17 +355,29 @@
                (when insights
                  (dolist (insight insights)
                    (when (get-val insight 'value)
-                     (setf range 
-                           (append range 
-                                   (list 
-                                    (list 
-                                     (format-universal-date-dash (get-val insight 'end-time)) 
-                                     (apply #'gpv
+                     (setf (gethash (get-val insight 'end-time)
+                                      data-hash)
+                             (apply #'gpv
                                         (get-val insight 'value)
                                         (if (listp keys)
                                             keys
-                                            (list keys)))))))))))))
-    range))
+                                            (list keys))))
+
+                     ))))))
+    (maphash  
+     (lambda (key val)
+       (setf range
+             (append range 
+                     (list (list key val)))))
+     data-hash)
+    (setf sorted-range (sort range #'< :key #'car))
+    (dolist (post sorted-range)
+      (setf final-range 
+            (append final-range 
+                    (list 
+                     (list (format-universal-date-dash (first post))
+                           (second post))))))
+    final-range))
 
 (defun compound-insight-range-count (channel insight start-date end-date keys)
   (let ((count 0))
@@ -317,21 +387,24 @@
          'list
          (lambda (doc)
                  (let ((date (universal-date-strip-time 
-                               (get-val doc 'end-time))))
-                   (when (and 
-                          (equal (id channel-user) (id (get-val doc 'channel-user)))
-                          (string-equal (get-val doc 'insight) 
-                                        insight)
-                          (and (>= date 
-                                   start-date)
-                               (<= date 
-                                   end-date)))
+                               (get-val doc 'end-time)))
+                       (prev-date))
+                   (unless (equal prev-date date)
+                     (when (and 
+                            (equal (id channel-user) (id (get-val doc 'channel-user)))
+                            (string-equal (get-val doc 'insight) 
+                                          insight)
+                            (and (>= date 
+                                     start-date)
+                                 (<= date 
+                                     end-date)))
                      
-                     (incf count (apply #'gpv
-                                        (get-val doc 'value)
-                                        (if (listp keys)
-                                            keys
-                                            (list keys)))))))
+                       (incf count (apply #'gpv
+                                          (get-val doc 'value)
+                                          (if (listp keys)
+                                              keys
+                                              (list keys))))))
+                   (setf prev-date date)))
          (generic-insight-value-collection))))
     count))
 
@@ -446,16 +519,19 @@
                           (:span :class "dasboard-icon-title"
                                  (str title))))))))
 
-(defun dash-small-stat-graph (title graph-id range total-count total-percent)
+(defun dash-small-stat-graph (title graph-id range total-count total-percent &key tooltip)
   (with-html-string
     (:div :class "span3"
+         
           (:div :class "stat-block"
+                 
                 (:ul 
                  (:li :class "stat-graph"
                       :id graph-id
                       (str range)
                       )
                  (:li :class "stat-count"
+                      :title (str tooltip) 
                       (:span (str title))
                       (:span (str total-count)))
                  (:li :class "stat-percent"
@@ -486,7 +562,8 @@
 (defun board-stats (range title icons chart span)
   (with-html-string
     (:div :class span
-          (:div :class "board-stats"
+          (:div
+                :class "board-stats"
                 (:div :class "statistics-wrap"
                       (:div :class "statistics-block"
                             (:div :class (format nil "stat-chart ~A" chart)
@@ -757,6 +834,88 @@
       value
       0))
 
+(defun merge-ranges (ranges)
+  (let ((data-hash (make-hash-table :test 'equal))
+        (merged-range)
+        (sorted-range)
+        (final-range))
+    (dolist (range-vals ranges)
+      (dolist (range range-vals)
+        (let* ((current-date (string-to-date (first range) 
+                                             :date-spacer #\-
+                                             :reverse-date-sequence-p t))
+               (current-val (gethash current-date data-hash))
+               (val 0))
+          (if current-val
+              (setf val current-val))
+          (setf val (second range))
+          (setf (gethash current-date
+                         data-hash)
+                val))))
+    (maphash  
+     (lambda (key val)
+       (setf merged-range
+             (append merged-range 
+                     (list (list key val)))))
+     data-hash)
+    (setf sorted-range (sort merged-range #'> :key #'car))
+    (dolist (post sorted-range)
+      (setf final-range 
+            (append final-range 
+                    (list 
+                     (list (format-universal-date-dash (first post))
+                           (second post))))))
+    final-range))
+
+(defun multiply-ranges (ranges)
+
+  (let ((ranges-hash-list)
+        (data-hash (make-hash-table :test 'equal))
+        (range)
+        (sorted-range)
+        (final-range))
+    (dolist (range-values ranges)
+      (let ((range-hash (make-hash-table :test 'equal)))
+        (dolist (range range-values)
+
+          (let* ((current-date (string-to-date (first range) 
+                                               :date-spacer #\-
+                                               :reverse-date-sequence-p t))
+                 (current-val (gethash current-date data-hash))
+                 (val 0))
+            
+            (if current-val
+                (setf val current-val))
+            (setf val (second range))
+            (setf (gethash current-date
+                           range-hash)
+                  val)))
+        (setf ranges-hash-list (append ranges-hash-list (list range-hash)))))
+    
+    (maphash   
+     (lambda (key value)
+       (let ((current-val value))
+         (dolist (range-hash (rest ranges-hash-list))
+           (setf current-val (* current-val (gethash key range-hash))))
+         
+         (setf (gethash key data-hash) current-val)))
+     (first ranges-hash-list))
+
+    (maphash  
+     (lambda (key val)
+       (setf range
+             (append range 
+                     (list (list key val)))))
+     data-hash)
+    (setf sorted-range (sort range #'> :key #'car))
+    (dolist (post sorted-range)
+      (setf final-range 
+            (append final-range 
+                    (list 
+                     (list (format-universal-date-dash (first post))
+                           (second post))))))
+    final-range))
+
 (defun set-calc-vals (istd iend
                       prev-istd 
                       prev-iend)
@@ -973,7 +1132,12 @@
            prev-istd 
            prev-iend))
 
+      (sv 'twitter-at-mentions-followers-range
+          (mentions-of-me-in-tweets-mentioner-followers-range
+           prev-istd 
+           prev-iend))
 
+      
 
       (sv 'tweets-scheduled-count
           (posts-scheduled-range-count 
@@ -1108,7 +1272,8 @@
                                                      (* (gv 'twitter-followers-prev-count)
                                                         (gv 'tweets-scheduled-prev-count))      
                                                      (gv 'twitter-retweets-prev)
-                                                     (gv 'twitter-at-mentions-prev-count)
+                                                     (gv 'twitter-at-mentions-followers-prev-count)
+                                                     ;;(gv 'twitter-at-mentions-prev-count)
                                                      linkedin-connections-count))
                                               (cur (+  
                                                     (or-zero (reverse (gv 'fb-fans-interval-list)))
@@ -1117,6 +1282,7 @@
                                                     (* (gv 'twitter-followers-count)
                                                        (gv 'tweets-scheduled-count))
                                                     (gv 'twitter-retweets)
+                                                    ;;(gv 'twitter-at-mentions-followers-prev-count)
                                                     (gv 'twitter-at-mentions-count)
                                                     linkedin-connections-count)))
                                          (dash-small-stat-graph  
@@ -1126,7 +1292,8 @@
                                                   prev
                                                   cur)  
                                           cur
-                                          (calc-prev-cur-percentage prev cur) )))
+                                          (calc-prev-cur-percentage prev cur) 
+                                          :tooltip "FB-Fans + FB-Page-Impressions + TW-Followers + (TW-Followers * Scheduled-Tweets) + Retweets + TW-Mentions")))
                                   (str (dash-small-stat-graph 
                                           "Activity"
                                           "unique-visits"
@@ -1136,7 +1303,8 @@
                                           (gv 'posts-scheduled-count)
                                           (calc-prev-cur-percentage 
                                            (gv 'posts-scheduled-prev-count) 
-                                           (gv 'posts-scheduled-count))))
+                                           (gv 'posts-scheduled-count))
+                                          :tooltip "Posts Scheduled"))
                                   (str (let ((prev (+ (gv 'fb-fans-adds-prev-count)
                                                     
                                                       (gv 'fb-comments-made-prev-count)
@@ -1144,7 +1312,8 @@
                                                       ;;   (gv 'fb-fans-adds-count)
                                                       ;;   (gv 'fb-comments-made-count))
                                                       (gv 'twitter-retweets-prev)
-                                                      (gv 'twitter-at-mentions-prev-count)
+                                                      (gv 'twitter-at-mentions-followers-prev-count)
+                                                      ;;(gv 'twitter-at-mentions-prev-count)
                                                       (gv 'short-url-clicks-prev-count)))
                                              (cur (+ (gv 'fb-fans-adds-count)
                                                     
@@ -1153,7 +1322,8 @@
                                                      ;;   (gv 'fb-fans-adds-prev-count)
                                                      ;;   (gv 'fb-comments-made-prev-count))
                                                      (gv 'twitter-retweets)
-                                                     (gv 'twitter-at-mentions-count)
+                                                     (gv 'twitter-at-mentions-followers-count)
+                                                     ;;(gv 'twitter-at-mentions-count)
                                                      (gv 'short-url-clicks-count))))
                                          (dash-small-stat-graph 
                                           "Engagement"
@@ -1162,7 +1332,8 @@
                                                   prev
                                                   cur)
                                           cur
-                                          (calc-prev-cur-percentage prev cur)))))
+                                          (calc-prev-cur-percentage prev cur)
+                                          :tooltip "FB-Fan-Adds + FB-Comments + Retweets + (TW-Mentions * Mentioner-Followers) + Clicks"))))
                             )
                       )))
 
@@ -1205,7 +1376,7 @@
                                                                               ("Retweets" ,(gv 'twitter-retweets))
                                                    
                                                                               ;;("FB Shares" ,(gv 'fb-story-adds-count))
-                                                                              ("Mentions" ,(gv 'twitter-at-mentions-count))
+                                                                              ("Mentions" ,(gv 'twitter-at-mentions-followers-count))
                                                                               ;;("Direct Messages" 0)
                                                                               ))
                                                                            (format nil "[~A,~A,~A,~A,~A]" 
@@ -1213,7 +1384,8 @@
                                                                                    (gv 'short-url-clicks-count)
                                                                                    (gv 'fb-comments-made-count) 
                                                                                    (gv 'twitter-retweets)
-                                                                                   (gv 'twitter-at-mentions-count))))
+                                                                                   (gv 'twitter-at-mentions-followers-count)
+                                                                                   )))
                                                     (:div :class "span2"
                                                           (:div :class "summary"
                                                                 (:h4 "CURRENT COMMUNITY SIZE")
@@ -1335,20 +1507,25 @@
                                 (list "users") 
                                 "bar-chart" "span3")))
                             (str 
-                             (let ((followers (strip-dates-from-range 
-                                                 (reverse (gv 'twitter-followers-interval-list)) 7))
-                                    (tweets (strip-dates-from-range 
-                                             (gv 'tweets-scheduled-list) 7)))
+                             (let* ((tweets-followers (multiply-ranges (list (gv 'tweets-scheduled-list)
+                                                                            (gv 'twitter-followers-interval-list))) )
+                                   
+                                   (impressions (strip-dates-from-range 
+                                                 
+                                                 (merge-ranges (list tweets-followers (gv 'twitter-at-mentions-followers-list)))
+                                                 7)))
+                               
                                 (board-stats  
                                
                                  (format nil "~A,~A,~A,~A,~A,~A,~A" 
-                                         (* (fix-nan (nth 6  followers) ) (fix-nan (nth 6 tweets)))
-                                         (* (fix-nan (nth 5  followers) ) (fix-nan (nth 5 tweets)))
-                                         (* (fix-nan (nth 4  followers) ) (fix-nan (nth 4 tweets)))
-                                         (* (fix-nan (nth 3  followers) ) (fix-nan (nth 3 tweets)))
-                                         (* (fix-nan (nth 2  followers) ) (fix-nan (nth 2 tweets)))
-                                         (* (fix-nan (nth 1  followers) ) (fix-nan (nth 1 tweets)))
-                                         (* (fix-nan (nth 0  followers) ) (fix-nan (nth 0 tweets)))
+                                         (fix-nan (nth 6 impressions))
+                                         (fix-nan (nth 5 impressions))
+                                         (fix-nan (nth 4 impressions))
+                                         (fix-nan (nth 3 impressions))
+                                         (fix-nan (nth 2 impressions))
+                                         (fix-nan (nth 1 impressions))
+                                         (fix-nan (nth 0 impressions))
+                            
                                         )
                                  "Impressions" 
                                  (list "documents")
@@ -1361,6 +1538,24 @@
                                               "Total Fans" 
                                               (list "users")
                                               "bar-chart" "span3"))
+                            (str 
+                             (let ((new-followers (strip-dates-from-range 
+                                                   (reverse (gv 'twitter-followers-interval-list)) 8)))
+                               ;;(break "~a" (reverse (gv 'twitter-followers-interval-list)))
+                               (board-stats 
+                                (format nil "~A,~A,~A,~A,~A,~A,~A" 
+                                        (- (fix-nan (nth 7 new-followers)) (fix-nan (nth 6 new-followers)) )
+                                        (- (fix-nan (nth 6 new-followers)) (fix-nan (nth 5 new-followers)) )
+                                        (- (fix-nan (nth 5 new-followers)) (fix-nan (nth 4 new-followers)) )
+                                        (- (fix-nan (nth 4 new-followers)) (fix-nan (nth 3 new-followers)) )
+                                        (- (fix-nan (nth 3 new-followers)) (fix-nan (nth 2 new-followers)) )
+                                        (- (fix-nan (nth 2 new-followers)) (fix-nan (nth 1 new-followers)) )
+                                        (- (fix-nan (nth 1 new-followers)) (fix-nan (nth 0 new-followers)) ))
+                                  
+                                  
+                                "Un-Followed" 
+                                (list "users") 
+                                "bar-chart" "span3")))
                             #|(str (board-stats "0,0"
                             "Demographics" 
                             (list "male_contour" "female_contour")

@@ -11,14 +11,17 @@
            :method :post)))
 
 (defun comment-facebook (user post-id message)
-  (handle-endpoint 
-     user
-     (drakma:http-request 
-      (format nil "https://graph.facebook.com/~A/comments" 
-              post-id)
-      :method :post
-      :parameters `(("message" . ,message)
-                    ("oauth_token" . ,(get-val user 'last-access-token))))))
+  (typecase  user
+    ;(break "~A" user )
+    (channel-user
+     (handle-endpoint 
+      user
+      (drakma:http-request 
+       (format nil "https://graph.facebook.com/~A/comments" 
+               post-id)
+       :method :post
+       :parameters `(("message" . ,message)
+                     ("oauth_token" . ,(get-val user 'last-access-token))))))))
 
 (defun facebook-feed (user since)
   (handle-endpoint 

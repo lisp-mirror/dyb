@@ -1,7 +1,7 @@
 (in-package :dyb)
 
 (defun post-scheduled-action (action)
-
+  ;;(break "~A" action)
   (when action
     (when (string-equal (get-val action 'action-status) "Pending")
       
@@ -10,8 +10,7 @@
                             (get-val action 'post-type))
                            (get-channel-user-by-user-id 
                             (get-val action 'from-user-id)
-                            (get-val action 'post-type)))
-              ))
+                            (get-val action 'post-type)))))
 
         (cond ((string-equal (get-val action 'post-type) "Facebook")
                (cond ((string-equal (get-val action 'action-type) "Post")                  
@@ -24,22 +23,19 @@
                                                        (or (format-short-url
                                                             (get-val action 'short-url)) 
                                                            (get-val action 'post-url))
-                                                       (get-val action 'image-url) 
-                                                       ))
+                                                       (get-val action 'image-url)))
 
                             ((blank-p (get-val action 'image-url))
                              (post-facebook-image (get-val action 'from-user-id)
                                                   (get-val action 'action-content)
-                                                  (get-val action 'image-url)
-                                                  ))
+                                                  (get-val action 'image-url)))
                             ((or (blank-p (get-val action 'short-url)) 
                                  (blank-p (get-val action 'post-url)))
                              (post-facebook-url (get-val action 'from-user-id)
                                                 (get-val action 'action-content)
                                                 (or (format-short-url
                                                      (get-val action 'short-url)) 
-                                                    (get-val action 'post-url))
-                                                ))
+                                                    (get-val action 'post-url))))
                             (t
                              (post-facebook (get-val action 'from-user-id) 
                                             (get-val action 'action-content)))
@@ -58,8 +54,9 @@
                                                   "Completed"))))
                      ((string-equal (get-val action 'action-type) "Comment")
                       (multiple-value-bind (result error-message)
-                          (comment-facebook (get-val action 'post-id)  
-                                            (get-val action 'from-user-id)
+                          (comment-facebook from-user
+                                            (get-val action 'post-id)  
+                                            ;;  (get-val action 'from-user-id)
                                             (get-val action 'action-content))
                         (when error-message
                           (add-generic-action-log action 
@@ -73,8 +70,9 @@
                                               "Completed"))))
                      ((string-equal (get-val action 'action-type) "Like")
                       (multiple-value-bind (result error-message)
-                          (facebook-like (get-val action 'post-id)
-                                         (get-val action 'from-user-id))
+                          (facebook-like from-user  (get-val action 'post-id)
+                                         ;;(get-val action 'from-user-id)
+                                         )
                         (when error-message
                           (add-generic-action-log action 
                                               "Error"
@@ -196,6 +194,8 @@
   (dolist (action (coerce (generic-actions) 'list))
     (when (string-equal (get-val action 'action-status) "Pending")
       (let ((now (get-universal-time)))
-        (when (< (get-val action 'scheduled-date)
-                 now)
-          (post-scheduled-action action))))))
+        (typecase action
+          (generic-action
+            (when (< (get-val action 'scheduled-date)
+                     now)
+              (post-scheduled-action action))))))))

@@ -192,9 +192,11 @@
     (when (and year month date)
       (encode-universal-time 0 0 0 date month year (time-zone)))))
 
-(defun string-to-date (date-string)
+(defun string-to-date (date-string &key (date-spacer #\space) reverse-date-sequence-p)
   (if (stringp date-string)
-      (let ((split-date (split-string date-string #\space)))
+      (let ((split-date (split-string date-string date-spacer)))
+        (if reverse-date-sequence-p
+            (setf split-date (reverse split-date)))
         (encode-universal-time  
          0 0 0 
          (parse-integer (first split-date)) 
