@@ -73,7 +73,7 @@
           (when (header widget)
             (htm
              (:div :class "widget-head"
-                   (:h5 (str (header widget))))))
+                   (:h5 (esc (header widget))))))
           (:div :class "widget-content"
                 (:form :name (form-id widget)
                        :id (form-id widget)
