@@ -31,6 +31,8 @@
                       )))))
 
 (defun twitter-post-display (grid row col-val row-id)
+;;  (if (search "t.co" (gpv col-val :text)  )
+;;      (break "~A" col-val))
  (with-html-to-string ()
     (:div 
      :class "nonboxy-widget"
@@ -349,6 +351,10 @@
                               (:img :src "/appimg/user-thumb.png"))
                        ))))
 
+
+(defun format-universal-date-time-special (date)
+  (format-universal-date-time (+ date (* 60 60 2))))
+
 (define-easy-handler (generic-page :uri "/dyb/generic") ()
   (let* ((columns
           (list
@@ -383,10 +389,7 @@
             'grid-column
             :name 'payload
             :header "Pic"
-            :special-printer #'get-profile-pic 
-            
-
-            )
+            :special-printer #'get-profile-pic)
             
            (make-instance 
             'grid-column
@@ -397,9 +400,8 @@
            (make-instance 
             'grid-column
             :name 'created-date
-            :header "Posted"
-            
-            :printer #'format-universal-date-time)
+            :header "Posted"          
+            :printer #'format-universal-date-time-special)
            (make-instance 'grid-column
                           :name 'payload
                           :header "Image"
