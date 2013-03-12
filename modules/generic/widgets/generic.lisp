@@ -8,10 +8,10 @@
                      :not-sorting-columns '(1)))
 
 (defmethod list-grid-filters ((grid generic-grid))
-  '(facebook-only
-    twitter-only
-    linkedin-only
-    mentions-only
+  '(facebook
+    twitter
+    linkedin
+    web-search
     with-audit-data))
 
 (defmethod list-grid-actions ((grid generic-grid))
@@ -44,19 +44,19 @@
               (lambda (doc)
                 (if (match-context-entities  (channel-user doc) )
                    (cond 
-                     ((equal filter 'facebook-only)
+                     ((equal filter 'facebook)
                       (if (string-equal (get-val doc 'post-type) "Facebook")
                           doc)
                       )
-                     ((equal filter 'twitter-only)
+                     ((equal filter 'twitter)
                       (if (string-equal (get-val doc 'post-type) "Twitter")
                           doc)
                       )
-                     ((equal filter 'linkedin-only)
+                     ((equal filter 'linkedin)
                       (if (string-equal (get-val doc 'post-type) "LinkedIn")
                           doc)
                       )
-                     ((equal filter 'mentions-only)
+                     ((equal filter 'web-search)
                       (if (string-equal (get-val doc 'post-type) "Social-Mention")
                           doc)
                       )
