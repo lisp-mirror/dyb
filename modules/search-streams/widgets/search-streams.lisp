@@ -70,7 +70,7 @@
                                 (render-edit-field 
                                  "search-stream-type" 
                                  (get-val row 'search-stream-type)
-                                 :data (list (list "Social Mention" "Social Mention")
+                                 :data (list (list "Social Mention" "Web Search")
                                              (list "Twitter" "Twitter"))
                                  :required t
                                  :blank-allowed t
