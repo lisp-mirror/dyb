@@ -96,7 +96,8 @@
                                             widget)
                                         (form-id widget)
                                         (js-pair "action" (action widget))))
-                               (esc (action-title widget))))))))))
+                               (esc (action-title widget)))
+                              )))))))
 
 (defclass html-framework-form (widget)
   ((grid-size :initarg :grid-size
@@ -242,14 +243,17 @@
                 (:div :class "container-fluid"
                       (:div :class "branding"
                             (:div :class "logo"
-                                  (:img :style "" :src "/appimg/dyb-logo.png")))
-                      (:span :style "color:white" (str (context-enties-display) ;;(entity-list)
-                                                       ))
+                                  (:img :style "" :src "/appimg/dyb-logo.png")
+                                  )
+                            )
+                      (:div :class "branding"
+                       (:h3 (:span :style "color:white" (str (context-enties-display) ;;(entity-list)
+                                                                  ))))
                       (:ul :class "nav pull-right"
                            (:li :class "dropdown"
                                 (:a :class "dropdown-toggle" :href "#" :data-toggle "dropdown"
                                     (str (get-val (current-user) 'email))
-                                    (:span :class "alert-noty" (str "0"))
+                                    ;;(:span :class "alert-noty" (str "0"))
                                     (:i :class "white-icons admin_user")
                                     (:b :class "caret"))
                                 (:ul :class "dropdown-menu"
