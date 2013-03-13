@@ -39,23 +39,64 @@
 
 ;;;
 
+(defun send-error-email (condition task-name)
+  (handler-case
+      (send-system-mail
+       (frmt "[DYB]: scheduler error in task ~s." task-name)
+       (frmt "The task ~s has been stopped at ~a due to the following error:
+
+~a
+
+   [Condition of type ~a]
+
+~a"
+             task-name
+             (current-date-time)
+             condition
+             (type-of condition)
+             (with-output-to-string (*debug-io*) (sb-debug:backtrace))))
+    (error (c)
+      (log-error (frmt "Failed to send email for error in ~s" task-name)
+                 condition))))
+
 (defun start-task-thread (task-name function)
   (bordeaux-threads:make-thread  
    (lambda ()
-     (let ((sleep-time 3))
-       (loop
-        (sleep sleep-time)
-        (block nil
-          (handler-bind ((serious-condition
-                           (lambda (condition)
-                             (setf sleep-time
-                                   (min (* sleep-time 2)
-                                        (* 60 60)))
-                             (log-error task-name condition)
-                             (return))))
-            (funcall function)
-            (setf sleep-time 3))))))
+     (block nil
+       (handler-bind ((serious-condition
+                        (lambda (condition)
+                          (send-error-email condition task-name)
+                          (log-error task-name condition)
+                          (return))))
+         (funcall function))))
    :name task-name))
+
+(defun post-scheduled-actions ()
+  (loop for action across (generic-actions)
+        when (equal (action-status action) "Pending")
+        do
+        (let ((now (get-universal-time)))
+          (typecase action
+            (generic-action
+             (when (< (scheduled-date action) now)
+               (block nil
+                 (handler-bind
+                     ((serious-condition
+                        (lambda (condition)
+                          (cond ((>= (length (action-log action)) 5)
+                                 (setf (action-status action) "Abandoned Retries")
+                                 (persist action)
+                                 (log-error (frmt "post-scheduled-actions ~a ~a"
+                                                  (post-type action)
+                                                  (action-type action))
+                                            condition))
+                                (t
+                                 (add-generic-action-log action
+                                                         "Error"
+                                                         (princ-to-string condition)
+                                                         "Pending")))
+                          (return))))
+                   (post-scheduled-action action)))))))))
 
 (defun start-actions-scheduler ()
   (start-task-thread

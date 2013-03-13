@@ -7,10 +7,9 @@
   (:metaclass storable-class))
 
 (defclass generic-action (doc)
-  (
-   (post-id :initarg :post-id
-        :initform nil
-        :accessor generic-entry-post-id)
+  ((post-id :initarg :post-id
+            :initform nil
+            :accessor generic-entry-post-id)
    (post-type :initarg :post-type
               :initform nil
               :accessor post-type)
@@ -116,21 +115,16 @@
                                       :post-url post-url
                                       :short-url short-url)))))
 
-(defun add-generic-action-log (action label message status)
-
-  (when (>= (length (get-val action 'action-log)) 5)
-    (setf (get-val action 'action-status) "Abandoned Retries")
-    (persist action))
-  (when (< (length (get-val action 'action-log)) 5)
-    
-    (let ((log-entry (make-instance 'generic-action-log
-                                    :stamp (get-universal-time)
-                                    :label label
-                                    :message message)))
-      (setf (get-val action 'action-status) status)
-      (setf (get-val action 'action-log) 
-            (append (get-val action 'action-log)  (list log-entry))))
-    (persist action)))
+(defun add-generic-action-log (action label message status) 
+  (if (>= (length (action-log action)) 5)
+      (setf (action-status action) "Abandoned Retries")
+      (let ((log-entry (make-instance 'generic-action-log
+                                      :stamp (get-universal-time)
+                                      :label label
+                                      :message message)))
+        (setf (action-status action) status)
+        (push log-entry (action-log action))))
+  (persist action))
 
 (unless (generic-actions-collection)
   (add-collection (system-db) "generic-actions" 
