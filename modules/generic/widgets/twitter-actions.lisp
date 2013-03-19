@@ -10,11 +10,12 @@
 
 (defmethod render ((widget twitter-retweet-form) &key )
   (let* ((like-form (make-widget 'html-simple-framework-form
-                                    :name "facebook-retweet-post-form"
-                                    :grid-size 6
-                                    :form-id "facebook-retweet-post-form"
-                                    :action "retweet-twitter"
-                                    :action-title "Retweet"))
+                                 :name "facebook-retweet-post-form"
+                                 :grid-size 6
+                                 :form-id "facebook-retweet-post-form"
+                                 :action "retweet-twitter"
+                                 :action-title "Retweet"
+                                 :ajax-render-widget (editor (grid widget))))
          (form-section (make-widget 'form-section
                                     :name "form-section"))
          (current-post (set-current-row (get-val widget 'grid)))
@@ -23,28 +24,27 @@
 
     (with-html
       (when (parameter "action")
-          (render like-form
-                  :content
-                  (with-html-to-string ()
-                    (:div
-                     (:input :type "hidden" :name "tweet-id"
-                             :value tweet-id)
-;;TODO: handle ' intext
-                     (:input :type "hidden" :name "tweet-text"
-                             :value (str (gpv current-post :text)))
+        (render like-form
+                :content
+                (with-html-to-string ()
+                  (:div
+                   (:input :type "hidden" :name "tweet-id"
+                           :value tweet-id)
+                   ;;TODO: handle ' intext
+                   (:input :type "hidden" :name "tweet-text"
+                           :value (str (gpv current-post :text)))
 
-                     (render form-section
-                             :label "As User"
-                             :input
-                             (with-html-to-string ()
-                               (render-edit-field
-                                "user-id"
-                                (parameter "user-id")
-                                :data (get-channel-users-list "Twitter" nil)
-                                :required t
-                                :type :select))))))
-          (str (get-val widget 'message))))
-    (open-dialog widget (grid widget) :width 500 :height 260)))
+                   (render form-section
+                           :label "As User"
+                           :input
+                           (with-html-to-string ()
+                             (render-edit-field
+                              "user-id"
+                              (parameter "user-id")
+                              :data (get-channel-users-list "Twitter" nil)
+                              :required t
+                              :type :select))))))
+        (str (get-val widget 'message))))))
 
 (defmethod handle-action ((grid generic-grid) (action (eql 'retweet-twitter-form)))
   (setf (action-widget grid)
@@ -93,7 +93,7 @@
                                  :form-id "twitter-like-post-form"
                                  :action "reply-twitter"
                                  :action-title "Reply"
-                                 :ajax-render-widget widget))
+                                 :ajax-render-widget (editor (grid widget))))
          (form-section (make-widget 'form-section
                                     :name "form-section"))
          (current-post (set-current-row (get-val widget 'grid)))
@@ -168,11 +168,12 @@
 
 (defmethod render ((widget twitter-favourite-form) &key )
   (let* ((like-form (make-widget 'html-simple-framework-form
-                                    :name "facebook-favourite-post-form"
-                                    :grid-size 6
-                                    :form-id "facebook-favourite-post-form"
-                                    :action "favourite-twitter"
-                                    :action-title "favourite"))
+                                 :name "facebook-favourite-post-form"
+                                 :grid-size 6
+                                 :form-id "facebook-favourite-post-form"
+                                 :action "favourite-twitter"
+                                 :action-title "favourite"
+                                 :ajax-render-widget (editor (grid widget))))
          (form-section (make-widget 'form-section
                                     :name "form-section"))
 
@@ -182,25 +183,24 @@
 
     (with-html
       (when (parameter "action")
-          (render like-form
-                  :content
-                  (with-html-to-string ()
-                    (:div
-                     (:input :type "hidden" :name "tweet-id"
-                             :value tweet-id)
+        (render like-form
+                :content
+                (with-html-to-string ()
+                  (:div
+                   (:input :type "hidden" :name "tweet-id"
+                           :value tweet-id)
 
-                     (render form-section
-                             :label "As User"
-                             :input
-                             (with-html-to-string ()
-                               (render-edit-field
-                                "user-id"
-                                (parameter "user-id")
-                                :data (get-channel-users-list "Twitter" nil)
-                                :required t
-                                :type :select))))))
-          (str (get-val widget 'message))))
-    (open-dialog widget (grid widget) :width 500 :height 260)))
+                   (render form-section
+                           :label "As User"
+                           :input
+                           (with-html-to-string ()
+                             (render-edit-field
+                              "user-id"
+                              (parameter "user-id")
+                              :data (get-channel-users-list "Twitter" nil)
+                              :required t
+                              :type :select))))))
+        (str (get-val widget 'message))))))
 
 (defmethod handle-action ((grid generic-grid) (action (eql 'favourite-twitter-form)))
   (setf (action-widget grid)

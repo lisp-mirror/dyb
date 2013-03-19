@@ -268,7 +268,7 @@
     :want-stream nil
     :preserve-uri nil)))
 
-(defun comment-linkein (user update-id comment)
+(defun comment-linkedin (user update-id comment)
   (when (and user update-id comment)
     (let ((channel (get-social-channel (get-val user 'channel-user-type))))
       (handle-endpoint

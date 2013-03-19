@@ -158,19 +158,13 @@
       (finish-editing grid)))
 
 (defun handle-generic-action (widget action result error-message)
-  (setf (get-val widget 'message) nil)
-  (when error-message
-      (setf (get-val widget 'message) error-message)
-      (add-generic-action-log action 
-                              "Error"
-                              error-message
-                              "Pending"))
-    (unless error-message
-      (add-generic-action-log action 
-                              "Result"
-                              result
-                              "Completed")
-      (defer-js (format nil "$('#~a').dialog('close')" (name widget)))))
+  (cond (error-message
+         (setf (message widget) error-message)
+         (add-generic-action-log action "Error" error-message "Pending"))
+        (t
+         (setf (message widget) nil)
+         (add-generic-action-log action "Result" result "Completed")
+         (finish-editing (grid widget)))))
 
 (defmethod action-handler ((widget post-form))
   (when (string-equal (parameter "action") "post-to-channel")
