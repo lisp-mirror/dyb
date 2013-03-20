@@ -55,7 +55,7 @@
               ((and user)
                (change-user user password))
               ((not email))
-              ((equal (remove-whitespace email) "")
+              ((equal (trim-whitespace email) "")
                (fail "Email can't be empty"))
               ((not password)
                (fail "Password can't be empty"))

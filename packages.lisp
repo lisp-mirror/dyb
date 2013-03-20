@@ -50,7 +50,6 @@
    :name
    :surname
    :format-date
-   :format-money
    :entity-relationship-view
    :convert-to-tree
    :gps-cord-formatter

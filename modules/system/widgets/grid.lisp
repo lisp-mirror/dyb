@@ -258,7 +258,7 @@ document.getElementById(\"~A\").submit();"
                              :title alt)))))))))
 
 (defun set-current-row (grid)
-  (let ((row-id (integer-paremeter "row_id")))
+  (let ((row-id (integer-parameter "row_id")))
     (when row-id
       (setf (editing-row grid)
             (elt (rows grid) row-id)))))

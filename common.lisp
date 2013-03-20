@@ -16,9 +16,6 @@
 
 (defparameter *extract-dir* "/var/www/dyb.co.za/extracts")
 
-(eval-when (:compile-toplevel :load-toplevel :execute)
-  (defvar *indent-code* t))
-
 (defvar *version* "0.1.00.05")
 
 (defparameter *salt-length* 10)
@@ -26,10 +23,6 @@
 (defun textually-equal-p (a b)
   (string-equal (princ-to-string a)
                 (princ-to-string b)))
-
-(defun current-user ()
-  (if (boundp 'hunchentoot::*session*)
-      (session-value 'user)))
 
 (defun context-entities ()
   (if (stringp (session-value 'context-entities))
@@ -41,19 +34,6 @@
 
 (defun context-root-entity ()
   (session-value 'context-root-entity))
-
-(defmacro with-html-to-string ((&key prologue (indent '*indent-code*)) &body body)
-  `(with-html-output-to-string (*standard-output* nil :indent ,indent
-                                                  :prologue ,prologue)
-     ,@body))
-
-(defmacro with-html (&body body)
-  `(with-html-output (*standard-output* nil :indent *indent-code*)
-     ,@body))
-
-(defmacro with-html-string (&body body)
-  `(with-html-output-to-string (*standard-output* nil :indent *indent-code*)
-     ,@body))
 
 (defun field-permission (data-element)
   (declare (ignore data-element))
@@ -143,30 +123,6 @@
                :id (format nil "validate-~A" name)
                (:img :src "/appimg/q-icon.png"))))))))
 
-(defun translate-possible-date-slot (slot-name value)
-  (cond ((or (string-equal slot-name "start-date")
-             (string-equal slot-name "end-date")
-             (string-equal slot-name "date-of-engagement")
-             (string-equal slot-name "date-of-termination")
-             (string-equal slot-name "date-of-birth")
-             (string-equal slot-name "lof-start-date")
-             (string-equal slot-name "lof-end-date")
-             (string-equal slot-name "feedback-date")
-             (string-equal slot-name "meeting-date"))
-         (string-to-date value))
-        (t value)))
-
-(defun synq-edit-data (object)
-  (let ((parameters (append (get-parameters *request*)
-                            (post-parameters *request*))))
-
-    (when (typep object 'standard-object)
-
-            (loop for (key . value) in parameters
-               for slot = (find-slot key object)
-               when slot
-               do (update-slot object slot value)))))
-
 (defun find-duplicate-doc-list (doc docs-list &key (element 'key))
   (dolist (dup docs-list)
     (if (equal (get-val doc element) (get-val dup element))
@@ -181,11 +137,6 @@
 
 (defun day (date)
   (nth-value 2 (decode-date date)))
-
-(defun format-datex (date)
-  (if (integerp date)
-      (format-universal-date date)
-      date))
 
 (defun parse-date (date)
   (multiple-value-bind (year month date) (decode-date date)
@@ -259,7 +210,7 @@
         (declare (ignore sec))
         (format nil "~2,'0d:~2,'0d" hour min))))
 
-(defvar *time-zone* -2)
+(defparameter *time-zone* -2)
 
 (defun time-zone ()
   (or (and (current-user)
@@ -285,11 +236,6 @@
 
 (defun current-date ()
   (multiple-value-call #'format-date (date-calc:today)))
-
-(defun integer-paremeter (name)
-  (let ((parameter (parameter name)))
-    (when (stringp parameter)
-      (parse-integer parameter :junk-allowed t))))
 
 (defun parse-trim-integer (string)
   (parse-integer (string-trim '(#\Space #\Tab #\Newline) string) :junk-allowed t))
@@ -362,20 +308,6 @@
 	finally (return (values part1 part2))))
 |#
 
-(defun escape (x)
-  (escape-string
-   (typecase x
-     (string x)
-     (null nil)
-     (t (princ-to-string x)))))
-
-(defun princ-esc (x)
-  (princ (escape x)))
-
-(defun render-to-string (widget &rest args)
-  (with-html-string
-    (apply #'render widget args)))
-
 (defun gps-cord-formatter (value)
   (format nil "~17$" value))
 
@@ -418,29 +350,6 @@
        (declare (ignore a b c))
        (values year month day)))))
 
-(defun make-query-string (alist)
-  (with-output-to-string (query)
-    (loop for (name . value) in alist
-          for separator = "?" then "&amp;"
-          do
-          (format query "~a~a=~a"
-                  separator
-                  (url-encode name)
-                  (url-encode (princ-to-string value))))))
-
-
-(defmacro with-parameters (parameters &body body)
-  "with-parameters ((variable-name \"parameter-name\") | variable-name) body"
-  `(let ,(loop for parameter in parameters
-               for (variable parameter-name) =
-               (if (consp parameter)
-                   parameter
-                   (list parameter
-                         (string-downcase parameter)))
-               collect `(,variable (parameter ,parameter-name)))
-     ,@body))
-
-
 (defun make-icon (name &key (size 16)
                             (title ""))
   (let ((size (or size 16)))
@@ -464,12 +373,6 @@
           (when collapsible
             (htm (:div :class "collapse")))
           (str body))))
-
-(defun js-link (&rest code)
-  (frmt "javascript:{~{~a~^,~}}" code))
-
-(defun sub-name (widget name)
-  (frmt "~a-~a" (name widget) name))
 
 (defun check-vals (docs element)
   (dolist (doc (coerce docs 'list))

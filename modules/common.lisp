@@ -1,18 +1,5 @@
 (in-package :dyb)
 
-(defmacro with-html-to-string ((&key prologue (indent '*indent-code*)) &body body)
-  `(with-html-output-to-string (*standard-output* nil :indent ,indent
-                                                  :prologue ,prologue)
-     ,@body))
-
-(defmacro with-html (&body body)
-  `(with-html-output (*standard-output* nil :indent *indent-code*)
-     ,@body))
-
-(defmacro with-html-string (&body body)
-  `(with-html-output-to-string (*standard-output* nil :indent *indent-code*)
-     ,@body))
-
 (defun handle-endpoint (user request &key error-path result-is-octets-p)
   (let ((result)
         (message))

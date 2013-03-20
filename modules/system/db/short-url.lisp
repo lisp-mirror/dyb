@@ -25,19 +25,13 @@
   (loop for short-url across (short-urls)
         when (equalp (short short-url)
                      url)
-        return (url short-url)))
+        return short-url))
 
 (defun find-short-url (url)
   (loop for short-url across (short-urls)
         when (equalp (url short-url)
                      url)
         return (short short-url)))
-
-(defun find-short-url-object (url)
-  (loop for short-url across (short-urls)
-        when (equalp (url short-url)
-                     url)
-        return short-url))
 
 (defun make-short-url (url)
   (or (find-short-url url)

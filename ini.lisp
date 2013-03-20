@@ -45,5 +45,11 @@
 (defparameter *site-url* "http://dxw.co.za/")
 
 (if (string-equal *installation* "Live Serve")
-  (setf *site-url* "http://dxw.co.za/")
-  (setf *site-url* "http://local.dataxware.co.za/"))
+    (setf *site-url* "http://dxw.co.za/")
+    (setf *site-url* "http://local.dataxware.co.za/"))
+
+(defmethod handle-request :around ((acceptor dyb-acceptor) request)
+  (let ((script-name (script-name request)))
+    (if (alexandria:starts-with-subseq "/dyb/s/" script-name)
+        (shorten-url)
+        (call-next-method))))
