@@ -11,9 +11,6 @@ divided by char."
           collect (subseq string i j)
           while j))
 
-(defun frmt (control-string &rest args)
-  (apply #'format nil control-string args))
-
 (defun fmt-float (n)
   (frmt "~,2f" n))
 

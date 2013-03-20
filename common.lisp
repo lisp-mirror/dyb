@@ -471,21 +471,6 @@
 (defun sub-name (widget name)
   (frmt "~a-~a" (name widget) name))
 
-(defun defer-js (code)
-  (push code (getf *widget-parameters* :javascript-defer)))
-
-(defun defer-js-function (code)
-  (push code (getf *widget-parameters* :javascript-defer-function)))
-
-(defun deferred-js ()
-  (let ((defer (getf *widget-parameters* :javascript-defer))
-        (function (getf *widget-parameters* :javascript-defer-function)))
-    (when (or defer function)
-      (format nil "$(document).ready(function(){~{~a;~}});~
-~{~a~}"
-              defer
-              function))))
-
 (defun check-vals (docs element)
   (dolist (doc (coerce docs 'list))
     (format t "~%~A" (get-val doc element))))

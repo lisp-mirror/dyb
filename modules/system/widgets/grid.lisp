@@ -264,8 +264,8 @@ document.getElementById(\"~A\").submit();"
             (elt (rows grid) row-id)))))
 
 (defmethod handle-action :around ((grid grid) action)
-  (when *logging*
-   (format *debug-io* "~a ~a~%" action grid))
+  (when (logging-p (acceptor*))
+    (format *debug-io* "~a ~a~%" action grid))
   (when (next-method-p)
     (setf (error-message grid) nil)
     (set-current-row grid)

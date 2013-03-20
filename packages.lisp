@@ -3,6 +3,8 @@
         :sb-mop
         :wfx
         :cl-who
+        :dx-base-site
+        :dx-utils
         :hunchentoot
         :xdb2)
   (:shadow

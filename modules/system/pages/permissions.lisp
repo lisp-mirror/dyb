@@ -69,7 +69,7 @@
     (render box)))
 
 (defun permissions-options (selected-permissions)
-  (loop for (name . types) in *permissions*
+  (loop for (name . types) in (permissions (acceptor*))
         for (selected . selected-types) = (find name selected-permissions
                                                       :test #'equal :key #'car)
         collect

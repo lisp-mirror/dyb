@@ -4,6 +4,8 @@
   :depends-on (wfx
                hunchentoot
                cl-who
+               dx-base-site
+               dx-utils
                postmodern
                simple-date
                date-calc
@@ -27,7 +29,6 @@
   :components ((:file "packages")
                (:file "utils")
                (:file "common")
-               (:file "requests")
                (:file "ini")
                (:module "modules"
                         :serial t
@@ -223,8 +224,7 @@
                          (:module "scheduler"
                                   :serial t
                                   :components
-                                  ((:file "scheduler")
-                                   (:module "db"
+                                  ((:module "db"
                                             :serial t
                                             :components
                                             ((:file "generic-scheduler")))
@@ -237,12 +237,12 @@
                                             :serial t
                                             :components
                                             ((:file "generic-scheduler")
-                                             (:file "manual-scheduler")))))
+                                             (:file "manual-scheduler")))
+                                   (:file "scheduler")))
                          (:module "tasks"
                                   :serial t
                                   :components
-                                  (
-                                   (:module "db"
+                                  ((:module "db"
                                             :serial t
                                             :components
                                             ((:file "tasks")))

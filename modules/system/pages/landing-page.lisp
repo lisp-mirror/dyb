@@ -13,10 +13,9 @@
     user))
 
 (defmethod on-success ((login login) &key user)
-  (when (session-value 'user)
-    (hunchentoot:remove-session *session*))
-  (setf (session-value 'user) user)
-          	    
+  (when (current-user)
+    (remove-session *session*))
+  (setf (current-user) user)
   (log-login "Login" (get-val login 'email) "Passed" "Login passed.")
   (set-cookie "expanded" :value "" :path "/")
   (setf (session-max-time *session* ) 10800)

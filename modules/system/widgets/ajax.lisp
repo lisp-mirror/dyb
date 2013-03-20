@@ -18,8 +18,7 @@
               :class (css-class widget)
               (call-next-method)))))
 
-(ht-simple-ajax:defun-ajax cl-ajax-render (script-name widget-id &rest args)
-    (*dyb-ajax-processor*)
+(defajax cl-ajax-render (script-name widget-id &rest args)
   (declare (ignore args))
   (setf (slot-value *request* 'script-name) script-name)
   (wfx::map-dom #'wfx::update-dom)
@@ -59,8 +58,7 @@
 
 (defgeneric process-data-table (widget))
 
-(ht-simple-ajax:defun-ajax table (script-name widget-id &rest args)
-    (*dyb-ajax-processor*)
+(defajax table (script-name widget-id &rest args)
   (declare (ignore args))
   (setf (content-type*) "text/json")
   (let ((widget (get-widget widget-id :script-name script-name)))

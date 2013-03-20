@@ -14,18 +14,16 @@
     user))
 
 (defmethod on-success ((login login) &key user)
-
   (let ((redirect (session-value 'redirect-after-login)))
-    
-            (when (session-value 'user)
-              (hunchentoot:remove-session *session*))
-	    (setf (session-value 'user) user)
-            (delete-session-value 'redirect-after-login)	    
-          ;;  (log-login "Login" (get-val login 'email) "Passed" "Login passed.")
-            (set-cookie "expanded" :value "" :path "/")
+    (when (current-user)
+      (hunchentoot:remove-session *session*))
+    (setf (current-user) user)
+    (delete-session-value 'redirect-after-login)	    
+    ;;  (log-login "Login" (get-val login 'email) "Passed" "Login passed.")
+    (set-cookie "expanded" :value "" :path "/")
 
-	    (redirect (or redirect
-			  "/dyb/home"))))
+    (redirect (or redirect
+                  "/dyb/home"))))
 
 (defmethod on-failure ((login login) &key)
 ;;  (log-login "Login" (get-val login 'email) "Failed" "User name or password incorrect.")
