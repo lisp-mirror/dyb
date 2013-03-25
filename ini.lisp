@@ -49,7 +49,7 @@
       (call-next-method)))
 ;;;
 
-(defparameter *installation* "Local Machine");;"Live Serve"
+(defparameter *installation* "Live Serve");;"Live Serve"
 
 (defparameter *site-url* "http://dxw.co.za/")
 
