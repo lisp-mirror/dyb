@@ -39,11 +39,10 @@
                              (and (>= (get-val doc 'created-date) start-date)
                                   (<= (get-val doc 'created-date) end-date)))
                         (dolist (url (gpv (get-val doc 'payload) :entities :urls))
-                         (let ((short-url 
-                                (find-short-url-object (last (split-string url #\/)))))
-                           (when short-url
-                               (incf count (or (click-count short-url) 0)))))
-                        )))))
+                          (let ((short-url 
+                                  (expand-short-url (last (split-string url #\/)))))
+                            (when short-url
+                              (incf count (or (click-count short-url) 0))))))))))
                (generic-post-collection))
     count))
 
