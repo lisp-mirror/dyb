@@ -35,15 +35,6 @@
                                        :filter (grid-filter grid)
                                        :search (search-term grid))))
 
-(defun entity-mine-list ()
-  (let ((e-list))
-    (dolist (doc (coerce (entities) 'list))
-      (if (and (not (string-equal (get-val doc 'doc-status) "superseded"))
-            (string-equal (get-val (get-val doc 'entity-type) 'entity-type-name) "Mine"))
-          (setf e-list (append e-list (list (list (get-val doc 'xid)
-                                                  (get-val doc 'entity-name)))))))
-    e-list))
-
 (defmethod render-row-editor ((grid channel-user-grid) row)
   (let ((form (make-widget 'html-framework-form :name "channel-user-formv"
                            :grid-size 12
@@ -299,7 +290,7 @@
   (let ((user (editing-row grid)))
     (when user
       (when (string-equal (get-val user 'channel-user-type)
-                        "Facebook")
+                          "Facebook")
         (multiple-value-bind (result status error) 
             (facebook-profile user)                       
                               
@@ -311,5 +302,4 @@
 
             (facebook-friends-refresh user)
             (persist user))))))
-(finish-editing grid)
- )
+  (finish-editing grid))

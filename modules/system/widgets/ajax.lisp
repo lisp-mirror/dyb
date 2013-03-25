@@ -47,15 +47,6 @@
           form-name
           args-scripts))
 
-(defun js-value (widget)
-  (let ((name (if (typep widget 'widget)
-                  (name widget)
-                  widget)))
-    (format nil "[~s, document.getElementById(~s).value]" name name)))
-
-(defun js-pair (key value)
-  (format nil "[~s, ~s]" key value))
-
 (defgeneric process-data-table (widget))
 
 (defajax table (script-name widget-id &rest args)

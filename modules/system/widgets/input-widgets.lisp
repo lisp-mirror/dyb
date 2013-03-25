@@ -105,9 +105,6 @@
               :accessor check-all))
   (:metaclass widget-class))
 
-(defun sub-name (widget name)
-  (format nil "~a-~a" (name widget) name))
-
 (defun %create-checkboxes (checkbox-list
                            items
                            &key change
