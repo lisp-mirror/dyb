@@ -53,3 +53,4 @@
     (if (alexandria:starts-with-subseq "/dyb/s/" script-name)
         (shorten-url)
         (call-next-method))))
+
