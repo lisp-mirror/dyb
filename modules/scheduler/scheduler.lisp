@@ -28,13 +28,23 @@
                 :collection-class 'dyb-collection
                 :load-from-file-p t)
 
+(defun short-backtrace ()
+  (let* ((*package* (find-package :cl))
+         (string
+           (with-output-to-string (string)
+             (sb-debug::map-backtrace
+              (lambda (x)
+                (print (sb-di:debug-fun-name (sb-di:frame-debug-fun x))
+                       string)))) ))
+    (if (>= (length string) 65535)
+        (subseq string 0 65535)
+        string)))
+
 (defun log-error (task-name condition)
   (persist (make-instance 'error-log
                           :task-name task-name
                           :condition-class (class-name (class-of condition))
-                          :backtrace
-                          (with-output-to-string (*debug-io*)
-                            (sb-debug:backtrace))
+                          :backtrace (short-backtrace)
                           :printed-condition (princ-to-string condition))))
 
 ;;;
