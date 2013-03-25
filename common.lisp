@@ -138,11 +138,6 @@
 (defun day (date)
   (nth-value 2 (decode-date date)))
 
-(defun parse-date (date)
-  (multiple-value-bind (year month date) (decode-date date)
-    (when (and year month date)
-      (encode-universal-time 0 0 0 date month year (time-zone)))))
-
 (defun string-to-date (date-string &key (date-spacer #\space) reverse-date-sequence-p)
   (if (stringp date-string)
       (let ((split-date (split-string date-string date-spacer)))
