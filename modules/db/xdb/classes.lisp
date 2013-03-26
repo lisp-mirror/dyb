@@ -3,6 +3,9 @@
 (defclass dyb-collection (collection)
   ())
 
+(defclass storable (storable-versioned-class)
+  ())
+
 (defgeneric max-xid (collection))
 
 (defmethod max-xid ((col dyb-collection))
@@ -19,48 +22,12 @@
                :accessor start-date)
    (end-date :initarg :end-date
                :initform nil
-               :accessor end-date))
-  (:metaclass storable-class))
+               :accessor end-date)))
 
-(defclass import-detail ()
-  ((import-id :initarg :import-id
-              :initform nil
-              :accessor import-id))
-  (:metaclass storable-class))
-
-(defclass documentx ()
-  ((key :initarg :key
-        :accessor key)
-   (doc-type :initarg :doc-type
-         :initform nil
-         :accessor doc-type))
-  (:metaclass storable-class))
-
-(defclass doc (documentx)
+(defclass doc ()
   ((xid :initarg :xid
         :initform nil
         :accessor xid)
-   (version :initarg :version
-            :initform 1
-            :accessor version
-            :storep nil)
-   (old-versions :initarg :old-versions
-                 :initform nil
-                 :accessor old-versions
-                 :storep nil)
-   (collection :initarg :collection
-               :initform nil
-               :accessor collection
-               :storep nil)
-   (top-level :initarg :top-level
-              :initform nil
-              :accessor top-level)
-   (stamp-date :initarg :stamp-date
-               :initform nil
-               :accessor stamp-date)
-   (effective-date :initarg :effective-date
-                   :initform nil
-                   :accessor effective-date)
    (doc-status :initarg :doc-status 
                :initform "active"
                :accessor doc-status
@@ -72,81 +39,20 @@
                :initform nil
                :accessor log-action
                :documentation "Inserted, updated, deleted, rolledback."))
-  (:metaclass storable-class))
+  (:metaclass storable))
 
-(defgeneric doc-collection (doc))
-
-(defvar *inhibit-change-marking* nil)
-
-(defun supersede (object old-object)
-  (let ((*inhibit-change-marking* t))
-    (setf (doc-status old-object) "superseded"
-          (effective-date old-object) (stamp-date object))
-    (push old-object (old-versions object))))
-
-(defmethod load-from-file ((collection dyb-collection) file)
-  (when (probe-file file)
-    (load-data collection file
-               (lambda (object &key copy)
-                 (let ((*inhibit-change-marking* t))
-                  (cond ((not (typep object 'doc))
-                         (when (not (typep object 'storable-object))
-                           (vector-push-extend object (docs collection))))
-                        (copy
-                         (supersede object copy))
-                        ((top-level object)
-                         (setf (collection object) collection)
-                         (vector-push-extend object (docs collection)))
-                        (t
-                         (setf (collection object) collection)))))
-               (lambda (object)
-                 (alexandria:deletef (docs collection) object)))))
-
-(defmethod remove-doc ((object storable-object))
-  (let ((collection (doc-collection object)))
-    (alexandria:deletef (docs collection) object)
-    (delete-doc collection object)))
-
-(defmethod update-doc ((object storable-object) &key (set-time t))
-  (when set-time
-    (setf (stamp-date object) (get-universal-time)))
-  (serialize-doc (collection object) object))
-
-(defmethod persist ((doc storable-object) &key old-object (set-time t)
-                                               (top-level t))
-  (declare (ignore old-object))
-  (let ((collection (doc-collection doc)))    
+(defmethod persist :before ((doc doc) &key)
+  (let ((collection (doc-collection doc)))
     (when (not (get-val doc 'xdb2::id)) 
-      (setf (version doc) 0
-            (xid doc) (or (xid doc)
+      (setf (xid doc) (or (xid doc)
                           (next-xid collection))
             (doc-status doc) (or (doc-status doc) "active")
-            (log-action doc) (or (log-action doc) "inserted")
-           
-            (top-level doc) top-level)
-      (when top-level
-        (vector-push-extend doc (docs collection))))
-    (setf (collection doc) collection)
+            (log-action doc) (or (log-action doc) "inserted")))
     ;;Doing or because conversion is not run where session is available.
     (setf (user doc) (or (and (current-user)
                               (email (current-user)))
                          (user doc)
-                         "admin@dyb.co.za"))
-    (update-doc doc :set-time set-time))
-  doc)
-
-(defmethod (setf slot-value-using-class)
-    (new-value (class storable-class) (object doc) slotd)
-  (when (and (not *inhibit-change-marking*)
-             (slot-boundp-using-class class object slotd)
-             (written object))
-    (let ((current-value (slot-value-using-class class object slotd))
-          (*inhibit-change-marking* t))
-      (unless (equal new-value current-value)
-        (setf (written object) nil)
-        (supersede object (copy object))
-        (incf (version object)))))
-  (call-next-method))
+                         "admin@dyb.co.za"))))
 
 ;;;
 
@@ -202,17 +108,17 @@
 
 ;;Find the last doc that matches to get the lastest version
 (defmethod get-doc ((collection dyb-collection) value  
-                    &key (element 'key) (test #'equal) (ignore-superseded-p t))
+                    &key element (test #'equal) (ignore-superseded-p t))
   (map-docs
-     nil
-     (lambda (doc)
-       (if ignore-superseded-p
-           (unless (string-equal (get-val doc 'doc-status) "superseded")
-                   (when (funcall test (get-val doc element) value)
-                     (return-from get-doc doc)))
+   nil
+   (lambda (doc)
+     (if ignore-superseded-p
+         (unless (string-equal (get-val doc 'doc-status) "superseded")
            (when (funcall test (get-val doc element) value)
-                     (return-from get-doc doc)) ))
-     collection))
+             (return-from get-doc doc)))
+         (when (funcall test (get-val doc element) value)
+           (return-from get-doc doc)) ))
+   collection))
 
 ;;Find the last doc that matches to get the lastest version
 (defmethod find-doc ((collection dyb-collection) &key test (ignore-superseded-p t))

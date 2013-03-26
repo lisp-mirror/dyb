@@ -1,11 +1,13 @@
 (in-package :dyb)
 
-(defclass allsort (doc import-detail)
+(defclass allsort (doc)
   ((sort :initarg :sort 
-         :initform nil)
+         :initform nil
+         :key t)
    (sort-value :initarg :sort-value 
                :initform nil
-               :accessor sort-value)
+               :accessor sort-value
+               :key t)
    (sort-order :initarg :sort-order 
                :initform nil)   
    (alternate-sort-order :initarg :alternate-sort-order 
@@ -16,7 +18,7 @@
                 :initform nil)
    (extended-description :initarg :extended-description 
                          :initform nil))
-  (:metaclass storable-class)
+  (:metaclass storable)
   (:default-initargs :doc-type "allsort"))
 
 (defun allsorts-collection ()
@@ -33,8 +35,7 @@
                      sort-order alternate-sort-order
                      aa-sort-order description
                      extended-description)
-  (make-instance 'allsort 
-                 :key (list sort sort-value) 
+  (make-instance 'allsort
                  :doc-type "allsort" 
                  :sort sort
                  :sort-order sort-order
@@ -98,10 +99,8 @@
 (defmethod match-allsorts (doc allsorts)
   (find (get-val doc 'xid) allsorts))
 
-(unless (allsorts-collection)
-    (add-collection (system-db) "allsorts" 
-                    :collection-class 'dyb-collection
-                    :load-from-file-p t))
+(add-collection (system-db) "allsorts" 
+                :collection-class 'dyb-collection)
 
 (when (= (length (allsorts)) 0)
   

@@ -13,7 +13,7 @@
    (backtrace :initarg :backtrace
               :initform nil
               :accessor backtrace))
-  (:metaclass storable-class))
+  (:metaclass storable))
 
 (defun error-log-collection ()
   (get-collection (system-db) "error-log"))
@@ -24,9 +24,8 @@
 (defmethod doc-collection ((doc error-log))
   (error-log-collection))
 
-(add-collection (system-db) "error-log"
-                :collection-class 'dyb-collection
-                :load-from-file-p t)
+(add-collection (system-db) "error-log" 
+                :collection-class 'dyb-collection)
 
 (defun short-backtrace ()
   (let* ((*package* (find-package :cl))
@@ -67,7 +66,7 @@
              (with-output-to-string (*debug-io*) (sb-debug:backtrace))))
     (error (c)
       (log-error (frmt "Failed to send email for error in ~s" task-name)
-                 condition))))
+                 c))))
 
 (defun start-task-thread (task-name function)
   (bordeaux-threads:make-thread

@@ -9,14 +9,12 @@
    (country-town :initarg :country-town 
                  :initform nil
                  :accessor country-town))
-  (:metaclass storable-class)
-  )
+  (:metaclass storable))
 
 (defun make-address (address-type 
                      address-line 
                      country-town)
   (make-instance 'address 
-                ; :key address-type
                  :address-type address-type
                  :address-line address-line                 
                  :country-town country-town))

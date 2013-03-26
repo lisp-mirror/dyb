@@ -2,13 +2,16 @@
 
 (defclass channel-user (doc)
   ((entity :initarg :entity
-                        :initform nil)
+           :initform nil
+           :key t)
    (channel-user-name :initarg :channel-user-name
-                :initform nil
-                :accessor channel-user-name)
+                      :initform nil
+                      :accessor channel-user-name
+                      :key t)
    (channel-user-type :initarg :channel-user-type
-                :initform nil
-                :documentation "Twitter, Facebook, LinkedIn.")
+                      :initform nil
+                      :documentation "Twitter, Facebook, LinkedIn."
+                      :key t)
    (profile-type :initarg :profile-type
                 :initform nil
                 :documentation "User,Page")
@@ -27,7 +30,7 @@
               :initform (make-hash-table :test 'equal))
    (verification-code :initarg :verification-code
                       :initform nil))
-  (:metaclass storable-class)
+  (:metaclass storable)
   (:default-initargs :doc-type "channel-user"))
 
 
@@ -46,7 +49,7 @@
 (defun make-channel-user (entity channel-user-name channel-user-type profile-type
                           user-id
                           &key last-access-token)
-  (make-instance 'channel-user :key (list (get-val entity 'xid) channel-user-type channel-user-name)
+  (make-instance 'channel-user
                  :doc-type "channel-user"
                  :xid (next-xid (channel-users-collection))
                  :entity entity
@@ -69,10 +72,8 @@
 (defmethod match-channel-users (doc channel-users)
   (find (get-val doc 'xid) channel-users))
 
-(unless (channel-users-collection)
-  (add-collection (system-db) "channel-users"
-                  :collection-class 'dyb-collection
-                  :load-from-file-p t))
+(add-collection (system-db) "channel-users"
+                :collection-class 'dyb-collection)
 
 (defun get-channel-user-by-auth-token (auth-token)
   (get-doc (channel-users-collection) auth-token :element 'request-token))

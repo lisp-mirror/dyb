@@ -3,10 +3,12 @@
 (defclass generic-post (doc)
   (;;(entity :initarg :entity :accessor entity)
    (channel-user :initarg :channel-user
-                 :accessor channel-user)
-   (post-type 
-    :accessor post-type :initarg :post-type
-    :documentation "Twitter,Facebook,LinkedIn,Wordpress")
+                 :accessor channel-user
+                 :key t)
+   (post-type :accessor post-type
+              :initarg :post-type
+              :documentation "Twitter,Facebook,LinkedIn,Wordpress"
+              :key t)
    (payload 
     :accessor payload :initarg :payload
     :documentation "Usually the raw json or xml retrieved in an foreign api call")
@@ -27,7 +29,7 @@
    (last-change-date 
     :accessor last-change-date :initarg :last-change-date
     :documentation "The last time the post was changed. This should be used to sort inbox latest post activity. IE if a post has a new comment or something it should be brought to the users attetion."))
-  (:metaclass storable-class))
+  (:metaclass storable))
 
 (defun generic-post-collection ()
   (get-collection (system-db) "generic-post"))
@@ -52,7 +54,6 @@
 (defun make-generic-post (channel-user post-type payload payload-source created-date 
                           &key payload-type last-change-date payload-parser-version)
   (make-instance 'generic-post
-                 :key (list (xid channel-user) post-type (raw-post-id payload post-type))
                  :channel-user channel-user
                  :post-type post-type
                  :payload payload
@@ -62,10 +63,8 @@
                  :last-change-date last-change-date
                  :payload-parser-version payload-parser-version))
 
-(unless (generic-post-collection)
-  (add-collection (system-db) "generic-post" 
-                  :collection-class 'dyb-collection
-                  :load-from-file-p t))
+(add-collection (system-db) "generic-post" 
+                :collection-class 'dyb-collection)
 
 (defgeneric gpkv (post &rest keys))
 

@@ -10,7 +10,7 @@
    (click-count :initarg :click-count
                 :initform 0
                 :accessor click-count))
-  (:metaclass storable-class))
+  (:metaclass storable))
 
 (defun short-url-collection ()
   (get-collection (system-db) "short-url"))
@@ -74,7 +74,5 @@
              (format-short-url (make-short-url url))
              suffix)))))
 
-(unless (short-url-collection)
-  (add-collection (system-db) "short-url"
-                  :collection-class 'dyb-collection
-                  :load-from-file-p t))
+(add-collection (system-db) "short-url"
+                :collection-class 'dyb-collection)

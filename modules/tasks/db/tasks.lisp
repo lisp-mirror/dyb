@@ -1,9 +1,12 @@
 (in-package :dyb)
 
 (defclass task (doc)
-  ((entity :initarg :entity)
-   (task-description :initarg :task-description)
-   (assigned-user :initarg :assigned-user)
+  ((entity :initarg :entity
+           :key t)
+   (task-description :initarg :task-description
+                     :key t)
+   (assigned-user :initarg :assigned-user
+                  :key t)
    (assigning-user :initarg :assigning-user)
    (task-instructions :initarg :task-instructions)
    (task-status :initarg :task-status
@@ -11,7 +14,7 @@
    (assigned-date :initarg :assigned-date)
    (scheduled-date :initarg :scheduled-date)
    (completed-date :initarg :completed-date))
-  (:metaclass storable-class))
+  (:metaclass storable))
 
 
 (defun tasks-collection ()
@@ -32,10 +35,7 @@
                   (assigned-date (get-universal-time))
                   (task-status "Assigned")
                   completed-date)
-  (make-instance 'task 
-                 :key (list (xid entity) 
-                            (xid assigned-user)
-                            task-description)
+  (make-instance 'task
                  :entity entity
                  :task-description task-description
                  :assigning-user assigning-user
@@ -44,8 +44,7 @@
                  :task-status task-status
                  :scheduled-date scheduled-date
                  :assigned-date assigned-date
-                 :completed-date completed-date
-                                 ))
+                 :completed-date completed-date))
+
 (add-collection (system-db) "tasks" 
-                :collection-class 'dyb-collection
-                :load-from-file-p t)
+                :collection-class 'dyb-collection)

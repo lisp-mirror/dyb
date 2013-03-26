@@ -4,7 +4,7 @@
   ((stamp :initarg :stamp)
    (label :initarg :label)
    (message :initarg :message))
-  (:metaclass storable-class))
+  (:metaclass storable))
 
 (defclass generic-action (doc)
   ((post-id :initarg :post-id
@@ -53,7 +53,7 @@
    (scheduled-date :initarg :scheduled-date
                    :initform nil
                    :accessor scheduled-date))
-  (:metaclass storable-class))
+  (:metaclass storable))
 
 
 (defun generic-actions-collection ()
@@ -144,7 +144,5 @@
            (push log-entry (action-log action)))))
   (persist action))
 
-(unless (generic-actions-collection)
-  (add-collection (system-db) "generic-actions" 
-                  :collection-class 'dyb-collection
-                  :load-from-file-p t))
+(add-collection (system-db) "generic-actions" 
+                :collection-class 'dyb-collection)

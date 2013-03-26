@@ -7,22 +7,25 @@
    (local-municipality :initarg :local-municipality 
                        :initform nil
                        :accessor local-municipality))
-  (:metaclass storable-class))
+  (:metaclass storable))
 
 (defclass country-town (doc)
   ((country :initarg :country 
             :initform nil
-            :accessor country)
+            :accessor country
+            :key t)
    (province :initarg :province 
              :initform nil
-             :accessor province)
+             :accessor province
+             :key t)
    (municipalities :initarg :municipalities
                    :initform nil
                    :accessor municipalities
                    :documentation "List of municipalities.")
    (town :initarg :town
          :initform nil
-         :accessor town)
+         :accessor town
+         :key t)
    (longitude :initarg :longitude
               :initform nil
               :accessor longitude)
@@ -31,7 +34,7 @@
              :accessor latitude)
    (guess-p :initarg :guess-p
             :initform nil))
-  (:metaclass storable-class)
+  (:metaclass storable)
   (:default-initargs :doc-type "country-town"))
 
 (defun country-towns-collection ()
@@ -45,8 +48,7 @@
 
 (defun make-country-town (country province town 
                           &key longitude latitude municipalities guess-p crap-p)
-  (make-instance 'country-town 
-                 :key (list country province town) 
+  (make-instance 'country-town
                  :doc-type "country-town" 
                  :xid (if crap-p
                           nil
@@ -95,6 +97,5 @@
   (find (get-val doc 'xid) country-towns))
 
 (add-collection (system-db) "country-towns" 
-                :collection-class 'dyb-collection
-                :load-from-file-p t)
+                :collection-class 'dyb-collection)
 

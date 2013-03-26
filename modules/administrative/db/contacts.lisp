@@ -13,7 +13,7 @@
                      :initform nil)
    (email-address :initarg :email-address 
                   :initform nil))
-  (:metaclass storable-class))
+  (:metaclass storable))
 
 (defun make-contact (contact-name
                      contact-type                    

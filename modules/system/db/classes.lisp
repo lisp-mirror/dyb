@@ -31,7 +31,7 @@
    (consumer-token :initarg :consumer-token
                    :initform ""
                    :accessor consumer-token))
-  ;(:metaclass storable-class)
+  ;(:metaclass storable)
   )
 
 

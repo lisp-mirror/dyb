@@ -3,17 +3,20 @@
 (defclass entity-relationship (doc)
   ((root :initarg :root
          :initform nil
-         :accessor root)
+         :accessor root
+         :key t)
    (parent :initarg :parent
            :initform nil
-           :accessor parent)
+           :accessor parent
+           :key t)
    (entity :initarg :entity
            :initform nil
-           :accessor entity)
+           :accessor entity
+           :key t)
    (children :initarg :children 
              :initform ()
              :accessor children))
-  (:metaclass storable-class))
+  (:metaclass storable))
 
 (defun entity-relationships-collection ()
   (get-collection (system-db) "entity-relationships"))
@@ -97,11 +100,7 @@
 
 (defun make-entity-relationship (root parent-relationship entity children)
   ;(unless root (break "fuck ~A" entity))
-  (let ((doc (make-instance 'entity-relationship 
-                            :key (list (if root (xid (entity root))) 
-                                       (if parent-relationship
-                                           (xid (entity parent-relationship))) 
-                                       (xid entity)) 
+  (let ((doc (make-instance 'entity-relationship
                            ;; :xid (next-xid (entity-relationships-collection))
                             
                             :doc-type "entity-relationship"
@@ -140,8 +139,7 @@
       (docs (entity-relationships-collection))))
 
 (add-collection (system-db) "entity-relationships" 
-                :collection-class 'dyb-collection
-                :load-from-file-p t)
+                :collection-class 'dyb-collection)
 
 (defun get-root (eid) 
   (find-doc 

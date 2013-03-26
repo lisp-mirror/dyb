@@ -3,11 +3,12 @@
 (defclass entity-type (doc)
   ((entity-type-name :initarg :entity-type-name
                      :initform nil
-                     :accessor entity-type-name)
+                     :accessor entity-type-name
+                     :key t)
    (description :initarg :description
                 :initform nil
                 :accessor description))
-  (:metaclass storable-class))
+  (:metaclass storable))
 
 (defun entity-types-collection ()
   (get-collection (system-db) "entity-types"))
@@ -22,18 +23,16 @@
   (get-doc (entity-types-collection) entity-type-id :element 'xid))
 
 (defun make-entity-type (entity-type-name description)
-  (make-instance 'entity-type :key entity-type-name :doc-type "entity-type" 
-                
+  (make-instance 'entity-type
+                 :doc-type "entity-type" 
                  :entity-type-name entity-type-name
                  :description description))
 
 (defmethod doc-collection ((doc entity-type))
   (entity-types-collection))
 
-(unless (entity-types-collection)
-  (add-collection (system-db) "entity-types" 
-                  :collection-class 'dyb-collection
-                  :load-from-file-p t))
+(add-collection (system-db) "entity-types" 
+                :collection-class 'dyb-collection)
 
 (when (= (length (entity-types)) 0)
     (persist (make-entity-type "Client" "Client"))
@@ -54,8 +53,9 @@
                 :accessor entity-type)
    (entity-name :initarg :entity-name 
                 :initform nil
-                :accessor entity-name))
-  (:metaclass storable-class))
+                :accessor entity-name
+                :key t))
+  (:metaclass storable))
 
 (defun entities-collection ()
   (get-collection (system-db) "entities"))
@@ -67,8 +67,7 @@
   (entities-collection))
 
 (defun make-entity (entity-type entity-name)
-  (make-instance 'entity :key entity-name :doc-type "entity" 
-                 
+  (make-instance 'entity :doc-type "entity" 
                  :entity-type (get-entity-type entity-type) 
                  :entity-name entity-name))
 
@@ -146,11 +145,8 @@
       (setf e-list (append e-list (list (format nil "[~A]" (get-val (get-entity-by-id id) 'entity-name ))))))
     e-list))
 
-
-(unless (entities-collection)
-  (add-collection (system-db) "entities" 
-                  :collection-class 'dyb-collection
-                  :load-from-file-p t))
+(add-collection (system-db) "entities" 
+                :collection-class 'dyb-collection)
 
 
 

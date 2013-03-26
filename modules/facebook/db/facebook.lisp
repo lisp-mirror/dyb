@@ -2,18 +2,19 @@
 
 (defclass facebook-insight (doc)
   ((insight-name 
-    :accessor insight-name :initarg :insight-name
-    :documentation "")
+    :accessor insight-name
+    :initarg :insight-name
+    :key t)
    (title 
-    :accessor title :initarg :title
-    :documentation "")
+    :accessor title
+    :initarg :title)
    (description 
-    :accessor description :initarg :description
-    :documentation "")
+    :accessor description
+    :initarg :description)
    (period 
-    :accessor period :initarg :period
-    :documentation ""))
-  (:metaclass storable-class))
+    :accessor period
+    :initarg :period))
+  (:metaclass storable))
 
 (defun facebook-insight-collection ()
   (get-collection (system-db) "facebook-insights"))
@@ -36,7 +37,6 @@
 
 (defun make-facebook-insight (insight-name title description period)
   (make-instance 'facebook-insight
-                 :key insight-name
                  :insight-name insight-name 
                  :title title
                  :period period
@@ -44,20 +44,19 @@
 
 (unless (facebook-insight-collection)
   (add-collection (system-db) "facebook-insights" 
-                  :collection-class 'dyb-collection
-                  :load-from-file-p t))
+                  :collection-class 'dyb-collection))
 
 (defclass facebook-insight-value (doc)
   ((channel-user :initarg :channel-user
-                 :accessor channel-user)
-   (insight
-    :accessor insight :initarg :insight
-    :documentation "")
-   (value
-    :accessor value :initarg :value
-    :documentation "")
-   (end-time :initarg :end-time))
-  (:metaclass storable-class))
+                 :accessor channel-user
+                 :key t)
+   (insight :initarg :insight
+            :accessor insight)
+   (value  :initarg :value
+           :accessor value)
+   (end-time :initarg :end-time
+             :key t))
+  (:metaclass storable))
 
 (defun facebook-insight-value-collection ()
   (get-collection (system-db) "facebook-insight-values"))
@@ -100,7 +99,6 @@
 
 (defun make-facebook-insight-value (channel-user insight value end-time)
   (make-instance 'facebook-insight-value
-                 :key (list (id channel-user) (id insight) end-time)
                  :channel-user channel-user
                  :insight insight
                  :value value
@@ -108,8 +106,7 @@
 
 (unless (facebook-insight-value-collection)
   (add-collection (system-db) "facebook-insight-values" 
-                  :collection-class 'dyb-collection
-                  :load-from-file-p t))
+                  :collection-class 'dyb-collection))
 
 #|
 

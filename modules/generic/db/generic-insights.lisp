@@ -6,17 +6,19 @@
     :accessor entity)
    (channel-user 
     :initarg :channel-user
-    :accessor channel-user)
-   (insight
-    :accessor insight :initarg :insight
-    :documentation "Name of insight.")
+    :accessor channel-user
+    :key t)
+   (insight :initarg :insight
+            :accessor insight 
+            :documentation "Name of insight."
+            :key t)
    (value
     :accessor value :initarg :value
     :documentation "This can be a compound value")
-   (end-time 
-    :initarg :end-time
-    :documentation "The time stamp for when the insight was valid."))
-  (:metaclass storable-class))
+   (end-time :initarg :end-time
+             :documentation "The time stamp for when the insight was valid."
+             :key t))
+  (:metaclass storable))
 
 (defun generic-insight-value-collection ()
   (get-collection (system-db) "generic-insight-values"))
@@ -27,8 +29,6 @@
 (defun get-generic-insight-value-by-id (id)
   (get-doc (generic-insight-value-collection) id
            :element 'id))
-
-
 
 (defun get-generic-insight-value (channel-user insight end-time)
   (find-doc  
@@ -58,18 +58,14 @@
   (generic-insight-value-collection))
 
 (defun make-generic-insight-value ( channel-user insight value end-time)
-  (make-instance 'generic-insight-value                 
-                 :key (list  (id channel-user) insight end-time)
-               
+  (make-instance 'generic-insight-value
                  :channel-user channel-user
                  :insight insight
                  :value value
                  :end-time end-time))
 
-(unless (generic-insight-value-collection)
-  (add-collection (system-db) "generic-insight-values" 
-                  :collection-class 'dyb-collection
-                  :load-from-file-p t))
+(add-collection (system-db) "generic-insight-values" 
+                :collection-class 'dyb-collection)
 
 (defun update-generic-insight (channel-user insight-name value)
   (let* ((end-time (universal-today))

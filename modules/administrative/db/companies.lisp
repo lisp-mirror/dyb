@@ -4,11 +4,11 @@
   ((entity :initarg :entity)
    (company-name :initarg :company-name 
                  :initform nil
-                 :accessor company-name)
+                 :accessor company-name
+                 :key t)
    (contact-person :initarg :contact-person)
-   (contact-number :initarg :contact-number)
-   )
-  (:metaclass storable-class))
+   (contact-number :initarg :contact-number))
+  (:metaclass storable))
 
 (defun companies-collection ()
   (get-collection (system-db) "companies"))
@@ -20,8 +20,8 @@
   (companies-collection))
 
 (defun make-company (company-name)
-  (make-instance 'company :key company-name :doc-type "company" 
-                
+  (make-instance 'company
+                 :doc-type "company" 
                  :company-name company-name))
 
 (defun get-company (company-name)
@@ -37,9 +37,7 @@
 (defmethod match-companies (doc companies)
   (find (get-val doc 'xid) companies))
 
-(add-collection (system-db) "companies" 
-                :collection-class 'dyb-collection
-                :load-from-file-p t)
+(add-collection (system-db) "companies")
 
 
 

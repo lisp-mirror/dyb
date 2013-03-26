@@ -25,7 +25,7 @@
    (default-value :initarg :default-value)
    (system-parameter :initarg :system-parameter)
    (part-of-url-p :initarg :part-of-url-p))
-  (:metaclass storable-class))
+  (:metaclass storable))
 
 (defclass end-point ()
   ((end-point-type :initarg :end-point-type 
@@ -38,12 +38,13 @@
    
    (return-type :initarg :return-type
                 :documentation "JSON, XML, Query String, Callback"))
-  (:metaclass storable-class))
+  (:metaclass storable))
 
 (defclass social-channel (doc)
   ((channel-name :initarg :channel-name 
-                :initform nil
-                :accessor channel-name)
+                 :initform nil
+                 :accessor channel-name
+                 :key t)
    (auth-type :initarg :auth-type
                 :initform nil
                 :documentation "OAuth1, OAuth2, Login, Plain Token, None")
@@ -51,7 +52,7 @@
    (app-secret :initarg :app-secret)
    (end-points :initarg :end-points
                :initform nil))
-  (:metaclass storable-class))
+  (:metaclass storable))
 
 (defun social-channels-collection ()
   (get-collection (system-db) "social-channels"))
@@ -64,7 +65,7 @@
 
 (defun make-social-channel (channel-name auth-type
                             &key app-secret app-id end-points)
-  (make-instance 'social-channel :key channel-name 
+  (make-instance 'social-channel
                  :channel-name channel-name
                  :auth-type auth-type
                  :app-secret app-secret 
@@ -73,16 +74,16 @@
 
 (defun get-social-channel (channel-name)
   (get-doc (social-channels-collection) 
-            channel-name :test #'string-equal))
+           channel-name
+           :element 'channel-name
+           :test #'string-equal))
 
 (defun get-social-channel-by-id (id)
   (get-doc (social-channels-collection) id
-                       :element 'xdb2::id))
-
+           :element 'id))
 
 (add-collection (system-db) "social-channels" 
-                :collection-class 'dyb-collection
-                :load-from-file-p nil)
+                :collection-class 'dyb-collection)
 
 (defun get-channels-list ()
   (loop for channel across (social-channels)

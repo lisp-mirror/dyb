@@ -5,7 +5,7 @@
           :accessor name)
    (preference :initarg :preference
              :accessor preference))
-  (:metaclass storable-class))
+  (:metaclass storable))
 
 (defclass permissions (doc)
   ((name :initarg :name
@@ -14,11 +14,12 @@
    (permission-list :initarg :permission-list
                     :initform nil
                     :accessor permission-list))
-  (:metaclass storable-class))
+  (:metaclass storable))
 
 (defclass user (doc)
   ((email :initarg :email
-          :accessor email)
+          :accessor email
+          :key t)
    (password :initarg :password
              :accessor password)
    (salt :initarg :salt
@@ -41,7 +42,7 @@
    (super-user-p :initarg :super-user-p
                  :initform nil
                  :accessor super-user-p))
-  (:metaclass storable-class))
+  (:metaclass storable))
 
 (defun users-collection ()
   (get-collection (system-db) "users"))
@@ -61,8 +62,7 @@
                   super-user-p)
   (multiple-value-bind (password salt)
       (make-password password)
-    (make-instance 'user :key email :doc-type "user" 
-                         
+    (make-instance 'user :doc-type "user" 
                          :email email
                          :password password
                          :salt salt
@@ -99,15 +99,11 @@
                  (users-collection))
       (users)))
 
-(unless (users-collection)
-  (add-collection (system-db) "users" 
-                  :collection-class 'dyb-collection 
-                  :load-from-file-p t))
+(add-collection (system-db) "users" 
+                :collection-class 'dyb-collection)
 
-(unless (permissions-collection)
-  (add-collection (system-db) "permissions" 
-                  :collection-class 'dyb-collection 
-                  :load-from-file-p t))
+(add-collection (system-db) "permissions" 
+                :collection-class 'dyb-collection)
 
 
 (unless (get-user "admin@dyb.co.za")

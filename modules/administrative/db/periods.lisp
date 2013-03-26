@@ -3,10 +3,12 @@
 (defclass period (doc)
   ((entity :initarg :entity
            :initform nil
-           :accessor entity)
+           :accessor entity
+           :key t)
    (period-name :initarg :period-name 
                 :initform nil
-                :accessor period-name)
+                :accessor period-name
+                :key t)
    (period-type :initarg :period-type
                 :initform nil
                 :documentation "Years, Year, Quater, Month, Week")
@@ -20,7 +22,7 @@
              :accessor end-date)
    (status :initarg :status :initform nil
            :documentation "Open, Closed"))
-  (:metaclass storable-class)
+  (:metaclass storable)
   (:default-initargs :doc-type "period"))
 
 (defun periods-collection ()
@@ -35,7 +37,7 @@
 (defun make-period (entity
                     period-name period-type description 
                     start-date end-date status)
-  (make-instance 'period :key (list (get-val entity 'xid) period-name) 
+  (make-instance 'period
                  :doc-type "period" 
                  :entity entity
                  :period-name period-name
@@ -47,14 +49,14 @@
 
 (defun get-period (entity-id period-name)
   (get-doc (periods-collection)   
-            (list (if (stringp entity-id)
-                                 (parse-integer entity-id)
-                                 entity-id)
-                  (format nil "~A" period-name))))
+           (list (if (stringp entity-id)
+                     (parse-integer entity-id)
+                     entity-id)
+                 (format nil "~A" period-name))))
 
 (defun get-period-by-id (id)
   (get-doc (periods-collection) id
-                       :element 'xid))
+           :element 'xid))
 
 (defgeneric match-periods (doc periods))
 
@@ -62,6 +64,5 @@
   (find (get-val doc 'xid) periods))
 
 (add-collection (system-db) "periods" 
-                :collection-class 'dyb-collection
-                :load-from-file-p t)
+                :collection-class 'dyb-collection)
 

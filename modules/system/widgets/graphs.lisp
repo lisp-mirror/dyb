@@ -6,8 +6,7 @@
          :accessor data)
    (title :initarg :title
           :initform nil
-          :accessor title)
-   )
+          :accessor title))
   (:include-js "/appcss/site_style.css"
    "/js/jplot/jquery.jqplot.min.js"
    "/js/jplot/plugins/jqplot.highlighter.min.js"
@@ -71,6 +70,10 @@
      (json:as-object-member (key)
        (princ value json:*json-output*))))
 
+(defmacro with-json-object (&body body)
+  `(with-output-to-string (json:*json-output*)
+     (json:with-object ()
+       ,@body)))
 
 (defun format-graph-series-marker-options (options)
 
@@ -91,19 +94,12 @@
                                      (with-json-object
                                        (json-getf (getf options :marker-options) :show)
                                        (json-getf (getf options :marker-options) :style)
-                                       (json-getf (getf options :marker-options) :size)))
-                    )))))))
+                                       (json-getf (getf options :marker-options) :size))))))))))
 
 (defparameter *graph-renderer-types*
   '(:date "$.jqplot.DateAxisRenderer"
     :log "$.jqplot.LogAxisRenderer"
     :pie "$.jqplot.PieRenderer"))
-
-(defmacro with-json-object (&body body)
-  `(with-output-to-string (json:*json-output*)
-     (json:with-object ()
-       ,@body)))
-
 
 (defun format-graph-axis-tick-options (options)
   (with-json-object

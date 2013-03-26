@@ -9,7 +9,7 @@
    (entities :initarg :entities)
    (message :initarg :message)
    (stamp :initarg :stamp))
-  (:metaclass storable-class))
+  (:metaclass storable))
 
 (defun system-logs-collection ()
   (get-collection (system-db) "system-log"))
@@ -45,7 +45,5 @@
                             :stamp nil)
              :duplicate-doc-p-func nil))
 
-
 (add-collection (system-db) "system-log" 
-                :collection-class 'collection
-                :load-from-file-p nil)
+                :collection-class 'collection)
