@@ -154,8 +154,7 @@
             (get-val user 'last-access-token)
             (get-val user 'last-token-secret)
             message
-            link-url))
-       :result-is-octets-p t))))
+            link-url))))))
 
 (defun twitter-favourite-request (app-id app-secret access-token access-secret tweet-id)
   (let* ((stamp (format nil "~A" (get-unix-time)))
@@ -204,8 +203,7 @@
                  (get-val channel 'app-secret)
                  (get-val user 'last-access-token)
                  (get-val user 'last-token-secret)
-                 tweet-id)
-       :result-is-octets-p t))))
+                 tweet-id)))))
 
 (defun retweet-request (app-id app-secret access-token access-secret tweet-id)
   (let* ((stamp (format nil "~A" (get-unix-time)))
@@ -254,8 +252,7 @@
                  (get-val channel 'app-secret)
                  (get-val user 'last-access-token)
                  (get-val user 'last-token-secret)
-                 tweet-id)
-       :result-is-octets-p t))))
+                 tweet-id)))))
 
 (defun reply-tweet-request (app-id app-secret access-token access-secret message at-user)
   (let* ((stamp (format nil "~A" (get-unix-time)))
@@ -303,8 +300,7 @@
                  (get-val channel 'app-secret)
                  (get-val user 'last-access-token)
                  (get-val user 'last-token-secret)
-                 message at-user)
-       :result-is-octets-p t))))
+                 message at-user)))))
 
 (defun twitter-home-timeline-request (app-id app-secret access-token access-secret
                                      user-id &key since-id max-id)
@@ -392,8 +388,7 @@
                  (get-val user 'last-token-secret)
                  (get-val user 'user-id)
                  :since-id since-id
-                 :max-id max-id)
-       :result-is-octets-p t))))
+                 :max-id max-id)))))
 
 (defun twitter-mention-timeline-request (app-id app-secret access-token access-secret
                                      user-id &key since-id)
@@ -459,8 +454,7 @@
                  (get-val user 'last-access-token)
                  (get-val user 'last-token-secret)
                  (get-val user 'user-id)
-                 :since-id since-id)
-       :result-is-octets-p t))))
+                 :since-id since-id)))))
 
 
 (defun twitter-followers-request (app-id app-secret access-token access-secret)
@@ -506,8 +500,7 @@
                  (get-val channel 'app-id)
                  (get-val channel 'app-secret)
                  (get-val user 'last-access-token)
-                 (get-val user 'last-token-secret))
-       :result-is-octets-p t))))
+                 (get-val user 'last-token-secret))))))
 
 (defun twitter-profile-request (app-id app-secret access-token access-secret)
   (let* ((stamp (format nil "~A" (get-unix-time)))
@@ -552,8 +545,7 @@
                  (get-val channel 'app-id)
                  (get-val channel 'app-secret)
                  (get-val user 'last-access-token)
-                 (get-val user 'last-token-secret))
-       :result-is-octets-p t))))
+                 (get-val user 'last-token-secret))))))
 
 
 (defun twitter-verify-credentials (app-id app-secret access-token access-secret)
@@ -689,8 +681,7 @@
                  (get-val user 'last-access-token)
                  (get-val user 'last-token-secret)
                  (get-val user 'user-id)
-                 :since-id since-id)
-       :result-is-octets-p t))))
+                 :since-id since-id)))))
 
 
 (defun twitter-get-tweet-request (app-id app-secret access-token access-secret tweet-id)
@@ -748,8 +739,7 @@
                  (get-val user 'last-access-token)
                  (get-val user 'last-token-secret)
                 
-                 (format nil "~A" tweet-id))
-       :result-is-octets-p t))))
+                 (format nil "~A" tweet-id))))))
 
 (defun twitter-get-history-tweet (channel-user tweet-id)
   (when channel-user
@@ -813,6 +803,4 @@
                  (get-val channel 'app-secret)
                  (get-val user 'last-access-token)
                  (get-val user 'last-token-secret)
-                 
-                 :since-id since-id)
-       :result-is-octets-p t))))
+                 :since-id since-id)))))

@@ -24,7 +24,7 @@
                      ("oauth_token" . ,(get-val user 'last-access-token))))))))
 
 (defun facebook-feed (user since)
-  (handle-endpoint 
+  (handle-endpoint
    user
    (drakma:http-request 
     (format nil "https://graph.facebook.com/~A/feed?limit=2000&since=~A&access_token=~A" 

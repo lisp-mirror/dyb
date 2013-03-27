@@ -1,38 +1,33 @@
 (in-package :dyb)
 
-(defun handle-endpoint (user request &key error-path result-is-octets-p)
+(defun ensure-string-reply (reply)
+  (etypecase reply
+    (string reply)
+    ((vector (unsigned-byte 8)) (babel:octets-to-string reply))
+    (null nil)))
+
+(defun handle-endpoint (user request &key error-path)
   (let ((result)
-        (message))
-    (unless (get-val user 'last-access-token)
-      (setf message "Missing access token"))
-
-    (when (get-val user 'last-access-token)
-      (multiple-value-bind (body)
-          request
-        
-        (when body
-
-          (if result-is-octets-p
-              (setf result (json::decode-json-from-string (babel:octets-to-string body)))
-              (setf result (json::decode-json-from-string body))) 
-
-          (when (listp result)
-            (if (or (assoc-path result error-path) 
-                    (assoc-path result :error) 
-                    (assoc-path result :errors))
-                (let ((error-message (or (assoc-path result error-path)
-                                         (assoc-path result :error :message)
-                                         (if (listp (cdr (assoc-path result :errors)))
-                                             (assoc-path (car (cdr (assoc-path result :errors))) :message)
-                                             (assoc-path result :errors)))))
-                
-                  (setf message (if (listp error-message)
-                                    (cdr error-message)
-                                    error-message))))))
-        ;(break "~A~%~A" message (assoc-path (car (cdr (assoc-path result :errors))) :message))
-        (unless body
-          
-          (setf message "Endpoint returned no values."))))
+        (message)
+        (request (ensure-string-reply request)))
+    (cond ((not (get-val user 'last-access-token))
+           (setf message "Missing access token"))
+          ((not request)
+           (setf message "Endpoint returned no values."))
+          (t
+           (setf result (json:decode-json-from-string request))
+           (when (and (consp result)
+                      (or (assoc-path result error-path) 
+                          (assoc-path result :error) 
+                          (assoc-path result :errors)))
+             (let ((error-message (or (assoc-path result error-path)
+                                      (assoc-path result :error :message)
+                                      (if (listp (cdr (assoc-path result :errors)))
+                                          (assoc-path (car (cdr (assoc-path result :errors))) :message)
+                                          (assoc-path result :errors)))))
+               (setf message (if (listp error-message)
+                                 (cdr error-message)
+                                 error-message))))))
     (values result message)))
 
 (defun handle-endpoint-run-request (user request &key error-path result-is-octets-p)

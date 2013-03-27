@@ -216,8 +216,7 @@
         (get-val channel 'app-secret)
         (get-val user 'last-access-token)
         (get-val user 'last-token-secret)
-        linkedin-update-id)
-       :result-is-octets-p t))))
+        linkedin-update-id)))))
 
 (defun linkedin-comment-xml (comment)
   (format nil "<?xml version='1.0' encoding='UTF-8'?>
@@ -279,8 +278,7 @@
                  (get-val user 'last-access-token)
                  (get-val user 'last-token-secret) 
                  update-id 
-                 comment)
-       :result-is-octets-p t))))
+                 comment)))))
 
 
 (defun linkedin-network-updates-request (app-id app-secret access-token access-secret)
@@ -333,8 +331,7 @@
                  (get-val channel 'app-id)
                  (get-val channel 'app-secret)
                  (get-val user 'last-access-token)
-                 (get-val user 'last-token-secret))
-       :result-is-octets-p t))))
+                 (get-val user 'last-token-secret))))))
 
 (defun linkedin-connections-request (app-id app-secret
                              access-token 
@@ -384,8 +381,7 @@
                  (get-val channel 'app-id)
                  (get-val channel 'app-secret)
                  (get-val user 'last-access-token)
-                 (get-val user 'last-token-secret))
-       :result-is-octets-p t))))
+                 (get-val user 'last-token-secret))))))
 
 (defun linkedin-company-updates-request (app-id app-secret
                                   access-token 
@@ -437,8 +433,7 @@
                  (get-val channel 'app-secret)
                  (get-val user 'last-access-token)
                  (get-val user 'last-token-secret)
-                 (get-val user 'user-id))
-       :result-is-octets-p t))))
+                 (get-val user 'user-id))))))
 
 (defun linkedin-profile-request (app-id app-secret
                          access-token 
@@ -488,8 +483,7 @@
                  (get-val channel 'app-id)
                  (get-val channel 'app-secret)
                  (get-val user 'last-access-token)
-                 (get-val user 'last-token-secret))
-       :result-is-octets-p t))))
+                 (get-val user 'last-token-secret))))))
 
 
 (defun linkedin-companies-request (app-id app-secret
@@ -542,8 +536,7 @@
                  (get-val channel 'app-secret)
                  (get-val user 'last-access-token)
                  (get-val user 'last-token-secret)
-                 company-user-name)
-       :result-is-octets-p t))))
+                 company-user-name)))))
 
 (defun linkedin-company-by-id-request (app-id app-secret
                            access-token 
@@ -595,8 +588,7 @@
                  (get-val channel 'app-secret)
                  (get-val user 'last-access-token)
                  (get-val user 'last-token-secret)
-                 company-id)
-       :result-is-octets-p t))))
+                 company-id)))))
 
 (defun linkedin-user-companies-request (app-id app-secret
                            access-token 
@@ -646,8 +638,7 @@
                  (get-val channel 'app-id)
                  (get-val channel 'app-secret)
                  (get-val user 'last-access-token)
-                 (get-val user 'last-token-secret))
-       :result-is-octets-p t))))
+                 (get-val user 'last-token-secret))))))
 
 
  
