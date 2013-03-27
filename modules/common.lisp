@@ -8,14 +8,14 @@
 
 (defun handle-endpoint (user request &key error-path)
   (let ((result)
-        (message)
-        (request (ensure-string-reply request)))
+        (message))
     (cond ((not (get-val user 'last-access-token))
            (setf message "Missing access token"))
           ((not request)
            (setf message "Endpoint returned no values."))
           (t
-           (setf result (json:decode-json-from-string request))
+           (setf result (json:decode-json-from-string
+                         (ensure-string-reply request)))
            (when (and (consp result)
                       (or (assoc-path result error-path) 
                           (assoc-path result :error) 
@@ -30,30 +30,25 @@
                                  error-message))))))
     (values result message)))
 
-(defun handle-endpoint-run-request (user request &key error-path result-is-octets-p)
+(defun handle-endpoint-run-request (user request-function &key error-path)
   (let ((result)
         (message))
-    (unless (get-val user 'last-access-token)
-      (setf message "Missing access token"))
-
-    (when (get-val user 'last-access-token)
-      (multiple-value-bind (body status header uri stream must-close reason-phrase)
-          (eval request)
-        
-        (when body
-          (if result-is-octets-p
-              (setf result (json::decode-json-from-string (babel:octets-to-string body)))
-              (setf result (json::decode-json-from-string body))) 
-          (if (or (assoc-path result error-path) 
-                  (assoc-path result :error) 
-                  (assoc-path result :errors))
-              (setf message (cdr (or (assoc-path result error-path)
-                                     (assoc-path result :error :message)
-                                     (assoc-path result :errors :message))))))
-        (unless body
-          
-          (unless (or (equal status 200) (equal status 201) )
-            (setf message "Endpoint returned no values."))
-          (when (or (equal status 200) (equal status 201) )
-            (setf result reason-phrase)))))
+    (if (get-val user 'last-access-token)
+        (multiple-value-bind (body status header uri stream must-close reason-phrase)
+            (funcall request-function)
+          (declare (ignore header uri stream must-close))
+          (cond (body
+                 (setf result (json:decode-json-from-string
+                               (ensure-string-reply body)))
+                 (when (or (assoc-path result error-path) 
+                           (assoc-path result :error) 
+                           (assoc-path result :errors))
+                   (setf message (cdr (or (assoc-path result error-path)
+                                          (assoc-path result :error :message)
+                                          (assoc-path result :errors :message))))))
+                ((or (eql status 200) (eql status 201))
+                 (setf result reason-phrase))
+                (t
+                 (setf message "Endpoint returned no values."))))
+        (setf message "Missing access token"))
     (values result message)))

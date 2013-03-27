@@ -71,22 +71,22 @@
     :preserve-uri nil)))
 
 (defun linkedin-share (user message  &key content-title
-                       description submited-url
-                       submitted-image-url)
-  (let ((channel (if user (get-social-channel (get-val user 'channel-user-type)))))
+                                          description submited-url
+                                          submitted-image-url)
+  (let ((channel (and user (get-social-channel (get-val user 'channel-user-type)))))
     (handle-endpoint-run-request
-         user
-         `(linkedin-share-request 
-          ,(get-val channel 'app-id)
-          ,(get-val channel 'app-secret)
-          ,(get-val user 'last-access-token)
-          ,(get-val user 'last-token-secret)
-          ,message
-          :content-title ,content-title
-          :description ,description
-          :submited-url ,submited-url
-          :submitted-image-url ,submitted-image-url)
-         :result-is-octets-p t)))
+     user
+     (lambda ()
+       (linkedin-share-request
+        (get-val channel 'app-id)
+        (get-val channel 'app-secret)
+        (get-val user 'last-access-token)
+        (get-val user 'last-token-secret)
+        message
+        :content-title content-title
+        :description description
+        :submited-url submited-url
+        :submitted-image-url submitted-image-url)))))
 
 (defun linkedin-company-share-request (app-id app-secret access-token 
                        access-secret comment company-id
@@ -135,23 +135,23 @@
     :preserve-uri nil)))
 
 (defun linkedin-company-share (user message  &key content-title
-                       description submited-url
-                       submitted-image-url)
-  (let ((channel (if user (get-social-channel (get-val user 'channel-user-type)))))
+                                                  description submited-url
+                                                  submitted-image-url)
+  (let ((channel (and user (get-social-channel (get-val user 'channel-user-type)))))
     (handle-endpoint-run-request
-         user
-         `(linkedin-company-share-request 
-          ,(get-val channel 'app-id)
-          ,(get-val channel 'app-secret)
-          ,(get-val user 'last-access-token)
-          ,(get-val user 'last-token-secret)
-          ,message
-          ,(get-val user 'user-id)
-          :content-title ,content-title
-          :description ,description
-          :submited-url ,submited-url
-          :submitted-image-url ,submitted-image-url)
-         :result-is-octets-p t)))
+     user
+     (lambda ()
+       (linkedin-company-share-request
+        (get-val channel 'app-id)
+        (get-val channel 'app-secret)
+        (get-val user 'last-access-token)
+        (get-val user 'last-token-secret)
+        message
+        (get-val user 'user-id)
+        :content-title content-title
+        :description description
+        :submited-url submited-url
+        :submitted-image-url submitted-image-url)))))
 
 (defun post-linkedin (user-id message)
   (let ((user (get-channel-user-by-user-id 
