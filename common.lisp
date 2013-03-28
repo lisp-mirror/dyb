@@ -585,9 +585,9 @@
    (make-filter-sink)))
 
 (defun send-system-mail (subject message)
-  (cl-smtp:send-email "mail.digyourbrand.com"  
-                      "system@digyourbrand.com" 
-                      "system@digyourbrand.com" 
+  (cl-smtp:send-email "mail.digyourbrand.com"
+                      "system@digyourbrand.com"
+                      "system@digyourbrand.com"
                       subject
                       message
                       :ssl :tls

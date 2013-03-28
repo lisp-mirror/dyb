@@ -187,11 +187,34 @@
       (social-mention-refresh-searches)     
       (sleep 86400)))))
 
+(defun count-lost-actions ()
+  (loop with now = (get-universal-time)
+        for action across (generic-actions)
+        count (and (equal (action-status action) "Pending")
+                   (> (- now (scheduled-date action)) (* 15 60)))))
+
+(defun action-monitor ()
+  (let ((lost-actions (count-lost-actions)))
+    (when (plusp lost-actions)
+      (send-error-email
+       (frmt "[DYB]: lost ~a scheduled posts" lost-actions)
+       (frmt "I'm sorry to inform you but there ~[are~;is~:;are~]~:* ~
+              ~a action~:p pining for the fjords."
+             lost-actions)))))
+
+(defun start-action-monitor ()
+  (start-task-thread
+   "action-monitor"
+   (lambda ()
+     (loop
+      (sleep (* 30 60))     
+      (action-monitor)))))
 ;;;
 
 (defun start-scheduler ()
   (when (equal *installation* "Live Serve")
     (start-actions-scheduler)
+    (start-action-monitor)
     (start-facebook-listener)
     (start-facebook-slow-listener)
     (start-twitter-mention-listener)
