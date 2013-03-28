@@ -197,7 +197,7 @@
   (let ((lost-actions (count-lost-actions)))
     (when (plusp lost-actions)
       (send-error-email
-       (frmt "[DYB]: lost ~a scheduled posts" lost-actions)
+       (frmt "[DYB]: lost ~a scheduled post~:p" lost-actions)
        (frmt "I'm sorry to inform you but there ~[are~;is~:;are~]~:* ~
               ~a action~:p pining for the fjords."
              lost-actions)))))
