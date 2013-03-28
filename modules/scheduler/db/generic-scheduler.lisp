@@ -115,15 +115,25 @@
                                       :post-url post-url
                                       :short-url short-url)))))
 
+(defun post-action-abandoned-email (action)
+  (send-system-mail
+   (frmt "[DYB]: ~a ~a abondened retires"
+         (post-type action) (action-type action))
+   (frmt "Post with id ~a failed 5 times to be delieverd. ~a"
+         (id action)
+         (current-date-time))))
+
 (defun add-generic-action-log (action label message status) 
-  (if (>= (length (action-log action)) 5)
-      (setf (action-status action) "Abandoned Retries")
-      (let ((log-entry (make-instance 'generic-action-log
-                                      :stamp (get-universal-time)
-                                      :label label
-                                      :message message)))
-        (setf (action-status action) status)
-        (push log-entry (action-log action))))
+  (cond ((>= (length (action-log action)) 5)
+         (setf (action-status action) "Abandoned Retries")
+         (post-action-abandoned-email action))
+        (t
+         (let ((log-entry (make-instance 'generic-action-log
+                                         :stamp (get-universal-time)
+                                         :label label
+                                         :message message)))
+           (setf (action-status action) status)
+           (push log-entry (action-log action)))))
   (persist action))
 
 (unless (generic-actions-collection)

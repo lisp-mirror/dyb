@@ -99,7 +99,8 @@
                                  (log-error (frmt "post-scheduled-actions ~a ~a"
                                                   (post-type action)
                                                   (action-type action))
-                                            condition))
+                                            condition)
+                                 (post-action-abandoned-email action))
                                 (t
                                  (add-generic-action-log action
                                                          "Error"
