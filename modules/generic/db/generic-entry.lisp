@@ -29,7 +29,7 @@
    (last-change-date 
     :accessor last-change-date :initarg :last-change-date
     :documentation "The last time the post was changed. This should be used to sort inbox latest post activity. IE if a post has a new comment or something it should be brought to the users attetion."))
-  (:metaclass storable))
+  (:metaclass storable-versioned-class))
 
 (defun generic-post-collection ()
   (get-collection (system-db) "generic-post"))

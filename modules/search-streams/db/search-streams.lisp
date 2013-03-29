@@ -10,7 +10,7 @@
    (search-stream :initarg :search-stream)
    (search-stream-status :initarg :search-stream-status)
    (search-stream-log :initarg :search-stream-log))
-  (:metaclass storable))
+  (:metaclass storable-versioned-class))
 
 
 

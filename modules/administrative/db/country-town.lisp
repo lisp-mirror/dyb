@@ -7,7 +7,7 @@
    (local-municipality :initarg :local-municipality 
                        :initform nil
                        :accessor local-municipality))
-  (:metaclass storable))
+  (:metaclass storable-versioned-class))
 
 (defclass country-town (doc)
   ((country :initarg :country 
@@ -34,7 +34,7 @@
              :accessor latitude)
    (guess-p :initarg :guess-p
             :initform nil))
-  (:metaclass storable)
+  (:metaclass storable-versioned-class)
   (:default-initargs :doc-type "country-town"))
 
 (defun country-towns-collection ()

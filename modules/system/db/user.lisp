@@ -5,7 +5,7 @@
           :accessor name)
    (preference :initarg :preference
              :accessor preference))
-  (:metaclass storable))
+  (:metaclass storable-versioned-class))
 
 (defclass permissions (doc)
   ((name :initarg :name
@@ -14,7 +14,7 @@
    (permission-list :initarg :permission-list
                     :initform nil
                     :accessor permission-list))
-  (:metaclass storable))
+  (:metaclass storable-versioned-class))
 
 (defclass user (doc)
   ((email :initarg :email
@@ -42,7 +42,7 @@
    (super-user-p :initarg :super-user-p
                  :initform nil
                  :accessor super-user-p))
-  (:metaclass storable))
+  (:metaclass storable-versioned-class))
 
 (defun users-collection ()
   (get-collection (system-db) "users"))

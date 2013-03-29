@@ -13,7 +13,7 @@
    (backtrace :initarg :backtrace
               :initform nil
               :accessor backtrace))
-  (:metaclass storable))
+  (:metaclass storable-versioned-class))
 
 (defun error-log-collection ()
   (get-collection (system-db) "error-log"))

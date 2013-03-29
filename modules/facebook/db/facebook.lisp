@@ -14,7 +14,7 @@
    (period 
     :accessor period
     :initarg :period))
-  (:metaclass storable))
+  (:metaclass storable-versioned-class))
 
 (defun facebook-insight-collection ()
   (get-collection (system-db) "facebook-insights"))
@@ -56,7 +56,7 @@
            :accessor value)
    (end-time :initarg :end-time
              :key t))
-  (:metaclass storable))
+  (:metaclass storable-versioned-class))
 
 (defun facebook-insight-value-collection ()
   (get-collection (system-db) "facebook-insight-values"))

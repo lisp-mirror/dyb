@@ -3,9 +3,6 @@
 (defclass dyb-collection (collection)
   ())
 
-(defclass storable (storable-versioned-class)
-  ())
-
 (defgeneric max-xid (collection))
 
 (defmethod max-xid ((col dyb-collection))
@@ -39,7 +36,7 @@
                :initform nil
                :accessor log-action
                :documentation "Inserted, updated, deleted, rolledback."))
-  (:metaclass storable))
+  (:metaclass storable-versioned-class))
 
 (defmethod persist :before ((doc doc) &key)
   (let ((collection (doc-collection doc)))

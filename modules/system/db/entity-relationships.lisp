@@ -16,7 +16,7 @@
    (children :initarg :children 
              :initform ()
              :accessor children))
-  (:metaclass storable))
+  (:metaclass storable-versioned-class))
 
 (defun entity-relationships-collection ()
   (get-collection (system-db) "entity-relationships"))

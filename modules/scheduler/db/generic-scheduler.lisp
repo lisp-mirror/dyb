@@ -4,7 +4,7 @@
   ((stamp :initarg :stamp)
    (label :initarg :label)
    (message :initarg :message))
-  (:metaclass storable))
+  (:metaclass storable-versioned-class))
 
 (defclass generic-action (doc)
   ((post-id :initarg :post-id
@@ -53,7 +53,7 @@
    (scheduled-date :initarg :scheduled-date
                    :initform nil
                    :accessor scheduled-date))
-  (:metaclass storable))
+  (:metaclass storable-versioned-class))
 
 
 (defun generic-actions-collection ()

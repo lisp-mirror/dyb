@@ -22,7 +22,7 @@
              :accessor end-date)
    (status :initarg :status :initform nil
            :documentation "Open, Closed"))
-  (:metaclass storable)
+  (:metaclass storable-versioned-class)
   (:default-initargs :doc-type "period"))
 
 (defun periods-collection ()

@@ -18,7 +18,7 @@
    (end-time :initarg :end-time
              :documentation "The time stamp for when the insight was valid."
              :key t))
-  (:metaclass storable))
+  (:metaclass storable-versioned-class))
 
 (defun generic-insight-value-collection ()
   (get-collection (system-db) "generic-insight-values"))

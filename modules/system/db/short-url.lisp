@@ -10,7 +10,7 @@
    (click-count :initarg :click-count
                 :initform 0
                 :accessor click-count))
-  (:metaclass storable))
+  (:metaclass storable-versioned-class))
 
 (defun short-url-collection ()
   (get-collection (system-db) "short-url"))

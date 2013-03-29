@@ -25,7 +25,7 @@
    (default-value :initarg :default-value)
    (system-parameter :initarg :system-parameter)
    (part-of-url-p :initarg :part-of-url-p))
-  (:metaclass storable))
+  (:metaclass storable-versioned-class))
 
 (defclass end-point ()
   ((end-point-type :initarg :end-point-type 
@@ -38,7 +38,7 @@
    
    (return-type :initarg :return-type
                 :documentation "JSON, XML, Query String, Callback"))
-  (:metaclass storable))
+  (:metaclass storable-versioned-class))
 
 (defclass social-channel (doc)
   ((channel-name :initarg :channel-name 
@@ -52,7 +52,7 @@
    (app-secret :initarg :app-secret)
    (end-points :initarg :end-points
                :initform nil))
-  (:metaclass storable))
+  (:metaclass storable-versioned-class))
 
 (defun social-channels-collection ()
   (get-collection (system-db) "social-channels"))

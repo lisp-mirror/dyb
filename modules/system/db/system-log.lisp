@@ -9,7 +9,7 @@
    (entities :initarg :entities)
    (message :initarg :message)
    (stamp :initarg :stamp))
-  (:metaclass storable))
+  (:metaclass storable-versioned-class))
 
 (defun system-logs-collection ()
   (get-collection (system-db) "system-log"))

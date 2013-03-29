@@ -30,7 +30,7 @@
               :initform (make-hash-table :test 'equal))
    (verification-code :initarg :verification-code
                       :initform nil))
-  (:metaclass storable)
+  (:metaclass storable-versioned-class)
   (:default-initargs :doc-type "channel-user"))
 
 

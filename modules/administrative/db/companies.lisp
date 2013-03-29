@@ -8,7 +8,7 @@
                  :key t)
    (contact-person :initarg :contact-person)
    (contact-number :initarg :contact-number))
-  (:metaclass storable))
+  (:metaclass storable-versioned-class))
 
 (defun companies-collection ()
   (get-collection (system-db) "companies"))

@@ -8,7 +8,7 @@
    (description :initarg :description
                 :initform nil
                 :accessor description))
-  (:metaclass storable))
+  (:metaclass storable-versioned-class))
 
 (defun entity-types-collection ()
   (get-collection (system-db) "entity-types"))
@@ -55,7 +55,7 @@
                 :initform nil
                 :accessor entity-name
                 :key t))
-  (:metaclass storable))
+  (:metaclass storable-versioned-class))
 
 (defun entities-collection ()
   (get-collection (system-db) "entities"))

@@ -14,7 +14,7 @@
    (assigned-date :initarg :assigned-date)
    (scheduled-date :initarg :scheduled-date)
    (completed-date :initarg :completed-date))
-  (:metaclass storable))
+  (:metaclass storable-versioned-class))
 
 
 (defun tasks-collection ()

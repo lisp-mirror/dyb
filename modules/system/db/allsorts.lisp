@@ -18,7 +18,7 @@
                 :initform nil)
    (extended-description :initarg :extended-description 
                          :initform nil))
-  (:metaclass storable)
+  (:metaclass storable-versioned-class)
   (:default-initargs :doc-type "allsort"))
 
 (defun allsorts-collection ()

@@ -9,7 +9,7 @@
    (country-town :initarg :country-town 
                  :initform nil
                  :accessor country-town))
-  (:metaclass storable))
+  (:metaclass storable-versioned-class))
 
 (defun make-address (address-type 
                      address-line 
