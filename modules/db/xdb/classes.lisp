@@ -135,8 +135,8 @@
 
 (defun quicklook-docs (docs)
   (dolist (doc (coerce docs 'list))
-          (format t "~%--id ~A --written ~A --key ~A --version ~A --xid ~A --log-action ~A --status ~A --stamp ~A" 
-                  (get-val doc 'xdb2::id) (get-val doc 'xdb2::written) (key doc) (version doc) (xid doc) (log-action doc) (doc-status doc) (stamp-date doc))))
+          (format t "~%--id ~A --written ~A --version ~A --xid ~A --log-action ~A --status ~A --stamp ~A" 
+                  (get-val doc 'xdb2::id) (get-val doc 'xdb2::written) (version doc) (xid doc) (log-action doc) (doc-status doc) (stamp-date doc))))
 
 (defun activep (doc)
   (and (typep doc 'doc)

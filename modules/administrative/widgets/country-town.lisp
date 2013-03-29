@@ -60,9 +60,7 @@
                     (append (get-val new-country-town 'municipalities) (list new-municipality))))
           (setf (get-val new-country-town 'municipalities) 
                 (list new-municipality)))
-      
-      (persist new-country-town :old-object (if (get-val new-country-town 'xdb2::id)
-                                        old-country-town)))
+      (persist new-country-town))
     (finish-editing grid)))
 
 (defclass country-town-grid (grid)

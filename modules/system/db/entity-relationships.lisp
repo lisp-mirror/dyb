@@ -186,11 +186,10 @@
       (dolist (tree (coerce (entity-relationships) 'list))
         (map-relationship-tree tree 
                                (lambda (relationship)
-                                 (format stream "~%~A--key ~A --id ~A --xid ~A --parent ~A --entity ~A --doc-status ~A --version ~A"
+                                 (format stream "~%~A --id ~A --xid ~A --parent ~A --entity ~A --doc-status ~A --version ~A"
                                          (if (parent relationship) 
                                              "----> "
                                              "")
-                                         (key relationship) 
                                          (xdb2::id relationship)
                                          (xid relationship)
                                          (if (parent relationship)

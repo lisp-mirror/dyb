@@ -108,18 +108,12 @@
              (not (string-equal (parameter "search-stream-type") "")))
  
     (when (and (parameter "description") (not (string-equal (parameter "description") "")))
-      (let ((new-doc (editing-row grid))
-            (old-doc (copy (editing-row grid)))
+      (let ((doc (editing-row grid))
             (entity
              (if (parameter "entity-xid")
                  (get-entity-by-id (parse-integer (parameter "entity-xid")))
-                 (get-entity-by-id (parse-integer (parameter "entity"))))
-             ))
-        
-        (synq-edit-data new-doc)
-        (setf (get-val new-doc 'entity) entity)
-        (if (xid old-doc)
-            (persist new-doc :old-object old-doc)
-            (persist new-doc))
-
+                 (get-entity-by-id (parse-integer (parameter "entity"))))))
+        (synq-edit-data doc)
+        (setf (get-val doc 'entity) entity)
+        (persist doc)
         (finish-editing grid)))))

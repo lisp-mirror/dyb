@@ -235,37 +235,30 @@
              (blank-p (parameter "channel-user-type")))
  
     (let ((channel (get-social-channel
-                      (parameter "channel-user-type")))
-              (new-doc (editing-row grid)))
-              (synq-edit-data new-doc)
+                    (parameter "channel-user-type")))
+          (doc (editing-row grid)))
+      (synq-edit-data doc)
         
-              (setf (get-val new-doc 'entity)
-                      (get-entity-by-id
-                       (if (stringp (parameter "entity"))
-                           (parse-integer
-                            (parameter "entity"))
-                           (parameter "entity"))))
+      (setf (get-val doc 'entity)
+            (get-entity-by-id
+             (if (stringp (parameter "entity"))
+                 (parse-integer
+                  (parameter "entity"))
+                 (parameter "entity"))))
+      (when (string-equal (get-val channel 'auth-type) "OAuth1")
+        (let* ((response (parse-query-string (oauth1-request channel))))
+          (setf (get-val doc 'request-token)
+                (cdr (assoc-path response "oauth_token")))
+          (setf (get-val doc 'request-secret)
+                (cdr (assoc-path response "oauth_token_secret")))))
 
-              (setf (key new-doc) (list (xid (get-val new-doc 'entity))
-                                        (parameter "channel-user-type")
-                                        (parameter "channel-user-name")))
-              
-              (when (string-equal (get-val channel 'auth-type) "OAuth1")
-                
-                (let* ((response (parse-query-string (oauth1-request channel))))
-                  (setf (get-val new-doc 'request-token)
-                        (cdr (assoc-path response "oauth_token")))
-                  (setf (get-val new-doc 'request-secret)
-                        (cdr (assoc-path response "oauth_token_secret")))))
+      (unless (get-val doc 'verification-code)
+        (when (string-equal (get-val channel 'auth-type) "OAuth2")
+          (setf (get-val doc 'verification-code) 
+                (format nil "~A-~A" (get-universal-time) (random 9999999999)))))
+      (persist doc)
 
-              (unless (get-val new-doc 'verification-code)
-                (when (string-equal (get-val channel 'auth-type) "OAuth2")
-                  (setf (get-val new-doc 'verification-code) 
-                        (format nil "~A-~A" (get-universal-time) (random 9999999999)))))
-
-              (persist new-doc)
-
-              (finish-editing grid))))
+      (finish-editing grid))))
 
 (defmethod export-csv ((grid channel-user-grid))
   (let* ((data (grid-filtered-rows grid)))

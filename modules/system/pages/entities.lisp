@@ -115,19 +115,15 @@
         (persist root))))
   
   (when (parameter "delete-entity-click")
-
-    (let* ((root (car (wfx:data (tree widget))))
-           (old-root (copy root)))
+    (let* ((root (car (wfx:data (tree widget)))))
       (remove-relationship-tree-child  
        root
        (selected-nodes (tree widget)))
-      
       (when (get-val (selected-nodes (tree widget)) 'parent)
-        
         (persist (get-relationship-tree-item 
                   root 
                   (xid (get-val (selected-nodes (tree widget)) 'parent)))))
-      (persist root :old-object old-root))))
+      (persist root))))
 
 (defmethod render ((widget entities) &key)
   (let ((root (make-widget 'select :name "root-select"))

@@ -151,8 +151,7 @@
                  (equal (parameter "mine-entity") nil)))
              (setf (error-message grid)
                    "Entity is required")
-             (let ((old-doc (copy (editing-row grid)))
-                   (new-doc (editing-row grid)))
+             (let ((new-doc (editing-row grid)))
                                              
                (unless (parameter "mine-entity-xid") 
                  (setf (get-val new-doc 'entity) 
@@ -195,9 +194,7 @@
                      
                      (t
                       (synq-edit-data new-doc)
-                      (if (not (get-val new-doc 'xid))
-                          (persist new-doc)
-                          (persist new-doc :old-object old-doc))
+                      (persist new-doc)
                       (finish-editing grid)))))))
 
 (defmethod export-csv ((grid period-grid))
