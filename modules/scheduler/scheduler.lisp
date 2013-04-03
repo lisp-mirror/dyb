@@ -24,7 +24,7 @@
 (defmethod doc-collection ((doc error-log))
   (error-log-collection))
 
-(add-collection (system-db) "error-log" 
+(add-collection (system-db) "error-log"
                 :collection-class 'dyb-collection
                 :load-from-file-p t)
 
@@ -70,15 +70,21 @@
                  condition))))
 
 (defun start-task-thread (task-name function)
-  (bordeaux-threads:make-thread  
+  (bordeaux-threads:make-thread
    (lambda ()
      (block nil
-       (handler-bind ((serious-condition
-                        (lambda (condition)
-                          (send-error-email condition task-name)
-                          (log-error task-name condition)
-                          (return))))
-         (funcall function))))
+       (tagbody
+        :retry
+          (handler-bind ((usocket:timeout-error
+                           (lambda (c)
+                             (declare (ignore c))
+                             (go :retry)))
+                         (serious-condition
+                           (lambda (condition)
+                             (send-error-email condition task-name)
+                             (log-error task-name condition)
+                             (return))))
+            (funcall function)))))
    :name task-name))
 
 (defun post-scheduled-actions ()
@@ -132,7 +138,7 @@
      (loop
       (facebook-refresh-friends)
       (facebook-refresh-profiles)
-      (facebook-page-insights-history   
+      (facebook-page-insights-history
        (- (universal-today) (* 60 60 24 10))
        10)
       (sleep 86400)))))
@@ -184,7 +190,7 @@
    "facebook-refresh-friends-and-profiles"
    (lambda ()
      (loop
-      (social-mention-refresh-searches)     
+      (social-mention-refresh-searches)
       (sleep 86400)))))
 
 (defun count-lost-actions ()
@@ -207,7 +213,7 @@
    "action-monitor"
    (lambda ()
      (loop
-      (sleep (* 30 60))     
+      (sleep (* 30 60))
       (action-monitor)))))
 ;;;
 
@@ -228,7 +234,7 @@
 ;;(create-twitter-user-stream-listeners)
 
 #|
-(trivial-timers:schedule-timer 
+(trivial-timers:schedule-timer
  (trivial-timers:make-timer #'facebook-refresh-feeds)
  10
  :repeat-interval 360)
