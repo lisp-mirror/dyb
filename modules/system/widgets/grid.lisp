@@ -956,19 +956,26 @@ document.getElementById(\"~A\").submit();"
                    (:i :class "icon-cog"
                        (:span :class "caret")))
           (:ul :class "dropdown-menu pull-right"
-               (loop for (title js) in items
+               (loop for (title (kind link)) in items
                      do
-                     (htm (:li (:a :href (js-link js)
-                                   (esc title)))))))))
+                     (htm (:li
+                           (ecase kind
+                             (:js
+                              (htm (:a :href (js-link link)
+                                       (esc title))))
+                             (:link
+                              (htm (:a :target "_blank"
+                                       :href link (esc title))))))))))))
+
 (defmethod list-grid-actions (grid)
   `(("Export CSV"
-     ,(format nil "window.open(\"/dyb/export-csv?grid=~a&script-name=~a\")"
-              (name grid)
-              (script-name*)))
+     (:link ,(frmt "/dyb/export-csv?grid=~a&script-name=~a)"
+                   (escape (name grid))
+                   (escape (script-name*)))))
     ("Add"
-     ,(js-render (editor grid)
-                 (js-pair "grid-name" (name grid))
-                 (js-pair "action" "new")))))
+     (:js ,(js-render (editor grid)
+                      (js-pair "grid-name" (name grid))
+                      (js-pair "action" "new"))))))
 
 (defun add-actions-menu (grid)
   (drop-down-menu (list-grid-actions grid)))

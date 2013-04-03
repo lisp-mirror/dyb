@@ -85,7 +85,7 @@
                              (:file "entities")
                              (:file "users")
                              (:file "permissions")
-                             ;;  (:file "export-csv")
+                             (:file "export-csv")
                              (:file "root-entities")
                              (:file "short-url")))))
                  (:module "administrative"
