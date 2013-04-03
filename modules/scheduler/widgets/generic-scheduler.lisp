@@ -9,6 +9,7 @@
 
 (defmethod list-grid-filters ((grid generic-actions-grid))
   '(completed-actions
+    pending-actions
     all-actions
     with-audit-data))
 
@@ -45,6 +46,9 @@
               doc)
              ((equal filter 'completed-actions)
               (if (string-equal (get-val doc 'action-status) "Completed")
+                  doc))
+             ((equal filter 'pending-actions)
+              (if (string-equal (get-val doc 'action-status) "Pending")
                   doc))
              ((equal filter 'all-actions)
               doc)
@@ -98,6 +102,7 @@
                               :name "actions-edit-tabs"
                               :header "Action"
                               :icon "card--pencil")))
+
     (setf (tabs tabs)
           `(("Action" ,
              (with-html-string
@@ -235,19 +240,23 @@ function() {$('#message-length').text($(this).val().length)})")))
                                     :required t)
                                    
                                    (str "hh:mm")))
-                         (render 
-                          form-section
-                          :label "Status"
-                          :input (with-html-string
-                                   (render-edit-field 
-                                    "action-status"
-                                    (or (parameter "action-status")
-                                        (get-val row 'action-status))
-                                    :type :select
-                                    :data (list (list "Pending" "Pending")
-                                                (list "Aborted" "Aborted")
-                                                (list "Completed" "Completed"))
-                                    :required t)))))))
+                         (if (get-val row 'id)
+                             (render 
+                              form-section
+                              :label "Status"
+                              :input (with-html-string
+                                       (render-edit-field 
+                                        "action-status"
+                                        (or (parameter "action-status")
+                                            (get-val row 'action-status))
+                                        :type :select
+                                        :data (list (list "Pending" "Pending")
+                                                    (list "Aborted" "Aborted")
+                                                    (list "Completed" "Completed"))
+                                        :required t)))
+                             (htm
+                              (:input :type "hidden" :name "action-status" 
+                                 :value "Pending")))))))
             ("Action Logs" ,
              (with-html-string
                (:div :class "section _100" 
