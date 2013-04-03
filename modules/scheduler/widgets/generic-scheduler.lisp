@@ -241,19 +241,10 @@ function() {$('#message-length').text($(this).val().length)})")))
                                    
                                    (str "hh:mm")))
                          (if (get-val row 'id)
-                             (render 
-                              form-section
-                              :label "Status"
-                              :input (with-html-string
-                                       (render-edit-field 
-                                        "action-status"
-                                        (or (parameter "action-status")
-                                            (get-val row 'action-status))
-                                        :type :select
-                                        :data (list (list "Pending" "Pending")
-                                                    (list "Aborted" "Aborted")
-                                                    (list "Completed" "Completed"))
-                                        :required t)))
+                             (htm
+                              (:input :type "hidden" :name "action-status" 
+                                 :value (get-val row 'action-status)))
+                             
                              (htm
                               (:input :type "hidden" :name "action-status" 
                                  :value "Pending")))))))
