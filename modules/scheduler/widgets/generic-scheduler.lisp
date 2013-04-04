@@ -178,28 +178,27 @@
                                                       (get-val row 'action-content)))))))
                                    (defer-js
                                        "$('[name=\"action-content\"]').bind('input propertychange',
-function() {$('#message-length').text(shortifyString($(this).val()).length)})")))
+function() {var s = shortifyString($(this).val()); $('#message-length').text(s.length);
+$('#processed-content').text(s)})")))
                          (render form-section 
                                  :label "Processed"
                                  :input 
                                  (with-html-string
                                    (:textarea
-                                          :style (format nil "width:~A;" "300px")
-                                          :class nil
-                                          :disabled t
-                                          :name "processed-content"
-                                          :cols 85 :rows 5
-                                          (str 
-                                           (escape 
-                                            (shortify-string 
-                                             (if (not (empty-p (get-val row 'post-url)))
-                                                 (format nil "~A ~A" 
-                                                         (or  (parameter "action-content") 
-                                                              (get-val row 'action-content))
-                                                         (format-short-url (short-url row)))
-                                                 (or  (parameter "action-content") 
-                                                      (get-val row 'action-content)))))))
-                                   ))
+                                    :style (format nil "width:~A;" "300px")
+                                    :class nil
+                                    :disabled t
+                                    :id "processed-content"
+                                    :cols 85 :rows 5
+                                    (esc 
+                                     (shortify-string 
+                                      (if (empty-p (get-val row 'post-url))
+                                          (or  (parameter "action-content") 
+                                               (get-val row 'action-content))
+                                          (format nil "~A ~A" 
+                                                  (or (parameter "action-content") 
+                                                      (get-val row 'action-content))
+                                                  (format-short-url (short-url row)))))))))
 
                          (render 
                           form-section
