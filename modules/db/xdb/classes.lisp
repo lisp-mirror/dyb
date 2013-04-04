@@ -130,6 +130,7 @@
     ;;Doing or because conversion is not run where session is available.
     (setf (user doc) (or (and (current-user)
                               (email (current-user)))
+                         (user doc)
                          "admin@dyb.co.za"))
     (update-doc doc :set-time set-time))
   doc)
