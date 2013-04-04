@@ -628,7 +628,8 @@ document.getElementById(\"~A\").submit();"
                           (name grid)
                           (substitute #\Space #\Newline (render-to-string (toolbar-widget grid))))))
       (defer-js
-          (format nil "$('#~a').dataTable({
+          (format nil "$('#~a').bind('page',function (){window.scrollTo(0, $('#~a').offset().top);})
+.dataTable({
 'bProcessing': true,
 'bServerSide': true,
 'sPaginationType': 'full_numbers',
@@ -649,6 +650,7 @@ document.getElementById(\"~A\").submit();"
     });
 }})"
                   (sub-name grid "table")
+                  (name grid)
                   (script-name*)
                   (name grid)
                   (toolbar-widget grid)
