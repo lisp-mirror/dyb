@@ -49,6 +49,31 @@
   (if short
       (format nil "~adyb/s/~a" *site-url* short)))
 
+
+(defun shortify-string (text)
+  (ppcre:regex-replace-all
+   "(https://|http://|www\\.)\\S+" text
+   (lambda (string start end match-start match-end &rest rest)
+     (declare (ignore start end rest))
+     (let* ((url (subseq string match-start match-end))
+            (last (alexandria:last-elt url))
+            (special-last (case last
+                            (#\)
+                             ;; For
+                             ;; http://en.wikipedia.org/wiki/Egypt_(bird)
+                             (not (find #\( url)))
+                            (t
+                             (find last ",.(:;"))))
+            (url (if special-last
+                     (subseq url 0 (1- (length url)))
+                     url))
+            (suffix (if special-last
+                        last
+                        "")))
+       (frmt "~a~a"
+             (format-short-url (make-short-url url))
+             suffix)))))
+
 (unless (short-url-collection)
   (add-collection (system-db) "short-url"
                   :collection-class 'dyb-collection

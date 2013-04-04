@@ -28,6 +28,9 @@
    (action-content :initarg :action-content
                    :initform nil
                    :accessor action-content)
+   (processed-content :initarg :processed-content
+                   :initform nil
+                   :accessor processed-content)
    (action-status :initarg :action-status
                   :initform nil
                   :accessor action-status
@@ -72,7 +75,7 @@
 
 (defun make-generic-action (channel-user post-id post-type from-user-id 
                             to-user-id action-type 
-                            action-content schedule-type
+                            action-content processed-content schedule-type
                             scheduled-date &key image-url post-url short-url
                             action-status)
   (make-instance 'generic-action 
@@ -83,6 +86,7 @@
                  :to-user-id to-user-id
                  :action-type action-type
                  :action-content action-content
+                 :processed-content processed-content
                  :image-url image-url
                  :post-url post-url
                  :short-url short-url
@@ -91,9 +95,9 @@
                  :action-status (or action-status "Pending")
                  ))
 
-(defun add-generic-action (channel-user post-id post-type from-user-id to-user-id action-type 
-                            action-content schedule-type scheduled-date 
-                       &key image-url post-url short-url)
+(defun add-generic-action (channel-user post-id post-type from-user-id to-user-id 
+                           action-type action-content schedule-type scheduled-date 
+                       &key image-url post-url short-url (shorten-urls-p t))
   (let ((dup (find-doc (generic-actions-collection)
                        :test (lambda (doc)
                                (and
@@ -110,7 +114,11 @@
         dup
         (persist (make-generic-action channel-user post-id post-type 
                                       from-user-id to-user-id action-type 
-                                      action-content schedule-type scheduled-date 
+                                      action-content 
+                                      (if shorten-urls-p
+                                          (shortify-string action-content)
+                                          action-content)
+                                      schedule-type scheduled-date 
                                       :image-url image-url
                                       :post-url post-url
                                       :short-url short-url)))))

@@ -166,6 +166,25 @@
                                    (defer-js
                                        "$('[name=\"action-content\"]').bind('input propertychange',
 function() {$('#message-length').text($(this).val().length)})")))
+
+                         (render form-section 
+                                 :label "Processed"
+                                 :input 
+                                 (with-html-string
+                                   (render-edit-field
+                                    "processed-content" 
+                                    (shortify-string (or (parameter "action-content") 
+                                                         (get-val row 'action-content)))
+                                    :required t
+                                    :type :textarea)
+                                   (:div "Characters:"
+                                         (:span :id "message-length"
+                                                (str (length (shortify-string (or (parameter "action-content") 
+                                                                                  (get-val row 'action-content)))))))
+                                   (defer-js
+                                       "$('[name=\"processed-content\"]').bind('input propertychange',
+function() {$('#message-length').text($(this).val().length)})")))
+
                          (render 
                           form-section
                           :label "Add Image"
@@ -392,18 +411,18 @@ function() {$('#message-length').text($(this).val().length)})")))
                              (make-short-url (parameter "post-url")))))
             
           (when doc
-            (let ((date-time (parse-action-date)))
+            (let ((date-time (parse-action-date))
+                  (action-content (string-trim 
+                                   '(#\space #\tab #\newline 
+                                     #\linefeed #\return) 
+                                   (sanitize-string (parameter "action-content")))))
               (cond ((xid doc)
                      (synq-edit-data doc)
                      (setf
                       (channel-user doc) (get-channel-user-by-user-id 
                                           (parameter "channel-user")
                                           (parameter "service"))
-                      (get-val doc 'action-content) 
-                      (string-trim 
-                       '(#\space #\tab #\newline 
-                         #\linefeed #\return) 
-                       (sanitize-string (parameter "action-content")))
+                      (get-val doc 'action-content) action-content
                       (get-val doc 'action-status) (parameter "action-status")
                       (post-type doc) (parameter "service")
                       (from-user-id doc) (parameter "channel-user")
@@ -411,6 +430,8 @@ function() {$('#message-length').text($(this).val().length)})")))
                       (scheduled-date doc) date-time
                       (image-url doc) image
                       (short-url doc) short-url)
+                     (setf (get-val doc 'processed-content)
+                           (shortify-string  action-content))
                      (persist doc))
                     (t
                      (persist (make-generic-action
@@ -423,10 +444,8 @@ function() {$('#message-length').text($(this).val().length)})")))
                                (parameter "channel-user") 
                                to-user 
                                (parameter "action-type")
-                               (string-trim 
-                                '(#\space #\tab #\newline 
-                                  #\linefeed #\return) 
-                                (sanitize-string (parameter "action-content")))
+                               action-content
+                               (shortify action-content)
                                "Timed"
                                date-time
                                :image-url image
