@@ -35,7 +35,7 @@
 
 (defun make-short-url (url)
   (or (find-short-url url)
-      (loop for short = (format nil "~(~32r~)" (random 999999))
+      (loop for short = (format nil "~(~32,4,'xr~)" (random 999999))
             unless (find-short-url short)
             return
             (let ((new (make-instance 'short-url
@@ -46,11 +46,11 @@
               short))))
 
 (defun format-short-url (short)
-  (if short
-      (format nil "~adyb/s/~a" *site-url* short)))
-
+  (when short
+    (format nil "~adyb/s/~a" *site-url* short)))
 
 (defun shortify-string (text)
+  ;; Should be synchronized with shortifyString in JS
   (ppcre:regex-replace-all
    "(https://|http://|www\\.)\\S+" text
    (lambda (string start end match-start match-end &rest rest)

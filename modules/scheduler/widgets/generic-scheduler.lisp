@@ -178,8 +178,7 @@
                                                       (get-val row 'action-content)))))))
                                    (defer-js
                                        "$('[name=\"action-content\"]').bind('input propertychange',
-function() {$('#message-length').text($(this).val().length)})")))
-
+function() {$('#message-length').text(shortifyString($(this).val()).length)})")))
                          (render form-section 
                                  :label "Processed"
                                  :input 
