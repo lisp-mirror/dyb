@@ -171,19 +171,15 @@ function() {$('#message-length').text($(this).val().length)})")))
                                  :label "Processed"
                                  :input 
                                  (with-html-string
-                                   (render-edit-field
-                                    "processed-content" 
-                                    (shortify-string (or (parameter "action-content") 
-                                                         (get-val row 'action-content)))
-                                    :required t
-                                    :type :textarea)
-                                   (:div "Characters:"
-                                         (:span :id "message-length"
-                                                (str (length (shortify-string (or (parameter "action-content") 
-                                                                                  (get-val row 'action-content)))))))
-                                   (defer-js
-                                       "$('[name=\"processed-content\"]').bind('input propertychange',
-function() {$('#message-length').text($(this).val().length)})")))
+                                   (:textarea
+                                          :style (format nil "width:~A;" "300px")
+                                          :class nil
+                                          :disabled t
+                                          :name "processed-content"
+                                          :cols 85 :rows 5
+                                          (str (escape (shortify-string (or (parameter "action-content") 
+                                                              (get-val row 'action-content))))))
+                                   ))
 
                          (render 
                           form-section
