@@ -203,28 +203,22 @@ function() {$('#message-length').text($(this).val().length)})")))
                                         :required nil))
                                    (:input :type "file" :name "file" :id "file"
                                            :style "display: inline-block;")))
-                         (render 
-                          form-section
-                          :label "Add Link"
-                          :input (with-html-string
-                                   (render-edit-field 
-                                    "post-url"
-                                    (or (parameter "post-url")
-                                        (get-val row 'post-url))
-                                 
-                                    :required nil)))
+
+                         (unless (empty-p (get-val row 'post-url))
+                             (render 
+                                   form-section
+                                   :label "Add Link"
+                                   :input (with-html-string
+                                            (:span (str (get-val row 'post-url)))))
                          
-                         (render 
-                          form-section
-                          :label "Shortened Link"
-                          :input (with-html-string
-                                   (render-edit-field 
-                                    "short-url"
-                                    (if (and (or (blank-p (parameter "post-url"))
-                                                 (blank-p (get-val row 'post-url)))
-                                               (short-url row))
-                                      (format-short-url (short-url row)))
-                                    :type :span)))
+                             (render 
+                              form-section
+                              :label "Shortened Link"
+                              :input (with-html-string
+                                       (render-edit-field 
+                                        "short-url"
+                                        (format-short-url (short-url row))
+                                        :type :span))))
                          (render 
                           form-section
                           :label "Select Date"
