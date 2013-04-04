@@ -156,13 +156,26 @@
                                    (render-edit-field
                                     "action-content" 
                                     (or (parameter "action-content") 
-                                        (get-val row 'action-content))
+                                        (if (not (empty-p (get-val row 'post-url)))
+                                                      
+                                                      (format nil "~A ~A" 
+                                                              (get-val row 'action-content)
+                                                              (get-val row 'post-url))
+                                                      (get-val row 'action-content)))
                                     :required t
                                     :type :textarea)
                                    (:div "Characters:"
                                          (:span :id "message-length"
-                                               (str (length (or (parameter "action-content") 
-                                                                (get-val row 'action-content))))))
+                                               (str 
+                                                (length 
+                                                 (or 
+                                                  (parameter "action-content") 
+                                                  (if (not (empty-p (get-val row 'post-url)))
+                                                      
+                                                      (format nil "~A ~A" 
+                                                              (get-val row 'action-content)
+                                                              (get-val row 'post-url))
+                                                      (get-val row 'action-content)))))))
                                    (defer-js
                                        "$('[name=\"action-content\"]').bind('input propertychange',
 function() {$('#message-length').text($(this).val().length)})")))
@@ -177,8 +190,16 @@ function() {$('#message-length').text($(this).val().length)})")))
                                           :disabled t
                                           :name "processed-content"
                                           :cols 85 :rows 5
-                                          (str (escape (shortify-string (or (parameter "action-content") 
-                                                              (get-val row 'action-content))))))
+                                          (str 
+                                           (escape 
+                                            (shortify-string 
+                                             (if (not (empty-p (get-val row 'post-url)))
+                                                 (format nil "~A ~A" 
+                                                         (or  (parameter "action-content") 
+                                                              (get-val row 'action-content))
+                                                         (format-short-url (short-url row)))
+                                                 (or  (parameter "action-content") 
+                                                      (get-val row 'action-content)))))))
                                    ))
 
                          (render 
@@ -204,21 +225,7 @@ function() {$('#message-length').text($(this).val().length)})")))
                                    (:input :type "file" :name "file" :id "file"
                                            :style "display: inline-block;")))
 
-                         (unless (empty-p (get-val row 'post-url))
-                             (render 
-                                   form-section
-                                   :label "Add Link"
-                                   :input (with-html-string
-                                            (:span (str (get-val row 'post-url)))))
                          
-                             (render 
-                              form-section
-                              :label "Shortened Link"
-                              :input (with-html-string
-                                       (render-edit-field 
-                                        "short-url"
-                                        (format-short-url (short-url row))
-                                        :type :span))))
                          (render 
                           form-section
                           :label "Select Date"
@@ -396,9 +403,7 @@ function() {$('#message-length').text($(this).val().length)})")))
                              nil
                              (format nil "~~/hunchentoot-upload/~A"
                                      (file-namestring (parameter "image-file"))))))
-              (doc (editing-row grid))
-              (short-url (if (blank-p (parameter "post-url"))
-                             (make-short-url (parameter "post-url")))))
+              (doc (editing-row grid)))
             
           (when doc
             (let ((date-time (parse-action-date))
@@ -418,8 +423,7 @@ function() {$('#message-length').text($(this).val().length)})")))
                       (from-user-id doc) (parameter "channel-user")
                       (get-val doc 'image-url) image
                       (scheduled-date doc) date-time
-                      (image-url doc) image
-                      (short-url doc) short-url)
+                      (image-url doc) image)
                      (setf (get-val doc 'processed-content)
                            (shortify-string  action-content))
                      (persist doc))
@@ -440,7 +444,6 @@ function() {$('#message-length').text($(this).val().length)})")))
                                date-time
                                :image-url image
                                :post-url (parameter "post-url")
-                               :short-url short-url
                                :action-status (parameter "action-status"))))))
             (finish-editing grid)))))))
 
