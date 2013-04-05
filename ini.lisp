@@ -5,18 +5,18 @@
 (defclass dyb-acceptor (site-acceptor)
   ())
 
-(defvar *acceptor*
+(defvar *dx-acceptor*
   (make-dx-site 'dyb-acceptor
                 :port 8090
                 :site-url "/dyb/"
                 :debug-errors-p t))
 
 (defmacro define-easy-handler (description lambda-list &body body)
-  `(define-dx-handler *acceptor* ,description ,lambda-list
+  `(define-dx-handler *dx-acceptor* ,description ,lambda-list
      ,@body))
 
 (defmacro defajax (name lambda-list &body body)
-  `(define-dx-ajax *acceptor* ,name ,lambda-list
+  `(define-dx-ajax *dx-acceptor* ,name ,lambda-list
      ,@body))
 
 (defmethod render-error-page ((acceptor dyb-acceptor) &key condition)
