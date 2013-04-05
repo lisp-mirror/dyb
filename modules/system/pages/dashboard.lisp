@@ -892,12 +892,15 @@
                            range-hash)
                   val)))
         (setf ranges-hash-list (append ranges-hash-list (list range-hash)))))
-    
+    ;(break "?")
     (maphash   
      (lambda (key value)
        (let ((current-val value))
          (dolist (range-hash (rest ranges-hash-list))
-           (setf current-val (* current-val (gethash key range-hash))))
+           ;;stop crashes of ranges that are not in synq
+           (if (gethash key range-hash)
+               (setf current-val (* current-val (gethash key range-hash)))
+               ))
          
          (setf (gethash key data-hash) current-val)))
      (first ranges-hash-list))
@@ -1377,7 +1380,8 @@
                                                                               ("Retweets" ,(gv 'twitter-retweets))
                                                    
                                                                               ;;("FB Shares" ,(gv 'fb-story-adds-count))
-                                                                              ("Mentions" ,(gv 'twitter-at-mentions-followers-count))
+                                                                              ("Mentions" ,(gv 'twitter-at-mentions-count)
+                                                                                          )
                                                                               ;;("Direct Messages" 0)
                                                                               ))
                                                                            (format nil "[~A,~A,~A,~A,~A]" 
@@ -1385,7 +1389,7 @@
                                                                                    (gv 'short-url-clicks-count)
                                                                                    (gv 'fb-comments-made-count) 
                                                                                    (gv 'twitter-retweets)
-                                                                                   (gv 'twitter-at-mentions-followers-count)
+                                                                                   (gv 'twitter-at-mentions-count)
                                                                                    )))
                                                     (:div :class "span2"
                                                           (:div :class "summary"
@@ -1514,7 +1518,7 @@
                                 :tooltip "Then number of new followers aquired.")))
                             (str 
                              (let* ((tweets-followers (multiply-ranges (list (gv 'tweets-scheduled-list)
-                                                                            (gv 'twitter-followers-interval-list))) )
+                                                                             (gv 'twitter-followers-interval-list))) )
                                    
                                    (impressions (strip-dates-from-range 
                                                  
