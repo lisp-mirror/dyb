@@ -18,12 +18,6 @@
 
 (defvar *version* "0.1.00.05")
 
-(defparameter *salt-length* 10)
-
-(defun textually-equal-p (a b)
-  (string-equal (princ-to-string a)
-                (princ-to-string b)))
-
 (defun context-entities ()
   (if (stringp (session-value 'context-entities))
       (safe-read-from-string (session-value 'context-entities))

@@ -55,13 +55,6 @@
 (defmethod doc-collection ((doc user))
   (users-collection))
 
-(defvar *min-passwrod-length* 5)
-
-(defun make-password (password)
-  (let* ((salt (generate-salt))
-         (password (hash-password password salt)))
-    (values password salt)))
-
 (defun make-user (email password &key permissions
                   accessible-entities
                   preferences
