@@ -10,7 +10,7 @@
     (cond (url
            (incf (click-count url))
            (persist url)
-           (redirect (url url)))
+           (redirect-external (url url)))
           (t
            (setf (return-code*) +http-not-found+)
            (abort-request-handler)))))
