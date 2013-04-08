@@ -118,7 +118,6 @@
 (defun user-list ()
   (let ((u-list))
     (dolist (doc (coerce (users) 'list))
-      ;;TODO: Match entities
       (dolist (entity (get-val doc 'accessible-entities))
         
         (if (find entity (context))
@@ -127,3 +126,11 @@
                                                       (get-val doc 'email)))))))))
     u-list))
 
+(defun context-users-list ()
+  (let ((u-list))
+    (dolist (doc (coerce (users) 'list))
+      (dolist (entity (get-val doc 'accessible-entities))
+        
+        (if (find entity (context))
+            (setf u-list (append u-list doc)))))
+    u-list))

@@ -575,7 +575,7 @@
                                   (str title))
                             ))))))
 
-(defun network-size-graph (min-date max-date data interval)
+(defun %network-size-graph (min-date max-date data interval)
   
   (with-html-string
     (:div :class "span9"
@@ -631,7 +631,7 @@
                                 :shadow "false"))
                         (render network-size)))))))
 
-(defun engagement-graph (data data-lables)
+(defun %engagement-graph (data data-lables)
   (with-html-string
     (:div :class "span6"
           (:div :class "graph-wrap"
@@ -1185,309 +1185,381 @@
        (short-url-clicks
          prev-istd 
          prev-iend))
+      (sv 'likedin-connections-count
+          (linkedin-connections-count))
 
       )
     calc-values))
 
 
+(defparameter *calc-values* nil)
+
+(defun gv (key)
+  (gethash key *calc-values*))
+
+
+(defun reach-small-graph ()
+  (with-html-to-string ()
+   (let* ((prev (+  
+                 (or-zero (reverse (gv '(gv 'fb-fans-interval-prev-list))))
+                 (gv 'fb-page-impressions-prev-count)
+                 (gv 'twitter-followers-prev-count)
+                 (* (gv 'twitter-followers-prev-count)
+                    (gv 'tweets-scheduled-prev-count))      
+                 (gv 'twitter-retweets-prev)
+                 (gv 'twitter-at-mentions-prev-count)
+                 ;;linkedin-connections-count
+                 ))
+          (cur (+  
+                (or-zero (reverse (gv 'fb-fans-interval-list)))
+                (gv 'fb-page-impressions-count)
+                (gv 'twitter-followers-count)
+                (* (gv 'twitter-followers-count)
+                   (gv 'tweets-scheduled-count))
+                (gv 'twitter-retweets)
+                (gv 'twitter-at-mentions-count)
+               ;; linkedin-connections-count
+                )))
+     (str (dash-small-stat-graph  
+           "Reach"
+           "new-visits"
+           (format nil "~A,~A" 
+                   prev
+                   cur)  
+           cur
+           (calc-prev-cur-percentage prev cur) 
+           :tooltip "FB-Fans + FB-Page-Impressions + TW-Followers + (TW-Followers * Scheduled-Tweets) + Retweets + TW-Mentions")))))
+
+(defun activity-small-graph ()
+  (with-html-to-string ()
+    (str (dash-small-stat-graph 
+          "Activity"
+          "unique-visits"
+          (format nil "~A,~A" 
+                  (gv 'posts-scheduled-prev-count)
+                  (gv 'posts-scheduled-count))
+          (gv 'posts-scheduled-count)
+          (calc-prev-cur-percentage 
+           (gv 'posts-scheduled-prev-count) 
+           (gv 'posts-scheduled-count))
+          :tooltip "Posts Scheduled"))))
+
+(defun engagement-small-graph ()
+  (with-html-to-string ()
+    (str (let ((prev (+ (gv 'fb-post-likes-prev-count)                                                    
+                        (gv 'fb-comments-made-prev-count)
+                        (gv 'twitter-retweets-prev)
+                        (gv 'twitter-at-mentions-followers-prev-count)
+                        (gv 'short-url-clicks-prev-count)))
+               (cur (+ (gv 'fb-post-likes-count)
+                       (gv 'fb-comments-made-count)
+                       (gv 'twitter-retweets)
+                       (gv 'twitter-at-mentions-followers-count)
+                       (gv 'short-url-clicks-count))))
+           (dash-small-stat-graph 
+            "Engagement"
+            "weekly-sales"
+            (format nil "~A,~A" 
+                    prev
+                    cur)
+            cur
+            (calc-prev-cur-percentage prev cur)
+            :tooltip "FB-Post-Likes + FB-Comments + Retweets + (TW-Mentions * Mentioner-Followers) + Clicks")))))
+
+(defun engagement-pie-graph ()
+  (with-html-to-string ()
+    (str (%engagement-graph `((("Post Likes" ,(gv 'fb-post-likes-count))
+                              ("Shortner Clicks" ,(gv 'short-url-clicks-count))
+                              ("Comments" ,(gv 'fb-comments-made-count))
+                              ("Retweets" ,(gv 'twitter-retweets))
+                                                   
+                              ;;("FB Shares" ,(gv 'fb-story-adds-count))
+                              ("Mentions" ,(gv 'twitter-at-mentions-count)
+                                          )
+                              ;;("Direct Messages" 0)
+                              ))
+                           (format nil "[~A,~A,~A,~A,~A]" 
+                                   (gv 'fb-post-likes-count) 
+                                   (gv 'short-url-clicks-count)
+                                   (gv 'fb-comments-made-count) 
+                                   (gv 'twitter-retweets)
+                                   (gv 'twitter-at-mentions-count))))))
+
+(defun current-community-size ()
+  (with-html-to-string ()
+      (:div :class "summary"
+            (:h4 "CURRENT COMMUNITY SIZE")
+            (:br)
+            (:ul
+             (:li
+              (str (community-summary-item  
+                    "All Accounts"
+                    (+ 
+                     (or-zero (reverse (gv 'fb-fans-interval-list)) )
+                     (gv 'twitter-followers-count)
+                     (gv 'linkedin-connections-count))
+                    "/appimg/user-accounts.png"
+                    "All Accounts"
+                    nil)))
+             (:li
+              (str (community-summary-item  
+                    " Facebook"
+                    (or-zero (reverse (gv 'fb-fans-interval-list)) )
+                    "/appimg/Facebook_Light_Logo.png"
+                    "Facebook Friends"
+                    t)))
+             (:li
+              (str (community-summary-item  
+                    " Twitter"
+                    (gv 'twitter-followers-count)
+                    "/appimg/twitter-bird-white-on-blue.png"
+                    "Twitter Followers"
+                    t)))
+             (:li
+              (str (community-summary-item  
+                    " LinkedIn"
+                    (gv 'linkedin-connections-count)
+                    "/appimg/linkedin-icon.png"
+                    "LinkedIn Connections"
+                    t)))))))
+
+(defun network-size-graph (min-date max-date interval)
+  (with-html-to-string ()
+    (str (%network-size-graph
+          (format-universal-date-dash min-date)
+          (format-universal-date-dash max-date)
+          (if (and (gv 'twitter-followers-interval-list) (gv 'fb-fans-interval-list))
+              `((,@(gv 'twitter-followers-interval-list))
+                (,@(gv 'fb-fans-interval-list)))
+              (if (gv 'twitter-followers-interval-list)
+                  `((,@(gv 'twitter-followers-interval-list)))
+                  (if (gv 'fb-fans-interval-list)
+                      `((,@(gv 'fb-fans-interval-list))) )))
+          interval))))
+
+(defun fb-new-page-likes-graph ()
+  (with-html-to-string ()
+   (str (board-stats  
+         (create-bar-range-string 
+          (gv 'fb-fans-adds-interval-list) 7) 
+         "New Page Likes" 
+         (list "facebook_like") 
+         "bar-chart" "span3"
+         :tooltip "The number of new people who have liked your Page."))))
+
+(defun fb-page-impressions-graph ()
+  (with-html-to-string ()
+    (str (board-stats 
+          (create-bar-range-string 
+           (gv 'fb-impressions-interval-list) 7)
+          "Page Impressions" 
+          (list "documents")
+          "bar-chart" "span3"
+          :tooltip "The total number of impressions seen of any content associated with your Page."))))
+(defun fb-total-fans-graph ()
+  (with-html-to-string ()
+    (str (board-stats 
+          (create-bar-range-string 
+           (gv 'fb-fans-interval-list) 7)
+          "Total Fans" 
+          (list "users")
+          "bar-chart" "span3"
+          :tooltip "The total number of people who have liked your Page."))))
+
+
+
+(defun fb-page-unlikes-graph ()
+  (with-html-to-string ()
+    (str (board-stats  
+          (create-bar-range-string 
+           (gv 'fb-fans-removes-interval-list) 7) 
+          "Page Unlikes" 
+          (list "facebook_unlike") 
+          "bar-chart" "span3"
+          :tooltip "Unlikes of your Page."))))
+
+
+(defun tw-new-followers-graph ()
+  (with-html-to-string ()
+    (str 
+     (let ((new-followers (strip-dates-from-range 
+                           (reverse (gv 'twitter-followers-interval-list)) 8)))
+                               
+       (board-stats 
+        (format nil "~A,~A,~A,~A,~A,~A,~A" 
+                (- (fix-nan (nth 6 new-followers)) (fix-nan (nth 7 new-followers)))
+                (- (fix-nan (nth 5 new-followers)) (fix-nan (nth 6 new-followers)))
+                (- (fix-nan (nth 4 new-followers)) (fix-nan (nth 5 new-followers)))
+                (- (fix-nan (nth 3 new-followers)) (fix-nan (nth 4 new-followers)))
+                (- (fix-nan (nth 2 new-followers)) (fix-nan (nth 3 new-followers)))
+                (- (fix-nan (nth 1 new-followers)) (fix-nan (nth 2 new-followers)))
+                (- (fix-nan (nth 0 new-followers)) (fix-nan (nth 1 new-followers))))
+                                  
+                                  
+        "New Followers" 
+        (list "users") 
+        "bar-chart" "span3"
+        :tooltip "Then number of new followers aquired.")))))
+
+(defun tw-impressions-graph ()
+  (with-html-to-string ()
+    (str 
+     (let* ((tweets-followers 
+             (multiply-ranges (list (gv 'tweets-scheduled-list)
+                                    (gv 'twitter-followers-interval-list))) )
+                                   
+            (impressions (strip-dates-from-range 
+                          (merge-ranges (list tweets-followers (gv 'twitter-at-mentions-followers-list)))
+                          7)))
+                            (board-stats                                 
+        (format nil "~A,~A,~A,~A,~A,~A,~A" 
+                (fix-nan (nth 6 impressions))
+                (fix-nan (nth 5 impressions))
+                (fix-nan (nth 4 impressions))
+                (fix-nan (nth 3 impressions))
+                (fix-nan (nth 2 impressions))
+                (fix-nan (nth 1 impressions))
+                (fix-nan (nth 0 impressions))
+                            
+                )
+        "Impressions" 
+        (list "documents")
+        "bar-chart" "span3"
+        :tooltip "The number of tweets scheduled * followers + mentions in tweets.")))))
+
+(defun tw-total-fans-graph ()
+  (with-html-to-string ()
+    (str
+     (board-stats (create-bar-range-string 
+                   (gv 'twitter-followers-interval-list) 7)
+                  "Total Fans" 
+                  (list "users")
+                  "bar-chart" "span3"
+                  :tooltip "Total number of followers."))))
+(defun tw-un-followed-graph ()
+  (with-html-to-string ()
+    (str 
+     (let ((new-followers (strip-dates-from-range 
+                           (reverse (gv 'twitter-followers-interval-list)) 8)))
+       ;;(break "~a" (reverse (gv 'twitter-followers-interval-list)))
+       (board-stats 
+        (format nil "~A,~A,~A,~A,~A,~A,~A" 
+                (- (fix-nan (nth 7 new-followers)) (fix-nan (nth 6 new-followers)) )
+                (- (fix-nan (nth 6 new-followers)) (fix-nan (nth 5 new-followers)) )
+                (- (fix-nan (nth 5 new-followers)) (fix-nan (nth 4 new-followers)) )
+                (- (fix-nan (nth 4 new-followers)) (fix-nan (nth 3 new-followers)) )
+                (- (fix-nan (nth 3 new-followers)) (fix-nan (nth 2 new-followers)) )
+                (- (fix-nan (nth 2 new-followers)) (fix-nan (nth 1 new-followers)) )
+                (- (fix-nan (nth 1 new-followers)) (fix-nan (nth 0 new-followers)) ))
+                                  
+                                  
+        "Un-Followed" 
+        (list "users") 
+        "bar-chart" "span3"
+        :tooltip "The number of followers that was lost.")))))
+
+(defun get-list-of-context-users ()
+  (loop for user across (users)
+       when (match-context-entities user)
+       collect user))
+
+(defun get-list-posts-user (user)  
+  (loop for post across (generic-posts)
+     when (or (string-equal (get-val (get-val post 'user) 'email) 
+                            (get-val user 'email))
+              ;;doing this because in some old data the system posted all
+              ;;scheduled posts as admin instead of using the correct user
+              (if (string-equal (get-val (get-val post 'user) 'email)
+                                "admin@dyb.co.za")
+                  (or (find  (get-val (get-val post 'user) 'email)
+                            (old-versions post)
+                            :test 'string-equal)
+                      user)))
+       
+       collect post))
+
+(defun users-stats ()
+  (let ((users (context-users-list))
+        (posts-hash (make-hash-table :test 'equal)))
+    (dolist (user users)
+      (setf (gethash (get-val user 'email)
+                       posts-hash)
+              (get-list-posts-user user))
+      ))
+  )
 
 (define-easy-handler (dashboard-page :uri "/dyb/dashboard") ()
   (multiple-value-bind (interval interval-start-date interval-end-date)
       (calc-date-interval)
-    (let* (
-           
-               (page (make-widget 'page :name "dashboard-page"))
-               (now (universal-today))
-               (previous-interval-start-date 
-                (- now (* +24h-secs+ (* interval 2))))
-               (previous-interval-end-date 
-                (- now (* +24h-secs+ interval)))
+    (let* ((page (make-widget 'page :name "dashboard-page"))
+           (now (universal-today))
+           (previous-interval-start-date 
+            (- now (* +24h-secs+ (* interval 2))))
+           (previous-interval-end-date 
+            (- now (* +24h-secs+ interval)))
 
-               (calc-values (set-calc-vals 
-                             interval-start-date 
-                             interval-end-date
-                             previous-interval-start-date 
-                             previous-interval-end-date))
-
-
-           
-           (linkedin-connections-count (linkedin-connections-count))
-           )
-
-      (flet ((gv (key)
-                (gethash key   calc-values)))
-
-        (with-html
-      
+           (*calc-values* (set-calc-vals 
+                         interval-start-date 
+                         interval-end-date
+                         previous-interval-start-date 
+                         previous-interval-end-date)))
+     ;; (break "~A" (users-stats))
+      (with-html
           (render page
                   :body 
                   (with-html-to-string ()
                     (:div :class "container-fluid"
-                          #|
-                          (:div :class "page-header"
-                          (:h1 "Dashboard"))
-                          (:ul :class "breadcrumb"
-                          (:li (:a :href "#" "Home")
-                          (:span :class "divider" "&raquo;"))
-                          (:li :class "active" "Dashboard"))
-                          (:div :class "dashboard-widget"
+                          (str (interval-selection))
                           (:div :class "row-fluid"
-                          (str (dash-menu-item "Inbox" 
-                          "mail_blk" 
-                          "/dyb/generic"))
-                          (str (dash-menu-item "Scheduler" 
-                          "month_calendar_blk" 
-                          "/dyb/generic-scheduler"))
-                          (str (dash-menu-item "Search Streams" 
-                          "magnifying_glass_blk" 
-                          "/dyb/search-stream"))
-                          (str (dash-menu-item "Reporting" 
-                          "graph_blk" 
-                          "#"))
-                          (str (dash-menu-item "Settings" 
-                          "cog_2_blk" 
-                          "#"))
-                          (str (dash-menu-item "Help" 
-                          "help_blk" 
-                          "#"))
+                                (:div :class "nonboxy-widget"
+                                      (:div :class "widget-head"
+                                            (:h5 (:i :class "black-icons month_calendar")
+                                                 (str "Overview")))
+                                      (:div :class "widget-content"
+                                            (:div :class "widget-box"
+                                                  (:div :class "row-fluid"
+                                                        (str (reach-small-graph))
+                                                        (str (activity-small-graph))
+                                                        (str (engagement-small-graph)))))))
+
+                          (:div :class "row-fluid"
+                                (:div :class "nonboxy-widget"
+                                      (:div :class "widget-head"
+                                            (:h5 (:i :class "black-icons month_calendar")
+                                                 (str "Network")))
                                   
-                          ))
-                          |#
-                      
-                      (str (interval-selection))
+                                      (:div :class "widget-content"
+                                            (:div :class "widget-box"
+                                                  (str (network-size-graph    
+                                                        interval-start-date
+                                                        interval-end-date
+                                                        interval))))))
+                          (:div :class "row-fluid"
+                                (:div :class "nonboxy-widget"
+                                      (:div :class "widget-head"
+                                            (:h5 (:i :class "black-icons month_calendar")
+                                                 (str "Engagement & Community")))
 
+                                      (:div :class "widget-content"
+                                            (:div :class "widget-box"
+                                                  (:div :class "row-fluid"
+                                                        (str (engagement-pie-graph))
+                                                        (:div :class "span2"))))))
 
-                      (:div :class "row-fluid"
-          (:div :class "nonboxy-widget"
-                (:div :class "widget-head"
-                      (:h5 (:i :class "black-icons month_calendar")
-                           (str "Overview")))
+                          (:div :class "row-fluid"
+                                (:div :class "nonboxy-widget"
+                                      (:div :class "widget-head"
+                                            (:h5 (:i :class "black-icons facebook")
+                                                 "FACEBOOK (Last 7 Days)"))
 
-                (:div :class "widget-content"
-                      (:div :class "widget-box"
-
-                            
-                            (:div :class "row-fluid"
-                            
-                                  (str (let* ((prev (+  
-                                                     (or-zero (reverse (gv '(gv 'fb-fans-interval-prev-list))))
-                                                     (gv 'fb-page-impressions-prev-count)
-                                                     (gv 'twitter-followers-prev-count)
-                                                     (* (gv 'twitter-followers-prev-count)
-                                                        (gv 'tweets-scheduled-prev-count))      
-                                                     (gv 'twitter-retweets-prev)
-                                                     (gv 'twitter-at-mentions-followers-prev-count)
-                                                     ;;(gv 'twitter-at-mentions-prev-count)
-                                                     linkedin-connections-count))
-                                              (cur (+  
-                                                    (or-zero (reverse (gv 'fb-fans-interval-list)))
-                                                    (gv 'fb-page-impressions-count)
-                                                    (gv 'twitter-followers-count)
-                                                    (* (gv 'twitter-followers-count)
-                                                       (gv 'tweets-scheduled-count))
-                                                    (gv 'twitter-retweets)
-                                                    ;;(gv 'twitter-at-mentions-followers-prev-count)
-                                                    (gv 'twitter-at-mentions-count)
-                                                    linkedin-connections-count)))
-                                         (dash-small-stat-graph  
-                                          "Reach"
-                                          "new-visits"
-                                          (format nil "~A,~A" 
-                                                  prev
-                                                  cur)  
-                                          cur
-                                          (calc-prev-cur-percentage prev cur) 
-                                          :tooltip "FB-Fans + FB-Page-Impressions + TW-Followers + (TW-Followers * Scheduled-Tweets) + Retweets + TW-Mentions")))
-                                  (str (dash-small-stat-graph 
-                                          "Activity"
-                                          "unique-visits"
-                                          (format nil "~A,~A" 
-                                                  (gv 'posts-scheduled-prev-count)
-                                                  (gv 'posts-scheduled-count))
-                                          (gv 'posts-scheduled-count)
-                                          (calc-prev-cur-percentage 
-                                           (gv 'posts-scheduled-prev-count) 
-                                           (gv 'posts-scheduled-count))
-                                          :tooltip "Posts Scheduled"))
-                                  (str (let ((prev (+ (gv 'fb-fans-adds-prev-count)
-                                                    
-                                                      (gv 'fb-comments-made-prev-count)
-                                                      ;;(- (gv 'fb-story-adds-count) 
-                                                      ;;   (gv 'fb-fans-adds-count)
-                                                      ;;   (gv 'fb-comments-made-count))
-                                                      (gv 'twitter-retweets-prev)
-                                                      (gv 'twitter-at-mentions-followers-prev-count)
-                                                      ;;(gv 'twitter-at-mentions-prev-count)
-                                                      (gv 'short-url-clicks-prev-count)))
-                                             (cur (+ (gv 'fb-fans-adds-count)
-                                                    
-                                                     (gv 'fb-comments-made-count)
-                                                     ;;(- (gv 'fb-story-adds-prev-count) 
-                                                     ;;   (gv 'fb-fans-adds-prev-count)
-                                                     ;;   (gv 'fb-comments-made-prev-count))
-                                                     (gv 'twitter-retweets)
-                                                     (gv 'twitter-at-mentions-followers-count)
-                                                     ;;(gv 'twitter-at-mentions-count)
-                                                     (gv 'short-url-clicks-count))))
-                                         (dash-small-stat-graph 
-                                          "Engagement"
-                                          "weekly-sales"
-                                          (format nil "~A,~A" 
-                                                  prev
-                                                  cur)
-                                          cur
-                                          (calc-prev-cur-percentage prev cur)
-                                          :tooltip "FB-Fan-Adds + FB-Comments + Retweets + (TW-Mentions * Mentioner-Followers) + Clicks"))))
-                            )
-                      )))
-
-                      (:div :class "row-fluid"
-                            (:div :class "nonboxy-widget"
-                                  (:div :class "widget-head"
-                                        (:h5 (:i :class "black-icons month_calendar")
-                                             (str "Network")))
-                                  
-                                  (:div :class "widget-content"
-                                        (:div :class "widget-box"
-                                              (str (network-size-graph  
-                                                    (format-universal-date-dash interval-start-date)
-                                                    (format-universal-date-dash interval-end-date)
-                                                    (if (and (gv 'twitter-followers-interval-list) (gv 'fb-fans-interval-list))
-                                                        `((,@(gv 'twitter-followers-interval-list))
-                                                          (,@(gv 'fb-fans-interval-list)))
-                                                        (if (gv 'twitter-followers-interval-list)
-                                                            `((,@(gv 'twitter-followers-interval-list)))
-                                                            (if (gv 'fb-fans-interval-list)
-                                                                `((,@(gv 'fb-fans-interval-list))) )))
-                                                      
-                                                    
-
-                                                     interval))
-                                              )
-                                        )))
-                      (:div :class "row-fluid"
-                            (:div :class "nonboxy-widget"
-                                  (:div :class "widget-head"
-                                        (:h5 (:i :class "black-icons month_calendar")
-                                             (str "Engagement & Community")))
-
-                                  (:div :class "widget-content"
-                                        (:div :class "widget-box"
-                                              (:div :class "row-fluid"
-                                                    (str (engagement-graph `((("Post Likes" ,(gv 'fb-post-likes-count))
-                                                                              ("Shortner Clicks" ,(gv 'short-url-clicks-count))
-                                                                              ("Comments" ,(gv 'fb-comments-made-count))
-                                                                              ("Retweets" ,(gv 'twitter-retweets))
-                                                   
-                                                                              ;;("FB Shares" ,(gv 'fb-story-adds-count))
-                                                                              ("Mentions" ,(gv 'twitter-at-mentions-count)
-                                                                                          )
-                                                                              ;;("Direct Messages" 0)
-                                                                              ))
-                                                                           (format nil "[~A,~A,~A,~A,~A]" 
-                                                                                   (gv 'fb-post-likes-count) 
-                                                                                   (gv 'short-url-clicks-count)
-                                                                                   (gv 'fb-comments-made-count) 
-                                                                                   (gv 'twitter-retweets)
-                                                                                   (gv 'twitter-at-mentions-count)
-                                                                                   )))
-                                                    (:div :class "span2"
-                                                          (:div :class "summary"
-                                                                (:h4 "CURRENT COMMUNITY SIZE")
-                                                                (:br)
-                                                                (:ul
-                                                                 (:li
-                                                                  (str (community-summary-item  
-                                                                        "All Accounts"
-                                                                        (+ 
-                                                                         (or-zero (reverse (gv 'fb-fans-interval-list)) )
-                                                                         ;;fb-fans-count
-                                                                         (gv 'twitter-followers-count)
-                                                                         ;;linkedin-connections-count
-                                                                         ;;TODO: linkeded in followers
-                                                                         )
-                                                                        "/appimg/user-accounts.png"
-                                                                        "All Accounts"
-                                                                        nil
-                                                                        )))
-                                                                 (:li
-                                                                  (str (community-summary-item  
-                                                                        " Facebook"
-                                                                        (or-zero (reverse (gv 'fb-fans-interval-list)) )
-                                                                        "/appimg/Facebook_Light_Logo.png"
-                                                                        "Facebook Friends"
-                                                                        t
-                                                                        ))
-                                          
-                                                                  )
-                                                                 (:li
-                                                                  (str (community-summary-item  
-                                                                        " Twitter"
-                                                                        (gv 'twitter-followers-count)
-                                                                        "/appimg/twitter-bird-white-on-blue.png"
-                                                                        "Twitter Followers"
-                                                                        t
-                                                                        ))
-                                          
-                                                                  )
-                                                                 (:li
-                                                                  (str (community-summary-item  
-                                                                        " LinkedIn"
-                                                                        linkedin-connections-count
-                                                                        "/appimg/linkedin-icon.png"
-                                                                        "LinkedIn Connections"
-                                                                        t
-                                                                        ))))))) 
-                                              )
-                                        )
-
-                                 ))
-
-                   (:div :class "row-fluid"
-                            (:div :class "nonboxy-widget"
-                                  (:div :class "widget-head"
-                                        (:h5 (:i :class "black-icons facebook")
-                                             "FACEBOOK (Last 7 Days)"))
-
-                                  (:div :class "widget-content"
-                                        (:div :class "widget-box"
-                                              (:div :class "row-fluid"
-                            
-                            (str (board-stats  (create-bar-range-string 
-                                                (gv 'fb-fans-adds-interval-list) 7) 
-                                              "New Page Likes" 
-                                              (list "facebook_like") 
-                                              "bar-chart" "span3"
-                                              :tooltip "The number of new people who have liked your Page."))
-                            (str (board-stats (create-bar-range-string 
-                                               (gv 'fb-impressions-interval-list) 7)
-                                              "Page Impressions" 
-                                              (list "documents")
-                                              "bar-chart" "span3"
-                                              :tooltip "The total number of impressions seen of any content associated with your Page."))
-                            (str (board-stats 
-                                              (create-bar-range-string 
-                                                (gv 'fb-fans-interval-list) 7)
-                                              "Total Fans" 
-                                              (list "users")
-                                              "bar-chart" "span3"
-                                              :tooltip "The total number of people who have liked your Page."))
-                            (str (board-stats  (create-bar-range-string 
-                                                (gv 'fb-fans-removes-interval-list) 7) 
-                                              "Page Unlikes" 
-                                              (list "facebook_unlike") 
-                                              "bar-chart" "span3"
-                                              :tooltip "Unlikes of your Page."))
-                            #|(str (board-stats "0,0"
-                            "Demographics" 
-                            (list "male_contour" "female_contour")
-                            "pie-chart" "span2"))|#
-                            )))))
-                   
-                
-                      
-                      
-                      (:div :class "row-fluid"
+                                      (:div :class "widget-content"
+                                            (:div :class "widget-box"
+                                                  (:div :class "row-fluid"
+                                                        (str (fb-new-page-likes-graph))
+                                                        (str (fb-page-impressions-graph))
+                                                        (str (fb-total-fans-graph))
+                                                        (str (fb-page-unlikes-graph)))))))
+                        (:div :class "row-fluid"
                             (:div :class "nonboxy-widget"
                                   (:div :class "widget-head"
                                         (:h5 (:i :class "black-icons twitter")
@@ -1496,114 +1568,10 @@
                                   (:div :class "widget-content"
                                         (:div :class "widget-box"
                                               (:div :class "row-fluid"
-                            
-                            (str 
-                             (let ((new-followers (strip-dates-from-range 
-                                                   (reverse (gv 'twitter-followers-interval-list)) 8)))
-                               
-                               (board-stats 
-                                (format nil "~A,~A,~A,~A,~A,~A,~A" 
-                                        (- (fix-nan (nth 6 new-followers)) (fix-nan (nth 7 new-followers)))
-                                        (- (fix-nan (nth 5 new-followers)) (fix-nan (nth 6 new-followers)))
-                                        (- (fix-nan (nth 4 new-followers)) (fix-nan (nth 5 new-followers)))
-                                        (- (fix-nan (nth 3 new-followers)) (fix-nan (nth 4 new-followers)))
-                                        (- (fix-nan (nth 2 new-followers)) (fix-nan (nth 3 new-followers)))
-                                        (- (fix-nan (nth 1 new-followers)) (fix-nan (nth 2 new-followers)))
-                                        (- (fix-nan (nth 0 new-followers)) (fix-nan (nth 1 new-followers))))
-                                  
-                                  
-                                "New Followers" 
-                                (list "users") 
-                                "bar-chart" "span3"
-                                :tooltip "Then number of new followers aquired.")))
-                            (str 
-                             (let* ((tweets-followers (multiply-ranges (list (gv 'tweets-scheduled-list)
-                                                                             (gv 'twitter-followers-interval-list))) )
-                                   
-                                   (impressions (strip-dates-from-range 
-                                                 
-                                                 (merge-ranges (list tweets-followers (gv 'twitter-at-mentions-followers-list)))
-                                                 7)))
-                               
-                                (board-stats  
-                               
-                                 (format nil "~A,~A,~A,~A,~A,~A,~A" 
-                                         (fix-nan (nth 6 impressions))
-                                         (fix-nan (nth 5 impressions))
-                                         (fix-nan (nth 4 impressions))
-                                         (fix-nan (nth 3 impressions))
-                                         (fix-nan (nth 2 impressions))
-                                         (fix-nan (nth 1 impressions))
-                                         (fix-nan (nth 0 impressions))
-                            
-                                        )
-                                 "Impressions" 
-                                 (list "documents")
-                                 "bar-chart" "span3"
-                                 :tooltip "The number of tweets scheduled * followers + mentions in tweets.")))
-                            
-                            (str
-                             
-                             (board-stats (create-bar-range-string 
-                                                (gv 'twitter-followers-interval-list) 7)
-                                              "Total Fans" 
-                                              (list "users")
-                                              "bar-chart" "span3"
-                                              :tooltip "Total number of followers."))
-                            (str 
-                             (let ((new-followers (strip-dates-from-range 
-                                                   (reverse (gv 'twitter-followers-interval-list)) 8)))
-                               ;;(break "~a" (reverse (gv 'twitter-followers-interval-list)))
-                               (board-stats 
-                                (format nil "~A,~A,~A,~A,~A,~A,~A" 
-                                        (- (fix-nan (nth 7 new-followers)) (fix-nan (nth 6 new-followers)) )
-                                        (- (fix-nan (nth 6 new-followers)) (fix-nan (nth 5 new-followers)) )
-                                        (- (fix-nan (nth 5 new-followers)) (fix-nan (nth 4 new-followers)) )
-                                        (- (fix-nan (nth 4 new-followers)) (fix-nan (nth 3 new-followers)) )
-                                        (- (fix-nan (nth 3 new-followers)) (fix-nan (nth 2 new-followers)) )
-                                        (- (fix-nan (nth 2 new-followers)) (fix-nan (nth 1 new-followers)) )
-                                        (- (fix-nan (nth 1 new-followers)) (fix-nan (nth 0 new-followers)) ))
-                                  
-                                  
-                                "Un-Followed" 
-                                (list "users") 
-                                "bar-chart" "span3"
-                                :tooltip "The number of followers that was lost.")))
-                            #|(str (board-stats "0,0"
-                            "Demographics" 
-                            (list "male_contour" "female_contour")
-                            "pie-chart" "span2"))|#
-                            )))))
-
-
-
-                      
-                      
-                      #|
-                          (:div :class "page-header"
-                (:h3 (:span :class "black-icons linkedin" 
-                :style "margin-top:1px;" )
-                "LINKEDIN") )
-                          (:div :class "row-fluid"
-                            
-                (str (board-stats (format nil "0,~A" linkedin-connections-count) 
-                "New Connections" 
-                (list "facebook_like") 
-                "bar-chart" "span3"))
-                (str (board-stats (format nil "0,~A" 0)
-                "Page Impressions" 
-                (list "documents")
-                "bar-chart" "span3"))
-                (str (board-stats (format nil "0,~A" linkedin-connections-count)
-                "Total Followers" 
-                (list "users")
-                "bar-chart" "span3"))
-                (str (board-stats "0,0"
-                "Demographics" 
-                (list "male_contour" "female_contour")
-                "pie-chart" "span2"))
-                )
-                          |#)
+                                                    (str (tw-new-followers-graph))
+                                                    (str (tw-impressions-graph))
+                                                    (str (tw-total-fans-graph))
+                                                    (str (tw-un-followed-graph))))))))
                     (:div :class "row-fluid"
                             (:div :class "nonboxy-widget"
                             
@@ -1617,10 +1585,5 @@
                                                     (htm (:tr
                                                           (:td :style "border: 1px solid black; width: 250px;" (str key))
                                                           (:td :style "border: 1px solid black;" (str val)))))
-                                                  calc-values))
-                                        ))))
-)
-)))))
-
-  )
+                                                  *calc-values*))))))))))))
 
