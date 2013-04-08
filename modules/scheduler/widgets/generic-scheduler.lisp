@@ -437,7 +437,7 @@ $('#processed-content').text(s)})")))
                                to-user 
                                (parameter "action-type")
                                action-content
-                               (shortify action-content)
+                               (shortify-string action-content)
                                "Timed"
                                date-time
                                :image-url image
