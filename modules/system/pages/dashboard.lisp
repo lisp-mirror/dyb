@@ -1187,7 +1187,9 @@
          prev-iend))
       (sv 'likedin-connections-count
           (linkedin-connections-count))
-
+      (sv 'users-stats
+          (users-stats istd
+                       iend))
       )
     calc-values))
 
@@ -1249,12 +1251,12 @@
     (str (let ((prev (+ (gv 'fb-post-likes-prev-count)                                                    
                         (gv 'fb-comments-made-prev-count)
                         (gv 'twitter-retweets-prev)
-                        (gv 'twitter-at-mentions-followers-prev-count)
+                        (gv 'twitter-at-mentions-prev-count)
                         (gv 'short-url-clicks-prev-count)))
                (cur (+ (gv 'fb-post-likes-count)
                        (gv 'fb-comments-made-count)
                        (gv 'twitter-retweets)
-                       (gv 'twitter-at-mentions-followers-count)
+                       (gv 'twitter-at-mentions-count)
                        (gv 'short-url-clicks-count))))
            (dash-small-stat-graph 
             "Engagement"
@@ -1264,7 +1266,7 @@
                     cur)
             cur
             (calc-prev-cur-percentage prev cur)
-            :tooltip "FB-Post-Likes + FB-Comments + Retweets + (TW-Mentions * Mentioner-Followers) + Clicks")))))
+            :tooltip "FB-Post-Likes + FB-Comments + Retweets + TW-Mentions + Clicks")))))
 
 (defun engagement-pie-graph ()
   (with-html-to-string ()
@@ -1463,30 +1465,156 @@
        when (match-context-entities user)
        collect user))
 
-(defun get-list-posts-user (user)  
-  (loop for post across (generic-posts)
-     when (or (string-equal (get-val (get-val post 'user) 'email) 
-                            (get-val user 'email))
-              ;;doing this because in some old data the system posted all
-              ;;scheduled posts as admin instead of using the correct user
-              (if (string-equal (get-val (get-val post 'user) 'email)
-                                "admin@dyb.co.za")
-                  (or (find  (get-val (get-val post 'user) 'email)
-                            (old-versions post)
-                            :test 'string-equal)
-                      user)))
-       
-       collect post))
+(defun get-list-posts-user (user start-date end-date) 
+  (let* ((generic-actions 
+          (find-docs 'list
+                     (lambda (doc)
+                       (and
+                        (string-equal (get-val doc 'action-status) "Completed")
+                        (get-val doc 'action-log)
+                        ;;(match-context-entities (get-val doc 'channel-user))
+                        (and (>= (get-val doc 'scheduled-date) start-date)
+                             (<= (get-val doc 'scheduled-date) end-date))
+                        (or (string-equal (get-val doc 'user) 
+                                          (get-val user 'email))
+                            ;;doing this because in some old data the system posted all
+                            ;;scheduled posts as admin instead of using the correct user
+                            
+                            (find (get-val user 'email)
+                                  (old-versions doc)
+                                  :test (lambda (email post-user)
+                                            
+                                          (if (string-equal
+                                               email 
+                                               (get-val post-user 'user))
+                                              doc)))
+                            )))
+                     (generic-actions-collection)))
+         (generic-posts))
+    (find-docs 'list 
+               (lambda (doc)
+                 (dolist (action generic-actions)
+                   
+                   (cond ((and (string-equal (get-val doc 'post-type) 
+                                             "Facebook")
+                               (string-equal (get-val action 'post-type) 
+                                             "Facebook"))
+                          (when (string-equal 
+                                 (gpv (get-val 
+                                       (if (listp (get-val action 'action-log))
+                                           (car (last (get-val action 'action-log)))
+                                           (get-val action 'action-log)) 
+                                       'message) 
+                                      :post--id) 
+                                 (post-id doc))
+                            
+                            (setf generic-posts (append generic-posts (list doc)))))
+                         ((and (string-equal (get-val doc 'post-type) 
+                                             "Twitter")
+                               (string-equal (get-val action 'post-type) 
+                                             "Twitter"))
+                          
+                          (when (string-equal 
+                                 (gpv (get-val 
+                                       (if (listp (get-val action 'action-log))
+                                           (car (last (get-val action 'action-log)))
+                                           (get-val action 'action-log)) 
+                                       'message) 
+                                      :id--str) 
+                                 (format nil "~A" (post-id doc)))
+                            
+                            (setf generic-posts (append generic-posts (list doc))))))
+                   ))
+               (generic-post-collection))
 
-(defun users-stats ()
-  (let ((users (context-users-list))
-        (posts-hash (make-hash-table :test 'equal)))
+    (values (get-val user 'email) generic-actions generic-posts)))
+#|
+       when  (and (<= start-date 
+                      (parse-facebook-created-at 
+                       (gpv (get-val post 'payload) :created--time))) 
+                  (>= end-date 
+                      (parse-facebook-created-at 
+                       (gpv (get-val post 'payload) :created--time))))
+|#
+
+
+
+(defun fb-user-post-likes (posts)
+  (let ((count 0))
+    (loop for post in posts 
+       when (match-context-entities (channel-user post) )
+       when (string-equal (get-val post 'post-type) 
+                          "Facebook")
+       when (get-val post 'payload)
+       when (gpv (get-val post 'payload) :likes :count)
+
+       do (incf count (gpv (get-val post 'payload) :likes :count)))
+    count))
+
+
+(defun fb-user-post-comments (posts)
+  (let ((count 0))
+    (loop for post in posts 
+     
+       when (string-equal (get-val post 'post-type) 
+                          "Facebook")
+       when (get-val post 'payload)
+       when (gpv (get-val post 'payload) :comments :data)
+
+       do (incf count (length (gpv (get-val post 'payload) :comments :data))))
+    count))
+
+
+(defun tw-user-posts-mentions (posts)
+  (let ((count 0))
+    (dolist (doc posts)
+      (typecase (get-val doc 'channel-user) 
+        (channel-user
+         (when (string-equal (get-val doc 'post-type) "Twitter")
+           (when (gpv (get-val doc 'payload) :entities :user--mentions)
+             (dolist (mention (gpv (get-val doc 'payload) :entities :user--mentions))
+               (when (string-equal
+                      (get-val (get-val doc 'channel-user) 'channel-user-name)
+                      (gpv mention :screen--name))
+                              
+                 (incf count)))
+                        
+             )))))
+    count))
+
+
+(defun users-posts (start-date end-date)
+  (let ((users ;;(append (context-users-list) (list (get-user "admin@dyb.co.za")))
+          (context-users-list))
+        (posts))
+
     (dolist (user users)
-      (setf (gethash (get-val user 'email)
-                       posts-hash)
-              (get-list-posts-user user))
-      ))
-  )
+      (multiple-value-bind (email actions user-posts)
+          (get-list-posts-user user start-date end-date)
+        (pushnew  
+         (list (get-val user 'email) actions user-posts)
+         posts
+         :test 'equal
+         :key #'car)))
+    posts))
+
+(defun users-stats (start-date end-date)
+  (let ((stats))
+    (dolist (user-posts (users-posts start-date end-date))
+      (let ((posts (length (second user-posts)))
+            (likes (fb-user-post-likes (third user-posts)))
+            (comments (fb-user-post-comments (third user-posts)))
+            (mentions (tw-user-posts-mentions (third user-posts))))
+        (pushnew 
+         (list (car user-posts)
+               (list 
+                (list "Posts" posts)
+                (list "Likes" likes) 
+                (list "Comments" comments)
+                (list "Mentions" mentions)))
+         stats)
+        ))
+    stats))
 
 (define-easy-handler (dashboard-page :uri "/dyb/dashboard") ()
   (multiple-value-bind (interval interval-start-date interval-end-date)
@@ -1503,7 +1631,7 @@
                          interval-end-date
                          previous-interval-start-date 
                          previous-interval-end-date)))
-     ;; (break "~A" (users-stats))
+      ;;(break "~A" (users-stats))
       (with-html
           (render page
                   :body 
