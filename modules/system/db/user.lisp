@@ -132,5 +132,5 @@
       (dolist (entity (get-val doc 'accessible-entities))
         
         (if (find entity (context))
-            (setf u-list (append u-list doc)))))
+            (setf u-list (append u-list (list doc))))))
     u-list))
