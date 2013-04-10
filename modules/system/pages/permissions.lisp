@@ -94,5 +94,4 @@
     (render (make-widget 'page :name "permissions"
                                :title "Permissions")
             :body
-            (with-html-to-string ()
-              (render (make-widget 'permission-grid :columns columns))))))
+            (render-to-string (make-widget 'permission-grid :columns columns)))))

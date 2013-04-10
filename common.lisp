@@ -459,9 +459,6 @@
           (if (get-val doc 'supplier)
               (get-val (get-val doc 'supplier) 'supplier-name)))))
 
-(defun filter-active (objects)
-  (remove-if-not #'activep objects))
-
 (defun context ()
   (and (current-user)
        (multiple-value-bind (context found)

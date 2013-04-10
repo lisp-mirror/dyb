@@ -22,7 +22,7 @@
 (defmethod get-rows ((grid user-grid))
   (setf (rows grid)
 	(if (super-user-p (current-user))
-            (filter-active (users))
+            (users)
             (find-users (lambda (doc)
                           (match-entities
                            doc

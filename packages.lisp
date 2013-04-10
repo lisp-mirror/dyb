@@ -205,7 +205,6 @@
    :root
    :parent
    :children
-   :filter-active
    :municipality
    :old-versions
    :training-interventions
