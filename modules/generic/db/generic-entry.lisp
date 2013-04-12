@@ -70,10 +70,12 @@
 (defgeneric gpkv (post &rest keys))
 
 (defmethod gpkv (post &rest keys)
-  (apply #'assoc-path post (flatten keys)))
+  (if (listp post)
+      (apply #'assoc-path post (flatten keys))))
 
 (defmethod gpkv ((post generic-post) &rest keys)
-  (apply #'assoc-path (payload post) (flatten keys)))
+  (if (listp (payload post))
+      (apply #'assoc-path (payload post) (flatten keys))))
 
 (defgeneric gpv (post &rest keys))
 
