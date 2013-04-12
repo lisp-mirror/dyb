@@ -1774,7 +1774,7 @@
                           (:div :class "row-fluid"
                                 (:div :class "nonboxy-widget"
                                       (:div :class "widget-head"
-                                            (:h5 (:i :class "black-icons users")
+                                            (:h5 (:i :class "black-icons twitter")
                                                  "Twitter (Last 7 Days)"))
 
                                       (:div :class "widget-content"
@@ -1787,7 +1787,7 @@
                           (:div :class "row-fluid"
                                 (:div :class "nonboxy-widget"
                                       (:div :class "widget-head"
-                                            (:h5 (:i :class "black-icons twitter")
+                                            (:h5 (:i :class "black-icons users")
                                                  "User stats"))
 
                                       (:div :class "widget-content"
@@ -1819,7 +1819,7 @@
                           (:div :class "row-fluid"
                                 (:div :class "nonboxy-widget"
                                       (:div :class "widget-head"
-                                            (:h5 (:i :class "black-icons twitter")
+                                            (:h5 (:i :class "black-icons create_write")
                                                  "Content Stats"))
 
                                       (:div :class "widget-content"
