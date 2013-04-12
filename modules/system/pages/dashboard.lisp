@@ -920,6 +920,240 @@
                            (second post))))))
     final-range))
 
+
+(defun get-list-of-context-users ()
+  (loop for user across (users)
+       when (match-context-entities user)
+       collect user))
+
+(defclass action-posts ()
+  ((action :initarg :action)
+   (fb-posts :initarg :fb-posts)
+   (tweets :initarg :tweets)))
+
+(defclass user-posts ()
+  ((user :initarg :user)
+   (actions :initarg :actions)))
+
+(defun get-list-posts-user (user start-date end-date) 
+  (let* ((generic-actions 
+          (find-docs 'list
+                     (lambda (doc)
+                       (and
+                        (string-equal (get-val doc 'action-status) "Completed")
+                        (get-val doc 'action-log)
+                        ;;(match-context-entities (get-val doc 'channel-user))
+                        (and (>= (get-val doc 'scheduled-date) start-date)
+                             (<= (get-val doc 'scheduled-date) end-date))
+                        (or (string-equal (get-val doc 'user) 
+                                          (get-val user 'email))
+                            ;;doing this because in some old data the system posted all
+                            ;;scheduled posts as admin instead of using the correct user
+                            
+                            (find (get-val user 'email)
+                                  (old-versions doc)
+                                  :test (lambda (email post-user)
+                                            
+                                          (if (string-equal
+                                               email 
+                                               (get-val post-user 'user))
+                                              doc)))
+                            )))
+                     (generic-actions-collection)))
+         (fb-posts (make-hash-table))
+         (tweets (make-hash-table))
+         (user-action-posts))
+    (find-docs 'list 
+               (lambda (doc)
+                 (let ()
+                   (dolist (action generic-actions)
+                     
+                     (cond ((and (string-equal (get-val doc 'post-type) 
+                                                 "Facebook")
+                                   (string-equal (get-val action 'post-type) 
+                                                 "Facebook"))
+                              (when (string-equal 
+                                     (gpv (get-val 
+                                           (if (listp (get-val action 'action-log))
+                                               (car (last (get-val action 'action-log)))
+                                               (get-val action 'action-log)) 
+                                           'message) 
+                                          :post--id) 
+                                     (post-id doc))
+                            
+                                (setf (gethash action fb-posts) 
+                                      (append (gethash action fb-posts) (list doc)))))
+                             ((and (string-equal (get-val doc 'post-type) 
+                                                 "Twitter")
+                                   (string-equal (get-val action 'post-type) 
+                                                 "Twitter"))
+                          
+                              (when (string-equal 
+                                     (gpv (get-val 
+                                           (if (listp (get-val action 'action-log))
+                                               (car (last (get-val action 'action-log)))
+                                               (get-val action 'action-log)) 
+                                           'message) 
+                                          :id--str) 
+                                     (format nil "~A" (post-id doc)))
+                                (setf (gethash action tweets) 
+                                      (append (gethash action tweets) (list doc)))))))))
+               (generic-post-collection))
+
+    (dolist (action generic-actions) 
+     (setf user-action-posts 
+           (append user-action-posts 
+                   (list (make-instance 'action-posts
+                                        :action action
+                                        :fb-posts (gethash action fb-posts)
+                                        :tweets (gethash action tweets)
+                                        ))
+                   )))
+    
+    (make-instance 'user-posts
+                   :user user
+                   :actions user-action-posts)))
+#|
+       when  (and (<= start-date 
+                      (parse-facebook-created-at 
+                       (gpv (get-val post 'payload) :created--time))) 
+                  (>= end-date 
+                      (parse-facebook-created-at 
+                       (gpv (get-val post 'payload) :created--time))))
+|#
+
+
+
+(defun fb-user-post-likes (posts)
+  (let ((count 0))
+    (loop for post in posts 
+       when (match-context-entities (channel-user post) )
+       when (string-equal (get-val post 'post-type) 
+                          "Facebook")
+       when (get-val post 'payload)
+       when (gpv (get-val post 'payload) :likes :count)
+
+       do (incf count (gpv (get-val post 'payload) :likes :count)))
+    count))
+
+
+(defun fb-user-post-comments (posts)
+  (let ((count 0))
+    (loop for post in posts    
+       when (string-equal (get-val post 'post-type) 
+                          "Facebook")
+       when (get-val post 'payload)
+       when (gpv (get-val post 'payload) :comments :data)
+
+       do (incf count (length (gpv (get-val post 'payload) :comments :data))))
+    count))
+
+
+(defun tw-user-posts-mentions (posts)
+  (let ((count 0))
+    (dolist (doc posts)
+      (typecase (get-val doc 'channel-user) 
+        (channel-user
+         (when (string-equal (get-val doc 'post-type) "Twitter")
+           (when (gpv (get-val doc 'payload) :entities :user--mentions)
+             (dolist (mention (gpv (get-val doc 'payload) :entities :user--mentions))
+               (when (string-equal
+                      (get-val (get-val doc 'channel-user) 'channel-user-name)
+                      (gpv mention :screen--name))
+                              
+                 (incf count)))
+                        
+             )))))
+    count))
+
+
+(defun users-posts (start-date end-date)
+  (let ((users ;;(append (context-users-list) (list (get-user "admin@dyb.co.za")))
+          (context-users-list))
+        (posts))
+
+    (dolist (user users)
+      (pushnew  
+       (list (email user) (get-list-posts-user user start-date end-date))
+         posts
+         :test 'equal
+         :key #'car))
+    posts))
+
+(defun users-stats (users-posts)
+  (let ((stats))
+
+    (dolist (user-posts users-posts)
+      
+      (let* ((user-actions (second user-posts))
+             (actions (if user-actions
+                          (get-val user-actions 'actions)))
+             (posts (or (length actions) 0))
+             (likes 0)
+             (comments 0)
+             (mentions 0))
+
+        
+        
+        (dolist (action actions)
+          (incf likes (fb-user-post-likes 
+                       (get-val action 'fb-posts)))
+          (incf comments (fb-user-post-comments 
+                       (get-val action 'fb-posts)))
+          (incf mentions (tw-user-posts-mentions 
+                       (get-val action 'tweets))))
+        (pushnew 
+         (list (car user-posts)
+               (list 
+                (list "Posts" posts)
+                (list "Likes" likes) 
+                (list "Comments" comments)
+                (list "Mentions" mentions)))
+         stats)
+        ))
+    
+    stats))
+
+(defun content-stats (users-posts)
+  (let ((stats))
+
+    (dolist (user-posts users-posts)
+      
+      (let* ((user-actions (second user-posts))
+             (actions (if user-actions
+                          (get-val user-actions 'actions))))
+
+        
+        
+        (dolist (action actions)
+        ;;  (break "~A" (get-val action 'action))
+          (pushnew 
+           (list (format-universal-date-time
+                  (get-val 
+                   (get-val action 'action)
+                   'scheduled-date))
+                 (or (get-val 
+                      (get-val action 'action)
+                      'processed-content)
+                     (get-val 
+                      (get-val action 'action)
+                      'action-content))
+                 (list 
+                 ; (list "Action" (get-val action 'action))
+                  (list "Likes" (fb-user-post-likes 
+                                 (get-val action 'fb-posts))) 
+                  (list "Comments" (fb-user-post-comments 
+                                    (get-val action 'fb-posts)))
+                  (list "Mentions" (tw-user-posts-mentions 
+                                    (get-val action 'tweets)))))
+           stats)
+          )
+        
+        ))
+    
+    stats))
+
+
 (defun set-calc-vals (istd iend
                       prev-istd 
                       prev-iend)
@@ -1187,9 +1421,14 @@
          prev-iend))
       (sv 'likedin-connections-count
           (linkedin-connections-count))
+      (sv 'users-posts (users-posts 
+                        istd
+                        iend))
       (sv 'users-stats
-          (users-stats istd
-                       iend))
+          (users-stats (gethash 'users-posts calc-values)))
+
+      (sv 'content-stats
+          (content-stats (gethash 'users-posts calc-values)))
       )
     calc-values))
 
@@ -1460,161 +1699,6 @@
         "bar-chart" "span3"
         :tooltip "The number of followers that was lost.")))))
 
-(defun get-list-of-context-users ()
-  (loop for user across (users)
-       when (match-context-entities user)
-       collect user))
-
-(defun get-list-posts-user (user start-date end-date) 
-  (let* ((generic-actions 
-          (find-docs 'list
-                     (lambda (doc)
-                       (and
-                        (string-equal (get-val doc 'action-status) "Completed")
-                        (get-val doc 'action-log)
-                        ;;(match-context-entities (get-val doc 'channel-user))
-                        (and (>= (get-val doc 'scheduled-date) start-date)
-                             (<= (get-val doc 'scheduled-date) end-date))
-                        (or (string-equal (get-val doc 'user) 
-                                          (get-val user 'email))
-                            ;;doing this because in some old data the system posted all
-                            ;;scheduled posts as admin instead of using the correct user
-                            
-                            (find (get-val user 'email)
-                                  (old-versions doc)
-                                  :test (lambda (email post-user)
-                                            
-                                          (if (string-equal
-                                               email 
-                                               (get-val post-user 'user))
-                                              doc)))
-                            )))
-                     (generic-actions-collection)))
-         (generic-posts))
-    (find-docs 'list 
-               (lambda (doc)
-                 (dolist (action generic-actions)
-                   
-                   (cond ((and (string-equal (get-val doc 'post-type) 
-                                             "Facebook")
-                               (string-equal (get-val action 'post-type) 
-                                             "Facebook"))
-                          (when (string-equal 
-                                 (gpv (get-val 
-                                       (if (listp (get-val action 'action-log))
-                                           (car (last (get-val action 'action-log)))
-                                           (get-val action 'action-log)) 
-                                       'message) 
-                                      :post--id) 
-                                 (post-id doc))
-                            
-                            (setf generic-posts (append generic-posts (list doc)))))
-                         ((and (string-equal (get-val doc 'post-type) 
-                                             "Twitter")
-                               (string-equal (get-val action 'post-type) 
-                                             "Twitter"))
-                          
-                          (when (string-equal 
-                                 (gpv (get-val 
-                                       (if (listp (get-val action 'action-log))
-                                           (car (last (get-val action 'action-log)))
-                                           (get-val action 'action-log)) 
-                                       'message) 
-                                      :id--str) 
-                                 (format nil "~A" (post-id doc)))
-                            
-                            (setf generic-posts (append generic-posts (list doc))))))
-                   ))
-               (generic-post-collection))
-
-    (values (get-val user 'email) generic-actions generic-posts)))
-#|
-       when  (and (<= start-date 
-                      (parse-facebook-created-at 
-                       (gpv (get-val post 'payload) :created--time))) 
-                  (>= end-date 
-                      (parse-facebook-created-at 
-                       (gpv (get-val post 'payload) :created--time))))
-|#
-
-
-
-(defun fb-user-post-likes (posts)
-  (let ((count 0))
-    (loop for post in posts 
-       when (match-context-entities (channel-user post) )
-       when (string-equal (get-val post 'post-type) 
-                          "Facebook")
-       when (get-val post 'payload)
-       when (gpv (get-val post 'payload) :likes :count)
-
-       do (incf count (gpv (get-val post 'payload) :likes :count)))
-    count))
-
-
-(defun fb-user-post-comments (posts)
-  (let ((count 0))
-    (loop for post in posts 
-     
-       when (string-equal (get-val post 'post-type) 
-                          "Facebook")
-       when (get-val post 'payload)
-       when (gpv (get-val post 'payload) :comments :data)
-
-       do (incf count (length (gpv (get-val post 'payload) :comments :data))))
-    count))
-
-
-(defun tw-user-posts-mentions (posts)
-  (let ((count 0))
-    (dolist (doc posts)
-      (typecase (get-val doc 'channel-user) 
-        (channel-user
-         (when (string-equal (get-val doc 'post-type) "Twitter")
-           (when (gpv (get-val doc 'payload) :entities :user--mentions)
-             (dolist (mention (gpv (get-val doc 'payload) :entities :user--mentions))
-               (when (string-equal
-                      (get-val (get-val doc 'channel-user) 'channel-user-name)
-                      (gpv mention :screen--name))
-                              
-                 (incf count)))
-                        
-             )))))
-    count))
-
-
-(defun users-posts (start-date end-date)
-  (let ((users ;;(append (context-users-list) (list (get-user "admin@dyb.co.za")))
-          (context-users-list))
-        (posts))
-
-    (dolist (user users)
-      (multiple-value-bind (email actions user-posts)
-          (get-list-posts-user user start-date end-date)
-        (pushnew  
-         (list (get-val user 'email) actions user-posts)
-         posts
-         :test 'equal
-         :key #'car)))
-    posts))
-
-(defun users-stats (start-date end-date)
-  (let ((stats))
-    (dolist (user-posts (users-posts start-date end-date))
-      (let ((posts (length (second user-posts)))
-            (likes (fb-user-post-likes (third user-posts)))
-            (comments (fb-user-post-comments (third user-posts)))
-            (mentions (tw-user-posts-mentions (third user-posts))))
-        (pushnew 
-         (list (car user-posts)
-               (list 
-                (list "Posts" posts)
-                (list "Likes" likes) 
-                (list "Comments" comments)
-                (list "Mentions" mentions)))
-         stats)
-        ))
-    stats))
 
 (define-easy-handler (dashboard-page :uri "/dyb/dashboard") ()
   (multiple-value-bind (interval interval-start-date interval-end-date)
@@ -1625,12 +1709,12 @@
             (- now (* +24h-secs+ (* interval 2))))
            (previous-interval-end-date 
             (- now (* +24h-secs+ interval)))
-
+           
            (*calc-values* (set-calc-vals 
-                         interval-start-date 
-                         interval-end-date
-                         previous-interval-start-date 
-                         previous-interval-end-date)))
+                           interval-start-date 
+                           interval-end-date
+                           previous-interval-start-date 
+                           previous-interval-end-date)))
       ;;(break "~A" (users-stats))
       (with-html
           (render page
@@ -1687,31 +1771,116 @@
                                                         (str (fb-page-impressions-graph))
                                                         (str (fb-total-fans-graph))
                                                         (str (fb-page-unlikes-graph)))))))
-                        (:div :class "row-fluid"
-                            (:div :class "nonboxy-widget"
-                                  (:div :class "widget-head"
-                                        (:h5 (:i :class "black-icons twitter")
-                                             "Twitter (Last 7 Days)"))
+                          (:div :class "row-fluid"
+                                (:div :class "nonboxy-widget"
+                                      (:div :class "widget-head"
+                                            (:h5 (:i :class "black-icons users")
+                                                 "Twitter (Last 7 Days)"))
 
-                                  (:div :class "widget-content"
-                                        (:div :class "widget-box"
-                                              (:div :class "row-fluid"
-                                                    (str (tw-new-followers-graph))
-                                                    (str (tw-impressions-graph))
-                                                    (str (tw-total-fans-graph))
-                                                    (str (tw-un-followed-graph))))))))
+                                      (:div :class "widget-content"
+                                            (:div :class "widget-box"
+                                                  (:div :class "row-fluid"
+                                                        (str (tw-new-followers-graph))
+                                                        (str (tw-impressions-graph))
+                                                        (str (tw-total-fans-graph))
+                                                        (str (tw-un-followed-graph)))))))
+                          (:div :class "row-fluid"
+                                (:div :class "nonboxy-widget"
+                                      (:div :class "widget-head"
+                                            (:h5 (:i :class "black-icons twitter")
+                                                 "User stats"))
+
+                                      (:div :class "widget-content"
+                                            (:div :class "widget-box"
+                                                  (:div :class "row-fluid"
+                                                        (:div :class "span8"
+                                                                          
+                                                              (:div :class "statistics-wrap"
+                                                                    (:div :class "statistics-block"
+                                                                          (:table :style "width:100%;"
+                                                                                  
+                                                                                  (dolist (user (gv 'users-stats))
+                                                                                    (htm
+                                                                                     (:tr 
+                                                                                      (:td
+                                                                                       (:span (str (first user))))
+                                                                                      (:td
+                                                                                       (:span :style "float:right;"
+                                                                                              (str (format nil 
+                                                                                                           "Score:  ~A" 
+                                                                                                           (+
+                                                                                                            (second (first (second user)))
+                                                                                                            (second (second (second user)))
+                                                                                                            (second (third (second user)))
+                                                                                                            (second (fourth (second user)))
+                                                                                                            ))))))
+                                                                                     )))
+                                                                          ))))))))
+                          (:div :class "row-fluid"
+                                (:div :class "nonboxy-widget"
+                                      (:div :class "widget-head"
+                                            (:h5 (:i :class "black-icons twitter")
+                                                 "Content Stats"))
+
+                                      (:div :class "widget-content"
+                                            (:div :class "widget-box"
+                                                  (:div :class "row-fluid"
+                                                        (:div :class "span8"
+                                                              (:div :class "statistics-wrap"
+                                                                    (:div :class "statistics-block"
+                                                                          (let ((content (sort (gv 'content-stats) 
+                                                                                               #'(lambda (x y)
+                                                                                                   (let ((stat1 (third x))
+                                                                                                         (stat2 (third y)))
+                                                                                                     (> (+
+                                                                                                         (second (first stat1))
+                                                                                                         (second (second stat1))
+                                                                                                         (second (third stat1))
+                                                                                  
+                                                                                                         )
+                                                                                                        (+
+                                                                                                         (second (first stat2))
+                                                                                                         (second (second stat2))
+                                                                                                         (second (third stat2)))))))))
+                                                                            (htm (:table :style "width:100%;" 
+                                                                                
+                                                                                     (dolist (action (if (> (length content) 10)
+                                                                                                         (subseq content 0 10)
+                                                                                                         content))
+                                                                                       (let ((date (first action))
+                                                                                             (text (second action))
+                                                                                             (stats (third action)))
+                                                                                         (htm
+                                                                                          (:tr
+                                                                                           (:td :style "width:130px;text-align:right;"
+                                                                                            (:span (str date)))
+                                                                                           (:td :style "padding-left:10px;"
+                                                                                            (:span (str (format nil "~A"
+                                                                                                                (if (> (length text) 70)
+                                                                                                                    (format nil "~A..." (subseq text 0 70))
+                                                                                                                    text)))))
+                                                                                           (:td
+                                                                                            (:span :style "float:right;"
+                                                                                                   (str (format nil 
+                                                                                                                "Score:  ~A" 
+                                                                                                                (+
+                                                                                                                 (second (first stats))
+                                                                                                                 (second (second stats))
+                                                                                                                 (second (third stats))
+                                                                                  
+                                                                                                                 )))))))))))))))))))))
                     (:div :class "row-fluid"
-                            (:div :class "nonboxy-widget"
+                          (:div :class "nonboxy-widget"
                             
-                                  (when (string-equal (get-val (current-user) 'email) "admin@dyb.co.za")
-                                      (htm 
-                                        (:table 
-                                         (:tr 
-                                          (:th  :style "border: 1px solid black;" "Key")
-                                          (:th  :style "border: 1px solid black;" "Value"))
-                                         (maphash (lambda (key val)
-                                                    (htm (:tr
-                                                          (:td :style "border: 1px solid black; width: 250px;" (str key))
-                                                          (:td :style "border: 1px solid black;" (str val)))))
-                                                  *calc-values*))))))))))))
+                                (when (string-equal (get-val (current-user) 'email) "admin@dyb.co.za")
+                                  (htm 
+                                   (:table 
+                                    (:tr 
+                                     (:th  :style "border: 1px solid black;" "Key")
+                                     (:th  :style "border: 1px solid black;" "Value"))
+                                    (maphash (lambda (key val)
+                                               (htm (:tr
+                                                     (:td :style "border: 1px solid black; width: 250px;" (str key))
+                                                     (:td :style "border: 1px solid black;" (str val)))))
+                                             *calc-values*))))))))))))
 
