@@ -47,7 +47,7 @@
 
 (defun format-short-url (short)
   (when short
-    (format nil "~a/s/~a" *site-url* short)))
+    (format nil "~as/~a" *site-url* short)))
 
 (defun shortify-string (text)
   ;; Should be synchronized with shortifyString in JS
