@@ -17,7 +17,7 @@ var site_url = "http://dxw.co.za/";
 
 function shortifyString (string) {
     // Should be synchronized with lisp shortify-string 
-    return string.replace(RegExp('(https://|http://|www\\.)\\S+'),
+    return string.replace(RegExp('(https://|http://|www\\.)\\S+', 'g'),
                           function (match) {
                               var last = match[match.length - 1];
                               var suffix = "";
