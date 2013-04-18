@@ -1537,8 +1537,8 @@
                     "All Accounts"
                     (+ 
                      (or-zero (reverse (gv 'fb-fans-interval-list)) )
-                     (gv 'twitter-followers-count)
-                     (gv 'linkedin-connections-count))
+                     (or (gv 'twitter-followers-count) 0)
+                     (or (gv 'linkedin-connections-count) 0))
                     "/appimg/user-accounts.png"
                     "All Accounts"
                     nil)))
@@ -1552,14 +1552,14 @@
              (:li
               (str (community-summary-item  
                     " Twitter"
-                    (gv 'twitter-followers-count)
+                    (or (gv 'twitter-followers-count) 0)
                     "/appimg/twitter-bird-white-on-blue.png"
                     "Twitter Followers"
                     t)))
              (:li
               (str (community-summary-item  
                     " LinkedIn"
-                    (gv 'linkedin-connections-count)
+                    (or (gv 'linkedin-connections-count) 0)
                     "/appimg/linkedin-icon.png"
                     "LinkedIn Connections"
                     t)))))))
@@ -1576,17 +1576,17 @@
                   `((,@(gv 'twitter-followers-interval-list)))
                   (if (gv 'fb-fans-interval-list)
                       `((,@(gv 'fb-fans-interval-list))) )))
-          interval))))
+          interval)))
 
-(defun fb-new-page-likes-graph ()
-  (with-html-to-string ()
-   (str (board-stats  
-         (create-bar-range-string 
-          (gv 'fb-fans-adds-interval-list) 7) 
-         "New Page Likes" 
-         (list "facebook_like") 
-         "bar-chart" "span3"
-         :tooltip "The number of new people who have liked your Page."))))
+  (defun fb-new-page-likes-graph ()
+    (with-html-to-string ()
+      (str (board-stats  
+            (create-bar-range-string 
+             (gv 'fb-fans-adds-interval-list) 7) 
+            "New Page Likes" 
+            (list "facebook_like") 
+            "bar-chart" "span3"
+            :tooltip "The number of new people who have liked your Page.")))))
 
 (defun fb-page-impressions-graph ()
   (with-html-to-string ()
@@ -1625,7 +1625,6 @@
     (str 
      (let ((new-followers (strip-dates-from-range 
                            (reverse (gv 'twitter-followers-interval-list)) 8)))
-                               
        (board-stats 
         (format nil "~A,~A,~A,~A,~A,~A,~A" 
                 (- (fix-nan (nth 6 new-followers)) (fix-nan (nth 7 new-followers)))
@@ -1635,8 +1634,6 @@
                 (- (fix-nan (nth 2 new-followers)) (fix-nan (nth 3 new-followers)))
                 (- (fix-nan (nth 1 new-followers)) (fix-nan (nth 2 new-followers)))
                 (- (fix-nan (nth 0 new-followers)) (fix-nan (nth 1 new-followers))))
-                                  
-                                  
         "New Followers" 
         (list "users") 
         "bar-chart" "span3"
@@ -1756,7 +1753,8 @@
                                             (:div :class "widget-box"
                                                   (:div :class "row-fluid"
                                                         (str (engagement-pie-graph))
-                                                        (:div :class "span2"))))))
+                                                        (:div :class "span2"
+                                                              (str (current-community-size ))))))))
 
                           (:div :class "row-fluid"
                                 (:div :class "nonboxy-widget"
@@ -1798,7 +1796,13 @@
                                                               (:div :class "statistics-wrap"
                                                                     (:div :class "statistics-block"
                                                                           (:table :style "width:100%;"
-                                                                                  
+                                                                                  (:tr
+                                                                                          (:td "User")
+                                                                                          (:td "Posts")
+                                                                                          (:td "Likes")
+                                                                                          (:td "Comments")
+                                                                                          (:td "Mentions")
+                                                                                          (:td "Score"))
                                                                                   (dolist (user (gv 'users-stats))
                                                                                     (htm
                                                                                      (:tr 
@@ -1806,14 +1810,24 @@
                                                                                        (:span (str (first user))))
                                                                                       (:td
                                                                                        (:span :style "float:right;"
-                                                                                              (str (format nil 
-                                                                                                           "Score:  ~A" 
-                                                                                                           (+
+                                                                                              (str (second (first (second user))))))
+                                                                                      (:td
+                                                                                       (:span :style "float:right;"
+                                                                                              (str (second (second (second user))))))
+                                                                                      (:td
+                                                                                       (:span :style "float:right;"
+                                                                                              (str (second (third (second user))))))
+                                                                                      (:td
+                                                                                       (:span :style "float:right;"
+                                                                                              (str (second (fourth (second user))))))
+                                                                                      (:td
+                                                                                       (:span :style "float:right;"
+                                                                                              (str (+
                                                                                                             (second (first (second user)))
                                                                                                             (second (second (second user)))
                                                                                                             (second (third (second user)))
                                                                                                             (second (fourth (second user)))
-                                                                                                            ))))))
+                                                                                                            )))))
                                                                                      )))
                                                                           ))))))))
                           (:div :class "row-fluid"
@@ -1843,7 +1857,13 @@
                                                                                                          (second (second stat2))
                                                                                                          (second (third stat2)))))))))
                                                                             (htm (:table :style "width:100%;" 
-                                                                                
+                                                                                         (:tr
+                                                                                          (:td "Date")
+                                                                                          (:td "Post")
+                                                                                          (:td "Likes")
+                                                                                          (:td "Comments")
+                                                                                          (:td "Mentions")
+                                                                                          (:td "Score"))
                                                                                      (dolist (action (if (> (length content) 10)
                                                                                                          (subseq content 0 10)
                                                                                                          content))
@@ -1861,14 +1881,21 @@
                                                                                                                     text)))))
                                                                                            (:td
                                                                                             (:span :style "float:right;"
-                                                                                                   (str (format nil 
-                                                                                                                "Score:  ~A" 
-                                                                                                                (+
-                                                                                                                 (second (first stats))
-                                                                                                                 (second (second stats))
-                                                                                                                 (second (third stats))
-                                                                                  
-                                                                                                                 )))))))))))))))))))))
+                                                                                                   (str (second (first stats)))))
+                                                                                           (:td
+                                                                                            (:span :style "float:right;"
+                                                                                                   (str (second (second stats)))))
+                                                                                           (:td
+                                                                                            (:span :style "float:right;"
+                                                                                                   (str (second (third stats)))))
+                                                                                           (:td
+                                                                                            (:span :style "float:right;"
+                                                                                                   (str (+
+                                                                                                         (second (first stats))
+                                                                                                         (second (second stats))
+                                                                                                         (second (third stats))
+                                                                                                         
+                                                                                                         ))))))))))))))))))))
                     (:div :class "row-fluid"
                           (:div :class "nonboxy-widget"
                             
