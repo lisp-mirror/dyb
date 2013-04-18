@@ -39,9 +39,11 @@
                             :row-object-class 'generic-action))
          (date-selector (make-widget 'date-selector
                                      :grid grid)))
+
+    
     (setf (get-val grid 'columns) columns)
     (setf (sort-keys grid) '(5 scheduled-date))
-    (setf (initial-sort-column grid) '(5 :descending))
+    (setf (initial-sort-column grid) '(5 :ascending))
     (setf (toolbar-widget grid) date-selector)
 
     (render (make-widget 'page :name "generic-scheduler-page")

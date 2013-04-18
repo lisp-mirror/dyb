@@ -8,8 +8,9 @@
   (:default-initargs :edit-inline nil))
 
 (defmethod list-grid-filters ((grid generic-actions-grid))
-  '(completed-actions
+  '(next-48-hours
     pending-actions
+    completed-actions
     all-actions
     with-audit-data))
 
@@ -50,6 +51,11 @@
              ((equal filter 'pending-actions)
               (if (string-equal (get-val doc 'action-status) "Pending")
                   doc))
+             ((equal filter 'next-48-hours)
+              (if (string-equal (get-val doc 'action-status) "Pending")
+                  (if (and (> (scheduled-date doc) (get-universal-time))
+                           (< (scheduled-date doc) (+ (get-universal-time) (* 60 60 48))))
+                      doc)))
              ((equal filter 'all-actions)
               doc)
              (t 
@@ -380,17 +386,22 @@ $('#processed-content').text(s)})")))
       (grid-error "Please enter a channel to post to."))
     (when (empty-p (parameter "channel-user"))
       (grid-error "Please enter a user to post as."))
-    (let ((len (+ (length (parameter "action-content") )
-                  (if (or (post-parameter "file") 
-                          (blank-p (parameter "image-file"))) 
-                      20
-                      0) 
-                  (if (blank-p (parameter "post-url")) 
-                      20
-                      0))))
+    (let* ((action-content (string-trim 
+                            '(#\space #\tab #\newline 
+                              #\linefeed #\return) 
+                            (sanitize-string (parameter "action-content"))))
+           (short-content (shortify-string action-content))
+           (len (+ (length  short-content)
+                   (if (or (post-parameter "file") 
+                           (blank-p (parameter "image-file"))) 
+                       20
+                       0) 
+                   (if (blank-p (parameter "post-url")) 
+                       20
+                       0))))
       (if (and (string-equal (parameter "service") "twitter")
                (>= len 140))
-          (grid-error "Message to long - ~A. (Remember that image and link url's are also counted.)"
+          (grid-error "Message to long - ~A. (Remember that image url's are also counted.)"
                       len))
       (when (or (member (parameter "service") '("twitter" "Facebook" "LinkedIn")
                         :test #'string-equal))
@@ -405,10 +416,7 @@ $('#processed-content').text(s)})")))
             
           (when doc
             (let ((date-time (parse-action-date))
-                  (action-content (string-trim 
-                                   '(#\space #\tab #\newline 
-                                     #\linefeed #\return) 
-                                   (sanitize-string (parameter "action-content")))))
+                  )
               (cond ((xid doc)
                      (synq-edit-data doc)
                      (setf
@@ -423,7 +431,7 @@ $('#processed-content').text(s)})")))
                       (scheduled-date doc) date-time
                       (image-url doc) image)
                      (setf (get-val doc 'processed-content)
-                           (shortify-string  action-content))
+                           short-content)
                      (persist doc))
                     (t
                      (persist (make-generic-action
@@ -437,7 +445,7 @@ $('#processed-content').text(s)})")))
                                to-user 
                                (parameter "action-type")
                                action-content
-                               (shortify-string action-content)
+                               short-content
                                "Timed"
                                date-time
                                :image-url image

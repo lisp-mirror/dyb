@@ -25,7 +25,9 @@
                              (str (linkify (gpv col-val :description))))
                       (:span :class "twitter-actions"
                              (:span :class "action-icon" :title "Go to Content"
-                                    (:a :href :target "_blank" (gpv col-val :link) 
+                                    (:a  :target "_blank" 
+                                         :href  (gpv col-val :link) 
+                                       
                                         (:img :src "/appimg/go-to-content.png"))))
 
                       )))))
