@@ -1791,45 +1791,73 @@
                                       (:div :class "widget-content"
                                             (:div :class "widget-box"
                                                   (:div :class "row-fluid"
-                                                        (:div :class "span8"
-                                                                          
-                                                              (:div :class "statistics-wrap"
-                                                                    (:div :class "statistics-block"
-                                                                          (:table :style "width:100%;"
-                                                                                  (:tr
-                                                                                          (:td "User")
-                                                                                          (:td "Posts")
-                                                                                          (:td "Likes")
-                                                                                          (:td "Comments")
-                                                                                          (:td "Mentions")
-                                                                                          (:td "Score"))
-                                                                                  (dolist (user (gv 'users-stats))
-                                                                                    (htm
-                                                                                     (:tr 
-                                                                                      (:td
-                                                                                       (:span (str (first user))))
-                                                                                      (:td
-                                                                                       (:span :style "float:right;"
-                                                                                              (str (second (first (second user))))))
-                                                                                      (:td
-                                                                                       (:span :style "float:right;"
-                                                                                              (str (second (second (second user))))))
-                                                                                      (:td
-                                                                                       (:span :style "float:right;"
-                                                                                              (str (second (third (second user))))))
-                                                                                      (:td
-                                                                                       (:span :style "float:right;"
-                                                                                              (str (second (fourth (second user))))))
-                                                                                      (:td
-                                                                                       (:span :style "float:right;"
-                                                                                              (str (+
-                                                                                                            (second (first (second user)))
-                                                                                                            (second (second (second user)))
-                                                                                                            (second (third (second user)))
-                                                                                                            (second (fourth (second user)))
-                                                                                                            )))))
-                                                                                     )))
-                                                                          ))))))))
+                                                        (:div :class "span12"
+                                                              (:div :class "nonboxy-widget"
+                                                                    (:div :class "table_content"
+                                                                          (:table :class "data-tbl-simple table table-bordered dataTable" 
+                                                                                  :id "DataTables_Table_0"
+                                                                                  (:thead
+                                                                                   (:tr :role "row"
+                                                                                        (:th :class "" :role "columnheader" :tabindex "0" 
+                                                                                             :aria-controls "DataTables_Table_0" :rowspan "1" :colspan "1" 
+                                                                                             :style "width: 50%;" :aria-sort "ascending" 
+                                                                                             :aria-label "User : activate to sort column descending"
+                                                                                             "User")
+                                                                                        (:th :class "" :role "columnheader" :tabindex "0" 
+                                                                                             :aria-controls "DataTables_Table_0" :rowspan "1" :colspan "1" 
+                                                                                             :style "width: 10%;" :aria-sort "ascending" 
+                                                                                             :aria-label "Posts : activate to sort column descending"
+                                                                                             "Posts")
+                                                                                              
+                                                                                        (:th :class "" :role "columnheader" :tabindex "0" 
+                                                                                             :aria-controls "DataTables_Table_0" :rowspan "1" :colspan "1" 
+                                                                                             :style "width: 10%;" :aria-sort "ascending" 
+                                                                                             :aria-label "Likes : activate to sort column descending"
+                                                                                             "Likes")
+                                                                                        (:th :class "" :role "columnheader" :tabindex "0" 
+                                                                                             :aria-controls "DataTables_Table_0" :rowspan "1" :colspan "1" 
+                                                                                             :style "width: 10%;" :aria-sort "ascending" 
+                                                                                             :aria-label "Comments : activate to sort column descending"
+                                                                                             "Comments")
+                                                                                        (:th :class "" :role "columnheader" :tabindex "0" 
+                                                                                             :aria-controls "DataTables_Table_0" :rowspan "1" :colspan "1" 
+                                                                                             :style "width: 10%;" :aria-sort "ascending" 
+                                                                                             :aria-label "Mentions : activate to sort column descending"
+                                                                                             "Mentions")
+                                                                                        (:th :class "" :role "columnheader" :tabindex "0" 
+                                                                                             :aria-controls "DataTables_Table_0" :rowspan "1" :colspan "1" 
+                                                                                             :style "width: 10%;" :aria-sort "ascending" 
+                                                                                             :aria-label "Score : activate to sort column descending"
+                                                                                             "Score")))
+                                                                                  (:tbody :role "alert" :aria-live "polite" :aria-relevant "all"
+                                                                                          (let ((count 1))
+                                                                                            (dolist (user (gv 'users-stats))
+                                                                                              (htm
+                                                                                               (:tr :class (if (oddp count)
+                                                                                                               "odd"
+                                                                                                               "even")
+                                                                                                    (:td :class "sorting_1"
+                                                                                                         (str (first user)))
+                                                                                                    (:td :class "sorting_1"
+                                                                                                         (:span :class "badge badge-success"
+                                                                                                                (str (second (first (second user))))))
+                                                                                                    (:td :class "sorting_1"
+                                                                                                         (:span :class "badge badge-success"
+                                                                                                                (str (second (second (second user))))))
+                                                                                                    (:td :class "sorting_1"
+                                                                                                         (:span :class "badge badge-success"
+                                                                                                                (str (second (third (second user))))))
+                                                                                                    (:td :class "sorting_1"
+                                                                                                         (:span :class "badge badge-success"
+                                                                                                                (str (second (fourth (second user))))))
+                                                                                                    (:td :class "sorting_1"
+                                                                                                         (:span :class "badge badge-info"
+                                                                                                                (str (+
+                                                                                                                      (second (first (second user)))
+                                                                                                                      (second (second (second user)))
+                                                                                                                      (second (third (second user)))
+                                                                                                                      (second (fourth (second user)))))))))
+                                                                                              (incf count)))))))))))))
                           (:div :class "row-fluid"
                                 (:div :class "nonboxy-widget"
                                       (:div :class "widget-head"
@@ -1839,9 +1867,9 @@
                                       (:div :class "widget-content"
                                             (:div :class "widget-box"
                                                   (:div :class "row-fluid"
-                                                        (:div :class "span8"
-                                                              (:div :class "statistics-wrap"
-                                                                    (:div :class "statistics-block"
+                                                        (:div :class "span12"
+                                                              (:div :class "nonboxy-widget"
+                                                                    (:div :class "table_content"
                                                                           (let ((content (sort (gv 'content-stats) 
                                                                                                #'(lambda (x y)
                                                                                                    (let ((stat1 (third x))
@@ -1856,46 +1884,78 @@
                                                                                                          (second (first stat2))
                                                                                                          (second (second stat2))
                                                                                                          (second (third stat2)))))))))
-                                                                            (htm (:table :style "width:100%;" 
-                                                                                         (:tr
-                                                                                          (:td "Date")
-                                                                                          (:td "Post")
-                                                                                          (:td "Likes")
-                                                                                          (:td "Comments")
-                                                                                          (:td "Mentions")
-                                                                                          (:td "Score"))
-                                                                                     (dolist (action (if (> (length content) 10)
-                                                                                                         (subseq content 0 10)
-                                                                                                         content))
-                                                                                       (let ((date (first action))
-                                                                                             (text (second action))
-                                                                                             (stats (third action)))
-                                                                                         (htm
-                                                                                          (:tr
-                                                                                           (:td :style "width:130px;text-align:right;"
-                                                                                            (:span (str date)))
-                                                                                           (:td :style "padding-left:10px;"
-                                                                                            (:span (str (format nil "~A"
-                                                                                                                (if (> (length text) 70)
-                                                                                                                    (format nil "~A..." (subseq text 0 70))
-                                                                                                                    text)))))
-                                                                                           (:td
-                                                                                            (:span :style "float:right;"
-                                                                                                   (str (second (first stats)))))
-                                                                                           (:td
-                                                                                            (:span :style "float:right;"
-                                                                                                   (str (second (second stats)))))
-                                                                                           (:td
-                                                                                            (:span :style "float:right;"
-                                                                                                   (str (second (third stats)))))
-                                                                                           (:td
-                                                                                            (:span :style "float:right;"
-                                                                                                   (str (+
-                                                                                                         (second (first stats))
-                                                                                                         (second (second stats))
-                                                                                                         (second (third stats))
+                                                                            (htm (:table :class "data-tbl-simple table table-bordered dataTable" 
+                                                                                          :id "DataTables_Table_0"
+                                                                                          (:thead
+                                                                                           (:tr :role "row"
+                                                                                                (:th :class "" :role "columnheader" :tabindex "0" 
+                                                                                                     :aria-controls "DataTables_Table_0" :rowspan "1" :colspan "1" 
+                                                                                                     :style "width: 10%;" :aria-sort "ascending" 
+                                                                                                     :aria-label "Date & Time : activate to sort column descending"
+                                                                                                     "Date & Time")
+                                                                                                (:th :class "" :role "columnheader" :tabindex "0" 
+                                                                                                     :aria-controls "DataTables_Table_0" :rowspan "1" :colspan "1" 
+                                                                                                     :style "width: 50%;" :aria-sort "ascending" 
+                                                                                                     :aria-label "Post : activate to sort column descending"
+                                                                                                     "Post")
+                                                                                               
+                                                                                                (:th :class "" :role "columnheader" :tabindex "0" 
+                                                                                                     :aria-controls "DataTables_Table_0" :rowspan "1" :colspan "1" 
+                                                                                                     :style "width: 10%;" :aria-sort "ascending" 
+                                                                                                     :aria-label "Likes : activate to sort column descending"
+                                                                                                     "Likes")
+                                                                                                (:th :class "" :role "columnheader" :tabindex "0" 
+                                                                                                     :aria-controls "DataTables_Table_0" :rowspan "1" :colspan "1" 
+                                                                                                     :style "width: 10%;" :aria-sort "ascending" 
+                                                                                                     :aria-label "Comments : activate to sort column descending"
+                                                                                                     "Comments")
+                                                                                                (:th :class "" :role "columnheader" :tabindex "0" 
+                                                                                                     :aria-controls "DataTables_Table_0" :rowspan "1" :colspan "1" 
+                                                                                                     :style "width: 10%;" :aria-sort "ascending" 
+                                                                                                     :aria-label "Mentions : activate to sort column descending"
+                                                                                                     "Mentions")
+                                                                                                (:th :class "" :role "columnheader" :tabindex "0" 
+                                                                                                     :aria-controls "DataTables_Table_0" :rowspan "1" :colspan "1" 
+                                                                                                     :style "width: 10%;" :aria-sort "ascending" 
+                                                                                                     :aria-label "Score : activate to sort column descending"
+                                                                                                     "Score")))
+                                                                                          (:tbody :role "alert" :aria-live "polite" :aria-relevant "all"
+                                                                                                  (let ((count 1))
+                                                                                                    (dolist (action (if (> (length content) 10)
+                                                                                                                        (subseq content 0 10)
+                                                                                                                        content))
+                                                                                                      (let ((date (first action))
+                                                                                                            (text (second action))
+                                                                                                            (stats (third action)))
+                                                                                                        (htm
+                                                                                                         (:tr :class (if (oddp count)
+                                                                                                                         "odd"
+                                                                                                                         "even")
+                                                                                                          (:td :class "sorting_1"
+                                                                                                               (str date))
+                                                                                                          (:td :class "sorting_1"
+                                                                                                               (:span (str (format nil "~A"
+                                                                                                                                   (if (> (length text) 70)
+                                                                                                                                       (format nil "~A..." (subseq text 0 70))
+                                                                                                                                       text)))))
+                                                                                                          (:td :class "sorting_1"
+                                                                                                           (:span :class "badge badge-success"
+                                                                                                                  (str (second (first stats)))))
+                                                                                                          (:td :class "sorting_1"
+                                                                                                           (:span :class "badge badge-success"
+                                                                                                                  (str (second (second stats)))))
+                                                                                                          (:td :class "sorting_1"
+                                                                                                           (:span :class "badge badge-success"
+                                                                                                                  (str (second (third stats)))))
+                                                                                                          (:td :class "sorting_1"
+                                                                                                           (:span :class "badge badge-info"
+                                                                                                                  (str (+
+                                                                                                                        (second (first stats))
+                                                                                                                        (second (second stats))
+                                                                                                                        (second (third stats))
                                                                                                          
-                                                                                                         ))))))))))))))))))))
+                                                                                                                        ))))))))
+                                                                                                    (incf count)))))))))))))))
                     (:div :class "row-fluid"
                           (:div :class "nonboxy-widget"
                             

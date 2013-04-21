@@ -243,12 +243,16 @@
                 (:div :class "container-fluid"
                       (:div :class "branding"
                             (:div :class "logo"
-                                  (:img :style "" :src "/appimg/dyb-logo.png")
-                                  )
-                            )
+                                  (:img :style "" :src "/appimg/dyb-logo.png")))
+                      
                       (:div :class "branding"
-                       (:h3 (:span :style "color:white" (str (context-enties-display) ;;(entity-list)
-                                                                  ))))
+                            (:h3 (:span :style "color:white" (str (context-enties-display)))))
+                      
+                      (:a :class "btn btn-inverse"
+                          :href "http://app.digyourbrand.co.za/dyb/generic-scheduler?action=new&grid-name=generic-actions-gridx"
+                          (:i :class "white-icons pencil")
+                          "Compose")
+                    
                       (:ul :class "nav pull-right"
                            (:li :class "dropdown"
                                 (:a :class "dropdown-toggle" :href "#" :data-toggle "dropdown"
@@ -257,9 +261,7 @@
                                     (:i :class "white-icons admin_user")
                                     (:b :class "caret"))
                                 (:ul :class "dropdown-menu"
-                                     (if (check-permission "/dyb/dashboard")
-                                         (htm (:li
-                                               (:a :href "/dyb/dashboard" "Dashboard"))))
+                                     
                                      (if (check-permission "/dyb/clients")
                                          (htm (:li
                                                (:a :href "/dyb/clients" "Clients"))))
@@ -274,13 +276,11 @@
                                      (if (check-permission "/dyb/users")
                                          (htm (:li
                                                (:a :href "/dyb/users" "Users"))))
-                                    ;; (:li
-                                    ;;  (:a :href "/dyb/country-town" "Country/Town"))
+                                 
                                      (if (check-permission "/dyb/permissions")
                                          (htm (:li
                                                (:a :href "/dyb/permissions" "Permissions"))))
-                                    ;; (:li
-                                    ;;  (:a :href "/dyb/root-entities" "Root Entities"))
+                            
                                      (if (check-permission "/dyb/entities")
                                          (htm (:li
                                                (:a :href "/dyb/entities" "Entities"))))
@@ -296,8 +296,7 @@
                                      (if (check-permission "/dyb/context")
                                          (htm (:li
                                                (:a :href "/dyb/context" "Context"))))
-                                     ;;(:li
-                                     ;; (:a :href "/dyb/importer" "Importer"))
+
                                      (:li :class "divider")
                                      (:li
                                       (:a :href "/dyb/logout"
@@ -314,7 +313,7 @@
                                           :data-toggle "dropdown"
                                           (:i :class "nav-icon exposé")
                                           " Dashboard "
-                                          ;(:b :class "caret")
+                                        ;(:b :class "caret")
                                           
                                           )
                                       )
@@ -323,7 +322,7 @@
                                           :data-toggle "dropdown"
                                           (:i :class "nav-icon mail")
                                           " Inbox "
-                                          ;(:b :class "caret")
+                                        ;(:b :class "caret")
                                           
                                           )
                                       )
@@ -332,7 +331,7 @@
                                           :data-toggle "dropdown"
                                           (:i :class "nav-icon month_calendar")
                                           " Scheduler "
-                                          ;(:b :class "caret")
+                                        ;(:b :class "caret")
                                           
                                           )
                                       )
@@ -341,8 +340,8 @@
                                           :class "dropdown-toggle"
                                           :data-toggle "dropdown"
                                           (:i :class "nav-icon create_write")
-                                          " Quick Post "
-                                          ;(:b :class "caret")
+                                          " Compose "
+                                        ;(:b :class "caret")
                                           
                                           )
                                       )
@@ -351,7 +350,7 @@
                                           :data-toggle "dropdown"
                                           (:i :class "nav-icon laptop")
                                           " Tasks "
-                                          ;(:b :class "caret")
+                                        ;(:b :class "caret")
                                           
                                           )
                                       )
@@ -360,7 +359,7 @@
                                           :data-toggle "dropdown"
                                           (:i :class "nav-icon magnifying_glass")
                                           " Search Streams "
-                                          ;(:b :class "caret")
+                                        ;(:b :class "caret")
                                           
                                           )
                                       )
@@ -371,7 +370,7 @@
                                           :data-toggle "dropdown"
                                           (:i :class "nav-icon light_bulb")
                                           " Support "
-                                          ;(:b :class "caret")
+                                        ;(:b :class "caret")
                                           
                                           )
                                       )))
@@ -620,30 +619,30 @@ if (okToRefresh)
                          (:li
                           (:a :href "/dyb/dashboard"
                               (:span :class "white-icons exposé")
-                              (str "Dashboard")))
+                              (str " Dashboard")))
 
                          (:li
                           (:a :href "/dyb/generic"
                               (:span :class "white-icons mail")
-                              "Inbox")
+                              " Inbox")
                           )
                          (:li
                           (:a :href "/dyb/generic-scheduler"
                               (:span :class "white-icons month_calendar")
-                              "Scheduler")
-                          (:li
+                              " Scheduler"))
+                         #| (:li
                            (:a :href "/dyb/generic-scheduler?action=new&grid-name=generic-actions-gridx"
                                (:span :class "white-icons create_write")
-                               "Quick Post")))
+                               " Quick Post")) |#
                          (:li
                           (:a :href "/dyb/tasks"
                               (:span :class "white-icons laptop")
-                              "Tasks"))
+                              " Tasks"))
                          
                          (:li
                           (:a :href "/dyb/search-stream"
                               (:span :class "white-icons magnifying_glass")
-                              "Search Streams")
+                              " Search Streams")
                          #| (:ul :class "acitem" :style "display:none;"
 
                           (:li
@@ -663,7 +662,7 @@ if (okToRefresh)
                                           :data-parent "#side-accordion"
                                           :data-toggle "collapse"
                                           (:i :class "nav-icon month_calender")
-                                          "Todays Event"))
+                                          "Content Calendar"))
                                 (:div :class "accordion-content"
                                       (:div :id "inline-datepicker" )))))
 
