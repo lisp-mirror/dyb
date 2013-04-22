@@ -576,25 +576,23 @@
                             ))))))
 
 (defun %network-size-graph (min-date max-date data interval)
-  
-  (with-html-string
+  (with-html
     (:div :class "span9"
           (:div :class "graph-wrap"
                 (:div :class "chart-block"
                       (let ((network-size 
-                             (make-widget
-                              'line-graph :name "currentnetworksize"
-                              :data data)))
-                        (setf (get-val network-size 'data) data)
+                              (make-widget
+                               'line-graph :name "currentnetworksize")))
+                        (setf (data network-size) data)
                         (setf (title network-size) "Current Network Size")
                         (setf (x network-size)
                               `(:type :date
-                                      :tick-interval (if (<= interval 7)
-                                                         "1 days"
-                                                         (if (and (> interval 7) 
-                                                                  (< interval 100))
-                                                             "7 days"
-                                                             "30 days"))
+                                :tick-interval (if (<= interval 7)
+                                                   "1 days"
+                                                   (if (and (> interval 7) 
+                                                            (< interval 100))
+                                                       "7 days"
+                                                       "30 days"))
                                 :min ,min-date
                                 :max ,max-date
                                 :tick-options (:format-string "%b&nbsp;%#d")))
@@ -1565,18 +1563,17 @@
                     t)))))))
 
 (defun network-size-graph (min-date max-date interval)
-  (with-html-to-string ()
-    (str (%network-size-graph
-          (format-universal-date-dash min-date)
-          (format-universal-date-dash max-date)
-          (if (and (gv 'twitter-followers-interval-list) (gv 'fb-fans-interval-list))
-              `((,@(gv 'twitter-followers-interval-list))
-                (,@(gv 'fb-fans-interval-list)))
-              (if (gv 'twitter-followers-interval-list)
-                  `((,@(gv 'twitter-followers-interval-list)))
-                  (if (gv 'fb-fans-interval-list)
-                      `((,@(gv 'fb-fans-interval-list))) )))
-          interval)))
+  (%network-size-graph
+   (format-universal-date-dash min-date)
+   (format-universal-date-dash max-date)
+   (if (and (gv 'twitter-followers-interval-list) (gv 'fb-fans-interval-list))
+       `((,@(gv 'twitter-followers-interval-list))
+         (,@(gv 'fb-fans-interval-list)))
+       (if (gv 'twitter-followers-interval-list)
+           `((,@(gv 'twitter-followers-interval-list)))
+           (if (gv 'fb-fans-interval-list)
+               `((,@(gv 'fb-fans-interval-list))) )))
+   interval)
 
   (defun fb-new-page-likes-graph ()
     (with-html-to-string ()
@@ -1739,10 +1736,10 @@
                                   
                                       (:div :class "widget-content"
                                             (:div :class "widget-box"
-                                                  (str (network-size-graph    
-                                                        interval-start-date
-                                                        interval-end-date
-                                                        interval))))))
+                                                  (network-size-graph
+                                                   interval-start-date
+                                                   interval-end-date
+                                                   interval)))))
                           (:div :class "row-fluid"
                                 (:div :class "nonboxy-widget"
                                       (:div :class "widget-head"

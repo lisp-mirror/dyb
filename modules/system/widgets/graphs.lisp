@@ -1,4 +1,4 @@
-      (in-package :dyb)
+(in-package :dyb)
 
 (defclass graph (ajax-widget)
   ((data :initarg :data
@@ -199,7 +199,6 @@
     ))
 
 (defmethod render ((widget line-graph) &key)
-
   (defer-js
       (format
        nil
@@ -249,7 +248,9 @@ drawBaseline: false
 
 "
        (name widget)
-       (json:encode-json-to-string (data widget))
+       (if (data widget)
+           (json:encode-json-to-string (data widget))
+           "[[null]]")
        (title widget)
        (if (series widget)
            (json:encode-json-to-string (mapcar (lambda (x) (getf x :color))
