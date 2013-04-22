@@ -1794,8 +1794,8 @@
                                                         (:div :class "span12"
                                                               (:div :class "nonboxy-widget"
                                                                     (:div :class "table_content"
-                                                                          (:table :class "data-tbl-simple table table-bordered dataTable" 
-                                                                                  :id "DataTables_Table_0"
+                                                                          (:table ;;:class "data-tbl-simple table table-bordered dataTable" 
+                                                                                  ;;:id "DataTables_Table_0"
                                                                                   (:thead
                                                                                    (:tr :role "row"
                                                                                         (:th :class "" :role "columnheader" :tabindex "0" 
@@ -1884,8 +1884,8 @@
                                                                                                          (second (first stat2))
                                                                                                          (second (second stat2))
                                                                                                          (second (third stat2)))))))))
-                                                                            (htm (:table :class "data-tbl-simple table table-bordered dataTable" 
-                                                                                          :id "DataTables_Table_0"
+                                                                            (htm (:table ;;:class "data-tbl-simple table table-bordered dataTable" 
+                                                                                         ;; :id "DataTables_Table_0"
                                                                                           (:thead
                                                                                            (:tr :role "row"
                                                                                                 (:th :class "" :role "columnheader" :tabindex "0" 
