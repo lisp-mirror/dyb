@@ -584,7 +584,7 @@
                               (make-widget
                                'line-graph :name "currentnetworksize")))
                         (setf (data network-size) data)
-                        (setf (title network-size) "Current Network Size")
+                        (setf (title network-size) "Change in Network")
                         (setf (x network-size)
                               `(:type :date
                                 :tick-interval (if (<= interval 7)
@@ -694,32 +694,39 @@
                 (:div :class "widget-content"
                       (:div :class "row-fluid"
                             (:form :name "dash-date-form" :action ""  :method "post"
-                                 
-                                   
                                    (:div :class "widget-box"
                                          (:div :class "row-fluid"
-                                               (:div :class "span2"
-                                                     (:input :type :radio 
-                                                             :id "shit"
-                                                             :name "dashboard-interval" 
-                                                             :value "7 Days"
-                                                             :checked (string-equal (parameter "dashboard-interval") "7 Days")
-                                                             (str "7 Days")))
-                                               (:div :class "span2"
-                                                     (:input :type :radio 
-                                                             :name "dashboard-interval" 
-                                                             :value "30 Days"
-                                                             :checked (or (string-equal (parameter "dashboard-interval") "30 Days")
-                                                                          (not (parameter "dashboard-interval")))
-                                                             (str "30 Days")))
-                                               (:div :class "span2"
-                                                     (:input :type :radio 
-                                                             :name "dashboard-interval" 
-                                                             :value "365 Days"
-                                                             :checked (string-equal (parameter "dashboard-interval") "365 Days")
-                                                             (str "365 Days"))))
+                                               
+                                               (:div :class "control-group"
+                                                     (:label :class "control-label")
+                                                     (:div :class "controls"
+                                                           (:label :class "radio"
+                                                           
+                                                                   (:input :type :radio 
+                                                                           :id "shit"
+                                                                           :name "dashboard-interval" 
+                                                                           :value "7 Days"
+                                                                           :checked (string-equal (parameter "dashboard-interval") "7 Days")
+                                                                           )
+                                                                   (str "7 Days"))
+                                                           (:label :class "radio"
+                                                                   (:input :type :radio 
+                                                                           :name "dashboard-interval" 
+                                                                           :value "30 Days"
+                                                                           :checked (or (string-equal (parameter "dashboard-interval") "30 Days")
+                                                                                        (not (parameter "dashboard-interval")))
+                                                                           )
+                                                                   (str "30 Days"))
+                                                           (:label :class "radio"
+                                                                   (:input :type :radio 
+                                                                           :name "dashboard-interval" 
+                                                                           :value "365 Days"
+                                                                           :checked (string-equal (parameter "dashboard-interval") "365 Days")
+                                                                           )
+                                                                   (str "365 Days"))
+                                                           )))
                                          (:div :class "row-fluid"
-                                               (:div :class "span5"
+                                               (:div :class "span3"
                                                      (str "From Date")
                                                      (render-edit-field 
                                                       "interval-start-date"
@@ -734,7 +741,12 @@
                                                       :type :date
                                                       :required nil
                                                       :width "100px")
-                                                     ))
+                                                     )
+                                              (:form :name "dash-date-form" :action ""  :method "post"                        
+                                                     (:input :type "submit"                                     
+                                                             :class "btn btn-info" 
+                                                             :name "clear-selection" 
+                                                             :value "Clear Selection")))
                                          )
                                    (:div :class "widget-bottom"
                                          (:input :type "submit"                                     
@@ -744,13 +756,7 @@
                                    ))
                       (:div :class "row-fluid"
                             (:br)
-                            (:form :name "dash-date-form" :action ""  :method "post"
-                        
-                                   (:div :class "widget-bottom"
-                                         (:input :type "submit"                                     
-                                                 :class "btn btn-info" 
-                                                 :name "clear-selection" 
-                                                 :value "Clear Selection"))))
+                            )
                       )))))
 
 (defun dashboard-overview ()
@@ -1563,6 +1569,7 @@
                     t)))))))
 
 (defun network-size-graph (min-date max-date interval)
+<<<<<<< HEAD
   (%network-size-graph
    (format-universal-date-dash min-date)
    (format-universal-date-dash max-date)
@@ -1574,6 +1581,21 @@
            (if (gv 'fb-fans-interval-list)
                `((,@(gv 'fb-fans-interval-list))) )))
    interval)
+=======
+
+  (with-html-to-string ()
+    (str (%network-size-graph
+          (format-universal-date-dash min-date)
+          (format-universal-date-dash max-date)
+          (if (and (gv 'twitter-followers-interval-list) (gv 'fb-fans-interval-list))
+              `((,@(gv 'twitter-followers-interval-list))
+                (,@(gv 'fb-fans-interval-list)))
+              (if (gv 'twitter-followers-interval-list)
+                  `((,@(gv 'twitter-followers-interval-list)))
+                  (if (gv 'fb-fans-interval-list)
+                      `((,@(gv 'fb-fans-interval-list))) )))
+          interval)))
+>>>>>>> More style changes
 
   (defun fb-new-page-likes-graph ()
     (with-html-to-string ()
@@ -1719,7 +1741,7 @@
                           (:div :class "row-fluid"
                                 (:div :class "nonboxy-widget"
                                       (:div :class "widget-head"
-                                            (:h5 (:i :class "black-icons month_calendar")
+                                            (:h5 
                                                  (str "Overview")))
                                       (:div :class "widget-content"
                                             (:div :class "widget-box"
@@ -1731,7 +1753,7 @@
                           (:div :class "row-fluid"
                                 (:div :class "nonboxy-widget"
                                       (:div :class "widget-head"
-                                            (:h5 (:i :class "black-icons month_calendar")
+                                            (:h5 
                                                  (str "Network")))
                                   
                                       (:div :class "widget-content"
@@ -1743,7 +1765,7 @@
                           (:div :class "row-fluid"
                                 (:div :class "nonboxy-widget"
                                       (:div :class "widget-head"
-                                            (:h5 (:i :class "black-icons month_calendar")
+                                            (:h5 
                                                  (str "Engagement & Community")))
 
                                       (:div :class "widget-content"
@@ -1755,9 +1777,13 @@
 
                           (:div :class "row-fluid"
                                 (:div :class "nonboxy-widget"
+
+                                      (:div :class "widget-head"
+                                            (:h5 
+                                             "7 Days Overview"))
                                       (:div :class "widget-head"
                                             (:h5 (:i :class "black-icons facebook")
-                                                 "FACEBOOK (Last 7 Days)"))
+                                                 "FACEBOOK"))
 
                                       (:div :class "widget-content"
                                             (:div :class "widget-box"
@@ -1770,7 +1796,7 @@
                                 (:div :class "nonboxy-widget"
                                       (:div :class "widget-head"
                                             (:h5 (:i :class "black-icons twitter")
-                                                 "Twitter (Last 7 Days)"))
+                                                 "Twitter"))
 
                                       (:div :class "widget-content"
                                             (:div :class "widget-box"
@@ -1782,17 +1808,17 @@
                           (:div :class "row-fluid"
                                 (:div :class "nonboxy-widget"
                                       (:div :class "widget-head"
-                                            (:h5 (:i :class "black-icons users")
+                                            (:h5 
                                                  "User stats"))
 
                                       (:div :class "widget-content"
                                             (:div :class "widget-box"
                                                   (:div :class "row-fluid"
-                                                        (:div :class "span12"
+                                                        (:div :class "span8"
                                                               (:div :class "nonboxy-widget"
                                                                     (:div :class "table_content"
                                                                           (:table ;;:class "data-tbl-simple table table-bordered dataTable" 
-                                                                                  ;;:id "DataTables_Table_0"
+                                                                                  :id "DataTables_Table_0"
                                                                                   (:thead
                                                                                    (:tr :role "row"
                                                                                         (:th :class "" :role "columnheader" :tabindex "0" 
@@ -1835,20 +1861,28 @@
                                                                                                                "even")
                                                                                                     (:td :class "sorting_1"
                                                                                                          (str (first user)))
-                                                                                                    (:td :class "sorting_1"
-                                                                                                         (:span :class "badge badge-success"
+                                                                                                    (:td :class "sorting_1" :style "text-align: center;"
+                                                                                                         (:span :class (if (< 0 (second (first (second user))))
+                                                                                                                           "badge badge-success"
+                                                                                                                           "badge badge-important")
                                                                                                                 (str (second (first (second user))))))
-                                                                                                    (:td :class "sorting_1"
-                                                                                                         (:span :class "badge badge-success"
+                                                                                                    (:td :class "sorting_1" :style "text-align: center;"
+                                                                                                         (:span :class (if (< 0 (second (second (second user))))
+                                                                                                                           "badge badge-success"
+                                                                                                                           "badge badge-important")
                                                                                                                 (str (second (second (second user))))))
-                                                                                                    (:td :class "sorting_1"
-                                                                                                         (:span :class "badge badge-success"
+                                                                                                    (:td :class "sorting_1" :style "text-align: center;"
+                                                                                                         (:span :class (if (< 0 (second (third (second user))))
+                                                                                                                           "badge badge-success"
+                                                                                                                           "badge badge-important")
                                                                                                                 (str (second (third (second user))))))
-                                                                                                    (:td :class "sorting_1"
-                                                                                                         (:span :class "badge badge-success"
+                                                                                                    (:td :class "sorting_1" :style "text-align: center;"
+                                                                                                         (:span :class (if (< 0 (second (fourth (second user))))
+                                                                                                                           "badge badge-success"
+                                                                                                                           "badge badge-important")
                                                                                                                 (str (second (fourth (second user))))))
-                                                                                                    (:td :class "sorting_1"
-                                                                                                         (:span :class "badge badge-info"
+                                                                                                    (:td :class "sorting_1" :style "text-align: center;"
+                                                                                                         (:span :class "badge badge-inverse"
                                                                                                                 (str (+
                                                                                                                       (second (first (second user)))
                                                                                                                       (second (second (second user)))
@@ -1858,7 +1892,7 @@
                           (:div :class "row-fluid"
                                 (:div :class "nonboxy-widget"
                                       (:div :class "widget-head"
-                                            (:h5 (:i :class "black-icons create_write")
+                                            (:h5 
                                                  "Content Stats"))
 
                                       (:div :class "widget-content"
@@ -1882,7 +1916,7 @@
                                                                                                          (second (second stat2))
                                                                                                          (second (third stat2)))))))))
                                                                             (htm (:table ;;:class "data-tbl-simple table table-bordered dataTable" 
-                                                                                         ;; :id "DataTables_Table_0"
+                                                                                          :id "DataTables_Table_0"
                                                                                           (:thead
                                                                                            (:tr :role "row"
                                                                                                 (:th :class "" :role "columnheader" :tabindex "0" 
@@ -1935,23 +1969,27 @@
                                                                                                                                    (if (> (length text) 70)
                                                                                                                                        (format nil "~A..." (subseq text 0 70))
                                                                                                                                        text)))))
-                                                                                                          (:td :class "sorting_1"
-                                                                                                           (:span :class "badge badge-success"
+                                                                                                          (:td :class "sorting_1" :style "text-align: center;"
+                                                                                                           (:span :class (if (< 0 (second (first stats)))
+                                                                                                                           "badge badge-success"
+                                                                                                                           "badge badge-important")
                                                                                                                   (str (second (first stats)))))
-                                                                                                          (:td :class "sorting_1"
-                                                                                                           (:span :class "badge badge-success"
+                                                                                                          (:td :class "sorting_1" :style "text-align: center;"
+                                                                                                           (:span :class (if (< 0 (second (second stats)))
+                                                                                                                           "badge badge-success"
+                                                                                                                           "badge badge-important")
                                                                                                                   (str (second (second stats)))))
-                                                                                                          (:td :class "sorting_1"
-                                                                                                           (:span :class "badge badge-success"
+                                                                                                          (:td :class "sorting_1" :style "text-align: center;"
+                                                                                                           (:span :class (if (< 0 (second (third stats)))
+                                                                                                                           "badge badge-success"
+                                                                                                                           "badge badge-important")
                                                                                                                   (str (second (third stats)))))
                                                                                                           (:td :class "sorting_1"
-                                                                                                           (:span :class "badge badge-info"
+                                                                                                           (:span :class "badge badge-inverse" :style "text-align: center;"
                                                                                                                   (str (+
                                                                                                                         (second (first stats))
                                                                                                                         (second (second stats))
-                                                                                                                        (second (third stats))
-                                                                                                         
-                                                                                                                        ))))))))
+                                                                                                                        (second (third stats))))))))))
                                                                                                     (incf count)))))))))))))))
                     (:div :class "row-fluid"
                           (:div :class "nonboxy-widget"

@@ -27,7 +27,7 @@
 (defmethod render ((widget login) &key)
   (with-html
     (:div :class "box"
-          (box-header "Login" :icon "lock"
+          (box-header "Login" ;;:icon "/ico/lock"
                               :class "header grey")
           (:form :method "post"
                  :action ""               

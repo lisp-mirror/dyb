@@ -248,10 +248,10 @@
                       (:div :class "branding"
                             (:h3 (:span :style "color:white" (str (context-enties-display)))))
                       
-                      ;;(:a :class "btn btn-inverse"
-                      ;;    :href "http://app.digyourbrand.co.za/dyb/generic-scheduler?action=new&grid-name=generic-actions-gridx"
-                      ;;    (:i :class "white-icons pencil")
-                      ;;    "Compose")
+                      (:a :class "btn btn-inverse"
+                          :href "http://app.digyourbrand.co.za/dyb/generic-scheduler?action=new&grid-name=generic-actions-gridx"
+                          (:i :class "white-icons pencil")
+                          "Compose")
                     
                       (:ul :class "nav pull-right"
                            (:li :class "dropdown"
@@ -480,6 +480,12 @@ if (okToRefresh)
        )
 
       (:body ;;:onload "timedRefresh(30000)"
+
+       (:br)
+(:br)
+(:br)
+
+
        (str body)
 
 
