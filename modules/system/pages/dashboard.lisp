@@ -610,8 +610,8 @@
                         (setf (highlighter network-size)
                               '(:show t :size-adjust 7.5))
                         (setf (legend network-size)
-                              '(:show t :placement :outside))
-                        (setf (series network-size)
+                              '(:show nil :placement :outside))
+                       #|(setf (series network-size)
                               '((:show-marker nil
                                  :color "#00FFFF"
                                  :label "TW")
@@ -620,7 +620,7 @@
                                  :label "FB")
                                 (:show-marker nil
                                  :color "#04B45F"
-                                 :label "LNK")))
+                                 :label "LNK")))|#
                         (setf (series-defaults network-size) 
                               '(:show "true"
                                 :xaxis "xaxis"
@@ -688,72 +688,91 @@
     (:div :class "row-fluid"
           (:div :class "nonboxy-widget"
                 (:div :class "widget-head"
-                      (:h5 (:i :class "black-icons month_calendar")
+                      (:h5 ;;(:i :class "black-icons month_calendar")
                            (str "Dashboard Interval")))
 
                 (:div :class "widget-content"
                       (:div :class "row-fluid"
-                            (:form :name "dash-date-form" :action ""  :method "post"
-                                   (:div :class "widget-box"
+                            
+                            (:div :class "widget-box"
                                          (:div :class "row-fluid"
                                                
-                                               (:div :class "control-group"
-                                                     (:label :class "control-label")
-                                                     (:div :class "controls"
-                                                           (:label :class "radio"
-                                                           
-                                                                   (:input :type :radio 
-                                                                           :id "shit"
-                                                                           :name "dashboard-interval" 
-                                                                           :value "7 Days"
-                                                                           :checked (string-equal (parameter "dashboard-interval") "7 Days")
-                                                                           )
-                                                                   (str "7 Days"))
-                                                           (:label :class "radio"
-                                                                   (:input :type :radio 
-                                                                           :name "dashboard-interval" 
-                                                                           :value "30 Days"
-                                                                           :checked (or (string-equal (parameter "dashboard-interval") "30 Days")
-                                                                                        (not (parameter "dashboard-interval")))
-                                                                           )
-                                                                   (str "30 Days"))
-                                                           (:label :class "radio"
-                                                                   (:input :type :radio 
-                                                                           :name "dashboard-interval" 
-                                                                           :value "365 Days"
-                                                                           :checked (string-equal (parameter "dashboard-interval") "365 Days")
-                                                                           )
-                                                                   (str "365 Days"))
-                                                           )))
-                                         (:div :class "row-fluid"
                                                (:div :class "span3"
-                                                     (str "From Date")
-                                                     (render-edit-field 
-                                                      "interval-start-date"
-                                                      (parameter "interval-start-date")
-                                                      :type :date
-                                                      :required nil
-                                                      :width "100px")
-                                                     (str " To Date")
-                                                     (render-edit-field 
-                                                      "interval-end-date"
-                                                      (parameter "interval-end-date")
-                                                      :type :date
-                                                      :required nil
-                                                      :width "100px")
-                                                     )
-                                              (:form :name "dash-date-form" :action ""  :method "post"                        
-                                                     (:input :type "submit"                                     
-                                                             :class "btn btn-info" 
-                                                             :name "clear-selection" 
-                                                             :value "Clear Selection")))
+                                                     (:span :style "font-weight:bold;" "Fixed Interval:")
+                                                     (:form :name "dash-date-form" :action ""  :method "post"
+                                                            (:div :class "control-group"
+                                                                  (:label :class "control-label")
+                                                                  (:div :class "controls"
+                                                                        (:label :class "radio"
+                                                           
+                                                                                (:input :type :radio 
+                                                                                        :id "shit"
+                                                                                        :name "dashboard-interval" 
+                                                                                        :value "7 Days"
+                                                                                        :checked (string-equal (parameter "dashboard-interval") "7 Days")
+                                                                                        )
+                                                                                (str "7 Days"))
+                                                                        (:label :class "radio"
+                                                                                (:input :type :radio 
+                                                                                        :name "dashboard-interval" 
+                                                                                        :value "30 Days"
+                                                                                        :checked (or (string-equal (parameter "dashboard-interval") "30 Days")
+                                                                                                     (not (parameter "dashboard-interval")))
+                                                                                        )
+                                                                                (str "30 Days"))
+                                                                        (:label :class "radio"
+                                                                                (:input :type :radio 
+                                                                                        :name "dashboard-interval" 
+                                                                                        :value "365 Days"
+                                                                                        :checked (string-equal (parameter "dashboard-interval") "365 Days")
+                                                                                        )
+                                                                                (str "365 Days"))
+                                                                        ))
+                                                            (:div :class "widget-bottom"
+                                                                  (:input :type "submit"                                     
+                                                                          :class "btn btn-info" 
+                                                                          :name "set-dash-interval" 
+                                                                          :value "GO"))
+                                                            (:br)))
+                                               (:div :class "span4"
+                                                     (:span :style "font-weight:bold;" "Custom Interval:")
+                                                     (:br)
+                                                     (:br)
+                                                     (:form :name "dash-date-formx" :action ""  :method "post"                        
+                                                                  
+                                                            (:div :class "row-fluid"
+                                                                  (:div :class "span4" 
+                                                                        (str "From Date")
+                                                                        (render-edit-field 
+                                                                         "interval-start-date"
+                                                                         (parameter "interval-start-date")
+                                                                         :type :date
+                                                                         :required nil
+                                                                         :width "100px"))
+                                                                  (:div :class "span4" 
+                                                                        (str " To Date")
+                                                                        (render-edit-field 
+                                                                         "interval-end-date"
+                                                                         (parameter "interval-end-date")
+                                                                         :type :date
+                                                                         :required nil
+                                                                         :width "100px"))
+                                                           
+                                                                  )
+                                                            (:div :class "widget-bottom"
+                                                                  (:input :type "submit"                                     
+                                                                          :class "btn btn-info" 
+                                                                          :name "set-dash-interval" 
+                                                                          :value "GO")))
+                                                     
+                                                     ))
+                                         (:div :class "row-fluid"
+                                               
+                                              )
                                          )
-                                   (:div :class "widget-bottom"
-                                         (:input :type "submit"                                     
-                                                 :class "btn btn-info" 
-                                                 :name "set-dash-interval" 
-                                                 :value "GO"))
-                                   ))
+                            
+
+                            )
                       (:div :class "row-fluid"
                             (:br)
                             )
@@ -1569,7 +1588,7 @@
                     t)))))))
 
 (defun network-size-graph (min-date max-date interval)
-<<<<<<< HEAD
+
   (%network-size-graph
    (format-universal-date-dash min-date)
    (format-universal-date-dash max-date)
@@ -1580,22 +1599,7 @@
            `((,@(gv 'twitter-followers-interval-list)))
            (if (gv 'fb-fans-interval-list)
                `((,@(gv 'fb-fans-interval-list))) )))
-   interval)
-=======
-
-  (with-html-to-string ()
-    (str (%network-size-graph
-          (format-universal-date-dash min-date)
-          (format-universal-date-dash max-date)
-          (if (and (gv 'twitter-followers-interval-list) (gv 'fb-fans-interval-list))
-              `((,@(gv 'twitter-followers-interval-list))
-                (,@(gv 'fb-fans-interval-list)))
-              (if (gv 'twitter-followers-interval-list)
-                  `((,@(gv 'twitter-followers-interval-list)))
-                  (if (gv 'fb-fans-interval-list)
-                      `((,@(gv 'fb-fans-interval-list))) )))
-          interval)))
->>>>>>> More style changes
+   interval))
 
   (defun fb-new-page-likes-graph ()
     (with-html-to-string ()
@@ -1605,7 +1609,7 @@
             "New Page Likes" 
             (list "facebook_like") 
             "bar-chart" "span3"
-            :tooltip "The number of new people who have liked your Page.")))))
+            :tooltip "The number of new people who have liked your Page."))))
 
 (defun fb-page-impressions-graph ()
   (with-html-to-string ()
@@ -1758,10 +1762,34 @@
                                   
                                       (:div :class "widget-content"
                                             (:div :class "widget-box"
-                                                  (network-size-graph
-                                                   interval-start-date
-                                                   interval-end-date
-                                                   interval)))))
+                                                  (:div :class "row-fluid"
+                                                        
+                                                        (network-size-graph
+                                                         interval-start-date
+                                                         interval-end-date
+                                                         interval)
+                                                       
+                                                        (:div :class "span2"
+                                                              (:div :class "summary"
+                                                                    (:h5 "Lengend")
+                                                                    (:br)
+                                                                    (:ul
+                                                               
+                                                                     (:li
+                                                                      (:span
+                                                                       :style "width: 36px;height: 36px;float: left;margin-right: 10px;padding: 6px;"
+                                                                       (:img :src "/appimg/Facebook_Light_Logo.png"
+                                                                             :width "36" :height "36" :alt "")
+                                                                       )
+                                                                      )
+                                                                     (:li
+                                                                      (:span
+                                                                       :style "width: 36px;height: 36px;float: left;margin-right: 10px;padding: 6px;"
+                                                                       (:img :src "/appimg/twitter-bird-white-on-blue.png"
+                                                                             :width "36" :height "36" :alt "")
+                                                                       )
+                                                                      )
+                                                                     ))))))))
                           (:div :class "row-fluid"
                                 (:div :class "nonboxy-widget"
                                       (:div :class "widget-head"
@@ -1775,36 +1803,7 @@
                                                         (:div :class "span2"
                                                               (str (current-community-size ))))))))
 
-                          (:div :class "row-fluid"
-                                (:div :class "nonboxy-widget"
 
-                                      (:div :class "widget-head"
-                                            (:h5 
-                                             "7 Days Overview"))
-                                      (:div :class "widget-head"
-                                            (:h5 (:i :class "black-icons facebook")
-                                                 "FACEBOOK"))
-
-                                      (:div :class "widget-content"
-                                            (:div :class "widget-box"
-                                                  (:div :class "row-fluid"
-                                                        (str (fb-new-page-likes-graph))
-                                                        (str (fb-page-impressions-graph))
-                                                        (str (fb-total-fans-graph))
-                                                        (str (fb-page-unlikes-graph)))))))
-                          (:div :class "row-fluid"
-                                (:div :class "nonboxy-widget"
-                                      (:div :class "widget-head"
-                                            (:h5 (:i :class "black-icons twitter")
-                                                 "Twitter"))
-
-                                      (:div :class "widget-content"
-                                            (:div :class "widget-box"
-                                                  (:div :class "row-fluid"
-                                                        (str (tw-new-followers-graph))
-                                                        (str (tw-impressions-graph))
-                                                        (str (tw-total-fans-graph))
-                                                        (str (tw-un-followed-graph)))))))
                           (:div :class "row-fluid"
                                 (:div :class "nonboxy-widget"
                                       (:div :class "widget-head"
@@ -1990,7 +1989,39 @@
                                                                                                                         (second (first stats))
                                                                                                                         (second (second stats))
                                                                                                                         (second (third stats))))))))))
-                                                                                                    (incf count)))))))))))))))
+                                                                                                    (incf count))))))))))))))
+
+                                                    (:div :class "row-fluid"
+                                (:div :class "nonboxy-widget"
+
+                                      (:div :class "widget-head"
+                                            (:h5 
+                                             "7 Days Overview"))
+                                      (:div :class "widget-head"
+                                            (:h5 (:i :class "black-icons facebook")
+                                                 "FACEBOOK"))
+
+                                      (:div :class "widget-content"
+                                            (:div :class "widget-box"
+                                                  (:div :class "row-fluid"
+                                                        (str (fb-new-page-likes-graph))
+                                                        (str (fb-page-impressions-graph))
+                                                        (str (fb-total-fans-graph))
+                                                        (str (fb-page-unlikes-graph)))))))
+                          (:div :class "row-fluid"
+                                (:div :class "nonboxy-widget"
+                                      (:div :class "widget-head"
+                                            (:h5 (:i :class "black-icons twitter")
+                                                 "Twitter"))
+
+                                      (:div :class "widget-content"
+                                            (:div :class "widget-box"
+                                                  (:div :class "row-fluid"
+                                                        (str (tw-new-followers-graph))
+                                                        (str (tw-impressions-graph))
+                                                        (str (tw-total-fans-graph))
+                                                        (str (tw-un-followed-graph)))))))
+                          )
                     (:div :class "row-fluid"
                           (:div :class "nonboxy-widget"
                             

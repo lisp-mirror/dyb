@@ -243,19 +243,42 @@
                 (:div :class "container-fluid"
                       (:div :class "branding"
                             (:div :class "logo"
-                                  (:img :style "" :src "/appimg/dyb-logo.png")))
+                                  (:a :target "_blank" :href "http://digyourbrand.com" 
+                                      (:img :style "" :src "/appimg/dyb-logo.png"))))
                       
                       (:div :class "branding"
                             (:h3 (:span :style "color:white" (str (context-enties-display)))))
                       
-                      (:a :class "btn btn-inverse"
+                     #| (:a :class "btn btn-inverse pull-right"
                           :href "http://app.digyourbrand.co.za/dyb/generic-scheduler?action=new&grid-name=generic-actions-gridx"
                           (:i :class "white-icons pencil")
                           "Compose")
-                    
+                      |#
+                      (:div :class "branding"
+                            (:a :target "_blank"
+                                :href "http://app.digyourbrand.co.za/dyb/generic-scheduler?action=new&grid-name=generic-actions-gridx" 
+                                :class "dropdown-toggle"
+                                :data-toggle "dropdown"
+                                (:i :class "white-icons pencil")
+                                " Compose "
+                                        ;(:b :class "caret")
+                                          
+                                ))
+                      (:div :class "branding"
+                            (:a :target "_blank"
+                                :href "http://digyourbrand.com/support/" 
+                                :class "dropdown-toggle"
+                                :data-toggle "dropdown"
+                                (:i :class "nav-icon light_bulb")
+                                " Support "
+                                        ;(:b :class "caret")
+                                ))
+                      
                       (:ul :class "nav pull-right"
+
                            (:li :class "dropdown"
                                 (:a :class "dropdown-toggle" :href "#" :data-toggle "dropdown"
+                                    
                                     (str (get-val (current-user) 'email))
                                     ;;(:span :class "alert-noty" (str "0"))
                                     (:i :class "white-icons admin_user")
@@ -306,7 +329,8 @@
                                (:span :class "icon-bar")
                                (:span :class "icon-bar")
                                (:span :class "icon-bar"))
-                      (:div :class "nav-collapse in collapse" :style "height:auto;"
+                      (:div :class "nav-collapse in collapse mobile-menu" 
+                            :style "height:auto;"
                             (:ul :class "nav"
                                  (:li :class "dropdown"
                                       (:a :href "/dyb/dashboard" :class "dropdown-toggle"
@@ -481,9 +505,6 @@ if (okToRefresh)
 
       (:body ;;:onload "timedRefresh(30000)"
 
-       (:br)
-(:br)
-(:br)
 
 
        (str body)

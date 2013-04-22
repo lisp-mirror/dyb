@@ -190,7 +190,10 @@
 
 (defun format-graph-legend (options)
   (with-json-object
-    (json-getf options :show)
+
+    (if (getf options :show)
+        (json-getf options :show)
+        "false")
     (json-getf options :placement)))
 
 (defun format-graph-cursor (options)

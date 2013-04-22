@@ -81,8 +81,16 @@ tr.altrow td {
 /*ul{border:0; margin:0; padding:0;}
 */
 
-.entity-tree {
+/*.entity-tree {
  }
+*/
+
+.mobile-menu {display:none;}
+
+@media screen and (max-width: 979px){
+.mobile-menu {display:block!important;}
+.top-nav {margin-left: 0px!important;}
+} 
 
 .entity-tree ul {
     list-style-type:none;

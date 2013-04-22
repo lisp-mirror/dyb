@@ -8,7 +8,9 @@
   (:default-initargs :edit-inline nil))
 
 (defmethod list-grid-filters ((grid generic-actions-grid))
-  '(next-48-hours
+  '(24-hours
+    7-days
+    30-days
     pending-actions
     completed-actions
     all-actions
@@ -51,10 +53,20 @@
              ((equal filter 'pending-actions)
               (if (string-equal (get-val doc 'action-status) "Pending")
                   doc))
-             ((equal filter 'next-48-hours)
+             ((equal filter '24-hours)
               (if (string-equal (get-val doc 'action-status) "Pending")
                   (if (and (> (scheduled-date doc) (get-universal-time))
-                           (< (scheduled-date doc) (+ (get-universal-time) (* 60 60 48))))
+                           (< (scheduled-date doc) (+ (get-universal-time) (* 60 60 24))))
+                      doc)))
+             ((equal filter '7-days)
+              (if (string-equal (get-val doc 'action-status) "Pending")
+                  (if (and (> (scheduled-date doc) (get-universal-time))
+                           (< (scheduled-date doc) (+ (get-universal-time) (* 60 60 (* 24 7)))))
+                      doc)))
+             ((equal filter '30-days)
+              (if (string-equal (get-val doc 'action-status) "Pending")
+                  (if (and (> (scheduled-date doc) (get-universal-time))
+                           (< (scheduled-date doc) (+ (get-universal-time) (* 60 60 (* 24 30)))))
                       doc)))
              ((equal filter 'all-actions)
               doc)
