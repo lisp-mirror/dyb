@@ -575,24 +575,28 @@
                                   (str title))
                             ))))))
 
-(defun %network-size-graph (min-date max-date data interval)
+(defun %line-graph (name title min-date max-date data interval 
+                            &key series span)
   (with-html
-    (:div :class "span9"
-          (:div :class "graph-wrap"
-                (:div :class "chart-block"
+    (:div :class (if span
+                     span
+                     "span9")
+            (:div :class "graph-wrap"
+               (:div :class "chart-block"
+                     
                       (let ((network-size 
                               (make-widget
-                               'line-graph :name "currentnetworksize")))
+                               'line-graph :name name)))
                         (setf (data network-size) data)
-                        (setf (title network-size) "Change in Network")
+                        (setf (title network-size) title)
                         (setf (x network-size)
                               `(:type :date
-                                :tick-interval (if (<= interval 7)
+                                :tick-interval ,(if (<= interval 7)
                                                    "1 days"
                                                    (if (and (> interval 7) 
                                                             (< interval 100))
-                                                       "7 days"
-                                                       "30 days"))
+                                                       "14 days"
+                                                       "60 days"))
                                 :min ,min-date
                                 :max ,max-date
                                 :tick-options (:format-string "%b&nbsp;%#d")))
@@ -611,23 +615,19 @@
                               '(:show t :size-adjust 7.5))
                         (setf (legend network-size)
                               '(:show nil :placement :outside))
-                       (setf (series network-size)
-                              '((:show-marker nil
-                                 :color "#00ACED"
-                                 :label "TW")
-                                (:show-marker nil
-                                 :color "#3B5999"
-                                 :label "FB")
-                                (:show-marker nil
-                                 :color "#04B45F"
-                                 :label "LNK")))
+                        
+                        (setf (series network-size)
+                             series)
                         (setf (series-defaults network-size) 
                               '(:show "true"
                                 :xaxis "xaxis"
                                 :yaxis "yaxis"
                                 :line-width 3
                                 :shadow "false"))
-                        (render network-size)))))))
+                        (render network-size))
+
+                      )
+))))
 
 (defun %engagement-graph (data data-lables)
   (with-html-string
@@ -1589,7 +1589,9 @@
 
 (defun network-size-graph (min-date max-date interval)
 
-  (%network-size-graph
+  (%line-graph
+   "networksizegraph"
+   "Change in Network"
    (format-universal-date-dash min-date)
    (format-universal-date-dash max-date)
    (if (and (gv 'twitter-followers-interval-list) (gv 'fb-fans-interval-list))
@@ -1599,9 +1601,19 @@
            `((,@(gv 'twitter-followers-interval-list)))
            (if (gv 'fb-fans-interval-list)
                `((,@(gv 'fb-fans-interval-list))) )))
-   interval))
+   interval
+   :series  '((:show-marker nil
+                                 :color "#00ACED"
+                                 :label "TW")
+                                (:show-marker nil
+                                 :color "#3B5999"
+                                 :label "FB")
+                                (:show-marker nil
+                                 :color "#04B45F"
+                                 :label "LNK"))))
 
   (defun fb-new-page-likes-graph ()
+    
     (with-html-to-string ()
       (str (board-stats  
             (create-bar-range-string 
@@ -1610,6 +1622,20 @@
             (list "facebook_like") 
             "bar-chart" "span3"
             :tooltip "The number of new people who have liked your Page."))))
+
+
+(defun fb-new-page-likes-graph-html (min-date max-date interval)
+  (%line-graph
+   "fbnewpageslikes"
+   "New Page Likes"
+   (format-universal-date-dash min-date)
+   (format-universal-date-dash max-date)
+   `(( ,@(gv 'fb-fans-adds-interval-list)))
+   interval
+   :series  '((:show-marker nil
+               :color "#3B5999"
+               :label "FB"))
+   :span "span12"))
 
 (defun fb-page-impressions-graph ()
   (with-html-to-string ()
@@ -1620,6 +1646,20 @@
           (list "documents")
           "bar-chart" "span3"
           :tooltip "The total number of impressions seen of any content associated with your Page."))))
+
+(defun fb-page-impressions-graph-html (min-date max-date interval)
+  (%line-graph
+   "fbpageimpressions"
+   "Page Impressions"
+   (format-universal-date-dash min-date)
+   (format-universal-date-dash max-date)
+   `(( ,@(gv 'fb-impressions-interval-list)))
+   interval
+   :series  '((:show-marker nil
+               :color "#3B5999"
+               :label "FB"))
+   :span "span12"))
+
 (defun fb-total-fans-graph ()
   (with-html-to-string ()
     (str (board-stats 
@@ -1630,7 +1670,18 @@
           "bar-chart" "span3"
           :tooltip "The total number of people who have liked your Page."))))
 
-
+(defun fb-total-fans-graph-html (min-date max-date interval)
+  (%line-graph
+   "fbtotalfans"
+   "Total Fans"
+   (format-universal-date-dash min-date)
+   (format-universal-date-dash max-date)
+   `(( ,@(gv 'fb-fans-interval-list)))
+   interval
+   :series  '((:show-marker nil
+               :color "#3B5999"
+               :label "FB"))
+   :span "span12"))
 
 (defun fb-page-unlikes-graph ()
   (with-html-to-string ()
@@ -1642,6 +1693,18 @@
           "bar-chart" "span3"
           :tooltip "Unlikes of your Page."))))
 
+(defun fb-page-unlikes-graph-html (min-date max-date interval)
+  (%line-graph
+   "fbpageunlikes"
+   "Page Unlikes"
+   (format-universal-date-dash min-date)
+   (format-universal-date-dash max-date)
+   `(( ,@(gv 'fb-fans-removes-interval-list)))
+   interval
+   :series  '((:show-marker nil
+               :color "#3B5999"
+               :label "FB"))
+   :span "span12"))
 
 (defun tw-new-followers-graph ()
   (with-html-to-string ()
@@ -1661,6 +1724,56 @@
         (list "users") 
         "bar-chart" "span3"
         :tooltip "Then number of new followers aquired.")))))
+
+
+
+(defun calc-daily-change (date-val-list)
+  (let ((final-list)
+        (previous nil))
+    (dolist (follower date-val-list)
+      
+      (when previous
+        (setf final-list
+              (append final-list 
+                      (list (list (first follower) 
+                                  (- (fix-nan (second previous))
+                                     (fix-nan (second follower))
+                                     ))))))
+        
+      (setf previous follower))
+    final-list))
+
+(defun calc-daily-change-reverse (date-val-list)
+  (let ((final-list)
+        (previous nil))
+    (dolist (follower date-val-list)
+      
+      (when previous
+        (setf final-list
+              (append final-list 
+                      (list (list (first follower) 
+                                  (-
+                                   (fix-nan (second follower))
+                                   (fix-nan (second previous))
+                                     
+                                     ))))))
+        
+      (setf previous follower))
+    final-list))
+
+(defun tw-new-followers-graph-html (min-date max-date interval)
+  (%line-graph
+     "twnewfollowers"
+     "New Followers"
+     (format-universal-date-dash min-date)
+     (format-universal-date-dash max-date)
+     `(( ,@(calc-daily-change (gv 'twitter-followers-interval-list)) ))
+     interval
+     :series  '((:show-marker nil
+                 :color "#00ACED"
+                 :label "TW"))
+     :span "span12"))
+
 
 (defun tw-impressions-graph ()
   (with-html-to-string ()
@@ -1688,6 +1801,20 @@
         "bar-chart" "span3"
         :tooltip "The number of tweets scheduled * followers + mentions in tweets.")))))
 
+(defun tw-impressions-graph-html (min-date max-date interval)
+  (%line-graph
+   "twimpressions"
+   "Impressions"
+   (format-universal-date-dash min-date)
+   (format-universal-date-dash max-date)
+   `(( ,@(merge-ranges (list (gv 'tweets-scheduled-list)
+                             (gv 'twitter-followers-interval-list)))))
+   interval
+   :series  '((:show-marker nil
+               :color "#00ACED"
+               :label "TW"))
+   :span "span12"))
+
 (defun tw-total-fans-graph ()
   (with-html-to-string ()
     (str
@@ -1697,6 +1824,20 @@
                   (list "users")
                   "bar-chart" "span3"
                   :tooltip "Total number of followers."))))
+
+(defun tw-total-fans-graph-html (min-date max-date interval)
+  (%line-graph
+   "twtotalfans"
+   "Total Fans"
+   (format-universal-date-dash min-date)
+   (format-universal-date-dash max-date)
+   `(( ,@(gv 'twitter-followers-interval-list)))
+   interval
+   :series  '((:show-marker nil
+               :color "#00ACED"
+               :label "TW"))
+   :span "span12"))
+
 (defun tw-un-followed-graph ()
   (with-html-to-string ()
     (str 
@@ -1719,6 +1860,194 @@
         "bar-chart" "span3"
         :tooltip "The number of followers that was lost.")))))
 
+(defun tw-un-followed-graph-html (min-date max-date interval)
+  (%line-graph
+   "twunfollowed"
+   "Un-Followed"
+   (format-universal-date-dash min-date)
+   (format-universal-date-dash max-date)
+   `(( ,@(calc-daily-change-reverse (gv 'twitter-followers-interval-list))))
+   interval
+   :series  '((:show-marker nil
+               :color "#00ACED"
+               :label "TW"))
+   :span "span12"))
+
+(defun user-stats-html (user-stats)
+  (with-html-to-string ()
+    (:div :class "span8"
+          (:div :class "nonboxy-widget"
+                (:div :class "table_content"
+                      (:table :class " table table-bordered dataTable" ;;data-tbl-simple
+                              :id "DataTables_Table_0"
+                              (:thead
+                               (:tr :role "row"
+                                    (:th :class "" :role "columnheader" :tabindex "0" 
+                                         :aria-controls "DataTables_Table_0" :rowspan "1" :colspan "1" 
+                                         :style "width: 50%;" :aria-sort "ascending" 
+                                         :aria-label "User : activate to sort column descending"
+                                         "User")
+                                    (:th :class "" :role "columnheader" :tabindex "0" 
+                                         :aria-controls "DataTables_Table_0" :rowspan "1" :colspan "1" 
+                                         :style "width: 10%;" :aria-sort "ascending" 
+                                         :aria-label "Posts : activate to sort column descending"
+                                         "Posts")
+                                                                                              
+                                    (:th :class "" :role "columnheader" :tabindex "0" 
+                                         :aria-controls "DataTables_Table_0" :rowspan "1" :colspan "1" 
+                                         :style "width: 10%;text-align: center;" :aria-sort "ascending" 
+                                         :aria-label "Likes : activate to sort column descending"
+                                         "Likes")
+                                    (:th :class "" :role "columnheader" :tabindex "0" 
+                                         :aria-controls "DataTables_Table_0" :rowspan "1" :colspan "1" 
+                                         :style "width: 10%;text-align: center;" :aria-sort "ascending" 
+                                         :aria-label "Comments : activate to sort column descending"
+                                         "Comments")
+                                    (:th :class "" :role "columnheader" :tabindex "0" 
+                                         :aria-controls "DataTables_Table_0" :rowspan "1" :colspan "1" 
+                                         :style "width: 10%;text-align: center;" :aria-sort "ascending" 
+                                         :aria-label "Mentions : activate to sort column descending"
+                                         "Mentions")
+                                    (:th :class "" :role "columnheader" :tabindex "0" 
+                                         :aria-controls "DataTables_Table_0" :rowspan "1" :colspan "1" 
+                                         :style "width: 10%;text-align: center;" :aria-sort "ascending" 
+                                         :aria-label "Score : activate to sort column descending"
+                                         "Score")))
+                              (:tbody :role "alert" :aria-live "polite" :aria-relevant "all"
+                                      (let ((count 1))
+                                        (dolist (user user-stats)
+                                          (htm
+                                           (:tr :class (if (oddp count)
+                                                           "odd"
+                                                           "even")
+                                                (:td :class "sorting_1"
+                                                     (str (first user)))
+                                                (:td :class "sorting_1" :style "text-align: center;"
+                                                     (:span :class (if (< 0 (second (first (second user))))
+                                                                       "badge badge-success"
+                                                                       "badge badge-important")
+                                                            (str (second (first (second user))))))
+                                                (:td :class "sorting_1" :style "text-align: center;"
+                                                     (:span :class (if (< 0 (second (second (second user))))
+                                                                       "badge badge-success"
+                                                                       "badge badge-important")
+                                                            (str (second (second (second user))))))
+                                                (:td :class "sorting_1" :style "text-align: center;"
+                                                     (:span :class (if (< 0 (second (third (second user))))
+                                                                       "badge badge-success"
+                                                                       "badge badge-important")
+                                                            (str (second (third (second user))))))
+                                                (:td :class "sorting_1" :style "text-align: center;"
+                                                     (:span :class (if (< 0 (second (fourth (second user))))
+                                                                       "badge badge-success"
+                                                                       "badge badge-important")
+                                                            (str (second (fourth (second user))))))
+                                                (:td :class "sorting_1" :style "text-align: center;"
+                                                     (:span :class "badge badge-inverse"
+                                                            (str (+
+                                                                  (second (first (second user)))
+                                                                  (second (second (second user)))
+                                                                  (second (third (second user)))
+                                                                  (second (fourth (second user)))))))))
+                                          (incf count))))))))))
+
+(defun content-stats-html (content-stats)
+  (with-html-to-string ()
+    (:div :class "span12"
+          (:div :class "nonboxy-widget"
+                (:div :class "table_content"
+                      (let ((content (sort content-stats 
+                                           #'(lambda (x y)
+                                               (let ((stat1 (third x))
+                                                     (stat2 (third y)))
+                                                 (> (+
+                                                     (second (first stat1))
+                                                     (second (second stat1))
+                                                     (second (third stat1))
+                                                                                  
+                                                     )
+                                                    (+
+                                                     (second (first stat2))
+                                                     (second (second stat2))
+                                                     (second (third stat2)))))))))
+                        (htm (:table :class " table table-bordered dataTable" ;;data-tbl-simple
+                                     :id "DataTables_Table_0"
+                                     (:thead
+                                      (:tr :role "row"
+                                           (:th :class "" :role "columnheader" :tabindex "0" 
+                                                :aria-controls "DataTables_Table_0" :rowspan "1" :colspan "1" 
+                                                :style "width: 10%;" :aria-sort "ascending" 
+                                                :aria-label "Date & Time : activate to sort column descending"
+                                                "Date & Time")
+                                           (:th :class "" :role "columnheader" :tabindex "0" 
+                                                :aria-controls "DataTables_Table_0" :rowspan "1" :colspan "1" 
+                                                :style "width: 50%;" :aria-sort "ascending" 
+                                                :aria-label "Post : activate to sort column descending"
+                                                "Post")
+                                                                                               
+                                           (:th :class "" :role "columnheader" :tabindex "0" 
+                                                :aria-controls "DataTables_Table_0" :rowspan "1" :colspan "1" 
+                                                :style "width: 10%;" :aria-sort "ascending" 
+                                                :aria-label "Likes : activate to sort column descending"
+                                                "Likes")
+                                           (:th :class "" :role "columnheader" :tabindex "0" 
+                                                :aria-controls "DataTables_Table_0" :rowspan "1" :colspan "1" 
+                                                :style "width: 10%;" :aria-sort "ascending" 
+                                                :aria-label "Comments : activate to sort column descending"
+                                                "Comments")
+                                           (:th :class "" :role "columnheader" :tabindex "0" 
+                                                :aria-controls "DataTables_Table_0" :rowspan "1" :colspan "1" 
+                                                :style "width: 10%;" :aria-sort "ascending" 
+                                                :aria-label "Mentions : activate to sort column descending"
+                                                "Mentions")
+                                           (:th :class "" :role "columnheader" :tabindex "0" 
+                                                :aria-controls "DataTables_Table_0" :rowspan "1" :colspan "1" 
+                                                :style "width: 10%;" :aria-sort "ascending" 
+                                                :aria-label "Score : activate to sort column descending"
+                                                "Score")))
+                                     (:tbody :role "alert" :aria-live "polite" :aria-relevant "all"
+                                             (let ((count 1))
+                                               (dolist (action (if (> (length content) 10)
+                                                                   (subseq content 0 10)
+                                                                   content))
+                                                 (let ((date (first action))
+                                                       (text (second action))
+                                                       (stats (third action)))
+                                                   (htm
+                                                    (:tr :class (if (oddp count)
+                                                                    "odd"
+                                                                    "even")
+                                                         (:td :class "sorting_1"
+                                                              (str date))
+                                                         (:td :class "sorting_1"
+                                                              (:span (str (format nil "~A"
+                                                                                  (if (> (length text) 70)
+                                                                                      (format nil "~A..." (subseq text 0 70))
+                                                                                      text)))))
+                                                         (:td :class "sorting_1" :style "text-align: center;"
+                                                              (:span :class (if (< 0 (second (first stats)))
+                                                                                "badge badge-success"
+                                                                                "badge badge-important")
+                                                                     (str (second (first stats)))))
+                                                         (:td :class "sorting_1" :style "text-align: center;"
+                                                              (:span :class (if (< 0 (second (second stats)))
+                                                                                "badge badge-success"
+                                                                                "badge badge-important")
+                                                                     (str (second (second stats)))))
+                                                         (:td :class "sorting_1" :style "text-align: center;"
+                                                              (:span :class (if (< 0 (second (third stats)))
+                                                                                "badge badge-success"
+                                                                                "badge badge-important")
+                                                                     (str (second (third stats)))))
+                                                         (:td :class "sorting_1" :style "text-align: center;"
+                                                              (:span :class "badge badge-inverse"
+                                                                                                                  
+                                                                     (str (+
+                                                                           (second (first stats))
+                                                                           (second (second stats))
+                                                                           (second (third stats)))))))))
+                                                 (incf count))
+                                               ))))))))))
 
 (define-easy-handler (dashboard-page :uri "/dyb/dashboard") ()
   (multiple-value-bind (interval interval-start-date interval-end-date)
@@ -1737,305 +2066,185 @@
                            previous-interval-end-date)))
       ;;(break "~A" (users-stats))
       (with-html
-          (render page
-                  :body 
-                  (with-html-to-string ()
-                    (:div :class "container-fluid"
-                          (str (interval-selection))
-                          (:div :class "row-fluid"
-                                (:div :class "nonboxy-widget"
-                                      (:div :class "widget-head"
-                                            (:h5 
-                                                 (str "Overview")))
-                                      (:div :class "widget-content"
-                                            (:div :class "widget-box"
-                                                  (:div :class "row-fluid"
-                                                        (str (reach-small-graph))
-                                                        (str (activity-small-graph))
-                                                        (str (engagement-small-graph)))))))
+        (render page
+                :body 
+                (with-html-to-string ()
+                  (:div :class "container-fluid"
+                        (str (interval-selection))
+                        (:div :class "row-fluid"
+                              (:div :class "nonboxy-widget"
+                                    (:div :class "widget-head"
+                                          (:h5 
+                                           (str "Overview")))
+                                    (:div :class "widget-content"
+                                          (:div :class "widget-box"
+                                                (:div :class "row-fluid"
+                                                      (str (reach-small-graph))
+                                                      (str (activity-small-graph))
+                                                      (str (engagement-small-graph)))))))
 
-                          (:div :class "row-fluid"
-                                (:div :class "nonboxy-widget"
-                                      (:div :class "widget-head"
-                                            (:h5 
-                                                 (str "Network")))
+                        (:div :class "row-fluid"
+                              (:div :class "nonboxy-widget"
+                                    (:div :class "widget-head"
+                                          (:h5 
+                                           (str "Network")))
                                   
-                                      (:div :class "widget-content"
-                                            (:div :class "widget-box"
-                                                  (:div :class "row-fluid"
+                                    (:div :class "widget-content"
+                                          (:div :class "widget-box"
+                                                (:div :class "row-fluid"
                                                         
-                                                        (network-size-graph
-                                                         interval-start-date
-                                                         interval-end-date
-                                                         interval)
+                                                      (network-size-graph
+                                                       interval-start-date
+                                                       interval-end-date
+                                                       interval)
                                                        
-                                                        (:div :class "span2"
-                                                              (:div :class "summary"
-                                                                    (:h5 "Legend")
-                                                                    (:br)
-                                                                    (:ul
+                                                      (:div :class "span2"
+                                                            (:div :class "summary"
+                                                                  (:h5 "Legend")
+                                                                  (:br)
+                                                                  (:ul
                                                                
-                                                                     (:li
-                                                                      (:span
-                                                                       :style "width: 36px;height: 36px;float: left;margin-right: 10px;padding: 6px;"
-                                                                       (:img :src "/appimg/Facebook_Light_Logo.png"
-                                                                             :width "36" :height "36" :alt "")
-                                                                       )
-                                                                      )
-                                                                     (:li
-                                                                      (:span
-                                                                       :style "width: 36px;height: 36px;float: left;margin-right: 10px;padding: 6px;"
-                                                                       (:img :src "/appimg/twitter-bird-white-on-blue.png"
-                                                                             :width "36" :height "36" :alt "")
-                                                                       )
-                                                                      )
-                                                                     ))))))))
-                          (:div :class "row-fluid"
-                                (:div :class "nonboxy-widget"
-                                      (:div :class "widget-head"
-                                            (:h5 
-                                                 (str "Engagement & Community")))
+                                                                   (:li
+                                                                    (:span
+                                                                     :style "width: 36px;height: 36px;float: left;margin-right: 10px;padding: 6px;"
+                                                                     (:img :src "/appimg/Facebook_Light_Logo.png"
+                                                                           :width "36" :height "36" :alt "")
+                                                                     )
+                                                                    )
+                                                                   (:li
+                                                                    (:span
+                                                                     :style "width: 36px;height: 36px;float: left;margin-right: 10px;padding: 6px;"
+                                                                     (:img :src "/appimg/twitter-bird-white-on-blue.png"
+                                                                           :width "36" :height "36" :alt "")
+                                                                     )
+                                                                    )
+                                                                   ))))))))
+                        (:div :class "row-fluid"
+                              (:div :class "nonboxy-widget"
+                                    (:div :class "widget-head"
+                                          (:h5 
+                                           (str "Engagement & Community")))
 
-                                      (:div :class "widget-content"
-                                            (:div :class "widget-box"
-                                                  (:div :class "row-fluid"
-                                                        (str (engagement-pie-graph))
-                                                        (:div :class "span2"
-                                                              (str (current-community-size ))))))))
+                                    (:div :class "widget-content"
+                                          (:div :class "widget-box"
+                                                (:div :class "row-fluid"
+                                                      (str (engagement-pie-graph))
+                                                      (:div :class "span2"
+                                                            (str (current-community-size ))))))))
+                        (:div :class "row-fluid"
+                              (:div :class "nonboxy-widget"
+                                    (:div :class "widget-head"
+                                          (:h5 (:i :class "black-icons facebook")
+                                               "FACEBOOK"))
 
+                                    (:div :class "widget-content"
+                                          (:div :class "row-fluid"
+                                                (fb-new-page-likes-graph-html
+                                                 interval-start-date
+                                                 interval-end-date
+                                                 interval))
+                                          (:div :class "row-fluid"
+                                                (fb-page-impressions-graph-html
+                                                 interval-start-date
+                                                 interval-end-date
+                                                 interval))
+                                          (:div :class "row-fluid"
+                                                (fb-total-fans-graph-html
+                                                 interval-start-date
+                                                 interval-end-date
+                                                 interval))
+                                          (:div :class "row-fluid"
+                                                (fb-page-unlikes-graph-html
+                                                 interval-start-date
+                                                 interval-end-date
+                                                 interval)))))
 
-                          (:div :class "row-fluid"
-                                (:div :class "nonboxy-widget"
-                                      (:div :class "widget-head"
-                                            (:h5 
-                                                 "User stats"))
+                        (:div :class "row-fluid"
+                              (:div :class "nonboxy-widget"
+                                    (:div :class "widget-head"
+                                          (:h5 (:i :class "black-icons twitter")
+                                               "TWITTER"))
 
-                                      (:div :class "widget-content"
-                                            (:div :class "widget-box"
-                                                  (:div :class "row-fluid"
-                                                        (:div :class "span8"
-                                                              (:div :class "nonboxy-widget"
-                                                                    (:div :class "table_content"
-                                                                          (:table :class " table table-bordered dataTable" ;;data-tbl-simple
-                                                                                  :id "DataTables_Table_0"
-                                                                                  (:thead
-                                                                                   (:tr :role "row"
-                                                                                        (:th :class "" :role "columnheader" :tabindex "0" 
-                                                                                             :aria-controls "DataTables_Table_0" :rowspan "1" :colspan "1" 
-                                                                                             :style "width: 50%;" :aria-sort "ascending" 
-                                                                                             :aria-label "User : activate to sort column descending"
-                                                                                             "User")
-                                                                                        (:th :class "" :role "columnheader" :tabindex "0" 
-                                                                                             :aria-controls "DataTables_Table_0" :rowspan "1" :colspan "1" 
-                                                                                             :style "width: 10%;" :aria-sort "ascending" 
-                                                                                             :aria-label "Posts : activate to sort column descending"
-                                                                                             "Posts")
-                                                                                              
-                                                                                        (:th :class "" :role "columnheader" :tabindex "0" 
-                                                                                             :aria-controls "DataTables_Table_0" :rowspan "1" :colspan "1" 
-                                                                                             :style "width: 10%;text-align: center;" :aria-sort "ascending" 
-                                                                                             :aria-label "Likes : activate to sort column descending"
-                                                                                             "Likes")
-                                                                                        (:th :class "" :role "columnheader" :tabindex "0" 
-                                                                                             :aria-controls "DataTables_Table_0" :rowspan "1" :colspan "1" 
-                                                                                             :style "width: 10%;text-align: center;" :aria-sort "ascending" 
-                                                                                             :aria-label "Comments : activate to sort column descending"
-                                                                                             "Comments")
-                                                                                        (:th :class "" :role "columnheader" :tabindex "0" 
-                                                                                             :aria-controls "DataTables_Table_0" :rowspan "1" :colspan "1" 
-                                                                                             :style "width: 10%;text-align: center;" :aria-sort "ascending" 
-                                                                                             :aria-label "Mentions : activate to sort column descending"
-                                                                                             "Mentions")
-                                                                                        (:th :class "" :role "columnheader" :tabindex "0" 
-                                                                                             :aria-controls "DataTables_Table_0" :rowspan "1" :colspan "1" 
-                                                                                             :style "width: 10%;text-align: center;" :aria-sort "ascending" 
-                                                                                             :aria-label "Score : activate to sort column descending"
-                                                                                             "Score")))
-                                                                                  (:tbody :role "alert" :aria-live "polite" :aria-relevant "all"
-                                                                                          (let ((count 1))
-                                                                                            (dolist (user (gv 'users-stats))
-                                                                                              (htm
-                                                                                               (:tr :class (if (oddp count)
-                                                                                                               "odd"
-                                                                                                               "even")
-                                                                                                    (:td :class "sorting_1"
-                                                                                                         (str (first user)))
-                                                                                                    (:td :class "sorting_1" :style "text-align: center;"
-                                                                                                         (:span :class (if (< 0 (second (first (second user))))
-                                                                                                                           "badge badge-success"
-                                                                                                                           "badge badge-important")
-                                                                                                                (str (second (first (second user))))))
-                                                                                                    (:td :class "sorting_1" :style "text-align: center;"
-                                                                                                         (:span :class (if (< 0 (second (second (second user))))
-                                                                                                                           "badge badge-success"
-                                                                                                                           "badge badge-important")
-                                                                                                                (str (second (second (second user))))))
-                                                                                                    (:td :class "sorting_1" :style "text-align: center;"
-                                                                                                         (:span :class (if (< 0 (second (third (second user))))
-                                                                                                                           "badge badge-success"
-                                                                                                                           "badge badge-important")
-                                                                                                                (str (second (third (second user))))))
-                                                                                                    (:td :class "sorting_1" :style "text-align: center;"
-                                                                                                         (:span :class (if (< 0 (second (fourth (second user))))
-                                                                                                                           "badge badge-success"
-                                                                                                                           "badge badge-important")
-                                                                                                                (str (second (fourth (second user))))))
-                                                                                                    (:td :class "sorting_1" :style "text-align: center;"
-                                                                                                         (:span :class "badge badge-inverse"
-                                                                                                                (str (+
-                                                                                                                      (second (first (second user)))
-                                                                                                                      (second (second (second user)))
-                                                                                                                      (second (third (second user)))
-                                                                                                                      (second (fourth (second user)))))))))
-                                                                                              (incf count)))))))))))))
-                          (:div :class "row-fluid"
-                                (:div :class "nonboxy-widget"
-                                      (:div :class "widget-head"
-                                            (:h5 
-                                                 "Content Stats"))
+                                    (:div :class "widget-content"
+                                          (:div :class "row-fluid"
+                                                
+                                                (tw-new-followers-graph-html
+                                                 interval-start-date
+                                                 interval-end-date
+                                                 interval))
+                                          (:div :class "row-fluid"
+                                                (tw-impressions-graph-html
+                                                 interval-start-date
+                                                 interval-end-date
+                                                 interval))
+                                          (:div :class "row-fluid"
+                                                (tw-total-fans-graph-html
+                                                 interval-start-date
+                                                 interval-end-date
+                                                 interval))
+                                          (:div :class "row-fluid"
+                                                (tw-un-followed-graph-html
+                                                 interval-start-date
+                                                 interval-end-date
+                                                 interval))
+                                          )
+                                         ))
 
-                                      (:div :class "widget-content"
-                                            (:div :class "widget-box"
-                                                  (:div :class "row-fluid"
-                                                        (:div :class "span12"
-                                                              (:div :class "nonboxy-widget"
-                                                                    (:div :class "table_content"
-                                                                          (let ((content (sort (gv 'content-stats) 
-                                                                                               #'(lambda (x y)
-                                                                                                   (let ((stat1 (third x))
-                                                                                                         (stat2 (third y)))
-                                                                                                     (> (+
-                                                                                                         (second (first stat1))
-                                                                                                         (second (second stat1))
-                                                                                                         (second (third stat1))
-                                                                                  
-                                                                                                         )
-                                                                                                        (+
-                                                                                                         (second (first stat2))
-                                                                                                         (second (second stat2))
-                                                                                                         (second (third stat2)))))))))
-                                                                            (htm (:table :class " table table-bordered dataTable" ;;data-tbl-simple
-                                                                                          :id "DataTables_Table_0"
-                                                                                          (:thead
-                                                                                           (:tr :role "row"
-                                                                                                (:th :class "" :role "columnheader" :tabindex "0" 
-                                                                                                     :aria-controls "DataTables_Table_0" :rowspan "1" :colspan "1" 
-                                                                                                     :style "width: 10%;" :aria-sort "ascending" 
-                                                                                                     :aria-label "Date & Time : activate to sort column descending"
-                                                                                                     "Date & Time")
-                                                                                                (:th :class "" :role "columnheader" :tabindex "0" 
-                                                                                                     :aria-controls "DataTables_Table_0" :rowspan "1" :colspan "1" 
-                                                                                                     :style "width: 50%;" :aria-sort "ascending" 
-                                                                                                     :aria-label "Post : activate to sort column descending"
-                                                                                                     "Post")
-                                                                                               
-                                                                                                (:th :class "" :role "columnheader" :tabindex "0" 
-                                                                                                     :aria-controls "DataTables_Table_0" :rowspan "1" :colspan "1" 
-                                                                                                     :style "width: 10%;" :aria-sort "ascending" 
-                                                                                                     :aria-label "Likes : activate to sort column descending"
-                                                                                                     "Likes")
-                                                                                                (:th :class "" :role "columnheader" :tabindex "0" 
-                                                                                                     :aria-controls "DataTables_Table_0" :rowspan "1" :colspan "1" 
-                                                                                                     :style "width: 10%;" :aria-sort "ascending" 
-                                                                                                     :aria-label "Comments : activate to sort column descending"
-                                                                                                     "Comments")
-                                                                                                (:th :class "" :role "columnheader" :tabindex "0" 
-                                                                                                     :aria-controls "DataTables_Table_0" :rowspan "1" :colspan "1" 
-                                                                                                     :style "width: 10%;" :aria-sort "ascending" 
-                                                                                                     :aria-label "Mentions : activate to sort column descending"
-                                                                                                     "Mentions")
-                                                                                                (:th :class "" :role "columnheader" :tabindex "0" 
-                                                                                                     :aria-controls "DataTables_Table_0" :rowspan "1" :colspan "1" 
-                                                                                                     :style "width: 10%;" :aria-sort "ascending" 
-                                                                                                     :aria-label "Score : activate to sort column descending"
-                                                                                                     "Score")))
-                                                                                          (:tbody :role "alert" :aria-live "polite" :aria-relevant "all"
-                                                                                                  (let ((count 1))
-                                                                                                    (dolist (action (if (> (length content) 10)
-                                                                                                                        (subseq content 0 10)
-                                                                                                                        content))
-                                                                                                      (let ((date (first action))
-                                                                                                            (text (second action))
-                                                                                                            (stats (third action)))
-                                                                                                        (htm
-                                                                                                         (:tr :class (if (oddp count)
-                                                                                                                         "odd"
-                                                                                                                         "even")
-                                                                                                          (:td :class "sorting_1"
-                                                                                                               (str date))
-                                                                                                          (:td :class "sorting_1"
-                                                                                                               (:span (str (format nil "~A"
-                                                                                                                                   (if (> (length text) 70)
-                                                                                                                                       (format nil "~A..." (subseq text 0 70))
-                                                                                                                                       text)))))
-                                                                                                          (:td :class "sorting_1" :style "text-align: center;"
-                                                                                                           (:span :class (if (< 0 (second (first stats)))
-                                                                                                                           "badge badge-success"
-                                                                                                                           "badge badge-important")
-                                                                                                                  (str (second (first stats)))))
-                                                                                                          (:td :class "sorting_1" :style "text-align: center;"
-                                                                                                           (:span :class (if (< 0 (second (second stats)))
-                                                                                                                           "badge badge-success"
-                                                                                                                           "badge badge-important")
-                                                                                                                  (str (second (second stats)))))
-                                                                                                          (:td :class "sorting_1" :style "text-align: center;"
-                                                                                                           (:span :class (if (< 0 (second (third stats)))
-                                                                                                                           "badge badge-success"
-                                                                                                                           "badge badge-important")
-                                                                                                                  (str (second (third stats)))))
-                                                                                                          (:td :class "sorting_1" :style "text-align: center;"
-                                                                                                           (:span :class "badge badge-inverse"
-                                                                                                                  
-                                                                                                                  (str (+
-                                                                                                                        (second (first stats))
-                                                                                                                        (second (second stats))
-                                                                                                                        (second (third stats)))))))))
-                                                                                                      (incf count))
-                                                                                                    )))))))))))))
+                        (:div :class "row-fluid"
+                              (:div :class "nonboxy-widget"
+                                    (:div :class "widget-head"
+                                          (:h5 
+                                           "User stats"))
 
-                                                    (:div :class "row-fluid"
-                                (:div :class "nonboxy-widget"
+                                    (:div :class "widget-content"
+                                          (:div :class "widget-box"
+                                                (:div :class "row-fluid"
+                                                      (str (user-stats-html (gv 'users-stats))))))))
+                        (:div :class "row-fluid"
+                              (:div :class "nonboxy-widget"
+                                    (:div :class "widget-head"
+                                          (:h5 
+                                           "Content Stats"))
 
-                                      (:div :class "widget-head"
-                                            (:h5 
-                                             "7 Days Overview"))
-                                      (:div :class "widget-head"
-                                            (:h5 (:i :class "black-icons facebook")
-                                                 "FACEBOOK"))
+                                    (:div :class "widget-content"
+                                          (:div :class "widget-box"
+                                                (:div :class "row-fluid"
+                                                      (str (content-stats-html
+                                                            (gv 'content-stats))))))))
 
-                                      (:div :class "widget-content"
-                                            (:div :class "widget-box"
-                                                  (:div :class "row-fluid"
-                                                        (str (fb-new-page-likes-graph))
-                                                        (str (fb-page-impressions-graph))
-                                                        (str (fb-total-fans-graph))
-                                                        (str (fb-page-unlikes-graph)))))))
-                          (:div :class "row-fluid"
-                                (:div :class "nonboxy-widget"
-                                      (:div :class "widget-head"
-                                            (:h5 (:i :class "black-icons twitter")
-                                                 "Twitter"))
+                        
+                        
+                        
+                        #|
+                        (:div :class "row-fluid"
+                              (:div :class "nonboxy-widget"
+                                    (:div :class "widget-head"
+                                          (:h5 (:i :class "black-icons twitter")
+                                               "Twitter"))
 
-                                      (:div :class "widget-content"
-                                            (:div :class "widget-box"
-                                                  (:div :class "row-fluid"
-                                                        (str (tw-new-followers-graph))
-                                                        (str (tw-impressions-graph))
-                                                        (str (tw-total-fans-graph))
-                                                        (str (tw-un-followed-graph)))))))
-                          )
-                    (:div :class "row-fluid"
-                          (:div :class "nonboxy-widget"
+                                    (:div :class "widget-content"
+                                          (:div :class "widget-box"
+                                                (:div :class "row-fluid"
+                                                      (str (tw-new-followers-graph))
+                                                      (str (tw-impressions-graph))
+                                                      (str (tw-total-fans-graph))
+                                                      (str (tw-un-followed-graph)))))))
+                          
+                        |#
+                          
+                        (:div :class "row-fluid"
+                              (:div :class "nonboxy-widget"
                             
-                                (when (string-equal (get-val (current-user) 'email) "admin@dyb.co.za")
-                                  (htm 
-                                   (:table 
-                                    (:tr 
-                                     (:th  :style "border: 1px solid black;" "Key")
-                                     (:th  :style "border: 1px solid black;" "Value"))
-                                    (maphash (lambda (key val)
-                                               (htm (:tr
-                                                     (:td :style "border: 1px solid black; width: 250px;" (str key))
-                                                     (:td :style "border: 1px solid black;" (str val)))))
-                                             *calc-values*))))))))))))
+                                    (when (string-equal (get-val (current-user) 'email) "admin@dyb.co.za")
+                                      (htm 
+                                       (:table 
+                                        (:tr 
+                                         (:th  :style "border: 1px solid black;" "Key")
+                                         (:th  :style "border: 1px solid black;" "Value"))
+                                        (maphash (lambda (key val)
+                                                   (htm (:tr
+                                                         (:td :style "border: 1px solid black; width: 250px;" (str key))
+                                                         (:td :style "border: 1px solid black;" (str val)))))
+                                                 *calc-values*)))))) )
+                  ))))))
 
