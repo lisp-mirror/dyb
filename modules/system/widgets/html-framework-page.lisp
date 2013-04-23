@@ -257,7 +257,7 @@
                       (:div :class "branding"
                             (:a :target "_blank"
                                 :href "http://app.digyourbrand.co.za/dyb/generic-scheduler?action=new&grid-name=generic-actions-gridx" 
-                                :class "dropdown-toggle"
+                                :class "btn btn-primary"
                                 :data-toggle "dropdown"
                                 (:i :class "white-icons pencil")
                                 " Compose "
@@ -267,7 +267,7 @@
                       (:div :class "branding"
                             (:a :target "_blank"
                                 :href "http://digyourbrand.com/support/" 
-                                :class "dropdown-toggle"
+                                :class "btn btn-primary"
                                 :data-toggle "dropdown"
                                 (:i :class "nav-icon light_bulb")
                                 " Support "

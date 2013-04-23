@@ -611,16 +611,16 @@
                               '(:show t :size-adjust 7.5))
                         (setf (legend network-size)
                               '(:show nil :placement :outside))
-                       #|(setf (series network-size)
+                       (setf (series network-size)
                               '((:show-marker nil
-                                 :color "#00FFFF"
+                                 :color "#00ACED"
                                  :label "TW")
                                 (:show-marker nil
-                                 :color "#0000FF"
+                                 :color "#3B5999"
                                  :label "FB")
                                 (:show-marker nil
                                  :color "#04B45F"
-                                 :label "LNK")))|#
+                                 :label "LNK")))
                         (setf (series-defaults network-size) 
                               '(:show "true"
                                 :xaxis "xaxis"
@@ -734,7 +734,7 @@
                                                                           :name "set-dash-interval" 
                                                                           :value "GO"))
                                                             (:br)))
-                                               (:div :class "span4"
+                                               (:div :class "span5"
                                                      (:span :style "font-weight:bold;" "Custom Interval:")
                                                      (:br)
                                                      (:br)
@@ -1771,7 +1771,7 @@
                                                        
                                                         (:div :class "span2"
                                                               (:div :class "summary"
-                                                                    (:h5 "Lengend")
+                                                                    (:h5 "Legend")
                                                                     (:br)
                                                                     (:ul
                                                                
@@ -1816,7 +1816,7 @@
                                                         (:div :class "span8"
                                                               (:div :class "nonboxy-widget"
                                                                     (:div :class "table_content"
-                                                                          (:table ;;:class "data-tbl-simple table table-bordered dataTable" 
+                                                                          (:table :class " table table-bordered dataTable" ;;data-tbl-simple
                                                                                   :id "DataTables_Table_0"
                                                                                   (:thead
                                                                                    (:tr :role "row"
@@ -1833,22 +1833,22 @@
                                                                                               
                                                                                         (:th :class "" :role "columnheader" :tabindex "0" 
                                                                                              :aria-controls "DataTables_Table_0" :rowspan "1" :colspan "1" 
-                                                                                             :style "width: 10%;" :aria-sort "ascending" 
+                                                                                             :style "width: 10%;text-align: center;" :aria-sort "ascending" 
                                                                                              :aria-label "Likes : activate to sort column descending"
                                                                                              "Likes")
                                                                                         (:th :class "" :role "columnheader" :tabindex "0" 
                                                                                              :aria-controls "DataTables_Table_0" :rowspan "1" :colspan "1" 
-                                                                                             :style "width: 10%;" :aria-sort "ascending" 
+                                                                                             :style "width: 10%;text-align: center;" :aria-sort "ascending" 
                                                                                              :aria-label "Comments : activate to sort column descending"
                                                                                              "Comments")
                                                                                         (:th :class "" :role "columnheader" :tabindex "0" 
                                                                                              :aria-controls "DataTables_Table_0" :rowspan "1" :colspan "1" 
-                                                                                             :style "width: 10%;" :aria-sort "ascending" 
+                                                                                             :style "width: 10%;text-align: center;" :aria-sort "ascending" 
                                                                                              :aria-label "Mentions : activate to sort column descending"
                                                                                              "Mentions")
                                                                                         (:th :class "" :role "columnheader" :tabindex "0" 
                                                                                              :aria-controls "DataTables_Table_0" :rowspan "1" :colspan "1" 
-                                                                                             :style "width: 10%;" :aria-sort "ascending" 
+                                                                                             :style "width: 10%;text-align: center;" :aria-sort "ascending" 
                                                                                              :aria-label "Score : activate to sort column descending"
                                                                                              "Score")))
                                                                                   (:tbody :role "alert" :aria-live "polite" :aria-relevant "all"
@@ -1914,7 +1914,7 @@
                                                                                                          (second (first stat2))
                                                                                                          (second (second stat2))
                                                                                                          (second (third stat2)))))))))
-                                                                            (htm (:table ;;:class "data-tbl-simple table table-bordered dataTable" 
+                                                                            (htm (:table :class " table table-bordered dataTable" ;;data-tbl-simple
                                                                                           :id "DataTables_Table_0"
                                                                                           (:thead
                                                                                            (:tr :role "row"
@@ -1983,13 +1983,15 @@
                                                                                                                            "badge badge-success"
                                                                                                                            "badge badge-important")
                                                                                                                   (str (second (third stats)))))
-                                                                                                          (:td :class "sorting_1"
-                                                                                                           (:span :class "badge badge-inverse" :style "text-align: center;"
+                                                                                                          (:td :class "sorting_1" :style "text-align: center;"
+                                                                                                           (:span :class "badge badge-inverse"
+                                                                                                                  
                                                                                                                   (str (+
                                                                                                                         (second (first stats))
                                                                                                                         (second (second stats))
-                                                                                                                        (second (third stats))))))))))
-                                                                                                    (incf count))))))))))))))
+                                                                                                                        (second (third stats)))))))))
+                                                                                                      (incf count))
+                                                                                                    )))))))))))))
 
                                                     (:div :class "row-fluid"
                                 (:div :class "nonboxy-widget"
