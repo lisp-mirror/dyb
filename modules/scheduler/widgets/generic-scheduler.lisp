@@ -260,7 +260,7 @@ $('#processed-content').text(s)})")))
                           form-section
                           :label "Select Time"
                           :input (with-html-string
-                                   (render-edit-field 
+                                   (render-edit-field   
                                     "scheduled-time"
                                     (or (parameter "scheduled-time")
                                         (if (get-val row 'scheduled-date)
@@ -272,6 +272,7 @@ $('#processed-content').text(s)})")))
                                     :required t)
                                    
                                    (str "hh:mm")))
+
                          (if (get-val row 'id)
                              (htm
                               (:input :type "hidden" :name "action-status" 

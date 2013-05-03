@@ -255,10 +255,10 @@
                           "Compose")
                       |#
                       (:div :class "branding"
-                            (:a :target "_blank"
-                                :href "http://app.digyourbrand.co.za/dyb/generic-scheduler?action=new&grid-name=generic-actions-gridx" 
+                            (:a
+                                :href "/dyb/generic-scheduler?action=new&grid-name=generic-actions-gridx" 
                                 :class "btn btn-primary"
-                                :data-toggle "dropdown"
+                              
                                 (:i :class "white-icons pencil")
                                 " Compose "
                                         ;(:b :class "caret")
@@ -268,7 +268,7 @@
                             (:a :target "_blank"
                                 :href "http://digyourbrand.com/support/" 
                                 :class "btn btn-primary"
-                                :data-toggle "dropdown"
+                                
                                 (:i :class "nav-icon light_bulb")
                                 " Support "
                                         ;(:b :class "caret")
@@ -461,6 +461,7 @@
        (:link :rel "stylesheet" :type "text/css" :href "http://static.jquery.com/ui/css/demo-docs-theme/ui.theme.css")
 
        " <link href=\"/css/jquery.jqplot.css\" rel=\"stylesheet\">"
+       "<link rel=\"stylesheet\" type=\"text/css\" href=\"js/timeentry/jquery.timeentry.css\"> "
 
        (:link :id "themes" :rel "stylesheet" :href "/css/theme-blue.css")
        (:style
@@ -556,6 +557,8 @@ if (okToRefresh)
 <script src=\"http://bp.yahooapis.com/2.4.21/browserplus-min.js\"></script>
 <script src=\"/js/plupupload/jquery.plupload.queue/jquery.plupload.queue.js\"></script>
 
+<script type=\"text/javascript\" src=\"/js/timeentry/jquery.timeentry.js\"></script>
+
     <script src=\"/js/excanvas.min.js\"></script>
 
 
@@ -579,6 +582,9 @@ if (okToRefresh)
        <![endif]-->"
 
        (str bottom-java-script)
+(:script "$(document).ready($(function () {
+                	                   $('#time-entry').timeEntry({spinnerImage: '/js/timeentry/spinnerDefault.png'});
+}));")
 
        (:script "$('#inline-datepicker').datepicker({
    dateFormat: 'dd M yy',
@@ -661,9 +667,9 @@ if (okToRefresh)
                               (:span :class "white-icons month_calendar")
                               " Scheduler"))
                          #| (:li
-                           (:a :href "/dyb/generic-scheduler?action=new&grid-name=generic-actions-gridx"
-                               (:span :class "white-icons create_write")
-                               " Quick Post")) |#
+                         (:a :href "/dyb/generic-scheduler?action=new&grid-name=generic-actions-gridx"
+                         (:span :class "white-icons create_write")
+                         " Quick Post")) |#
                          (:li
                           (:a :href "/dyb/tasks"
                               (:span :class "white-icons laptop")
@@ -675,14 +681,14 @@ if (okToRefresh)
                               " Search Streams")
                          #| (:ul :class "acitem" :style "display:none;"
 
-                          (:li
+                         (:li
                           (:a :href "/dyb/search-stream" "Search Streams"))
 
 
 
-                          (:li
+                         (:li
                           (:a :href "/dyb/search-stream-feedback" "Search Stream Data"))
-                          )|#
+                         )|#
                           )
                          )
                     (:div :id "side-accordion"
