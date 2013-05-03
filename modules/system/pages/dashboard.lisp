@@ -1072,23 +1072,24 @@
     count))
 
 
-(defun tw-user-posts-mentions (posts)
+
+
+(defun tw-retweets-of-my-tweets (posts)
   (let ((count 0))
     (dolist (doc posts)
-      (typecase (get-val doc 'channel-user) 
-        (channel-user
-         (when (string-equal (get-val doc 'post-type) "Twitter")
-           (when (gpv (get-val doc 'payload) :entities :user--mentions)
-             (dolist (mention (gpv (get-val doc 'payload) :entities :user--mentions))
-               (when (string-equal
-                      (get-val (get-val doc 'channel-user) 'channel-user-name)
-                      (gpv mention :screen--name))
-                              
-                 (incf count)))
-                        
-             )))))
+               (typecase (get-val doc 'channel-user) 
+                   (channel-user
+                    (when (string-equal (get-val doc 'post-type) "Twitter")
+                      (when (and
+                             (match-context-entities (get-val doc 'channel-user))
+                             (> (or (gpv (get-val doc 'payload) :retweet--count) 0) 0)
+                             (string-equal 
+                              (get-val (get-val doc 'channel-user) 'channel-user-name) 
+                              (gpv (get-val doc 'payload) :user :screen--name))
+                             )
+                        (incf count (or (gpv (get-val doc 'payload) :retweet--count) 0))
+                        doc)))))
     count))
-
 
 (defun users-posts (start-date end-date)
   (let ((users ;;(append (context-users-list) (list (get-user "admin@dyb.co.za")))
@@ -1103,6 +1104,10 @@
          :key #'car))
     posts))
 
+
+
+
+
 (defun users-stats (users-posts)
   (let ((stats))
 
@@ -1114,7 +1119,7 @@
              (posts (or (length actions) 0))
              (likes 0)
              (comments 0)
-             (mentions 0))
+             (retweets 0))
 
         
         
@@ -1123,7 +1128,7 @@
                        (get-val action 'fb-posts)))
           (incf comments (fb-user-post-comments 
                        (get-val action 'fb-posts)))
-          (incf mentions (tw-user-posts-mentions 
+          (incf retweets (tw-retweets-of-my-tweets 
                        (get-val action 'tweets))))
         (pushnew 
          (list (car user-posts)
@@ -1131,7 +1136,7 @@
                 (list "Posts" posts)
                 (list "Likes" likes) 
                 (list "Comments" comments)
-                (list "Mentions" mentions)))
+                (list "Retweets" retweets)))
          stats)
         ))
     
@@ -1167,8 +1172,67 @@
                                  (get-val action 'fb-posts))) 
                   (list "Comments" (fb-user-post-comments 
                                     (get-val action 'fb-posts)))
-                  (list "Mentions" (tw-user-posts-mentions 
+                  (list "Retweets" (tw-retweets-of-my-tweets 
                                     (get-val action 'tweets)))))
+           stats)
+          )
+        
+        ))
+    
+    stats))
+
+
+(defun tw-user-posts-mentions (posts)
+  (let ((count 0))
+    (dolist (doc posts)
+      (typecase (get-val doc 'channel-user) 
+        (channel-user
+         (when (string-equal (get-val doc 'post-type) "Twitter")
+           (when (gpv (get-val doc 'payload) :entities :user--mentions)
+             (dolist (mention (gpv (get-val doc 'payload) :entities :user--mentions))
+               ;;(break "~A" (get-val doc 'payload))
+               (when (string-equal
+                      (get-val (get-val doc 'channel-user) 'channel-user-name)
+                      (gpv mention :screen--name))
+                              
+                 (incf count)))
+                        
+             )))))
+    count))
+
+(defun audiance-stats (users-posts)
+  (let ((stats))
+
+    (dolist (user-posts users-posts)
+      
+      (let* ((user-actions (second user-posts))
+             (actions (if user-actions
+                          (get-val user-actions 'actions))))
+
+        
+        
+        (dolist (action actions)
+        ;;  (break "~A" (get-val action 'action))
+
+          
+          (pushnew 
+           (list (format-universal-date-time
+                  (get-val 
+                   (get-val action 'action)
+                   'scheduled-date))
+                 (or (get-val 
+                      (get-val action 'action)
+                      'processed-content)
+                     (get-val 
+                      (get-val action 'action)
+                      'action-content))
+                 (list 
+                 ; (list "Action" (get-val action 'action))
+                  (list "Eish" (tw-user-posts-mentions 
+                                 (get-val action 'tweets))) 
+                  
+                  
+                  ))
            stats)
           )
         
@@ -1452,6 +1516,8 @@
 
       (sv 'content-stats
           (content-stats (gethash 'users-posts calc-values)))
+      (sv 'audiance-stats
+          (audiance-stats (gethash 'users-posts calc-values)))
       )
     calc-values))
 
@@ -1907,7 +1973,7 @@
                                          :aria-controls "DataTables_Table_0" :rowspan "1" :colspan "1" 
                                          :style "width: 10%;text-align: center;" :aria-sort "ascending" 
                                          :aria-label "Mentions : activate to sort column descending"
-                                         "Mentions")
+                                         "Retweets")
                                     (:th :class "" :role "columnheader" :tabindex "0" 
                                          :aria-controls "DataTables_Table_0" :rowspan "1" :colspan "1" 
                                          :style "width: 10%;text-align: center;" :aria-sort "ascending" 
@@ -1923,9 +1989,7 @@
                                                 (:td :class "sorting_1"
                                                      (str (first user)))
                                                 (:td :class "sorting_1" :style "text-align: center;"
-                                                     (:span :class (if (< 0 (second (first (second user))))
-                                                                       "badge badge-success"
-                                                                       "badge badge-important")
+                                                     (:span :class "badge"
                                                             (str (second (first (second user))))))
                                                 (:td :class "sorting_1" :style "text-align: center;"
                                                      (:span :class (if (< 0 (second (second (second user))))
@@ -1945,7 +2009,7 @@
                                                 (:td :class "sorting_1" :style "text-align: center;"
                                                      (:span :class "badge badge-inverse"
                                                             (str (+
-                                                                  (second (first (second user)))
+                                                                  ;;(second (first (second user)))
                                                                   (second (second (second user)))
                                                                   (second (third (second user)))
                                                                   (second (fourth (second user)))))))))
@@ -1999,7 +2063,7 @@
                                                 :aria-controls "DataTables_Table_0" :rowspan "1" :colspan "1" 
                                                 :style "width: 10%;" :aria-sort "ascending" 
                                                 :aria-label "Mentions : activate to sort column descending"
-                                                "Mentions")
+                                                "Retweets")
                                            (:th :class "" :role "columnheader" :tabindex "0" 
                                                 :aria-controls "DataTables_Table_0" :rowspan "1" :colspan "1" 
                                                 :style "width: 10%;" :aria-sort "ascending" 
