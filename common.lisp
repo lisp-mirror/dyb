@@ -93,15 +93,16 @@
        (:time
         (htm (:input :type "text"
                      :id "time-entry"
-                    ;; :style (if width
-                    ;;            (format nil "width:~A;" width)
-                    ;;            (format nil "width:~A;" "100px"))
+                     ;; :style (if width
+                     ;;            (format nil "width:~A;" width)
+                     ;;            (format nil "width:~A;" "100px"))
                      :class (if required "required")
                      :name name
-                   ;;  :pattern  "(\d{2}([\\:]\d{2})?)"
+                     ;;  :pattern  "(\d{2}([\\:]\d{2})?)"
                      :value (escape value)
                      (if required "required")))
-        )
+        (defer-js
+            "$('#time-entry').timeEntry({spinnerImage: '/js/timeentry/spinnerDefault.png'})"))
        (t
         (htm
          (:div (:input :type type

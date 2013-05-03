@@ -582,9 +582,6 @@ if (okToRefresh)
        <![endif]-->"
 
        (str bottom-java-script)
-(:script "$(document).ready($(function () {
-                	                   $('#time-entry').timeEntry({spinnerImage: '/js/timeentry/spinnerDefault.png'});
-}));")
 
        (:script "$('#inline-datepicker').datepicker({
    dateFormat: 'dd M yy',
