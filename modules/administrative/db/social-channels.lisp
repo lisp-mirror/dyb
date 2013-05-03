@@ -86,9 +86,12 @@
                 :collection-class 'dyb-collection)
 
 (defun get-channels-list ()
-  (loop for channel across (social-channels)
-       collect (list (get-val channel 'channel-name)
-                     (get-val channel 'channel-name))))
+  (list (list "Facebook" "Facebook")
+        (list "Twitter" "Twitter"))
+ ;; (loop for channel across (social-channels)
+ ;;      collect (list (get-val channel 'channel-name)
+ ;;                    (get-val channel 'channel-name)))
+)
 
 (defclass channel-request ()
   ((channel :initarg :channel)
