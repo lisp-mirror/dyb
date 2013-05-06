@@ -64,7 +64,6 @@
      (synq-edit-data new-doc)
      (setf (key new-doc) (parameter "entity-name"))
      (setf (get-val new-doc 'entity-type) (get-entity-type (parameter "entity-type")) )
-     (setf (get-val new-doc 'doc-type) "Entity")
      (persist new-doc)
 
      (let* ((entity (get-entity (parameter "entity-name")))

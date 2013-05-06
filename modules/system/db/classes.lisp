@@ -36,22 +36,17 @@
 
 
 (defmethod persist ((service service-app))
-  (setf (doc-type service) 'service-app)
   (store-doc (services) service))
 
 (defun get-service (client identifier service)
-;  (break "huh? ~A" (services))
   (find-doc (services)
-   :test
-   (lambda (doc)
+            :test
+            (lambda (doc)
 
-(if (listp doc)
-    (setf doc (first doc)))
-
-;(break "fuck ~A" doc (get-val doc 'service))
-     (when (equal (doc-type doc) 'service-app)
-     ;  (break "~A ~A ~A" (client doc) (get-val doc 'service) (identifier doc))
-         (and (equal (client doc) client)
-              (equal (get-val doc 'service) service)
-              (equal (identifier doc) identifier))))))
+              (if (listp doc)
+                  (setf doc (first doc)))
+              (and (typep doc 'service-app)
+                   (equal (client doc) client)
+                   (equal (get-val doc 'service) service)
+                   (equal (identifier doc) identifier)))))
 

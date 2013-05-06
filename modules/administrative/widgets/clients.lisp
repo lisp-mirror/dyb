@@ -46,7 +46,6 @@
    (let ((doc (editing-row grid)))
      (synq-edit-data doc)
      (setf (get-val doc 'entity-type) (get-entity-type (parameter "entity-type")))
-     (setf (get-val doc 'doc-type) "Entity")
      (persist doc)
      (let* ((entity (get-entity (parameter "entity-name")))
            (relation (get-root (xid entity))))

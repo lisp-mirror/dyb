@@ -21,7 +21,6 @@
 
 (defun make-company (company-name)
   (make-instance 'company
-                 :doc-type "company" 
                  :company-name company-name))
 
 (defun get-company (company-name)

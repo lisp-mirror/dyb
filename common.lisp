@@ -119,12 +119,6 @@
                :id (format nil "validate-~A" name)
                (:img :src "/appimg/q-icon.png"))))))))
 
-(defun find-duplicate-doc-list (doc docs-list &key (element 'key))
-  (dolist (dup docs-list)
-    (if (equal (get-val doc element) (get-val dup element))
-        (return-from find-duplicate-doc-list dup))))
-
-
 (defun year (date)
   (values (decode-date date)))
 
@@ -231,46 +225,6 @@
 (defun parse-trim-integer (string)
   (parse-integer (string-trim '(#\Space #\Tab #\Newline) string) :junk-allowed t))
 
-(defun degrees-radians (degrees)
-  (* degrees pi 1/180))
-
-(defun radians-degrees (radians)
-  (* (/ radians pi) 180))
-
-(defun check-gps-coord (coord)
-  (if (numberp coord)
-      coord
-      0))
-
-(defun distance-between-points (lat1 lon1 lat2 lon2)
-  (distance-between-points-rad
-   (degrees-radians (check-gps-coord  lat1)) (degrees-radians (check-gps-coord lon1))
-   (degrees-radians (check-gps-coord lat2)) (degrees-radians (check-gps-coord lon2))))
-
-(defun distance-between-points-rad (lat1 lon1 lat2 lon2)
-  (flet ((haversin (phi)
-           (expt (sin (/ phi 2)) 2)))
-    (let* ((earth-radius 6371)
-           (a (+ (haversin (- lat2 lat1))
-                 (* (haversin (- lon2 lon1))
-                    (cos lat1)
-                    (cos lat2))))
-           (c (* 2 (atan (sqrt a)
-                         (sqrt (- 1 a))))))
-      (* earth-radius c))))
-
-#|(defun distance-between-objects (object1 object2)
-  (distance-between-points (latitude object1) (longitude object1)
-                           (latitude object2) (longitude object2)))
-|#
-
-(defun render-allsort-select (sort name value)
-  (let ((allsort (make-widget 'select
-			      :name name
-			      :items (find-allsorts-for-select sort))))
-    (setf (value allsort) value)
-    (render allsort)))
-
 (defun render-select (name items value &key first-value blank-allowed)
   (let ((select (make-widget 'select
                              :name name)))
@@ -365,101 +319,10 @@
             (htm (:div :class "collapse")))
           (str body))))
 
-(defun check-vals (docs element)
-  (dolist (doc (coerce docs 'list))
-    (format t "~%~A" (get-val doc element))))
-
 (defun print-entity-name (doc)
-  (if doc
-      (if (string-equal (get-val doc 'doc-type) "entity")
-          (get-val doc 'entity-name)
-          (if (get-val doc 'entity)
-              (get-val (get-val doc 'entity) 'entity-name)))))
-
-(defun print-entity-namex (doc)
-  (format nil "~A" (xid doc)))
-
-(defun print-entity-namexx (doc)
-  (get-val doc 'doc-status))
-
-(defun print-meeting (doc)   
-  (if doc
-      (if (string-equal (get-val doc 'doc-type) "project-meeting")
-          (format nil "~A (~A)" 
-                  (get-val doc 'description) 
-                  (format-universal-date
-                   (get-val doc 'meeting-date))))))
-
-(defun print-attendance-xx-entity (doc)  
-  ;(break "~A" doc)
-  (if doc
-      (get-val (get-val doc 'entity) 'entity-name)))
-
-(defun print-address-type (doc)  
-  ;(break "~A" doc)
-  (if doc
-      (get-val doc 'address-type)))
-
-(defun print-countryx (doc)  
-  ;(break "~A" doc)
-  (if doc
-      (get-val (get-val doc 'country-town) 'country)))
-
-(defun print-provincex (doc)
-;(break "~A" doc)
-  (if doc
-      (get-val (get-val doc 'country-town) 'province)))
-
-(defun print-townx (doc)
-;(break "~A" doc)
-  (if doc
-      (get-val (get-val doc 'country-town) 'town)))
-
-(defun print-country-town-xid (doc)  
-  (if doc
-      (if (string-equal (get-val doc 'doc-type) "country-town")
-          (get-val doc 'xid))))
-(defun print-country (doc)  
-  (if doc
-      (if (string-equal (get-val doc 'doc-type) "country-town")
-          (get-val doc 'country))))
-
-(defun print-province (doc)
-  (if doc
-      (if (string-equal (get-val doc 'doc-type) "country-town")
-          (get-val doc 'province))))
-
-(defun print-town (doc)
-  (if doc
-      (if (string-equal (get-val doc 'doc-type) "country-town")
-          (get-val doc 'town))))
-
-
-
-(defun print-course-name (doc)
-  (if doc
-      (if (string-equal (get-val doc 'doc-type) "training-intervention")
-          (get-val doc 'course-name)
-           )))
-
-(defun print-category (doc)
-  (if doc
-      (if (string-equal (get-val doc 'doc-type) "training-intervention")
-          (get-val doc 'category)
-           )))
-
-(defun print-industry-number (doc)
-  (if doc
-      (if (string-equal (get-val doc 'doc-type) "biographical")
-          (get-val doc 'employee-number)
-           )))
-
-(defun print-supplier-name (doc)
-  (if doc
-      (if (string-equal (get-val doc 'doc-type) "supplier")
-          (get-val doc 'supplier-name)
-          (if (get-val doc 'supplier)
-              (get-val (get-val doc 'supplier) 'supplier-name)))))
+  (if (typep doc 'entity)
+      (entity-name doc)
+      (entity-name (entity doc))))
 
 (defun context ()
   (and (current-user)

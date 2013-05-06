@@ -125,7 +125,6 @@
     (let ((doc (editing-row grid)))
       (setf (get-val doc 'sort) (parameter "sort"))
       (setf (get-val doc 'sort-value) (parameter "sort-value"))
-      (setf (get-val doc 'doc-type) "allsort")
       (synq-edit-data doc)
       (setf (error-message grid) nil)
       (cond ((and (not (get-val doc 'xid))

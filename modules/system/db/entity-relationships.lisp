@@ -102,8 +102,6 @@
   ;(unless root (break "fuck ~A" entity))
   (let ((doc (make-instance 'entity-relationship
                            ;; :xid (next-xid (entity-relationships-collection))
-                            
-                            :doc-type "entity-relationship"
                             :root (if root (xid (entity root)))
                             :entity entity
                             :parent (if parent-relationship

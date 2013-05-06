@@ -62,8 +62,7 @@
                   super-user-p)
   (multiple-value-bind (password salt)
       (make-password password)
-    (make-instance 'user :doc-type "user" 
-                         :email email
+    (make-instance 'user :email email
                          :password password
                          :salt salt
                          :permissions permissions

@@ -161,7 +161,6 @@
                              (parameter "mine-entity"))
                             (parameter "mine-entity")))))
 
-               (setf (get-val new-doc 'doc-type) "period")
                (setf (get-val new-doc 'period-name) (parameter "period-name"))
                (setf (key new-doc)
                      (list (xid (get-val new-doc 'entity)) 

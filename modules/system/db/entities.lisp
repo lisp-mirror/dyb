@@ -24,7 +24,6 @@
 
 (defun make-entity-type (entity-type-name description)
   (make-instance 'entity-type
-                 :doc-type "entity-type" 
                  :entity-type-name entity-type-name
                  :description description))
 
@@ -67,7 +66,7 @@
   (entities-collection))
 
 (defun make-entity (entity-type entity-name)
-  (make-instance 'entity :doc-type "entity" 
+  (make-instance 'entity
                  :entity-type (get-entity-type entity-type) 
                  :entity-name entity-name))
 

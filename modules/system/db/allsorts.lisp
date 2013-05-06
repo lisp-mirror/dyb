@@ -18,8 +18,7 @@
                 :initform nil)
    (extended-description :initarg :extended-description 
                          :initform nil))
-  (:metaclass storable-versioned-class)
-  (:default-initargs :doc-type "allsort"))
+  (:metaclass storable-versioned-class))
 
 (defun allsorts-collection ()
   (get-collection (system-db) "allsorts"))
@@ -36,7 +35,6 @@
                      aa-sort-order description
                      extended-description)
   (make-instance 'allsort
-                 :doc-type "allsort" 
                  :sort sort
                  :sort-order sort-order
                  :sort-value sort-value

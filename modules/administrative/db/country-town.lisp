@@ -34,8 +34,7 @@
              :accessor latitude)
    (guess-p :initarg :guess-p
             :initform nil))
-  (:metaclass storable-versioned-class)
-  (:default-initargs :doc-type "country-town"))
+  (:metaclass storable-versioned-class))
 
 (defun country-towns-collection ()
   (get-collection (system-db) "country-towns"))
@@ -49,7 +48,6 @@
 (defun make-country-town (country province town 
                           &key longitude latitude municipalities guess-p crap-p)
   (make-instance 'country-town
-                 :doc-type "country-town" 
                  :xid (if crap-p
                           nil
                           0)

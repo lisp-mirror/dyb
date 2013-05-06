@@ -22,8 +22,7 @@
              :accessor end-date)
    (status :initarg :status :initform nil
            :documentation "Open, Closed"))
-  (:metaclass storable-versioned-class)
-  (:default-initargs :doc-type "period"))
+  (:metaclass storable-versioned-class))
 
 (defun periods-collection ()
   (get-collection (system-db) "periods"))
@@ -38,7 +37,6 @@
                     period-name period-type description 
                     start-date end-date status)
   (make-instance 'period
-                 :doc-type "period" 
                  :entity entity
                  :period-name period-name
                  :period-type period-type

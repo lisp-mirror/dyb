@@ -30,8 +30,7 @@
               :initform (make-hash-table :test 'equal))
    (verification-code :initarg :verification-code
                       :initform nil))
-  (:metaclass storable-versioned-class)
-  (:default-initargs :doc-type "channel-user"))
+  (:metaclass storable-versioned-class))
 
 
 (defun channel-users-collection ()
@@ -50,7 +49,6 @@
                           user-id
                           &key last-access-token)
   (make-instance 'channel-user
-                 :doc-type "channel-user"
                  :xid (next-xid (channel-users-collection))
                  :entity entity
                  :channel-user-name channel-user-name
