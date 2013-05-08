@@ -1,34 +1,120 @@
 (in-package :dyb)
 
+(defun request-with-auth1 (app-id app-secret 
+                           access-token access-secret 
+                           nonce stamp
+                           signature-base-string)
+  `(("Authorization"
+        ,@(build-auth-string
+           `(("oauth_consumer_key" ,app-id)
+             ("oauth_nonce" ,nonce)
+             ("oauth_signature"
+              ,(encode-signature
+                (hmac-sha1
+                 signature-base-string
+                 (hmac-key app-secret 
+                           access-secret))
+                  nil))
+             ("oauth_signature_method" "HMAC-SHA1")
+             ("oauth_timestamp" ,stamp)
+             ("oauth_token" ,access-token)
+             ("oauth_version" "1.0"))))))
+
 (defun ensure-string-reply (reply)
   (etypecase reply
     (string reply)
     ((vector (unsigned-byte 8)) (babel:octets-to-string reply))
     (null nil)))
 
-(defun handle-endpoint (user request &key error-path)
+(defclass drakma-request-result ()
+  ((body-or-stream :initarg :body-or-stream
+                   :accessor body-or-stream)
+    (status-code :initarg :status-code
+                 :accessor status-code)
+    (headers :initarg :headers
+             :accessor headers)
+    (uri :initarg :uri
+         :accessor uri)
+    (stream :initarg :stream
+            :accessor result-stream)
+    (must-close :initarg :must-close
+                :accessor must-close)
+    (reason-phrase :initarg :reason-phrase
+                   :accessor result-reason-phrase)))
+
+(defun drakma-request (uri &rest args
+                       &key method
+                       parameters
+                       url-encoder
+                       content
+                       content-type
+                       content-length
+                       additional-headers
+                       want-stream
+                       preserve-uri
+                       connection-timeout)
+  (declare (ignore method
+                   parameters
+                   url-encoder
+                   content
+                   content-type
+                   content-length
+                   additional-headers
+                   want-stream
+                   preserve-uri
+                   connection-timeout))
+  (multiple-value-bind (body-or-stream
+                        status-code
+                        headers
+                        uri
+                        stream
+                        must-close
+                        reason-phrase)    
+      (apply #'drakma:http-request uri args)
+    (make-instance 'drakma-request-result
+                   :body-or-stream body-or-stream 
+                   :status-code status-code
+                   :headers headers
+                   :uri uri
+                   :stream stream
+                   :must-close must-close
+                   :reason-phrase reason-phrase)))
+
+
+(defun handle-endpoint (user request-result &key error-path)
   (let ((result)
         (message))
+    
     (cond ((not (get-val user 'last-access-token))
            (setf message "Missing access token"))
-          ((not request)
+          ((not request-result)
            (setf message "Endpoint returned no values."))
+          ;;TODO: Add more http status codes to check.
           (t
            (setf result (json:decode-json-from-string
-                         (ensure-string-reply request)))
-           (when (and (consp result)
-                      (or (assoc-path result error-path) 
-                          (assoc-path result :error) 
-                          (assoc-path result :errors)))
-             (let ((error-message (or (assoc-path result error-path)
-                                      (assoc-path result :error :message)
-                                      (if (listp (cdr (assoc-path result :errors)))
-                                          (assoc-path (car (cdr (assoc-path result :errors))) :message)
-                                          (assoc-path result :errors)))))
-               (setf message (if (listp error-message)
-                                 (cdr error-message)
-                                 error-message))))))
-    (values result message)))
+                         (ensure-string-reply (body-or-stream request-result))))
+           (unless (equal (status-code request-result) 200)
+             ;;TODO: Add a parameter to say which api is handling gave the request 
+             ;;instead of error path so that the error can be handled better.
+
+             
+             (when (and (consp result)
+                        (or (assoc-path result error-path) 
+                            (assoc-path result :error) 
+                            (assoc-path result :errors)))
+               (let ((error-message (or (assoc-path result error-path)
+                                        (assoc-path result :error :message)
+                                        (if (listp (cdr (assoc-path result :errors)))
+                                            (assoc-path 
+                                             (car (cdr (assoc-path result :errors)))
+                                             :message)
+                                            (assoc-path result :errors)))))
+ 
+                 (setf message (if (listp error-message)
+                                   (cdr error-message)
+                                   error-message)))))))
+  
+    (values result message (status-code request-result))))
 
 (defun handle-endpoint-run-request (user request-function &key error-path)
   (let ((result)

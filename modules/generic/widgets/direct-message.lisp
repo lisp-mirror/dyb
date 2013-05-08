@@ -1,7 +1,8 @@
 (in-package :dyb)
 
 (defclass direct-message-action (grid-editor)
-  ((message :initarg :message))
+  ((message :initarg :message 
+            :accessor message))
   (:metaclass widget-class))
 
 (defmethod render ((widget direct-message-action) &key)

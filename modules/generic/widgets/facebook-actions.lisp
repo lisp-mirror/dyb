@@ -4,7 +4,8 @@
   ((grid :initarg :grid
          :initform nil
          :accessor grid)
-   (message :initarg :message))
+   (message :initarg :message
+            :accessor message))
   (:metaclass widget-class))
 
 
@@ -91,7 +92,8 @@
   ((grid :initarg :grid
          :initform nil
          :accessor grid)
-   (message :initarg :message))
+   (message :initarg :message
+            :accessor message))
   (:metaclass widget-class))
 
 

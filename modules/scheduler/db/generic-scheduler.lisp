@@ -110,13 +110,16 @@
                                               (get-val doc 'action-content))
                                 (string-equal (get-val doc 'action-status) "Pending"))))))
 ;(break "~a" dup)
+
     (if dup
         dup
         (persist (make-generic-action channel-user post-id post-type 
                                       from-user-id to-user-id action-type 
                                       action-content 
-                                      (if shorten-urls-p
-                                          (shortify-string action-content)
+                                      (if (stringp action-content)
+                                          (if shorten-urls-p
+                                              (shortify-string action-content)
+                                              action-content)
                                           action-content)
                                       schedule-type scheduled-date 
                                       :image-url image-url

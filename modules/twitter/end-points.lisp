@@ -1,25 +1,5 @@
 (in-package :dyb)
 
-(defun request-with-auth1 (app-id app-secret 
-                           access-token access-secret 
-                           nonce stamp
-                           signature-base-string)
-  `(("Authorization"
-        ,@(build-auth-string
-           `(("oauth_consumer_key" ,app-id)
-             ("oauth_nonce" ,nonce)
-             ("oauth_signature"
-              ,(encode-signature
-                (hmac-sha1
-                 signature-base-string
-                 (hmac-key app-secret 
-                           access-secret))
-                  nil))
-             ("oauth_signature_method" "HMAC-SHA1")
-             ("oauth_timestamp" ,stamp)
-             ("oauth_token" ,access-token)
-             ("oauth_version" "1.0"))))))
-
 (defun picture-tweet-request (app-id app-secret access-token access-secret message 
                               image-path
                               link-url)
@@ -36,7 +16,7 @@
                                   message)))
          (end-point  "https://api.twitter.com/1.1/statuses/update_with_media.json" ))
 
-    (drakma:http-request 
+    (drakma-request 
      end-point
      :method :post
      :content-type "application/x-www-form-urlencoded; charset=UTF-8"
@@ -96,7 +76,7 @@
          (end-point  "https://api.twitter.com/1.1/statuses/update.json" )
          )
 
-    (drakma:http-request 
+    (drakma-request 
                   end-point
                   :method :post
                   :content-type "application/x-www-form-urlencoded; charset=UTF-8"
@@ -161,7 +141,7 @@
          (nonce (format nil "~A" (random 1234567)))
          (end-point  "https://api.twitter.com/1.1/favorites/create.json" ))
 
-    (drakma:http-request 
+    (drakma-request
      end-point
      :method :post
      :parameters `(("id" . , tweet-id))
@@ -212,7 +192,7 @@
                              "https://api.twitter.com/1.1/statuses/retweet/~A.json"
                              tweet-id) ))
 
-    (drakma:http-request 
+    (drakma-request 
      end-point   
      :method :post
      :additional-headers
@@ -258,7 +238,7 @@
   (let* ((stamp (format nil "~A" (get-unix-time)))
          (nonce (format nil "~A" (random 1234567)))
          (end-point  "https://api.twitter.com/1.1/statuses/update.json"))
-    (drakma:http-request
+    (drakma-request
      end-point
      :method :post
      :parameters `(("status" . ,(format nil "D @~A ~A" at-user message)))
@@ -321,7 +301,7 @@
          ;; (end-point "http://api.twitter.com/1.1/statuses/home_timeline.json")
          )
     
-    (drakma:http-request 
+    (drakma-request 
      end-point
      :method :get 
     ;; :parameters `(("count" . "800")
@@ -404,7 +384,7 @@
                                 since-id
                                 1))))
     
-    (drakma:http-request 
+    (drakma-request 
      end-point
      :method :get 
     ;; :parameters `(("count" . "800")
@@ -462,7 +442,7 @@
          (nonce (format nil "~A~A" (random 1234567) stamp))
          (end-point  "https://api.twitter.com/1.1/followers/ids.json"))
     
-    (drakma:http-request 
+    (drakma-request 
      end-point
      :method :get    
      :additional-headers
@@ -507,7 +487,7 @@
          (nonce (format nil "~A~A" (random 1234567) stamp))
          (end-point  "https://api.twitter.com/1.1/account/verify_credentials.json"))
     
-    (drakma:http-request 
+    (drakma-request 
      end-point
      :method :get    
      :additional-headers
@@ -632,7 +612,7 @@
                                 since-id
                                 1))))
     
-    (drakma:http-request 
+    (drakma-request 
      end-point
      :method :get 
     ;; :parameters `(("count" . "800")
@@ -690,7 +670,7 @@
          (end-point  (format nil "http://api.twitter.com/1.1/statuses/show.json?id=~A" 
                              tweet-id)))
     
-    (drakma:http-request 
+    (drakma-request 
      end-point
      :method :get 
 
@@ -766,7 +746,7 @@
          (since (format nil "~A" (if since-id
                                 since-id
                                 1))))
-    (drakma:http-request 
+    (drakma-request 
      end-point
      :method :get 
 

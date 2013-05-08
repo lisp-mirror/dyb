@@ -75,7 +75,8 @@
                           :search (search-term grid))))
 
 (defclass post-form (grid-editor)
-  ((message :initarg :message))
+  ((message :initarg :message
+            :accessor message))
   (:metaclass widget-class))
 
 (defmethod handle-action ((grid generic-grid) (action (eql 'new)))
@@ -174,6 +175,7 @@
                          (parameter "channel-user")
                          (parameter "service"))))
       (cond ((string-equal (parameter "service") "facebook")
+             (break "?")
              (let ((action (add-generic-post-action (parameter "service")
                                                     channel-user
                                                     "Post"
