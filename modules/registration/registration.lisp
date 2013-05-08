@@ -29,6 +29,12 @@
          :accessor form))
   (:metaclass widget-class))
 
+(defmethod action-handler :around ((widget wizard-widget))
+  (cond ((post-parameter "go-back")
+         (go-back (parent widget)))
+        (t
+         (call-next-method))))
+
 (defclass cancel (wizard-widget)
   ()
   (:metaclass widget-class))
@@ -56,9 +62,7 @@
                                       "Exit")))))))
 
 (defmethod action-handler ((widget cancel))
-  (cond ((post-parameter "go-back")
-         (go-back (parent widget)))
-        ((post-parameter "exit")
+  (cond ((post-parameter "exit")
          (let ((parent (parent widget)))
            (setf (current-widget parent) nil)
            (loop for previous in (previous-widgets parent)
@@ -193,6 +197,11 @@ as stipulated on the DigYourBrand.com website.")
                              `(("Timezone*" :name "time-zone"
                                             :type :select
                                             :description ,*time-zones*)))
+                       (:button
+                        :class "btn btn-info"
+                        :type "submit"
+                        :name "go-back"
+                        "Go back")
                        (render (form widget))
                        (:div :class "social"
                         (:h4  "Add Your Social Accounts")
@@ -280,6 +289,11 @@ as stipulated on the DigYourBrand.com website.")
                                ("Industry*" :name "industry"
                                             :type :select
                                             :description ,*industries*)))
+                       (:button
+                        :class "btn btn-info"
+                        :type "submit"
+                        :name "go-back"
+                        "Go back")
                        (render (form widget))
                        (:div :class "form-actions"
                              (:button
@@ -292,7 +306,6 @@ as stipulated on the DigYourBrand.com website.")
                                       "Cancel")))))))
 
 (defmethod action-handler ((widget billing-details))
-  (break)
   (with-slots (form parent) widget
     (setf (error-messages form) nil)
     (with-parameters (submit cancel)
