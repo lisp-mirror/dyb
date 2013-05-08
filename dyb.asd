@@ -253,5 +253,10 @@
                    (:module "pages"
                     :serial t
                     :components
-                            ((:file "tasks")))))))
+                            ((:file "tasks")))))
+                 (:module "registration"
+                  :serial t
+                  :components
+                  ((:file "forms")
+                   (:file "registration")))))
                (:file "start")))

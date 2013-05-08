@@ -1,0 +1,43 @@
+body {
+ background-color: #13547e !important;
+}
+
+.content {
+ width:500px;
+ margin: 0 auto;
+}
+
+.header h3 {
+ color: white;
+}
+.background {
+ background: url(http://digyourbrand.com/wp-content/uploads/2012/07/logo.png) no-repeat;
+ height: 113px;
+}
+.cal-note {
+    margin: 0 auto;
+    width: 350px;
+}
+.title-header {
+    color: white;
+    text-transform: uppercase;
+    padding-top:10px;
+}
+.field-error {
+    color: #ff5959;
+}
+.add-acc-btn {
+    box-shadow: 2px 2px 2px #333;
+}
+.add-acc-disabled {
+    box-shadow: 2px 2px 2px #333;
+}
+.add-acc-btn:hover {
+    box-shadow: none!important;
+}
+.account-buttons {
+    margin: 0 auto;
+}
+.social {
+    text-align:center;
+}

@@ -38,6 +38,9 @@
               (:div :class "permission-error"
                     (esc title))))))
 
+(defmethod login-not-required :around ((access dyb-acceptor) script-name)
+  (or (equal script-name "/dyb/registration")
+      (call-next-method)))
 ;;;
 
 (defparameter *installation* "Local Machine");;"Live Serve"

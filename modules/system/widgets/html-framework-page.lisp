@@ -118,7 +118,8 @@
                 :initform t
                 :accessor ajax-submit)))
 
-(defmethod render ((widget html-framework-form) &key content grid)
+(defmethod render ((widget html-framework-form) &key content grid
+                                                     buttons)
   (with-html
     (:div :class "nonboxy-widget"
           (:div :class "widget-head"
@@ -149,29 +150,32 @@
                                                :value (get-val widget 'grid-name))))
 
                               (str content)
-
+                              
                               (:div :class "form-actions"
-                                    (:button
-                                     :class "btn btn-info"
-                                     :onclick
-                                     (format nil
-                                             "if($(\"#~a\").valid()){~a}"
-                                             (get-val widget 'form-id)
-                                             (if (ajax-submit widget)
-                                                 (js-render-form-values
-                                                  (editor grid)
-                                                  (get-val widget 'form-id)
-                                                  (js-pair "grid-name" (name grid))
-                                                  (js-pair "action" "save"))
-                                                 ""))
-                                     "Save")
-                                    (:button :class "btn btn-warning"
-                                             :onclick
-                                             (format nil "event.preventDefault(); ~a"
-                                                     (js-render (editor grid)
-                                                                (js-pair "grid-name" (name grid))
-                                                                (js-pair "action" "cancel")))
-                                             "Cancel")))))))))
+                                    (if buttons
+                                        (str buttons)
+                                        (with-html
+                                          (:button
+                                           :class "btn btn-info"
+                                           :onclick
+                                           (format nil
+                                                   "if($(\"#~a\").valid()){~a}"
+                                                   (get-val widget 'form-id)
+                                                   (if (ajax-submit widget)
+                                                       (js-render-form-values
+                                                        (editor grid)
+                                                        (get-val widget 'form-id)
+                                                        (js-pair "grid-name" (name grid))
+                                                        (js-pair "action" "save"))
+                                                       ""))
+                                           "Save")
+                                          (:button :class "btn btn-warning"
+                                                   :onclick
+                                                   (format nil "event.preventDefault(); ~a"
+                                                           (js-render (editor grid)
+                                                                      (js-pair "grid-name" (name grid))
+                                                                      (js-pair "action" "cancel")))
+                                                   "Cancel")))))))))))
 
 (defclass form-section (widget)
   ((section-size :initarg :section-size
@@ -744,9 +748,7 @@ if (okToRefresh)
     (render page
             :styling
             (with-html-to-string ()
-              (:link :rel "stylesheet" :href "/css/special-page.css")
-              (:link :rel "stylesheet" :href "/appcss/login-style.css")
-              )
+              (:link :rel "stylesheet" :href "/css/special-page.css"))
             :body
             (with-html-to-string ()
               (:div :class "top"

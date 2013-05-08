@@ -39,8 +39,8 @@
        body))
 
 (defun render-edit-field (name value
-                          &key data-element required 
-                          (type "text") 
+                          &key data-element required
+                          (type "text")
                           data (blank-allowed t)
                           min
                           max
@@ -133,14 +133,14 @@
       (let ((split-date (split-string date-string date-spacer)))
         (if reverse-date-sequence-p
             (setf split-date (reverse split-date)))
-        (encode-universal-time  
-         0 0 0 
-         (parse-integer (first split-date)) 
+        (encode-universal-time
+         0 0 0
+         (parse-integer (first split-date))
          (or (parse-integer (second split-date) :junk-allowed t)
-             (+ 1 (or 
+             (+ 1 (or
                    (position (second split-date) *short-months* :test 'string-equal)
-                   (position (second split-date) *long-months* :test 'string-equal)))) 
-         (if (> (parse-integer (third split-date)) 1900) 
+                   (position (second split-date) *long-months* :test 'string-equal))))
+         (if (> (parse-integer (third split-date)) 1900)
              (parse-integer (third split-date))
              1901)
          (time-zone)))
@@ -148,14 +148,14 @@
 
 
 (defun universal-to-gmt-0 (time)
-  (- time 
-     (* (- (time-zone)) 
+  (- time
+     (* (- (time-zone))
         (* 60 60))))
 
 (defun format-date-dash (year month day)
   (format nil "~d-~d-~d"  year month day))
 
-(defun format-universal-date-dash (universal-date)  
+(defun format-universal-date-dash (universal-date)
   (if (stringp universal-date)
       universal-date
       (multiple-value-call #'format-date-dash (decode-date universal-date))))
@@ -169,31 +169,34 @@
   (format nil "~d ~a ~d ~@{~2,'0d~^:~}"
           day (short-month-name month) year hour min sec))
 
-(defun format-universal-date (universal-date)  
+(defun format-universal-date (universal-date)
   (when universal-date
       (if (stringp universal-date)
           universal-date
           (multiple-value-call #'format-date (decode-date universal-date)))))
 
-(defun format-universal-date-time (universal-date)  
+(defun format-universal-date-time (universal-date)
   (if (stringp universal-date)
         universal-date
         (multiple-value-bind (sec min hour day month year)
-            (decode-universal-time           
+            (decode-universal-time
              (or universal-date (get-universal-time))
              (time-zone))
           (format-date-time year month day hour min sec))))
 
 
-(defun format-universal-time (universal-date)  
+(defun format-universal-time (universal-date)
   (if (stringp universal-date)
       universal-date
       (multiple-value-bind (sec min hour)
-          (decode-universal-time           
+          (decode-universal-time
            (or universal-date (get-universal-time))
            (time-zone))
         (declare (ignore sec))
         (format nil "~2,'0d:~2,'0d" hour min))))
+
+(defun n-days-from-now (n)
+  (format-universal-date (+ (* 86400 n) (get-universal-time))))
 
 (defparameter *time-zone* -2)
 
@@ -203,14 +206,14 @@
            (gethash :time-zone (preferences (current-user))))
       *time-zone*))
 
-(defun period-date-to-universal (date-string)  
+(defun period-date-to-universal (date-string)
   (if date-string
-      (let ((split-date (split-string date-string #\-)))        
-        (encode-universal-time  
-         0 0 0   
-         (parse-integer (third split-date)) 
-         (parse-integer (second split-date)) 
-         (if (> (parse-integer (first split-date)) 1900) 
+      (let ((split-date (split-string date-string #\-)))
+        (encode-universal-time
+         0 0 0
+         (parse-integer (third split-date))
+         (parse-integer (second split-date))
+         (if (> (parse-integer (first split-date)) 1900)
              (parse-integer (first split-date))
              1901)
          (time-zone)))
@@ -247,10 +250,10 @@
 
 #|(defun partition (predicate list)
   (loop for i in list
-	when (funcall predicate i)
-	collect i into part1
-	else collect i into part2
-	finally (return (values part1 part2))))
+        when (funcall predicate i)
+        collect i into part1
+        else collect i into part2
+        finally (return (values part1 part2))))
 |#
 
 (defun gps-cord-formatter (value)
@@ -265,8 +268,8 @@
               (parse-integer day)))))
 
 (defun decode-time-string (time)
-  (ppcre:register-groups-bind 
-      ((#'parse-integer hour min sec)) 
+  (ppcre:register-groups-bind
+      ((#'parse-integer hour min sec))
       ("(\\d{1,2}):(\\d{1,2})(?::(\\d{1,2}))?" time)
     (values  hour min (or sec 0))))
 
@@ -337,9 +340,9 @@
        (setf (session-value 'context) entities)))
 
 (defun valid-channel-user (user channel)
-  (when (match-context-entities user)  
-    (when (and user (string-equal (get-val user 'doc-status) "Active")) 
-      (if (string-equal (get-val user 'channel-user-type) channel)   
+  (when (match-context-entities user)
+    (when (and user (string-equal (get-val user 'doc-status) "Active"))
+      (if (string-equal (get-val user 'channel-user-type) channel)
         user
         ))))
 
@@ -348,16 +351,16 @@
   (when url
     (let ((result))
       (multiple-value-bind (body status)
-          (drakma:http-request 
+          (drakma:http-request
            url
            :parameters parameters
            :content content
-           :method (or method :get) 
+           :method (or method :get)
            :content-type content-type
            :additional-headers headers
            :preserve-uri t)
         (let ((decoded-body))
-        
+
           (if  (stringp body)
                (setf decoded-body body)
                (setf decoded-body (babel:octets-to-string body)))
@@ -451,4 +454,35 @@
                       '(:login "system@digyourbrand.com"
                         "m3t$y$dyb")))
 
-
+(defparameter *time-zones*
+  '(("-12.0" . "(GMT -12:00) Eniwetok, Kwajalein")
+    ("-11.0" . "(GMT -11:00) Midway Island, Samoa")
+    ("-10.0" . "(GMT -10:00) Hawaii")
+    ("-9.0" . "(GMT -9:00) Alaska")
+    ("-8.0" . "(GMT -8:00) Pacific Time (US & Canada)")
+    ("-7.0" . "(GMT -7:00) Mountain Time (US & Canada)")
+    ("-6.0" . "(GMT -6:00) Central Time (US & Canada), Mexico City")
+    ("-5.0" . "(GMT -5:00) Eastern Time (US & Canada), Bogota, Lima")
+    ("-4.0" . "(GMT -4:00) Atlantic Time (Canada), Caracas, La Paz")
+    ("-3.5" . "(GMT -3:30) Newfoundland")
+    ("-3.0" . "(GMT -3:00) Brazil, Buenos Aires, Georgetown")
+    ("-2.0" . "(GMT -2:00) Mid-Atlantic")
+    ("-1.0" . "(GMT -1:00 hour) Azores, Cape Verde Islands")
+    ("0.0" . "(GMT) Western Europe Time, London, Lisbon, Casablanca")
+    ("1.0" . "(GMT +1:00 hour) Brussels, Copenhagen, Madrid, Paris")
+    ("2.0" . "(GMT +2:00) Kaliningrad, South Africa")
+    ("3.0" . "(GMT +3:00) Baghdad, Riyadh, Moscow, St. Petersburg")
+    ("3.5" . "(GMT +3:30) Tehran")
+    ("4.0" . "(GMT +4:00) Abu Dhabi, Muscat, Baku, Tbilisi")
+    ("4.5" . "(GMT +4:30) Kabul")
+    ("5.0" . "(GMT +5:00) Ekaterinburg, Islamabad, Karachi, Tashkent")
+    ("5.5" . "(GMT +5:30) Bombay, Calcutta, Madras, New Delhi")
+    ("5.75" . "(GMT +5:45) Kathmandu")
+    ("6.0" . "(GMT +6:00) Almaty, Dhaka, Colombo")
+    ("7.0" . "(GMT +7:00) Bangkok, Hanoi, Jakarta")
+    ("8.0" . "(GMT +8:00) Beijing, Perth, Singapore, Hong Kong")
+    ("9.0" . "(GMT +9:00) Tokyo, Seoul, Osaka, Sapporo, Yakutsk")
+    ("9.5" . "(GMT +9:30) Adelaide, Darwin")
+    ("10.0" . "(GMT +10:00) Eastern Australia, Guam, Vladivostok")
+    ("11.0" . "(GMT +11:00) Magadan, Solomon Islands, New Caledonia")
+    ("12.0" . "(GMT +12:00) Auckland, Wellington, Fiji, Kamchatka")))
