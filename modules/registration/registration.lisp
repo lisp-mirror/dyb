@@ -25,7 +25,7 @@
            :initform nil
            :accessor parent)
    (form :initarg :form
-         :initform (make-widget 'reg-form)
+         :initform (make-instance 'reg-form)
          :accessor form))
   (:metaclass widget-class))
 
@@ -159,7 +159,7 @@ as stipulated on the DigYourBrand.com website.")
       (when (or submit cancel)
         (form-fill-state form))
       (cond (submit
-             (let ((valid (:dbg (validate-reg-form (form widget)))))
+             (let ((valid (validate-reg-form (form widget))))
                (cond ((and (not (empty-p password))
                            (not (empty-p confirm-password))
                            (not (equal password confirm-password)))
@@ -219,28 +219,100 @@ as stipulated on the DigYourBrand.com website.")
 (defmethod action-handler ((widget account-setup))
   (with-slots (form parent) widget
     (setf (error-messages form) nil)
-    (with-parameters (submit cancel password
-                             confirm-password)
+    (with-parameters (submit cancel)
       (when (or submit cancel)
         (form-fill-state form))
       (cond (submit
              (let ((valid (validate-reg-form (form widget))))
-               (cond ;; ((and (not (empty-p password))
-                     ;;       (not (empty-p confirm-password))
-                     ;;       (not (equal password confirm-password)))
-                     ;;  (set-field-error form "confirm-password" "Passwords don't match"))
-                     (valid
-                      (advance-widget parent
-                       (make-widget 'congratulations :parent parent))))))
+               (cond ((not valid))
+                     ((equal (form-field-value
+                              (form (car (previous-widgets parent)))
+                              "trial")
+                             "3")
+                      (advance-widget
+                       parent
+                       (make-widget 'congratulations :parent parent)))
+                     (t
+                      (advance-widget
+                       parent
+                       (make-widget 'billing-details :parent parent))))))
             (cancel
              (advance-widget parent
                              (make-widget 'cancel :parent parent)))))))
 ;;;
 
+(defclass billing-details (wizard-widget)
+  ()
+  (:metaclass widget-class))
+
+(defmethod render ((widget billing-details) &key)
+  (with-html
+    (:div :class "nonboxy-widget"
+          (:div :class "widget-head"
+                (:span :style "float:left;"
+                       (:img :src "/img/setup.png"))
+                (:h3 :class "title-header"
+                     "Billing details"))
+          (:div :class "widget-content"
+
+                (:form :name "reg-form"
+                       :class "form-horizontal well"
+                       :action ""
+                       :method "post"
+                       (setf (fields (form widget))
+                             `(("Company Name*" :name "company-name" :type :text)
+                               ("Are you a South African company?*"
+                                :name "south-african"
+                                :type :radio
+                                :description
+                                (("Yes"
+                                  :value "yes"
+                                  :default t)
+                                 ("No"
+                                  :value "no")))
+                               ("Country*" :name "country"
+                                           :type :select
+                                           :description ,*countries*)
+                               ("Billing address*" :name "billing-address" :type :textarea)
+                               ("VAT No" :name "vat" :type :text
+                                         :required nil)
+                               ("Company Reg No" :name "reg-no" :type :text :required nil)
+                               ("Industry*" :name "industry"
+                                            :type :select
+                                            :description ,*industries*)))
+                       (render (form widget))
+                       (:div :class "form-actions"
+                             (:button
+                              :class "btn btn-info"
+                              :type "submit"
+                              :name "submit"
+                              "Confirm")
+                             (:button :class "btn btn-warning"
+                                      :name "cancel"
+                                      "Cancel")))))))
+
+(defmethod action-handler ((widget billing-details))
+  (break)
+  (with-slots (form parent) widget
+    (setf (error-messages form) nil)
+    (with-parameters (submit cancel)
+      (when (or submit cancel)
+        (form-fill-state form))
+      (cond (submit
+             (let ((valid (validate-reg-form (form widget))))
+               (cond (valid
+                      (advance-widget parent
+                       (make-widget 'congratulations :parent parent))))))
+            (cancel
+             (advance-widget parent
+                             (make-widget 'cancel :parent parent)))))))
+
+;;;
+
 (define-easy-handler (reg-page :uri "/dyb/registration"
                                :for-everyone t) ()
   (let ((reg-widget (make-widget 'registration)))
-    (unless (current-widget reg-widget) 
+    (unless (current-widget reg-widget)
       (setf (current-widget reg-widget)
             (make-widget 'create-account :parent reg-widget)))
     (render (make-widget 'special-html-framework-page :header "Register")

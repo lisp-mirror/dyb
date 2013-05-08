@@ -17,7 +17,7 @@
         do (apply #'render-reg-field form field)))
 
 (defun render-form-input (form name type description)
-  (let ((current-value (form-field-state form name)))
+  (let ((current-value (form-field-value form name)))
     (with-html
       (case type
         ((:password :text)
@@ -25,6 +25,10 @@
           (:input :type (string-downcase type)
                   :name name
                   :value current-value)))
+        (:textarea
+         (htm
+          (:textarea :name name
+                     (esc current-value))))
         (:checkbox
          (htm
           (:label :class "checkbox"
@@ -57,7 +61,8 @@
                           (htm
                            (:option :value value
                                     :selected (equal current-value value)
-                                    (esc description)))))))))))
+                                    (esc (or description
+                                             value))))))))))))
 
 (defun render-reg-field (form label &key name type required
                                          html check
@@ -94,7 +99,7 @@
 (defun validate-reg-field (form &key name type (required t)
                                      html check description)
   (declare (ignore html check))
-  (let ((value (form-field-state form name)))
+  (let ((value (form-field-value form name)))
     (cond ((and required (empty-p value))
            (set-field-error form name "This field is required")
            nil)
@@ -118,5 +123,5 @@
               for name = (getf (cdr field) :name)
               collect (cons name (post-parameter name)))))
 
-(defun form-field-state (form field)
+(defun form-field-value (form field)
   (cdr (assoc field (state form) :test #'equal)))
