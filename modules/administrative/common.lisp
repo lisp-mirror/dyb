@@ -121,9 +121,58 @@
             (get-val channel 'app-secret)
             request-token)))
 
+(defun xxx ()
+  (make-instance 
+             'end-point 
+             :end-point-type "Request App Authentication"
+             :call-type "POST"
+             :uri "https://api.twitter.com/oauth/request_token"
 
+             :return-type "Query String"
+             :parameters 
+             (list 
+              (make-instance 
+               'uri-parameter
+               :parameter-name "oauth_callback"
+               :url-encode-p nil
+               :default-value 
+               (if (string-equal *installation* "Live Serve")
+                   "http://app.digyourbrand.co.za/dyb/oauthcallback?channel=twitter"
+                   "http://local.dataxware.co.za/dyb/oauthcallback?channel=twitter"))
+              (make-instance 'uri-parameter
+                             :parameter-name "oauth_consumer_key"
+                             :url-encode-p nil
+                             :default-value 'app-id)
+              (make-instance 'uri-parameter
+                             :parameter-name "oauth_nonce"
+                             :url-encode-p nil
+                             :default-value nil)
+              (make-instance 'uri-parameter
+                             :parameter-name "signature"
+                             :url-encode-p nil
+                             :default-value nil)
+              (make-instance 'uri-parameter
+                             :parameter-name "oauth_signature_method"
+                             :url-encode-p nil
+                             :default-value "HMAC-SHA1")
+              (make-instance 'uri-parameter
+                             :parameter-name "oauth_timestamp"
+                             :url-encode-p nil
+                             :default-value 'stamp)
+              (make-instance 'uri-parameter
+                             :parameter-name "oauth_version"
+                             :url-encode-p nil
+                             :default-value "1.0"))
+             :return-parameters (list (make-instance 'uri-parameter
+                                              :parameter-name "oauth_token"
+                                              :url-encode-p nil
+                                              :system-parameter "request-token")
+                                      (make-instance 'uri-parameter
+                                              :parameter-name "oauth_token_secret"
+                                              :url-encode-p nil
+                                              :system-parameter "request-token-secret"))))
 (defun oauth1-request (channel)
-  (let* ((end-point (get-end-point channel "Request App Authentication"))
+  (let* ((end-point (xxx)) ;; (get-end-point channel "Request App Authentication"))
          (callback (if end-point                       
                        (get-end-point-parameter-value end-point "oauth_callback")) )
          (stamp (format nil "~A" (get-unix-time)))
@@ -131,8 +180,9 @@
 			(random 999999999)
 			))
          (scope (get-end-point-parameter-value end-point "scope")))
-
+    
     ;;TODO: Some how split out the scope shit for linked in
+
     (drakma:http-request
      (if scope
          (format nil "~A?scope=~A" (get-val end-point 'uri)
@@ -180,7 +230,7 @@
              ("oauth_signature_method" "HMAC-SHA1")
              ("oauth_timestamp" ,stamp)
              ("oauth_version" "1.0")))))
-     :redirect-methods '(:get :post :head)
+    ;; :redirect-methods '(:get :post :head)
      :preserve-uri t)))
 
 (defun oauth1-access (channel oauth-token oauth-verifier &key (request-secret ""))

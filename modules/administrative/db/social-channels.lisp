@@ -50,6 +50,7 @@
                 :documentation "OAuth1, OAuth2, Login, Plain Token, None")
    (app-id :initarg :app-id)
    (app-secret :initarg :app-secret)
+ 
    (end-points :initarg :end-points
                :initform nil))
   (:metaclass storable-versioned-class))
@@ -277,7 +278,7 @@
              )
             ))))
 
-
+;;(remove-doc (get-social-channel "Twitter"))
 (unless (get-social-channel "Twitter")
     (persist
      (make-social-channel 
@@ -289,8 +290,10 @@
       :app-secret (if (string-equal *installation* "Live Serve")
                       "SGATve6iTNXyZ5ZZGTazNmNuf85acHjDHybv68"
                       "m7u7UoEyTPIg5p0Gl1EV73hkl139tu3GkZjMetzS7G8")
-      :end-points
-      (list (make-instance 
+     
+      )))
+#|
+(list (make-instance 
              'end-point 
              :end-point-type "Request App Authentication"
              :call-type "POST"
@@ -442,7 +445,8 @@
                
                )
              )
-            ))))
+            )
+|#
 
 (unless (get-social-channel "LinkedIn")
     (persist

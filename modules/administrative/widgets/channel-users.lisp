@@ -143,6 +143,7 @@
                                   (js-pair "action" "pull-pages")
                                   (scroll-to grid))
                                  "Pull")))))
+
        (if (xid row)
            (render form-section
                    :label "Get Id and Oauth"
@@ -151,20 +152,27 @@
                      (let* ((channel (get-social-channel
                                       (or (parameter "channel-user-type")
                                           (get-val row 'channel-user-type))))
-                            (url 
-                             (oauth-request-token-url
-                              channel
-                              "Request Token"
-                              (if (string-equal 
-                                   (get-val channel 'channel-name)
-                                   "facebook")
-                                  (list 
-                                   (cons 
-                                    'user-id 
-                                    (format nil "~A" 
-                                            (get-val row 'verification-code))))
-                                  (list (cons 'request-token
-                                              (get-val row 'request-token)))))))
+
+                            (url (if (string-equal 
+                                      (get-val channel 'channel-name)
+                                      "facebook")
+                                     (oauth-request-token-url
+                                      channel
+                                      "Request Token"
+                                      (if (string-equal 
+                                           (get-val channel 'channel-name)
+                                           "facebook")
+                                          (list 
+                                           (cons 
+                                            'user-id 
+                                            (format nil "~A" 
+                                                    (get-val row 'verification-code))))
+                                          (list (cons 'request-token
+                                                      (get-val row 'request-token)))))
+                                  
+                                     (format nil "https://api.twitter.com/oauth/authorize?oauth_token=~A"
+                                             (get-val row 'request-token)) )
+                             ))
 
                        (htm (:a :href url
                                 (str "Authenticate using >> "))
@@ -246,11 +254,9 @@
                   (parameter "entity"))
                  (parameter "entity"))))
       (when (string-equal (get-val channel 'auth-type) "OAuth1")
-        (let* ((response (parse-query-string (oauth1-request channel))))
-          (setf (get-val doc 'request-token)
-                (cdr (assoc-path response "oauth_token")))
-          (setf (get-val doc 'request-secret)
-                (cdr (assoc-path response "oauth_token_secret")))))
+        
+        ;;TODO: make this generic again later on.
+        (set-twitter-request-token doc ))
 
       (unless (get-val doc 'verification-code)
         (when (string-equal (get-val channel 'auth-type) "OAuth2")
