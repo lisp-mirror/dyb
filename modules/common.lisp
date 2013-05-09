@@ -174,7 +174,7 @@
           ((not request-result)
            (setf message "Endpoint returned no values."))
           ;;TODO: Add more http status codes to check.
-          (t
+          ((typep request-result 'drakma-request-result)
            (setf result (body-or-stream request-result))
            (unless (equal (status-code request-result) 200)
              ;;TODO: Add a parameter to say which api is handling gave the request 
@@ -193,7 +193,22 @@
  
                  (setf message (if (listp error-message)
                                    (cdr error-message)
-                                   error-message)))))))
+                                   error-message))))))
+          (t
+           (setf result (json:decode-json-from-string
+                         (ensure-string-reply request-result)))
+           (when (and (consp result)
+                      (or (assoc-path result error-path) 
+                          (assoc-path result :error) 
+                          (assoc-path result :errors)))
+             (let ((error-message (or (assoc-path result error-path)
+                                      (assoc-path result :error :message)
+                                      (if (listp (cdr (assoc-path result :errors)))
+                                          (assoc-path (car (cdr (assoc-path result :errors))) :message)
+                                          (assoc-path result :errors)))))
+               (setf message (if (listp error-message)
+                                 (cdr error-message)
+                                 error-message))))))
   
     (values result message (status-code request-result))))
 
