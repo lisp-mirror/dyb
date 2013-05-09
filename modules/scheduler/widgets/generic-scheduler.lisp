@@ -437,7 +437,7 @@ $('#processed-content').text(s)})")))
                                           (parameter "channel-user")
                                           (parameter "service"))
                       (get-val doc 'action-content) action-content
-                      (get-val doc 'action-status) (parameter "action-status")
+                      (get-val doc 'action-status) "Pending"
                       (post-type doc) (parameter "service")
                       (from-user-id doc) (parameter "channel-user")
                       (get-val doc 'image-url) image
