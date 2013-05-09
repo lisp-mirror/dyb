@@ -176,10 +176,10 @@
                  (:module "twitter"
                   :serial t
                   :components
-                  ((:file "parser")
-                   ;;  (:file "oauth")
-                   (:file "common")
+                  ((:file "common")
+                   (:file "parser")
                    (:file "end-points")
+                   (:file "oauth")
                    (:file "listener")
                    (:module "db"
                     :serial t
