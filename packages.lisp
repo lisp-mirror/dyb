@@ -110,8 +110,6 @@
    :date-of-termination
    :termination-reason
    :biographicals
-   :allsorts
-   :allsort
    :sort
    :sort-value
    :sort-order
@@ -228,7 +226,6 @@
    :project-entity-data
    :data-name
    :data-value
-   :find-allsorts
    :context
    :parse-date
    :project-meeting-feedback

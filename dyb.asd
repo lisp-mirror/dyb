@@ -52,8 +52,7 @@
                    (:module "db"
                     :serial t
                     :components
-                            ((:file "allsorts")
-                             (:file "user")
+                            ((:file "user")
                              (:file "entities")
                              (:file "entity-relationships")
                              (:file "system-log")
@@ -63,7 +62,6 @@
                     :serial t
                     :components
                             ((:file "ajax")
-                             (:file "allsorts")
                              (:file "grid")
                              (:file "tree")
                              (:file "entity-tree")
@@ -79,7 +77,6 @@
                     :serial t
                     :components
                             ((:file "landing-page")
-                             (:file "allsorts")
                              (:file "dashboard")
                              (:file "context")
                              (:file "entities")
@@ -100,9 +97,7 @@
                              (:file "address")
                              (:file "companies")
                              (:file "social-channels")
-                             (:file "channel-users")
-                             (:file "periods")
-                             ))
+                             (:file "channel-users")))
 
                    (:module "widgets"
                     :serial t
@@ -111,7 +106,6 @@
                              (:file "companies")
                              (:file "country-town")
                              (:file "channel-users")
-                             (:file "periods")
                              (:file "clients")))
 
                    (:module "pages"
@@ -121,13 +115,8 @@
                              (:file "companies")
                              (:file "country-town")
                              (:file "channel-users")
-                             (:file "periods")
                              (:file "clients")
-                             (:file "oauth")
-                             ))))
-                 
-                 
-                 
+                             (:file "oauth")))))
                  (:module "search-streams"
                   :serial t
                   :components
