@@ -311,6 +311,9 @@
                                      (if (check-permission "/dyb/entities")
                                          (htm (:li
                                                (:a :href "/dyb/entities" "Entities"))))
+                                     (if (check-permission "/dyb/all-sorts")
+                                         (htm (:li
+                                               (:a :href "/dyb/all-sorts" "Allsorts"))))
                                      (if (check-permission "/dyb/manual-updates")
                                          (htm (:li
                                                (:a :href "/dyb/manual-updates" "Manual Stream Updates"))))
