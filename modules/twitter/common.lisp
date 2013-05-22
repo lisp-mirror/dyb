@@ -1,7 +1,10 @@
 (in-package :dyb)
    
 (defun twitter-request (user end-point 
-                        &key method parameters signature-parameters
+                        &key method parameters 
+                        content
+                        content-type
+                        signature-parameters
                         want-stream 
                         preserve-uri
                         (handle-response-p t)
@@ -16,10 +19,12 @@
       (with-slots (app-id app-secret)
           channel
         
-        (setf response (oauth1-drakma-request end-point app-id app-secret 
+        (setf response (oauth1-drakma-request end-point app-id app-secret  
                                               :access-token last-access-token 
                                               :access-secret last-token-secret
                                               :method method :parameters parameters 
+                                              :content content
+                                              :content-type content-type
                                               :signature-parameters signature-parameters 
                                               :want-stream want-stream 
                                               :preserve-uri preserve-uri

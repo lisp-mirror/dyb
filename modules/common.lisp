@@ -105,7 +105,10 @@
 (defun oauth1-drakma-request (end-point app-id app-secret 
                               &key  access-token access-secret  
                               callback-uri oauth-verifier 
-                              method parameters signature-parameters
+                              method parameters 
+                              content
+                              content-type
+                              signature-parameters
                               want-stream preserve-uri
                               body-to-string-p
                               parse-json-p)
@@ -128,10 +131,12 @@
                                   signature-parameters))))
 
       
-      (drakma-request 
+      (drakma-request
        end-point
        :method method 
        :parameters parameters  
+       :content content
+       :content-type content-type
        :additional-headers
        `(("Authorization"
           ,@(build-auth-string

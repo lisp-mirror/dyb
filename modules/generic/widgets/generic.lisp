@@ -182,21 +182,21 @@
                                                     (parameter "post-status"))))
                (multiple-value-bind (result error-message)
                    (cond ((get-val action 'image-url)
-                                 (post-facebook-image (parameter "channel-user")
-                                                      (parameter "post-status")
-                                                      (get-val action 'image-url)
-                                                      ))
-                                ((or (get-val action 'short-url) 
-                                     (get-val action 'post-url))
-                                 (post-facebook-url (parameter "channel-user")
-                                                    (parameter "post-status")
-                                                    (or (get-val action 'short-url) 
-                                                        (get-val action 'post-url))
-                                                      ))
-                                (t
-                                 (post-facebook (get-val action 'from-user-id) 
+                          (post-facebook-image (parameter "channel-user")
+                                               (parameter "post-status")
+                                               (get-val action 'image-url)
+                                               ))
+                         ((or (get-val action 'short-url) 
+                              (get-val action 'post-url))
+                          (post-facebook-url (parameter "channel-user")
+                                             (parameter "post-status")
+                                             (or (get-val action 'short-url) 
+                                                 (get-val action 'post-url))
+                                             ))
+                         (t
+                          (post-facebook (get-val action 'from-user-id) 
                                          (parameter "post-status")))
-                                )
+                         )
                  (handle-generic-post-action grid widget action 
                                              result error-message))))
             ((string-equal (parameter "service") "twitter")
@@ -204,10 +204,12 @@
                                                     channel-user
                                                     "Tweet"
                                                     (parameter "post-status"))))
+               
                (multiple-value-bind (result error-message)
-                   (post-twitter
-                    channel-user
-                    (parameter "post-status"))
+                   (post-twitter 
+                           channel-user
+                           (parameter "post-status")
+                           :image-path (get-val action 'image-url))
                  (handle-generic-post-action grid widget action 
                                              result error-message))))
             ((string-equal (parameter "service") "LinkedIn")

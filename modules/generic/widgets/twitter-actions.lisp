@@ -70,8 +70,8 @@
                     "Immediate"
                     (get-universal-time))))
       (multiple-value-bind (result error-message)
-          (retweet-twitter user
-                           (parameter "tweet-id"))
+          (retweet user
+                   (parameter "tweet-id"))
         (handle-generic-action
          widget
          action
@@ -151,7 +151,7 @@
                     "Immediate"
                     (get-universal-time))))
       (multiple-value-bind (result error-message)
-          (reply-twitter user
+          (tweet-reply user
                          (parameter "message")
                          (parameter "at-user"))
         (handle-generic-action
@@ -230,7 +230,7 @@
                    "Immediate"
                    (get-universal-time))))
       (multiple-value-bind (result error-message)
-          (favourite-twitter user
+          (twitter-favourite user
                              (parameter "tweet-id"))
         (handle-generic-action
          widget

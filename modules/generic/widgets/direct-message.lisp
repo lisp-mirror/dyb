@@ -93,7 +93,7 @@
                                            :authentication '(:login "app@digyourbrand.co.za"
                                                              "d@t@xw@r3")))))
                 ((string-equal (get-val current-post 'post-type) "Twitter")
-                 (reply-twitter user
+                 (tweet-reply user
                          (parameter "message")
                          (gpv current-post :user :screen--name)))
                  ((string-equal (get-val current-post 'post-type) "LinkedIn")
