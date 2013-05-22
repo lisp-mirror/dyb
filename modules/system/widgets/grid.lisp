@@ -182,7 +182,7 @@
 (defun parse-parameters (parameters values)
   (if (and parameters (listp parameters))
       (build-parameters parameters values)
-      (if (blank-p parameters)
+      (if (not-empty-p parameters)
           (format t "&pass-param=~A" parameters)
           "")))
 

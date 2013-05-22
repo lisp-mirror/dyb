@@ -406,10 +406,10 @@ $('#processed-content').text(s)})")))
            (short-content (shortify-string action-content))
            (len (+ (length  short-content)
                    (if (or (post-parameter "file") 
-                           (blank-p (parameter "image-file"))) 
+                           (not-empty-p (parameter "image-file"))) 
                        20
                        0) 
-                   (if (blank-p (parameter "post-url")) 
+                   (if (not-empty-p (parameter "post-url")) 
                        20
                        0))))
       (if (and (string-equal (parameter "service") "twitter")
@@ -421,7 +421,7 @@ $('#processed-content').text(s)})")))
         (let ((to-user nil)
               (image (if (post-parameter "file")
                          (handle-upload (post-parameter "file"))
-                         (if (not (blank-p (parameter "image-file")))
+                         (if (empty-p (parameter "image-file"))
                              nil
                              (format nil "~~/hunchentoot-upload/~A"
                                      (file-namestring (parameter "image-file"))))))

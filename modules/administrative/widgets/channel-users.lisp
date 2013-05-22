@@ -128,7 +128,7 @@
                           (get-val row 'access-token-expiry-date))
                          :type :span)))
 
-       (if (blank-p (get-val row 'last-access-token))
+       (if (not-empty-p (get-val row 'last-access-token))
            (if (string-equal (get-val row 'channel-user-type) "Facebook")
                (render form-section
                        :label "Pull in pages connected to user."
@@ -239,8 +239,8 @@
   (when (string-equal (parameter "channel-user-type") "")
     (setf (error-message grid) "Select a Service."))
 
-  (when (and (blank-p (parameter "entity"))
-             (blank-p (parameter "channel-user-type")))
+  (when (and (not-empty-p (parameter "entity"))
+             (not-empty-p (parameter "channel-user-type")))
  
     (let ((channel (get-social-channel
                     (parameter "channel-user-type")))

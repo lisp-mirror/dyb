@@ -50,7 +50,7 @@
       )
     (when (parameter "insights-history")
       (let ((get-date 
-             (if (blank-p (parameter "insights-history-start-date"))
+             (if (not-empty-p (parameter "insights-history-start-date"))
                  (string-to-date (parameter "insights-history-start-date"))
                  (string-to-date "01 Jun 2011"))))
         (bordeaux-threads:make-thread  

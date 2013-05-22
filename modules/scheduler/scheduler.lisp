@@ -101,8 +101,8 @@
             (cond ((equal post-type "Facebook")
                    (cond ((equal action-type "Post")
                           (cond
-                            ((and (blank-p (get-val action 'image-url))
-                                  (blank-p (get-val action 'post-url)))
+                            ((and (not-empty-p (get-val action 'image-url))
+                                  (not-empty-p (get-val action 'post-url)))
                              (post-facebook-link-image 
                               (get-val action 'from-user-id)
                               (or (get-val action 'processed-content)
@@ -112,13 +112,13 @@
                                   (get-val action 'post-url))
                               (get-val action 'image-url)))
 
-                            ((blank-p (get-val action 'image-url))
+                            ((not-empty-p (get-val action 'image-url))
                              (post-facebook-image (get-val action 'from-user-id)
                                                   (or (get-val action 'processed-content)
                                                       (get-val action 'action-content))
                                                   (get-val action 'image-url)))
-                            ((or (blank-p (get-val action 'short-url))
-                                 (blank-p (get-val action 'post-url)))
+                            ((or (not-empty-p (get-val action 'short-url))
+                                 (not-empty-p (get-val action 'post-url)))
                              (post-facebook-url (get-val action 'from-user-id)
                                                 (or (get-val action 'processed-content)
                                                     (get-val action 'action-content))
@@ -148,8 +148,8 @@
                            (or (get-val action 'processed-content)
                                (get-val action 'action-content))
                            :image-path (get-val action 'image-url)
-                           :link-url (if (or (blank-p (get-val action 'short-url))
-                                             (blank-p (get-val action 'post-url)))
+                           :link-url (if (or (not-empty-p (get-val action 'short-url))
+                                             (not-empty-p (get-val action 'post-url)))
                                          (or (format-short-url
                                               (get-val action 'short-url))
                                              (get-val action 'post-url)))))
