@@ -7,7 +7,4 @@
 
 (add-db *dbs* '("dyb" "system"))
 
-(xdb2::enable-sequences (system-db))
 
-(defun next-sequence (name)
-  (xdb2::next-sequence (system-db) name))

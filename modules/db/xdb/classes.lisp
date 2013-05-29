@@ -3,6 +3,18 @@
 (defclass dyb-collection (collection)
   ())
 
+(defclass dyb-sequence (xdb2::xdb-sequence)
+  ()
+  (:metaclass storable-class))
+
+(xdb2::enable-sequences (system-db) :collection-class 'dyb-collection)
+
+(defun next-sequence (name)
+  (xdb2::next-sequence (system-db) name))
+
+(defmethod doc-collection ((doc dyb-sequence))
+  (get-collection (system-db) "sequences"))
+
 (defgeneric max-xid (collection))
 
 (defmethod max-xid ((col dyb-collection))
@@ -12,6 +24,44 @@
 
 (defmethod next-xid ((col dyb-collection))
   (next-sequence (list (xdb2::name col) 'xid)))
+
+(defun fix-sequences ()
+  (maphash (lambda (key val)
+             (declare (ignore key))
+                   (fix-sequence val))
+                 (collections (system-db))))
+
+(defun fix-sequence (collection)
+  (let ((max 0)
+        (sequence))
+
+    (setf sequence (find-doc (get-collection (system-db) "sequences")
+                             :test
+                             (lambda (doc)
+                               (if (equal (key doc) 
+                                          (list (xdb2::name collection) 'xid))
+                                   doc))))
+
+    (when (or (not sequence) (<= (get-val sequence 'xdb2::value) 1))
+      (let ((has-no-xid nil))
+        (dolist (doc (coerce (docs collection) 'list))
+          (when (slot-exists-p doc 'xid)
+            (if (< max (get-val doc 'xid))
+                (setf max (get-val doc 'xid))
+                (setf has-no-xid t)
+                )))
+        (incf max)
+    
+        (unless has-no-xid
+          (when sequence
+            (setf (get-val sequence 'xdb2::value) max))
+          (unless sequence
+            (setf sequence 
+                  (make-instance 'dyb-sequence
+                                 :key (list (xdb2::name collection) 'xid) 
+                                 :value max)))
+          (persist sequence))))))
+
 
 (defclass date-doc ()
   ((start-date :initarg :start-date
@@ -124,12 +174,8 @@
         (map-docs
          nil
          (lambda (doc)
-           (if ignore-superseded-p
-               (unless (string-equal (get-val doc 'doc-status) "superseded")
-                   (when (funcall test doc)
+           (when (funcall test doc)
                      (setf found-doc doc)))
-               (when (funcall test doc)
-                     (setf found-doc doc))))
          collection))
     found-doc))
 
