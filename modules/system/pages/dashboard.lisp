@@ -795,7 +795,7 @@
 
       (setf start-date (string-to-date (parameter "interval-start-date")))
 
-      (setf end-date (string-to-date (parameter "interval-end-date")))
+      (setf end-date (+ (string-to-date (parameter "interval-end-date"))  +24h-secs+ interval))
 
       (unless (> end-date start-date)
         (setf start-date (- today (* +24h-secs+ interval)))
@@ -1258,6 +1258,30 @@
            prev-istd 
            prev-iend))
 
+      (sv 'fb-scheduled-count
+          (posts-scheduled-range-count 
+           istd 
+           iend
+           :post-type "Facebook"))
+
+      (sv 'fb-scheduled-prev-count
+          (posts-scheduled-range-count 
+           prev-istd 
+           prev-iend
+           :post-type "Facebook"))
+
+      (sv 'fb-scheduled-prev-count
+          (posts-scheduled-range-count 
+           prev-istd 
+           prev-iend
+           :post-type "Facebook"))
+           
+      (sv 'fb-scheduled-list
+          (posts-scheduled-range 
+           istd 
+           iend
+           :post-type "Facebook"))
+
       (sv 'fb-comments-made-count 
           (fb-comments-made 
            istd 
@@ -1341,21 +1365,21 @@
       (sv 'fb-impressions-interval-list
           (insight-range
            "Facebook"
-           "page_impressions" 
+           "page_impressions_unique" 
            istd 
            iend))
 
       (sv 'fb-page-impressions-count
           (insight-range-count 
            "Facebook"
-           "page_impressions" 
+           "page_impressions_unique" 
            istd 
            iend))
 
       (sv 'fb-page-impressions-prev-count
           (insight-range-count 
            "Facebook"
-           "page_impressions" 
+           "page_impressions_unique" 
            prev-istd 
            prev-iend))
 
