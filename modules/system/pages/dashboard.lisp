@@ -891,7 +891,7 @@
                            (second post))))))
     final-range))
 
-(defun multiply-ranges (ranges)
+(defun multiply-ranges (ranges &key (smooth-out-p t))
 
   (let ((ranges-hash-list)
         (data-hash (make-hash-table :test 'equal))
@@ -919,11 +919,16 @@
     (maphash   
      (lambda (key value)
        (let ((current-val value))
+         
          (dolist (range-hash (rest ranges-hash-list))
            ;;stop crashes of ranges that are not in synq
-           (if (gethash key range-hash)
-               (setf current-val (* current-val (gethash key range-hash)))
-               ))
+
+           (when smooth-out-p
+             (if (gethash key range-hash)
+                 (setf current-val (* current-val (gethash key range-hash)))
+                 ))
+           (unless smooth-out-p
+             (setf current-val (* current-val (or (gethash key range-hash) 0)))))
          
          (setf (gethash key data-hash) current-val)))
      (first ranges-hash-list))
@@ -1857,7 +1862,7 @@
      "New Followers"
      (format-universal-date-dash min-date)
      (format-universal-date-dash max-date)
-     `(( ,@(calc-daily-change (gv 'twitter-followers-interval-list)) ))
+     `(( ,@(calc-daily-change-reverse (gv 'twitter-followers-interval-list)) ))
      interval
      :series  '((:show-marker nil
                  :color "#00ACED"
@@ -1892,13 +1897,16 @@
         :tooltip "The number of tweets scheduled * followers + mentions in tweets.")))))
 
 (defun tw-impressions-graph-html (min-date max-date interval)
+
   (%line-graph
    "twimpressions"
    "Impressions"
    (format-universal-date-dash min-date)
    (format-universal-date-dash max-date)
-   `(( ,@(merge-ranges (list (gv 'tweets-scheduled-list)
-                             (gv 'twitter-followers-interval-list)))))
+   `(( ,@(multiply-ranges (list (gv 'twitter-followers-interval-list)
+                                (gv 'tweets-scheduled-list)
+                                )
+                          :smooth-out-p nil)))
    interval
    :series  '((:show-marker nil
                :color "#00ACED"
@@ -1956,7 +1964,7 @@
    "Un-Followed"
    (format-universal-date-dash min-date)
    (format-universal-date-dash max-date)
-   `(( ,@(calc-daily-change-reverse (gv 'twitter-followers-interval-list))))
+   `(( ,@(calc-daily-change (gv 'twitter-followers-interval-list))))
    interval
    :series  '((:show-marker nil
                :color "#00ACED"
