@@ -14,7 +14,10 @@
            (make-instance 'grid-column
                           :name 'search-stream-type
                           :header "Search Type"
-                          )
+                          :printer (lambda (s-type)
+                                     (if (string-equal s-type "social mention")
+                                         "Web Search"
+                                         s-type)))
            (make-instance 'grid-column
                           :name 'search-stream
                           :header "Search")
