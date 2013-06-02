@@ -99,7 +99,9 @@
 (defparameter *graph-renderer-types*
   '(:date "$.jqplot.DateAxisRenderer"
     :log "$.jqplot.LogAxisRenderer"
-    :pie "$.jqplot.PieRenderer"))
+    :pie "$.jqplot.PieRenderer"
+    :bar "$.jqplot.BarRenderer"
+    :category "$.jqplot.CategoryAxisRenderer"))
 
 (defun format-graph-axis-tick-options (options)
   (with-json-object
@@ -161,9 +163,11 @@
 (defun format-graph-axis (options)
   (with-json-object
     (json-encode-literal-key :renderer
-                             (getf *graph-renderer-types* (getf options :type)))
+                             (getf *graph-renderer-types* 
+                                   (or  (getf options :renderer) (getf options :type) )))
     (json-getf options :min)
     (json-getf options :max)
+    (json-getf options :ticks)
     (json-getf options :tick-interval)
     (if (getf options :tick-options)
         (json-encode-key "tick-options"

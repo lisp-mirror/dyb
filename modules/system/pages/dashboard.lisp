@@ -175,6 +175,54 @@
                 (generic-post-collection))
 |#
 
+(defun mentions-of-me-in-tweets-mentioner-count-range (start-date end-date)
+  (let ((range)
+        (sorted-range)
+        (final-range)
+        (data-hash (make-hash-table :test 'equal)))
+
+    (find-docs 'list
+               (lambda (doc)
+                 (typecase (get-val doc 'channel-user) 
+                   (channel-user
+                    (when (string-equal (get-val doc 'post-type) "Twitter")
+                      (when (and
+                             (match-context-entities (get-val doc 'channel-user))
+                             (gpv (get-val doc 'payload) :entities :user--mentions)
+                             
+                             (and (>= (get-val doc 'created-date) start-date)
+                                  (<= (get-val doc 'created-date) end-date)))
+                        (dolist (mention (gpv (get-val doc 'payload) :entities :user--mentions))
+                          (when (not (string-equal
+                                      (get-val (get-val doc 'channel-user) 'channel-user-name)
+                                      (gpv mention :screen--name)))
+                           (let ((current-val (or (gethash (gpv mention :screen--name)
+                                                           data-hash)
+                                                  0))
+                                 )
+                             
+                             ;;(setf val (incf val (gpv (get-val doc 'payload) :user :followers--count)))
+                             (setf (gethash (gpv mention :screen--name)
+                                            data-hash)
+                                   (incf current-val)))
+                           ))
+                        )))))
+               (generic-post-collection))
+    (maphash  
+     (lambda (key val)
+       (setf range
+             (append range 
+                     (list (list key val)))))
+     data-hash)
+    (setf sorted-range (sort range #'> :key #'second))
+    (dolist (post sorted-range)
+      (setf final-range 
+            (append final-range 
+                    (list 
+                     (list (format-universal-date-dash (first post))
+                           (second post))))))
+    final-range))
+
 (defun posts-scheduled-range-count (start-date end-date &key post-type)
   (let ((count 0))
     (find-docs 
@@ -1247,6 +1295,69 @@
     stats))
 
 
+
+(defun %bar-graph (name title data ticks &key series)
+  (with-html-string
+    (:div :class "span6"
+          (:div :class "graph-wrap"
+                (:div :class "chart-block"
+                      (let ((graph 
+                             (make-widget
+                              'line-graph :name name
+                              :data data
+                             )))
+                     ;;   (setf (get-val graph 'data-lables) `("xxxx" "yyyy"))
+                        (setf (series graph)
+                               series)
+                        (setf (get-val graph 'data) data)
+                        (setf (title graph) title)
+                        
+                        
+                      
+                        (setf (legend graph)
+                              '(:show t :placement "w"))
+                        
+                        (setf (series-defaults graph) 
+                              '(:show "true"
+                          ;;      :xaxis "xaxis"
+                         ;;       :yaxis "yaxis"
+                                :renderer :bar
+                             ;;   :point-labels
+                             ;;   (:show  "true")
+                                ))
+                        
+                        (setf (x graph) 
+                              `(:renderer :category
+                                          :ticks ,ticks))
+                        (render graph)))))))
+
+
+(defun posts-with-links-count (start-date end-date)
+  (let ((count 0))
+    (find-docs 
+     'list 
+     (lambda (doc)
+       (when (match-context-entities (get-val doc 'channel-user))
+         (when (and (>= (get-val doc 'scheduled-date) start-date)
+                    (<= (get-val doc 'scheduled-date) end-date))
+           (when (string-equal (get-val doc 'action-status) "completed")
+            
+             (when (or (post-url doc) (processed-content doc))
+                        (when (processed-content doc)
+                          
+
+                          (unless (equal (length (format nil "~A" (processed-content doc)))
+                                         (length (format nil "~A" (action-content doc))))
+                            (incf count)))
+                        (when (or (post-url doc) (short-url doc))
+                          (incf count)))))))
+     (generic-actions-collection))
+    count))
+
+
+
+
+
 (defun set-calc-vals (istd iend
                       prev-istd 
                       prev-iend)
@@ -1258,11 +1369,16 @@
           (posts-scheduled-range-count 
            istd 
            iend))
+      
 
       (sv 'posts-scheduled-prev-count 
           (posts-scheduled-range-count 
            prev-istd 
            prev-iend))
+
+      (sv 'posts-with-links-count
+          (posts-with-links-count istd
+                                  iend))
 
       (sv 'fb-scheduled-count
           (posts-scheduled-range-count 
@@ -1526,6 +1642,10 @@
              istd 
              iend
              ))
+      (sv 'mentions-of-me-in-tweets-mentioner-count-range
+          (mentions-of-me-in-tweets-mentioner-count-range
+           istd
+           iend))
           
       (sv 'short-url-clicks-count
        (short-url-clicks
@@ -1548,6 +1668,8 @@
           (content-stats (gethash 'users-posts calc-values)))
       (sv 'audiance-stats
           (audiance-stats (gethash 'users-posts calc-values)))
+      
+      
       )
     calc-values))
 
@@ -1687,7 +1809,8 @@
 (defun fill-blanks (range start-date end-date &key smooth-range)
   (let ((filled-range))
     (dotimes (n (date-diff start-date end-date :return-type :days))
-      (let ((date (format-universal-date-dash (+ start-date (* +24H-SECS+ n))))
+      (let* ((u-date (+ start-date (* +24H-SECS+ n)))
+            (date (format-universal-date-dash u-date))
             (range-val)
             (smooth-val 0)
             (range-x (if (listp (first (car range)))
@@ -1696,10 +1819,20 @@
         
         (dolist (value  range-x)
           ;;(break "~A" value)
+          (if (<= u-date (string-to-date (first value) :date-spacer #\- :reverse-date-sequence-p t))
+              (setf smooth-val (second value)))
           (if (string-equal  (first value) date)
-              (setf range-val value)))
+              (setf range-val value))
+          )
+        (when range-val
+          (when smooth-range
+            (when (= (second range-val) 0)
+                (setf range-val (list (first range-val) (or smooth-val 0)))
+                )))
         (unless range-val
-          (setf range-val (list date 0)))
+          (setf range-val (list date (if smooth-range
+                                         (or smooth-val 0)
+                                         0))))
         (setf filled-range (append filled-range (list range-val))))
       )
     filled-range))
@@ -1711,14 +1844,17 @@
    "Change in Network"
    (format-universal-date-dash min-date)
    (format-universal-date-dash max-date)
-   (fill-blanks (if (and (gv 'twitter-followers-interval-list) (gv 'fb-fans-interval-list))
-                    `((,@(gv 'twitter-followers-interval-list))
-                      (,@(gv 'fb-fans-interval-list)))
+   (if (and (gv 'twitter-followers-interval-list) (gv 'fb-fans-interval-list))
+                    `((,@(fill-blanks (gv 'twitter-followers-interval-list)
+                                      min-date max-date :smooth-range t))
+                      (,@(fill-blanks (gv 'fb-fans-interval-list)
+                                      min-date max-date :smooth-range t)))
                     (if (gv 'twitter-followers-interval-list)
-                        `((,@(gv 'twitter-followers-interval-list)))
+                        `((,@(fill-blanks (gv 'twitter-followers-interval-list)
+                                          min-date max-date :smooth-range t)))
                         (if (gv 'fb-fans-interval-list)
-                            `((,@(gv 'fb-fans-interval-list))) )))
-                min-date max-date)
+                            `((,@(fill-blanks (gv 'fb-fans-interval-list)
+                                              min-date max-date :smooth-range t))) )))
    interval
    :series  '((:show-marker nil
                                  :color "#00ACED"
@@ -1797,7 +1933,8 @@
    (format-universal-date-dash min-date)
    (format-universal-date-dash max-date)
    `(( ,@(fill-blanks (gv 'fb-fans-interval-list)
-                      min-date max-date)))
+                      min-date max-date
+                      :smooth-range t)))
    interval
    :series  '((:show-marker nil
                :color "#3B5999"
@@ -1961,7 +2098,8 @@
    (format-universal-date-dash min-date)
    (format-universal-date-dash max-date)
    `(( ,@(fill-blanks (gv 'twitter-followers-interval-list)
-                      min-date max-date)))
+                      min-date max-date
+                      :smooth-range t)))
    interval
    :series  '((:show-marker nil
                :color "#00ACED"
@@ -2003,6 +2141,19 @@
                :color "#00ACED"
                :label "TW"))
    :span "span12"))
+
+(defun posts-links-html ()
+  (%bar-graph "test" "test"   
+              `((,(gv 'posts-scheduled-count))
+                (,(gv 'posts-with-links-count)))
+              '("Posts")
+              :series '((:show-marker nil
+                         :color "#00ACED"
+                         :label "Posts")
+                        (:show-marker nil
+                         :color "#3B5999"
+                         :label "Post with Links")
+                        )))
 
 (defun user-stats-html (user-stats)
   (with-html-to-string ()
@@ -2178,6 +2329,42 @@
                                                  (incf count))
                                                ))))))))))
 
+
+(defun mentioner-stats-html (mentioner-stats)
+  (with-html-to-string ()
+    (:div :class "span8"
+          (:div :class "nonboxy-widget"
+                (:div :class "table_content"
+                      (:table :class " table table-bordered dataTable" ;;data-tbl-simple
+                              :id "DataTables_Table_0"
+                              (:thead
+                               (:tr :role "row"
+                                    (:th :class "" :role "columnheader" :tabindex "0" 
+                                         :aria-controls "DataTables_Table_0" :rowspan "1" :colspan "1" 
+                                         :style "width: 50%;" :aria-sort "ascending" 
+                                         :aria-label "Mentioner : activate to sort column descending"
+                                         "Mentioner")
+                                   
+                                    (:th :class "" :role "columnheader" :tabindex "0" 
+                                         :aria-controls "DataTables_Table_0" :rowspan "1" :colspan "1" 
+                                         :style "width: 10%;text-align: center;" :aria-sort "ascending" 
+                                         :aria-label "Mentions : activate to sort column descending"
+                                         "Mentions")))
+                              (:tbody :role "alert" :aria-live "polite" :aria-relevant "all"
+                                      (let ((count 1))
+                                        (dolist (mentioner mentioner-stats)
+                                          (htm
+                                           (:tr :class (if (oddp count)
+                                                           "odd"
+                                                           "even")
+                                                (:td :class "sorting_1"
+                                                     (str (first mentioner)))
+                                                
+                                                (:td :class "sorting_1" :style "text-align: center;"
+                                                     (:span :class "badge badge-inverse"
+                                                            (str (second mentioner))))))
+                                          (incf count))))))))))
+
 (define-easy-handler (dashboard-page :uri "/dyb/dashboard") ()
   (multiple-value-bind (interval interval-start-date interval-end-date)
       (calc-date-interval)
@@ -2262,7 +2449,16 @@
                                                       (str (engagement-pie-graph))
                                                       (:div :class "span2"
                                                             (str (current-community-size ))))))))
-                         
+                        (:div :class "row-fluid"
+                              (:div :class "nonboxy-widget"
+                                    (:div :class "widget-head"
+                                          (:h5
+                                               "Posts with Links"))
+
+                                    (:div :class "widget-content"
+                                          (:div :class "row-fluid"
+                                                
+                                                (str (posts-links-html)))))) 
                         (:div :class "row-fluid"
                               (:div :class "nonboxy-widget"
                                     (:div :class "widget-head"
@@ -2322,6 +2518,7 @@
                                           )
                                          ))
 
+                         
                         (:div :class "row-fluid"
                               (:div :class "nonboxy-widget"
                                     (:div :class "widget-head"
@@ -2344,7 +2541,17 @@
                                                       (str (content-stats-html
                                                             (gv 'content-stats))))))))
 
-                        
+                        (:div :class "row-fluid"
+                              (:div :class "nonboxy-widget"
+                                    (:div :class "widget-head"
+                                          (:h5 
+                                           "Mentioner Stats"))
+
+                                    (:div :class "widget-content"
+                                          (:div :class "widget-box"
+                                                (:div :class "row-fluid"
+                                                      (str (mentioner-stats-html (subseq (gv 'mentions-of-me-in-tweets-mentioner-count-range)
+                                                                                         0 9))))))))
                         
                         
                         #|
