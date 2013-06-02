@@ -260,7 +260,9 @@
                       |#
                       (:div :class "branding"
                             (:a
-                                :href "/dyb/generic-scheduler?action=new&grid-name=generic-actions-gridx" 
+
+                                :href "javascript:{ajax_render(\"/dyb/generic-scheduler\",%20\"generic-actions-gridx-editor\",%20[[\"grid-name\",%20\"generic-actions-gridx\"],[\"action\",%20\"new\"]])}"
+                                ;;"/dyb/generic-scheduler?action=new&grid-name=generic-actions-gridx" 
                                 :class "btn btn-primary"
                               
                                 (:i :class "white-icons pencil")
