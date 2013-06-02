@@ -10,7 +10,7 @@
 (xdb2::enable-sequences (system-db) :collection-class 'dyb-collection)
 
 (defun next-sequence (name)
-  (xdb2::next-sequence (system-db) name))
+  (xdb2::next-sequence (system-db) name 'dyb-sequence))
 
 (defmethod doc-collection ((doc dyb-sequence))
   (get-collection (system-db) "sequences"))

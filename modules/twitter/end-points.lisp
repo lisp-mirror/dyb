@@ -207,8 +207,8 @@
      user
      end-point
      :method :post
-     :parameters `(("status" . ,status)
-                   ("media[]" . ,(pathname image-path)))
+     :parameters `(("status" ,status)
+                   ("media[]" ,(pathname image-path)))
      :preserve-uri t)))
 
 (defun twitter-favourite (user 
@@ -220,7 +220,7 @@
      end-point
      :method :post
      :signature-parameters
-     `(("id" . ,tweet-id))
+     `(("id" ,tweet-id))
      :preserve-uri t)))
 
 (defun retweet (user 
@@ -240,16 +240,25 @@
 
 (defun tweet-reply (user 
                     message
-                    at-user)
+                    at-user
+                    in-reply-to-status-id)
   (let* ((end-point "https://api.twitter.com/1.1/statuses/update.json")
-         (status (format nil "D @~A ~A" at-user (trim-whitespace message))))
+         (status (format nil "@~A ~A" at-user (trim-whitespace message))))
+
     (twitter-request
      user
      end-point
      :method :post
-     :parameters `(("status" . ,status))
+    ;; :parameters `(("status" ,status)
+    ;;               ("in_reply_to_status_id" ,in-reply-to-status-id)) 
+     :content-type "application/x-www-form-urlencoded; charset=UTF-8"
+     :content (alist-to-url-encoded-string `(("status" . ,status)
+       ("in_reply_to_status_id" . ,in-reply-to-status-id))
+                                       +utf-8+)
+
      :signature-parameters
-     `(("status" . ,status))   
+     `(("status" ,status)
+       ("in_reply_to_status_id" ,in-reply-to-status-id))   
      :preserve-uri t)))
 
 

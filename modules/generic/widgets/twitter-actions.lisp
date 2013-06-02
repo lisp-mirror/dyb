@@ -98,7 +98,9 @@
          (form-section (make-widget 'form-section
                                     :name "form-section"))
          (current-post (set-current-row (get-val widget 'grid)))
-         (at-user (gpv current-post :user :screen--name)))
+         (at-user (gpv current-post :user :screen--name))
+         (in-reply-to-status-id (gpv current-post :id)))
+
     (setf (get-val like-form 'grid-size) 2)
     (with-html
       (render like-form
@@ -108,6 +110,8 @@
                 (:div
                  (:input :type "hidden" :name "at-user"
                          :value at-user)
+                 (:input :type "hidden" :name "in-reply-to-status-id"
+                         :value in-reply-to-status-id)
                  (render form-section
                          :label "As User"
                          :input
@@ -153,12 +157,14 @@
       (multiple-value-bind (result error-message)
           (tweet-reply user
                          (parameter "message")
-                         (parameter "at-user"))
+                         (parameter "at-user")
+                         (parameter "in-reply-to-status-id"))
         (handle-generic-action
          widget
          action
          result
-         error-message)))))
+         error-message))))
+  (finish-editing (grid widget)))
 
 (defclass twitter-favourite-form (ajax-widget)
   ((grid :initarg :grid

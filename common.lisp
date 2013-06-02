@@ -1,5 +1,8 @@
 (in-package :dyb)
 
+(defun not-empty-p (value)
+    (not (empty-p value)))
+
 (setf drakma:*drakma-default-external-format* :utf-8)
 
 (defun alist-to-url-encoded-string (alist external-format)
@@ -8,7 +11,7 @@
           for (name . value) in alist
           unless first do (write-char #\& out)
           do (format out "~A~:[~;=~A~]"
-                     (url-encode   name external-format)
+                     (url-encode name external-format)
                      value
                      (url-encode value external-format)))))
 
