@@ -782,7 +782,6 @@
   (with-html-to-string ()
     ))
 
-(defconstant +24h-secs+ (* 60 60 24))
 
 (defun calc-date-interval ()
   (let* ((today (universal-today))
@@ -918,7 +917,9 @@
     ;(break "?")
     (maphash   
      (lambda (key value)
-       (let ((current-val value))
+       (let ((current-val (if value
+                              value
+                              0)))
          
          (dolist (range-hash (rest ranges-hash-list))
            ;;stop crashes of ranges that are not in synq
@@ -1682,6 +1683,27 @@
                     "LinkedIn Connections"
                     t)))))))
 
+
+(defun fill-blanks (range start-date end-date &key smooth-range)
+  (let ((filled-range))
+    (dotimes (n (date-diff start-date end-date :return-type :days))
+      (let ((date (format-universal-date-dash (+ start-date (* +24H-SECS+ n))))
+            (range-val)
+            (smooth-val 0)
+            (range-x (if (listp (first (car range)))
+                         (car range)
+                         range)))
+        
+        (dolist (value  range-x)
+          ;;(break "~A" value)
+          (if (string-equal  (first value) date)
+              (setf range-val value)))
+        (unless range-val
+          (setf range-val (list date 0)))
+        (setf filled-range (append filled-range (list range-val))))
+      )
+    filled-range))
+
 (defun network-size-graph (min-date max-date interval)
 
   (%line-graph
@@ -1689,13 +1711,14 @@
    "Change in Network"
    (format-universal-date-dash min-date)
    (format-universal-date-dash max-date)
-   (if (and (gv 'twitter-followers-interval-list) (gv 'fb-fans-interval-list))
-       `((,@(gv 'twitter-followers-interval-list))
-         (,@(gv 'fb-fans-interval-list)))
-       (if (gv 'twitter-followers-interval-list)
-           `((,@(gv 'twitter-followers-interval-list)))
-           (if (gv 'fb-fans-interval-list)
-               `((,@(gv 'fb-fans-interval-list))) )))
+   (fill-blanks (if (and (gv 'twitter-followers-interval-list) (gv 'fb-fans-interval-list))
+                    `((,@(gv 'twitter-followers-interval-list))
+                      (,@(gv 'fb-fans-interval-list)))
+                    (if (gv 'twitter-followers-interval-list)
+                        `((,@(gv 'twitter-followers-interval-list)))
+                        (if (gv 'fb-fans-interval-list)
+                            `((,@(gv 'fb-fans-interval-list))) )))
+                min-date max-date)
    interval
    :series  '((:show-marker nil
                                  :color "#00ACED"
@@ -1725,7 +1748,8 @@
    "New Page Likes"
    (format-universal-date-dash min-date)
    (format-universal-date-dash max-date)
-   `(( ,@(gv 'fb-fans-adds-interval-list)))
+   `(( ,@(fill-blanks (gv 'fb-fans-adds-interval-list)
+                      min-date max-date)))
    interval
    :series  '((:show-marker nil
                :color "#3B5999"
@@ -1748,7 +1772,8 @@
    "Page Impressions"
    (format-universal-date-dash min-date)
    (format-universal-date-dash max-date)
-   `(( ,@(gv 'fb-impressions-interval-list)))
+   `(( ,@(fill-blanks (gv 'fb-impressions-interval-list)
+                      min-date max-date)))
    interval
    :series  '((:show-marker nil
                :color "#3B5999"
@@ -1771,7 +1796,8 @@
    "Total Fans"
    (format-universal-date-dash min-date)
    (format-universal-date-dash max-date)
-   `(( ,@(gv 'fb-fans-interval-list)))
+   `(( ,@(fill-blanks (gv 'fb-fans-interval-list)
+                      min-date max-date)))
    interval
    :series  '((:show-marker nil
                :color "#3B5999"
@@ -1794,7 +1820,8 @@
    "Page Unlikes"
    (format-universal-date-dash min-date)
    (format-universal-date-dash max-date)
-   `(( ,@(gv 'fb-fans-removes-interval-list)))
+   `(( ,@(fill-blanks (gv 'fb-fans-removes-interval-list)
+                      min-date max-date)))
    interval
    :series  '((:show-marker nil
                :color "#3B5999"
@@ -1862,7 +1889,8 @@
      "New Followers"
      (format-universal-date-dash min-date)
      (format-universal-date-dash max-date)
-     `(( ,@(calc-daily-change-reverse (gv 'twitter-followers-interval-list)) ))
+     `(( ,@(calc-daily-change-reverse (fill-blanks (gv 'twitter-followers-interval-list)
+                                                   min-date max-date)) ))
      interval
      :series  '((:show-marker nil
                  :color "#00ACED"
@@ -1878,7 +1906,8 @@
                                     (gv 'twitter-followers-interval-list))) )
                                    
             (impressions (strip-dates-from-range 
-                          (merge-ranges (list tweets-followers (gv 'twitter-at-mentions-followers-list)))
+                          (merge-ranges (list tweets-followers 
+                                              (gv 'twitter-at-mentions-followers-list)))
                           7)))
                             (board-stats                                 
         (format nil "~A,~A,~A,~A,~A,~A,~A" 
@@ -1903,8 +1932,10 @@
    "Impressions"
    (format-universal-date-dash min-date)
    (format-universal-date-dash max-date)
-   `(( ,@(multiply-ranges (list (gv 'twitter-followers-interval-list)
-                                (gv 'tweets-scheduled-list)
+   `(( ,@(multiply-ranges (list (fill-blanks (gv 'twitter-followers-interval-list)
+                                             min-date max-date)
+                                (fill-blanks (gv 'tweets-scheduled-list)
+                                             min-date max-date)
                                 )
                           :smooth-out-p nil)))
    interval
@@ -1929,7 +1960,8 @@
    "Total Fans"
    (format-universal-date-dash min-date)
    (format-universal-date-dash max-date)
-   `(( ,@(gv 'twitter-followers-interval-list)))
+   `(( ,@(fill-blanks (gv 'twitter-followers-interval-list)
+                      min-date max-date)))
    interval
    :series  '((:show-marker nil
                :color "#00ACED"
@@ -1964,7 +1996,8 @@
    "Un-Followed"
    (format-universal-date-dash min-date)
    (format-universal-date-dash max-date)
-   `(( ,@(calc-daily-change (gv 'twitter-followers-interval-list))))
+   `(( ,@(calc-daily-change (fill-blanks (gv 'twitter-followers-interval-list)
+                                         min-date max-date))))
    interval
    :series  '((:show-marker nil
                :color "#00ACED"
@@ -2215,6 +2248,8 @@
                                                                      )
                                                                     )
                                                                    ))))))))
+
+                       
                         (:div :class "row-fluid"
                               (:div :class "nonboxy-widget"
                                     (:div :class "widget-head"
@@ -2227,6 +2262,7 @@
                                                       (str (engagement-pie-graph))
                                                       (:div :class "span2"
                                                             (str (current-community-size ))))))))
+                         
                         (:div :class "row-fluid"
                               (:div :class "nonboxy-widget"
                                     (:div :class "widget-head"
@@ -2254,7 +2290,7 @@
                                                  interval-start-date
                                                  interval-end-date
                                                  interval)))))
-
+                        
                         (:div :class "row-fluid"
                               (:div :class "nonboxy-widget"
                                     (:div :class "widget-head"
