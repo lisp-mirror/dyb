@@ -1843,8 +1843,8 @@
           (setf range-val (list date (if smooth-range
                                          (or smooth-val 0)
                                          0))))
-        (when (> max-date u-date)
-          (setf filled-range (append filled-range (list range-val)))))
+        (when (or (> max-date u-date) (= max-date 0)
+                  (setf filled-range (append filled-range (list range-val))))))
       )
     filled-range))
 
