@@ -55,7 +55,9 @@
                         must-close
                         reason-phrase) 
       
-      (apply #'drakma:http-request uri (subseq args 0 10))
+      (apply #'drakma:http-request uri (if (> (length args) 11)
+                                           (subseq args 0 10)
+                                           args))
     (make-instance 'drakma-request-result
                    :body-or-stream (if (and (not want-stream) body-to-string-p)
                                        (if parse-json-p
@@ -172,8 +174,7 @@
 
 (defun handle-endpoint (user request-result &key error-path)
   (let ((result)
-        (message))
-    
+        (message))  
     (cond ((not (get-val user 'last-access-token))
            (setf message "Missing access token"))
           ((not request-result)

@@ -266,7 +266,7 @@
       (twitter-refresh-followers)
       (twitter-refresh-profiles)
       (sleep 86400)))))
-
+#|
 (defun start-linkedin-listener ()
   (start-task-thread
    "linkedin-refresh-updates"
@@ -283,7 +283,7 @@
       (linkedin-refresh-connections)
       (linkedin-refresh-profiles)
       (sleep 86400)))))
-
+|#
 (defun start-social-mention-slow-listener ()
   (start-task-thread
    "facebook-refresh-friends-and-profiles"
