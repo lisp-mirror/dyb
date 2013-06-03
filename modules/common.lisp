@@ -181,7 +181,8 @@
            (setf message "Endpoint returned no values."))
           ;;TODO: Add more http status codes to check.
           ((typep request-result 'drakma-request-result)
-           (setf result (body-or-stream request-result))
+           (setf result (json:decode-json-from-string
+                         (ensure-string-reply (body-or-stream request-result))))
            (unless (equal (status-code request-result) 200)
              ;;TODO: Add a parameter to say which api is handling gave the request 
              ;;instead of error path so that the error can be handled better.
