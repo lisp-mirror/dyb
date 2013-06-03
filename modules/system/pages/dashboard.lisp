@@ -1807,33 +1807,44 @@
 
 
 (defun fill-blanks (range start-date end-date &key smooth-range)
-  (let ((filled-range))
+  (let ((filled-range)
+        (max-date 0))
     (dotimes (n (date-diff start-date end-date :return-type :days))
       (let* ((u-date (+ start-date (* +24H-SECS+ n)))
-            (date (format-universal-date-dash u-date))
-            (range-val)
-            (smooth-val 0)
-            (range-x (if (listp (first (car range)))
-                         (car range)
-                         range)))
+             (date (format-universal-date-dash u-date))
+             
+             (range-val)
+             (smooth-val 0)
+             (range-x (if (listp (first (car range)))
+                          (car range)
+                          range)))
         
         (dolist (value  range-x)
           ;;(break "~A" value)
-          (if (<= u-date (string-to-date (first value) :date-spacer #\- :reverse-date-sequence-p t))
-              (setf smooth-val (second value)))
-          (if (string-equal  (first value) date)
-              (setf range-val value))
-          )
+          (let ((range-date (string-to-date (first value) 
+                                         :date-spacer #\- 
+                                         :reverse-date-sequence-p t) ))
+            (when (> range-date max-date)
+                (setf max-date range-date))
+
+            (if (<= u-date range-date)
+                (setf smooth-val (second value)))
+            (if (string-equal  (first value) date)
+                (setf range-val value))))
+
         (when range-val
           (when smooth-range
             (when (= (second range-val) 0)
-                (setf range-val (list (first range-val) (or smooth-val 0)))
-                )))
+              (setf range-val (list (first range-val) (or smooth-val 0)))
+              )))
+
         (unless range-val
+          
           (setf range-val (list date (if smooth-range
                                          (or smooth-val 0)
                                          0))))
-        (setf filled-range (append filled-range (list range-val))))
+        (when (> max-date u-date)
+          (setf filled-range (append filled-range (list range-val)))))
       )
     filled-range))
 
