@@ -215,7 +215,8 @@
                                  (cdr error-message)
                                  error-message))))))
   
-    (values result message (status-code request-result))))
+    (values result message (if (typep request-result 'drakma-request-result)
+                               (status-code request-result)))))
 
 (defun handle-endpoint-run-request (user request-function &key error-path)
   (let ((result)
