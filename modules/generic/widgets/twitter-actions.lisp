@@ -144,9 +144,9 @@
     (let* ((user (get-channel-user-by-user-id
                   (parameter "user-id")
                   "Twitter"))
-           (action (add-generic-action
+           (action (add-generic-action  
                     user
-                    nil
+                    (parameter "in-reply-to-status-id")
                     "Twitter"
                     (parameter "user-id")
                     nil
