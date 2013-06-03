@@ -143,27 +143,25 @@
                   ((equal post-type "Twitter")
                    (cond ((or (equal action-type "Tweet")
                               (equal action-type "Post"))
-                          (post-twitter
+                          (post-twitter 
                            from-user
                            (or (get-val action 'processed-content)
                                (get-val action 'action-content))
                            :image-path (get-val action 'image-url)
-                           :link-url (if (or (not-empty-p (get-val action 'short-url))
-                                             (not-empty-p (get-val action 'post-url)))
-                                         (or (format-short-url
-                                              (get-val action 'short-url))
-                                             (get-val action 'post-url)))))
+                           ))
                          ((equal action-type "Retweet")
-                          (retweet-twitter from-user post-id))
+                          (retweet from-user post-id))
                          ((equal action-type "Reply")
-                          (reply-twitter
+                          (tweet-reply    
                            from-user
                            (or (get-val action 'processed-content)
                                (get-val action 'action-content))
                            ;;TODO: Get right user name
-                           (get-val action 'to-user-id)))
+                           (get-val action 'to-user-id)
+                            post-id
+                           ))
                          ((equal action-type "Favourite")
-                          (favourite-twitter from-user post-id))))
+                          (twitter-favourite from-user post-id))))
                   ((equal post-type "LinkedIn")
                    (cond ((equal action-type "Post")
                           (if (string-equal (get-val from-user 'profile-type) "Page")
@@ -266,7 +264,7 @@
       (twitter-refresh-followers)
       (twitter-refresh-profiles)
       (sleep 86400)))))
-#|
+
 (defun start-linkedin-listener ()
   (start-task-thread
    "linkedin-refresh-updates"
@@ -283,7 +281,8 @@
       (linkedin-refresh-connections)
       (linkedin-refresh-profiles)
       (sleep 86400)))))
-|#
+
+
 (defun start-social-mention-slow-listener ()
   (start-task-thread
    "facebook-refresh-friends-and-profiles"
@@ -325,8 +324,8 @@
     (start-twitter-mention-listener)
     (start-twitter-listener)
     (start-twitter-slow-listener)
-    (start-linkedin-listener)
-    (start-linkedin-slow-listener)
+;;    (start-linkedin-listener)
+;;    (start-linkedin-slow-listener)
     (start-social-mention-slow-listener)))
 
 ;;TODO: handle disconnects etcs
