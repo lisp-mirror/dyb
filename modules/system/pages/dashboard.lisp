@@ -1843,8 +1843,9 @@
           (setf range-val (list date (if smooth-range
                                          (or smooth-val 0)
                                          0))))
-        (when (or (> max-date u-date) (= max-date 0)
-                  (setf filled-range (append filled-range (list range-val))))))
+        
+        (when (or (> max-date u-date) (= max-date 0))
+          (setf filled-range (append filled-range (list range-val)))))
       )
     filled-range))
 
@@ -1890,6 +1891,7 @@
 
 
 (defun fb-new-page-likes-graph-html (min-date max-date interval)
+  
   (%line-graph
    "fbnewpageslikes"
    "New Page Likes"
@@ -2155,8 +2157,8 @@
 
 (defun posts-links-html ()
   (%bar-graph "test" "test"   
-              `((,(gv 'posts-scheduled-count))
-                (,(gv 'posts-with-links-count)))
+              `((,(or (gv 'posts-scheduled-count) 0))
+                (,(or (gv 'posts-with-links-count) 0)))
               '("Posts")
               :series '((:show-marker nil
                          :color "#00ACED"
@@ -2460,6 +2462,7 @@
                                                       (str (engagement-pie-graph))
                                                       (:div :class "span2"
                                                             (str (current-community-size ))))))))
+                      
                         (:div :class "row-fluid"
                               (:div :class "nonboxy-widget"
                                     (:div :class "widget-head"
@@ -2469,7 +2472,9 @@
                                     (:div :class "widget-content"
                                           (:div :class "row-fluid"
                                                 
-                                                (str (posts-links-html)))))) 
+                                                (str (posts-links-html))
+                                                )))) 
+  
                         (:div :class "row-fluid"
                               (:div :class "nonboxy-widget"
                                     (:div :class "widget-head"
@@ -2496,7 +2501,9 @@
                                                 (fb-page-unlikes-graph-html
                                                  interval-start-date
                                                  interval-end-date
-                                                 interval)))))
+                                                 interval)) 
+
+)))
                         
                         (:div :class "row-fluid"
                               (:div :class "nonboxy-widget"
@@ -2561,8 +2568,11 @@
                                     (:div :class "widget-content"
                                           (:div :class "widget-box"
                                                 (:div :class "row-fluid"
-                                                      (str (mentioner-stats-html (subseq (gv 'mentions-of-me-in-tweets-mentioner-count-range)
-                                                                                         0 9))))))))
+                                                      (str (mentioner-stats-html 
+                                                            (if (> (length (gv 'mentions-of-me-in-tweets-mentioner-count-range)) 10)
+                                                                (subseq (gv 'mentions-of-me-in-tweets-mentioner-count-range)
+                                                                        0 9)
+                                                                (gv 'mentions-of-me-in-tweets-mentioner-count-range)))))))))
                         
                         
                         #|
