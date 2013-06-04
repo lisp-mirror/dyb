@@ -445,6 +445,10 @@ $('#processed-content').text(s)})")))
                       (image-url doc) image)
                      (setf (get-val doc 'processed-content)
                            short-content)
+                     (setf (get-val 
+                             doc 
+                             'action-log)
+                           nil)
                      (persist doc))
                     (t
                      (persist (make-generic-action

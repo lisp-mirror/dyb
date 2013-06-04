@@ -204,8 +204,10 @@
                                    (cdr error-message)
                                    error-message))))))
           (t
-           (setf result (json:decode-json-from-string
-                         (ensure-string-reply request-result)))
+           (if (listp request-result)
+               (setf result request-result)
+               (setf result (json:decode-json-from-string
+                             (ensure-string-reply request-result))))
            (when (and (consp result)
                       (or (assoc-path result error-path) 
                           (assoc-path result :error) 
