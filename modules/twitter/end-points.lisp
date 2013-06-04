@@ -207,8 +207,8 @@
      user
      end-point
      :method :post
-     :parameters `(("status" ,status)
-                   ("media[]" ,(pathname image-path)))
+     :parameters `(("status" . ,status)
+                   ("media[]" . ,(pathname image-path)))
      :preserve-uri t)))
 
 (defun twitter-favourite (user 
