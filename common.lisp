@@ -1,7 +1,7 @@
 (in-package :dyb)
 
 (defun not-empty-p (value)
-    (not (empty-p value)))
+  (not (empty-p value)))
 
 (setf drakma:*drakma-default-external-format* :utf-8)
 

@@ -96,8 +96,7 @@
                                             widget)
                                         (form-id widget)
                                         (js-pair "action" (action widget))))
-                               (esc (action-title widget)))
-                              )))))))
+                               (esc (action-title widget))))))))))
 
 (defclass html-framework-form (widget)
   ((grid-size :initarg :grid-size

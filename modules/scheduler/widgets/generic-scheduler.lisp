@@ -103,6 +103,14 @@
                           :filter (grid-filter grid)  
                           :search (search-term grid))))
 
+(defun determine-current-image (doc)
+  (with-parameters (action)
+    (cond ((not (equal action "save"))
+           (setf (session-value 'uploaded-image) nil)
+           (image-url doc))
+          ((or (session-value 'uploaded-image)
+               (image-url doc))))))
+
 (defmethod render-row-editor ((grid generic-actions-grid) row)
   (let ((action-form (make-widget 
                        'html-framework-form :name "schedule-action-formx"
@@ -119,8 +127,8 @@
         (tabs (make-instance 'html-framework-tab-box
                               :name "actions-edit-tabs"
                               :header "Action"
-                              :icon "card--pencil")))
-
+                              :icon "card--pencil"))
+        (image (determine-current-image row)))
     (setf (tabs tabs)
           `(("Action" ,
              (with-html-string
@@ -184,19 +192,28 @@
                                     :type :textarea)
                                    (:div "Characters:"
                                          (:span :id "message-length"
-                                               (str 
-                                                (length 
-                                                 (or 
-                                                  (parameter "action-content") 
-                                                  (if (not (empty-p (get-val row 'post-url)))
+                                                (fmt "~a~@[ (including the image)~]"
+                                                     (+ (length 
+                                                         (or 
+                                                          (parameter "action-content") 
+                                                          (if (not (empty-p (get-val row 'post-url)))
                                                       
-                                                      (format nil "~A ~A" 
-                                                              (get-val row 'action-content)
-                                                              (get-val row 'post-url))
-                                                      (get-val row 'action-content)))))))
+                                                              (format nil "~A ~A" 
+                                                                      (get-val row 'action-content)
+                                                                      (get-val row 'post-url))
+                                                              (get-val row 'action-content))))
+                                                        (if image
+                                                            23
+                                                            0))
+                                                     image)))
                                    (defer-js
-                                       "$('[name=\"action-content\"]').bind('input propertychange',
-function() {var s = shortifyString($(this).val()); $('#message-length').text(s.length);
+                                       "$('[name=\"action-content\"], #file').bind('change input propertychange',
+function() {
+var s = shortifyString($('[name=\"action-content\"]').val());
+var length = s.length;
+if ($('#current-image').length || $('#file').val())
+  length = length + 23 + ' (including the image)';   
+$('#message-length').text(length);
 $('#processed-content').text(s)})")))
                          (render form-section 
                                  :label "Processed"
@@ -221,27 +238,28 @@ $('#processed-content').text(s)})")))
                          (render 
                           form-section
                           :label "Add Image"
-                          :input (with-html-string
-                                   (when (image-url row)
-                                     (htm (:div 
-                                           (:img :src 
-                                                 (format nil "/dyb/images/~a" 
-                                                         (file-namestring  (image-url row)))
-                                                 :width 250
-                                                 :height 250)))
-                                     (render-edit-field 
-                                        "image-file"
-                                        (format nil "/dyb/images/~a" 
-                                                         (file-namestring  
-                                                          (or (parameter "image-file")
-                                            (get-val row 'image-url))))
-                                        
-                                 
-                                        :required nil))
-                                   (:input :type "file" :name "file" :id "file"
-                                           :style "display: inline-block;")))
-
-                         
+                          :input
+                          (with-html-string
+                            (when image
+                              (htm
+                               (:input :type "hidden"
+                                       :id "current-image"
+                                       :name "current-image" :value "t")
+                               (:div :id "image"
+                                     (:img :src 
+                                           (format nil "/dyb/images/~a" 
+                                                   (file-namestring image))
+                                           :width 250
+                                           :height 250)
+                                     (:button :id "remove-image"
+                                              :class "btn btn-info"
+                                              "Remove image"))
+                               (defer-js
+                                   "$('#remove-image').click(function(){$('#current-image').remove();
+                                      $('#image').remove();
+                                      $('[name=\"action-content\"]').trigger('propertychange');})")))
+                            (:input :type "file" :name "file" :id "file"
+                                    :style "display: inline-block;")))
                          (render 
                           form-section
                           :label "Select Date"
@@ -254,8 +272,7 @@ $('#processed-content').text(s)})")))
                                              (get-val row 'scheduled-date)))
                                         (current-date))
                                     :type :date
-                                    :required t)
-                                   ))
+                                    :required t)))
                          (render 
                           form-section
                           :label "Select Time"
@@ -309,11 +326,8 @@ $('#processed-content').text(s)})")))
                        (setf (get-val logs-grid 'parent-grid) grid)
                        (setf (get-val logs-grid 'current-doc) (editing-row grid))
                         
-                       (render logs-grid)))))
-            ))
-    (render tabs)
-    
-    ))
+                       (render logs-grid)))))))
+    (render tabs)))
 
 (defparameter *tmp-directory* #p"~/hunchentoot-upload/")
 
@@ -354,121 +368,85 @@ $('#processed-content').text(s)})")))
         (t (c)
           (grid-error (princ-to-string c)))))))
 
-(defvar *string-substitution*
-  '((#\FIGURE_DASH "-")
-    (#\EN_DASH "-")
-    (#\EM_DASH "-")
-    (#\HYPHEN "-")
-    (#\MACRON "-")
-    (#\DOUBLE_LOW_LINE "_")
-    (#\COMBINING_GRAVE_ACCENT "'")
-    (#\COMBINING_ACUTE_ACCENT "'")
-    (#\RIGHT_SINGLE_QUOTATION_MARK "'")
-    (#\LEFT_SINGLE_QUOTATION_MARK "'")
-    (#\GREEK_TONOS "'")
-    (#\SINGLE_HIGH-REVERSED-9_QUOTATION_MARK "'")
-    (#\SINGLE_LOW-9_QUOTATION_MARK "'")
-    (#\DOUBLE_ACUTE_ACCENT "\"")
-    (#\LEFT_DOUBLE_QUOTATION_MARK "\"")
-    (#\RIGHT_DOUBLE_QUOTATION_MARK "\"")
-    (#\DOUBLE_LOW-9_QUOTATION_MARK "\"")
-    (#\… "...")
-    ))
-
-
-
-(defun sanitize-string (string)
-  (if #+sbcl(typep string 'simple-base-string)
-      #-sbcl nil
-      string
-      (with-output-to-string (str)
-        (loop for char across string
-              for subst = (cadr (assoc char *string-substitution* :test #'char=))
-              do (if subst
-                     (write-string subst str)
-                     (write-char char str))))))
-
-
+(defun handle-image-upload (doc)
+  ;; Upload the image early and store into a session parameter
+  ;; so that upon any errors the user won't have to reupload it
+  (with-parameters (file current-image)
+    (cond (file
+           (setf (session-value 'uploaded-image) (handle-upload file)))
+          ((not current-image)
+           (setf (session-value 'uploaded-image) nil))
+          (doc
+           (image-url doc)))))
 
 (defmethod handle-action ((grid generic-actions-grid) (action (eql 'save)))
   (setf (error-message grid) nil)
-  (when (and (string-equal (parameter "form-id") "schedule-action-form"))
-    (when (empty-p (parameter "scheduled-date"))
-      (grid-error "Please enter a valid date."))
-    (when (empty-p (parameter "service"))
-      (grid-error "Please enter a channel to post to."))
-    (when (empty-p (parameter "channel-user"))
-      (grid-error "Please enter a user to post as."))
-    (let* ((action-content (string-trim 
-                            '(#\space #\tab #\newline 
-                              #\linefeed #\return) 
-                            (sanitize-string (parameter "action-content"))))
-           (short-content (shortify-string action-content))
-           (len (+ (length  short-content)
-                   (if (or (post-parameter "file") 
-                           (not-empty-p (parameter "image-file"))) 
-                       20
-                       0) 
-                   (if (not-empty-p (parameter "post-url")) 
-                       20
-                       0))))
-      (if (and (string-equal (parameter "service") "twitter")
-               (>= len 140))
-          (grid-error "Message to long - ~A. (Remember that image url's are also counted.)"
+  (let* ((doc (editing-row grid))
+         (image (handle-image-upload doc)))
+    (when (and doc
+               (equal (parameter "form-id") "schedule-action-form")
+               (member (parameter "service") '("twitter" "Facebook" "LinkedIn")
+                       :test #'equalp))
+      (when (empty-p (parameter "scheduled-date"))
+        (grid-error "Please enter a valid date."))
+      (when (empty-p (parameter "service"))
+        (grid-error "Please enter a channel to post to."))
+      (when (empty-p (parameter "channel-user"))
+        (grid-error "Please enter a user to post as."))
+      (let* ((action-content (sanitize-string (parameter "action-content")))
+             (short-content (shortify-string action-content))
+             (len (+ (length short-content)
+                     (if image 
+                         23
+                         0)
+                     (if (not-empty-p (parameter "post-url"))
+                         20
+                         0)))
+             (to-user nil)
+             (date-time (parse-action-date)))
+        (when (and (equalp (parameter "service") "twitter")
+                   (> len 140))
+          (grid-error "Message too long - ~A. (Remember that image URLs are also counted.)"
                       len))
-      (when (or (member (parameter "service") '("twitter" "Facebook" "LinkedIn")
-                        :test #'string-equal))
-        (let ((to-user nil)
-              (image (if (post-parameter "file")
-                         (handle-upload (post-parameter "file"))
-                         (if (empty-p (parameter "image-file"))
-                             nil
-                             (format nil "~~/hunchentoot-upload/~A"
-                                     (file-namestring (parameter "image-file"))))))
-              (doc (editing-row grid)))
-            
-          (when doc
-            (let ((date-time (parse-action-date))
-                  )
-              (cond ((xid doc)
-                     (synq-edit-data doc)
-                     (setf
-                      (channel-user doc) (get-channel-user-by-user-id 
-                                          (parameter "channel-user")
-                                          (parameter "service"))
-                      (get-val doc 'action-content) action-content
-                      (get-val doc 'action-status) "Pending"
-                      (post-type doc) (parameter "service")
-                      (from-user-id doc) (parameter "channel-user")
-                      (get-val doc 'image-url) image
-                      (scheduled-date doc) date-time
-                      (image-url doc) image)
-                     (setf (get-val doc 'processed-content)
-                           short-content)
-                     (setf (get-val 
-                             doc 
-                             'action-log)
-                           nil)
-                     (persist doc))
-                    (t
-                     (persist (make-generic-action
-                               (get-channel-user-by-user-id 
-                                (parameter "channel-user")
-                                (parameter "service"))
-                               nil 
-                               (parameter "service")
+        (cond ((xid doc)
+               (synq-edit-data doc)
+               (setf
+                (channel-user doc) (get-channel-user-by-user-id 
+                                    (parameter "channel-user")
+                                    (parameter "service"))
+                (get-val doc 'action-content) action-content
+                (get-val doc 'action-status) "Pending"
+                (post-type doc) (parameter "service")
+                (from-user-id doc) (parameter "channel-user")
+                (image-url doc) image
+                (scheduled-date doc) date-time
+                (image-url doc) image)
+               (setf (get-val doc 'processed-content)
+                     short-content)
+               (setf (get-val 
+                      doc 
+                      'action-log)
+                     nil)
+               (persist doc))
+              (t
+               (persist (make-generic-action
+                         (get-channel-user-by-user-id 
+                          (parameter "channel-user")
+                          (parameter "service"))
+                         nil 
+                         (parameter "service")
                                     
-                               (parameter "channel-user") 
-                               to-user 
-                               (parameter "action-type")
-                               action-content
-                               short-content
-                               "Timed"
-                               date-time
-                               :image-url image
-                               :post-url (parameter "post-url")
-                               :action-status (parameter "action-status"))))))
-            (finish-editing grid)))))))
+                         (parameter "channel-user") 
+                         to-user 
+                         (parameter "action-type")
+                         action-content
+                         short-content
+                         "Timed"
+                         date-time
+                         :image-url image
+                         :post-url (parameter "post-url")
+                         :action-status (parameter "action-status"))))))
+      (finish-editing grid))))
 
 
 (defclass date-selector (ajax-widget)
