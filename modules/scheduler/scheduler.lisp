@@ -235,7 +235,7 @@
      (loop
       (facebook-refresh-friends)
       (facebook-refresh-profiles)
-      (facebook-page-insights-history
+      (facebook-page-insights-history  
        (- (universal-today) (* 60 60 24 10))
        10)
       (sleep 86400)))))

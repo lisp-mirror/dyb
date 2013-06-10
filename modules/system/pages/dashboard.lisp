@@ -315,7 +315,7 @@
     (dolist (user (coerce (channel-users) 'list ))
       (when (valid-channel-user user channel)  
         (let ((insights
-                    (get-generic-insight-values 
+               (get-generic-insight-values 
                      user 
                      insight-name
                      start-date 
@@ -1805,11 +1805,13 @@
                     "LinkedIn Connections"
                     t)))))))
 
-
+ 
 (defun fill-blanks (range start-date end-date &key smooth-range)
+  
   (let ((filled-range)
         (max-date 0))
-    (dotimes (n (date-diff start-date end-date :return-type :days))
+    (dotimes (n (round (date-diff start-date end-date :return-type :days)))
+
       (let* ((u-date (+ start-date (* +24H-SECS+ n)))
              (date (format-universal-date-dash u-date))
              
@@ -1826,15 +1828,16 @@
                                          :reverse-date-sequence-p t) ))
             (when (> range-date max-date)
                 (setf max-date range-date))
-
-            (if (<= u-date range-date)
-                (setf smooth-val (second value)))
+            (when (<= range-date u-date )
+                (if (<= range-date u-date )
+                    (if (> (second value) 0.00) 
+                        (setf smooth-val (second value)))))
             (if (string-equal  (first value) date)
-                (setf range-val value))))
+                  (setf range-val value))))
 
         (when range-val
           (when smooth-range
-            (when (= (second range-val) 0)
+            (when (= (second range-val) 0.00)
               (setf range-val (list (first range-val) (or smooth-val 0)))
               )))
 
@@ -2020,15 +2023,16 @@
         (previous nil))
     (dolist (follower date-val-list)
       
-      (when previous
-        (setf final-list
-              (append final-list 
-                      (list (list (first follower) 
-                                  (-
-                                   (fix-nan (second follower))
-                                   (fix-nan (second previous))
+      (when (and previous (second previous))
+        (when (> (second previous) 0)
+          (setf final-list
+                (append final-list 
+                        (list (list (first follower) 
+                                    (-
+                                     (fix-nan (second follower))
+                                     (fix-nan (second previous))
                                      
-                                     ))))))
+                                     )))))))
         
       (setf previous follower))
     final-list))

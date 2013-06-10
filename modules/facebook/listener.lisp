@@ -6,6 +6,30 @@
       (if (get-val channel-user 'last-access-token)
         channel-user))))
 
+(defun paging (channel-user result result-function &key result-args)
+  
+  (let ((pages-read (make-hash-table :test 'equal)))
+    (labels ( (paging-xx (channel-userx resultx result-functionx &key result-argsx)
+              (when (and resultx result-functionx)
+                (when (gpv resultx :paging :next)
+               
+                  (setf resultx (handle-endpoint channel-user
+                                                (drakma-request
+                                                 (gpv resultx :paging :next))))
+                  (apply result-functionx channel-userx (if result-argsx
+                                                          (list result-argsx (list resultx))
+                                                          (list resultx)) )
+                  (unless (gethash (gpv resultx :paging :next)  pages-read)
+                  ;;  (break "~A "  pages-read)
+                    (when (< (hash-table-count  pages-read) 3)
+                      (setf (gethash (gpv resultx :paging :next)  pages-read) 
+                            (gpv resultx :paging :next))
+                      (paging-xx channel-userx resultx result-functionx)))))))
+      (when (and result result-function)
+        (paging-xx channel-user result result-function :result-argsx result-args)))))
+
+
+
 (defun facebook-request-handler (channel-user request-function result-function 
                                  &key request-args result-args)
   (when (facebook-valid-user channel-user)
@@ -16,7 +40,10 @@
               
                 (apply result-function channel-user (if result-args
                                                         (list result-args (list result))
-                                                        (list result)) ))))))
+                                                        (list result)) )))
+            ;;(break "~A" (gpv result :paging :next))
+          ;;  (paging channel-user result result-function :result-args result-args)
+            )))
 
 (defun facebook-friends-refresh (channel-user)
   (facebook-request-handler channel-user
