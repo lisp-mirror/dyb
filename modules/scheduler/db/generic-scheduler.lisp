@@ -127,6 +127,7 @@
                                       :short-url short-url)))))
 
 (defun post-action-abandoned-email (action)
+  
   (send-system-mail  
    (frmt "[DYB]: ~a ~a abondened retires"
          (post-type action) (action-type action))
@@ -136,7 +137,7 @@
          (action-content action)
          (if (action-log action)
              (get-val (if (listp (action-log action))
-                          (last (action-log action))
+                          (first (action-log action))
                           (action-log action)) 'message)
              ""))))
 
