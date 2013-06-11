@@ -127,12 +127,14 @@
                                       :short-url short-url)))))
 
 (defun post-action-abandoned-email (action)
-  (send-system-mail
+  (send-system-mail  
    (frmt "[DYB]: ~a ~a abondened retires"
          (post-type action) (action-type action))
-   (frmt "Post with id ~a failed 5 times to be delieverd. ~a"
+   (frmt "Post with id ~a failed 5 times to be delivered. ~a~%~%~A~%~%Last error log:~%~a"
          (id action)
-         (current-date-time))))
+         (current-date-time)
+         (action-content action)
+         (get-val (last (action-log action)) 'message))))
 
 (defun add-generic-action-log (action label message status) 
   (cond ((>= (length (action-log action)) 5)
