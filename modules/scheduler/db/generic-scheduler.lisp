@@ -130,7 +130,7 @@
   (send-system-mail  
    (frmt "[DYB]: ~a ~a abondened retires"
          (post-type action) (action-type action))
-   (frmt "Post with id ~a failed 5 times to be delivered. ~a~%~%~A~%~%Last error log:~%~a"
+   (frmt "Post with id ~a failed 5 times to be delivered. ~a~%~%~A~%~%Last error log:~%~%~a"
          (id action)
          (current-date-time)
          (action-content action)
