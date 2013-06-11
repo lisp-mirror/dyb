@@ -134,7 +134,11 @@
          (id action)
          (current-date-time)
          (action-content action)
-         (get-val (last (action-log action)) 'message))))
+         (if (action-log action)
+             (get-val (if (listp (action-log action))
+                          (last (action-log action))
+                          (action-log action)) 'message)
+             ""))))
 
 (defun add-generic-action-log (action label message status) 
   (cond ((>= (length (action-log action)) 5)
