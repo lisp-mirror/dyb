@@ -282,14 +282,36 @@
       (linkedin-refresh-profiles)
       (sleep 86400)))))
 
+(defun remove-crap-for-camaf ()
+  (find-docs 'list
+                (lambda (doc)
+                  (when (and (not (string-equal (post-type doc) "Facebook"))
+                             (not (string-equal (post-type doc) "Twitter"))
+                             (>= (created-date doc) (string-to-date "01 jan 2013")))
+                    (dolist (crap (list 
+                                   "camafórro"
+                                   "camafórró"
+                                   "camaforro"
+                                   "CAMAFÉU"
+                                   "camafeu"
+                                   "Camafõrro"
+                                   "Camaför"))
+                      (when (or (search crap (gpv (payload doc) :title) 
+                                        :test 'string-equal) 
+                                (search crap (gpv (payload doc) :description) 
+                                        :test 'string-equal))
+                        (format t "~A~%~A~%" (gpv (payload doc) :title)
+                               (gpv (payload doc) :description))))))
+                (generic-post-collection)))
 
 (defun start-social-mention-slow-listener ()
   (start-task-thread
    "facebook-refresh-friends-and-profiles"
    (lambda ()
      (loop
-      (social-mention-refresh-searches)
-      (sleep 86400)))))
+        (social-mention-refresh-searches)
+        (remove-crap-for-camaf)
+        (sleep 86400)))))
 
 (defun count-lost-actions ()
   (loop with now = (get-universal-time)

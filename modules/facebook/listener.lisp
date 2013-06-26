@@ -114,10 +114,22 @@
                (generic-post-collection))
     date))
 
+
+(defun fb-clear-last-week (channel-user last-date)
+  (find-docs 'list
+             (lambda (doc)
+               (when (and (string-equal (post-type doc) "Facebook")
+                          (string-equal (channel-user-name (channel-user doc)) (channel-user-name channel-user))
+                          (>= (created-date doc) (- last-date (* 7 +24h-secs+))))
+                 (remove-doc doc)))
+             (generic-post-collection)))
+
 (defun facebook-refresh-feeds ()
   (dolist (channel-user (coerce (channel-users) 'list ))
     (when (facebook-valid-user channel-user)
           (let ((last-date (get-last-post-date channel-user)))
+            ;;TODO: Remove this again later when realtime is introduced
+            (fb-clear-last-week channel-user last-date)
             (multiple-value-bind (posts error)
                 (facebook-feed channel-user (if (> last-date 0)
                                         last-date))
