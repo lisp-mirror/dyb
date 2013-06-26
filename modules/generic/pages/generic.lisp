@@ -15,14 +15,19 @@
                        :target "_blank"
                        :href (or (gpv col-val :link)
                                  (gpv col-val :user--link))
-                       (str (gpv col-val :title)))
+                       ;;TODO:Check why to long links with no spaces pushes display over box edges
+                       (str (if (> (length (gpv col-val :title)) 100)
+                                (subseq (gpv col-val :title) 0 100)
+                                (gpv col-val :title))))
                       (if (gpv col-val :user)
                           (htm
                            (:span :class "twitter-user" 
                                   (:a :href (gpv col-val :user--link) 
                                       (gpv col-val :user)))))
                       (:span :class "post-content"
-                             (str (linkify (gpv col-val :description))))
+                             (str (linkify (if (not (empty-p (gpv col-val :description)))
+                                               (gpv col-val :description)
+                                               (gpv col-val :title)))))
                       (:span :class "twitter-actions"
                              (:span :class "action-icon" :title "Go to Content"
                                     (:a  :target "_blank" 
