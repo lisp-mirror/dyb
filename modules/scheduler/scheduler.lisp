@@ -300,7 +300,7 @@
                                         :test 'string-equal) 
                                 (search crap (gpv (payload doc) :description) 
                                         :test 'string-equal))
-                        (remove-doc)))))
+                        (remove-doc doc)))))
                 (generic-post-collection)))
 
 (defun start-social-mention-slow-listener ()
