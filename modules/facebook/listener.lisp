@@ -132,6 +132,7 @@
             (fb-clear-last-week channel-user last-date)
             (multiple-value-bind (posts error)
                 (facebook-feed channel-user (if (> last-date 0)
-                                        last-date))
+                                        (- last-date (* 14 +24h-secs+))))
+             ;; (break "~A" posts)
               (unless error
                 (parse-facebook-posts channel-user posts 'facebook-feed)))))))
