@@ -272,9 +272,16 @@
 
 (defun decode-time-string (time)
   (ppcre:register-groups-bind
-      ((#'parse-integer hour min sec))
-      ("(\\d{1,2}):(\\d{1,2})(?::(\\d{1,2}))?" time)
-    (values  hour min (or sec 0))))
+      ((#'parse-integer hour min) am/pm)
+      ("(\\d{1,2}):(\\d{1,2})(PM|AM)" time)
+    (let ((am (equalp am/pm "AM")))
+      (values (cond ((and am (= 12 hour))
+                     0)
+                    ((or am (= 12 hour))
+                     hour)
+                    (t
+                     (+ hour 12)))
+              min 0))))
 
 (defun decode-time-string-check (time)
   (multiple-value-bind (hour minute second)
