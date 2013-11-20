@@ -2304,8 +2304,10 @@
                                                 "Score")))
                                      (:tbody :role "alert" :aria-live "polite" :aria-relevant "all"
                                              (let ((count 1))
-                                               (dolist (action (if (> (length content) 10)
-                                                                   (subseq content 0 10)
+                                               (dolist (action (if (stringp content)
+                                                                   (if (> (length content) 10)
+                                                                       (subseq content 0 10)
+                                                                       content)
                                                                    content))
                                                  (let ((date (first action))
                                                        (text (second action))
@@ -2318,8 +2320,10 @@
                                                               (str date))
                                                          (:td :class "sorting_1"
                                                               (:span (str (format nil "~A"
-                                                                                  (if (> (length text) 70)
-                                                                                      (format nil "~A..." (subseq text 0 70))
+                                                                                  (if (stringp text)
+                                                                                      (if (> (length text) 70)
+                                                                                          (format nil "~A..." (subseq text 0 70))
+                                                                                          text)
                                                                                       text)))))
                                                          (:td :class "sorting_1" :style "text-align: center;"
                                                               (:span :class (if (< 0 (second (first stats)))
