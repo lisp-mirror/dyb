@@ -283,25 +283,25 @@
       (sleep 86400)))))
 
 (defun remove-crap-for-camaf ()
-  (find-docs 'list
-                (lambda (doc)
-                  (when (and (not (string-equal (post-type doc) "Facebook"))
-                             (not (string-equal (post-type doc) "Twitter"))
-                             (>= (created-date doc) (string-to-date "01 jan 2013")))
-                    (dolist (crap (list 
-                                   "camafórro"
-                                   "camafórró"
-                                   "camaforro"
-                                   "CAMAFÉU"
-                                   "camafeu"
-                                   "Camafõrro"
-                                   "Camaför"))
-                      (when (or (search crap (gpv (payload doc) :title) 
-                                        :test 'string-equal) 
-                                (search crap (gpv (payload doc) :description) 
-                                        :test 'string-equal))
-                        (remove-doc doc)))))
-                (generic-post-collection)))
+  (map-docs nil
+            (lambda (doc)
+              (when (and (not (string-equal (post-type doc) "Facebook"))
+                         (not (string-equal (post-type doc) "Twitter"))
+                         (>= (created-date doc) (string-to-date "01 jan 2013")))
+                (dolist (crap (list 
+                               "camafórro"
+                               "camafórró"
+                               "camaforro"
+                               "CAMAFÉU"
+                               "camafeu"
+                               "Camafõrro"
+                               "Camaför"))
+                  (when (or (search crap (gpv (payload doc) :title) 
+                                    :test 'string-equal) 
+                            (search crap (gpv (payload doc) :description) 
+                                    :test 'string-equal))
+                    (remove-doc doc (email (current-user)))))))
+            (generic-post-collection)))
 
 (defun start-social-mention-slow-listener ()
   (start-task-thread

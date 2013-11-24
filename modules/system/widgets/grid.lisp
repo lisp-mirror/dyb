@@ -275,7 +275,7 @@ document.getElementById(\"~A\").submit();"
 
 (defmethod handle-action ((grid grid) (action (eql 'delete)))
   (when (editable grid)
-    (remove-doc (editing-row grid)))
+    (remove-doc (editing-row grid) (email (current-user))))
   (finish-editing grid)
   (update-table grid))
 
