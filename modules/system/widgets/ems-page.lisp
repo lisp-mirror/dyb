@@ -1,6 +1,6 @@
 (in-package :dyb)
 
-(defclass page (html-framework-page)
+(defclass ems-page (html-framework-page)
   ((alert :initarg :alert
              :initform nil
              :accessor alert))
@@ -12,8 +12,9 @@
    "/appjs/validation.js"
    "/tinymce/jscripts/tiny_mce/tiny_mce.js"))
 
+(register-widget *dyb-theme* 'page 'ems-page)
 
-(defmethod render ((widget page) &key body)
+(defmethod render ((widget ems-page) &key body)
   (let ( ;;(menu (make-widget 'tree-menu :name "menu"))
 	(title (or (title widget) (name widget)))
         (html-framework-page (make-widget 'html-framework-page 
@@ -32,13 +33,12 @@
     (render
      html-framework-page
      :body
-     (with-html-to-string ()
+     (with-html-string
        (:div ;;:class "page-header"
-             (:h2 (str title)))
+        (:h2 (str title)))
                    
        (when (slot-val widget 'alert)
          (str (render page-alert-box 
                       :alert-type (first (slot-val widget 'alert))
                       :alert (second (slot-val widget 'alert)))))
-       (str body)
-       ))))
+       (str body)))))

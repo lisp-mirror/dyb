@@ -1,8 +1,7 @@
 (in-package :dyb)
 
 (defclass clients-grid (grid)
-  ()
-  (:default-initargs :edit-inline nil))
+  ())
 
 (defmethod get-rows ((grid clients-grid))
   (setf (rows grid)
@@ -28,20 +27,20 @@
     (render form
             :grid grid
             :content
-            (with-html-to-string ()
+            (with-html-string
               (:input :type "hidden" :name "entity-type"
                                            :value "Client")
               (render form-section
                       :label "Client"
-                      :input (with-html-to-string ()
+                      :input (with-html-string
                                    (render-edit-field "entity-name"
                                                       (or (parameter "entity-name") (get-val row 'entity-name))
                                                       :required t)))))))
 
-(defmethod handle-action ((grid clients-grid) (action (eql 'cancel)))
+(defmethod handle-action ((grid clients-grid) (action (eql :cancel)))
   (finish-editing grid))
 
-(defmethod handle-action ((grid clients-grid) (action (eql 'save)))
+(defmethod handle-action ((grid clients-grid) (action (eql :save)))
   (when (string-equal (parameter "form-id") "clients-form")
    (let ((doc (editing-row grid)))
      (synq-edit-data doc)

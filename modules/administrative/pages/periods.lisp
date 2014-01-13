@@ -30,7 +30,6 @@
                            :header "Status")))
          (grid (make-widget 'period-grid :name "period-gridxz"
                                        :columns columns
-                                       :edit-inline nil
                                        :title "Reporting Period"
                                        :row-object-class 'period)))
     (setf (sort-key-function grid)

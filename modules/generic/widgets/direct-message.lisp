@@ -20,7 +20,7 @@
     (setf (ajax-render-widget direct-message-form) (editor (grid widget)))
     (render direct-message-form
             :content
-            (with-html-to-string ()
+            (with-html-string
                     (:div 
                      (:input :type "hidden" :name "post-id" 
                              :value (cond ((string-equal (get-val row 'post-type) 
@@ -36,7 +36,7 @@
                      (render form-section 
                              :label "As User"
                              :input 
-                             (with-html-to-string ()
+                             (with-html-string
                                (render-edit-field
                                 "user-id" 
                                 (parameter "user-id")
@@ -47,14 +47,14 @@
                      (render form-section 
                              :label "Message"
                              :input 
-                             (with-html-to-string ()
+                             (with-html-string
                                (render-edit-field
                                 "message" 
                                 (parameter "message")
                                 :required t
                                 :type :textarea))))))))
 
-(defmethod handle-action ((grid generic-grid) (action (eql 'direct-message-form)))
+(defmethod handle-action ((grid generic-grid) (action (eql :direct-message-form)))
   
   (setf (action-widget grid)
         (make-widget 'direct-message-action :name "direct-message-action-form"

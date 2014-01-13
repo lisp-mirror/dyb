@@ -62,7 +62,7 @@
                (* 60 60 24)))))))
     
     (render page :body
-            (with-html-to-string ()
+            (with-html-string
               (:form :name "fetch-data"
                      :method :post
                      (:input :type "submit" :name "get-facebook-data" 

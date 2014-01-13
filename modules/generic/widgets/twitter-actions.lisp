@@ -27,7 +27,7 @@
       (when (parameter "action")
         (render like-form
                 :content
-                (with-html-to-string ()
+                (with-html-string
                   (:div
                    (:input :type "hidden" :name "tweet-id"
                            :value tweet-id)
@@ -38,7 +38,7 @@
                    (render form-section
                            :label "As User"
                            :input
-                           (with-html-to-string ()
+                           (with-html-string
                              (render-edit-field
                               "user-id"
                               (parameter "user-id")
@@ -47,7 +47,7 @@
                               :type :select))))))
         (str (get-val widget 'message))))))
 
-(defmethod handle-action ((grid generic-grid) (action (eql 'retweet-twitter-form)))
+(defmethod handle-action ((grid generic-grid) (action (eql :retweet-twitter-form)))
   (setf (action-widget grid)
         (make-widget 'twitter-retweet-form
                      :grid grid
@@ -115,7 +115,7 @@
                  (render form-section
                          :label "As User"
                          :input
-                         (with-html-to-string ()
+                         (with-html-string
                            (render-edit-field
                             "user-id"
                             (or (parameter "user-id")
@@ -126,14 +126,14 @@
                  (render form-section
                          :label "Message"
                          :input
-                         (with-html-to-string ()
+                         (with-html-string
                            (render-edit-field
                             "message"
                             (parameter "message")
                             :required t
                             :type :textarea)))))))))
 
-(defmethod handle-action ((grid generic-grid) (action (eql 'reply-twitter-form)))
+(defmethod handle-action ((grid generic-grid) (action (eql :reply-twitter-form)))
   (setf (action-widget grid)
         (make-widget 'twitter-reply-form
                      :grid grid
@@ -193,7 +193,7 @@
       (when (parameter "action")
         (render like-form
                 :content
-                (with-html-to-string ()
+                (with-html-string
                   (:div
                    (:input :type "hidden" :name "tweet-id"
                            :value tweet-id)
@@ -201,7 +201,7 @@
                    (render form-section
                            :label "As User"
                            :input
-                           (with-html-to-string ()
+                           (with-html-string
                              (render-edit-field
                               "user-id"
                               (parameter "user-id")
@@ -210,7 +210,7 @@
                               :type :select))))))
         (str (get-val widget 'message))))))
 
-(defmethod handle-action ((grid generic-grid) (action (eql 'favourite-twitter-form)))
+(defmethod handle-action ((grid generic-grid) (action (eql :favourite-twitter-form)))
   (setf (action-widget grid)
         (make-widget 'twitter-favourite-form
                      :grid grid

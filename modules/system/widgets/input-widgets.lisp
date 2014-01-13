@@ -1,6 +1,6 @@
 (in-package :dyb)
 
-(defclass chained-select (input-widget)
+(defclass chained-select (input)
   ((select-names :initarg :select-names
 		 :initform ()
 		 :accessor select-names)
@@ -122,8 +122,6 @@
   ()
   (:metaclass widget-class)
   (:default-initargs :select-names '(service channel-user)))
-
-
 
 (defun get-channel-users (service)
   (loop for doc across (docs (channel-users-collection))

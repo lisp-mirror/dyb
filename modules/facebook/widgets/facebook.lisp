@@ -3,8 +3,7 @@
 ;;(populate-post-db-from-json (rest (first (json:decode-json-from-string *jsstr*))))
 
 (defclass post-grid (grid)
-  ()
-  (:default-initargs :edit-inline nil))
+  ())
 
 (defun get-post-data (grid &key filter search)
   (declare (ignore grid search))
@@ -57,22 +56,22 @@
      (list
       (list
        "post"
-       (with-html-to-string ()
+       (with-html-string
          (:div :class "section _100"
                (render form
                        :content
-                       (with-html-to-string ()
+                       (with-html-string
                          (render 
                           form-section
                           :label "Post ID"
-                          :input (with-html-to-string ()
+                          :input (with-html-string
                                    (render-edit-field 
                                     "post-id"
                                     (get-val row 'post-id))))
                          (render 
                           form-section
                           :label "Message"
-                          :input (with-html-to-string ()
+                          :input (with-html-string
                                    (render-edit-field 
                                     "message"
                                     (get-val row 'message)
@@ -81,7 +80,7 @@
                          (render 
                           form-section
                           :label "Story"
-                          :input (with-html-to-string ()
+                          :input (with-html-string
                                    (render-edit-field 
                                     "Story"
 				    (get-val com 'message)
@@ -92,7 +91,7 @@
 			 (render 
                           form-section
                           :label "Created"
-                          :input (with-html-to-string ()
+                          :input (with-html-string
                                    (render-edit-field 
                                     "Created"
                                     (get-val row 'created-time)
@@ -100,7 +99,7 @@
 )))))
       (list
        "Addresses"
-       (with-html-to-string ()
+       (with-html-string
          (:div :class "section _100"
                #|
                (let* ((columns
@@ -120,7 +119,6 @@
                       (address-grid (make-widget 'post-address-grid
                                                  :name "post-address-gridx"
                                                  :columns columns
-                                                 :edit-inline nil
                                                  :title "Addresses"
                                                  :row-object-class 'address)))
 
@@ -133,7 +131,7 @@
                )))
       (list
        "Contacts"
-       (with-html-to-string ()
+       (with-html-string
          (:div :class "section _100"
                #|
                (let* ((columns
@@ -152,7 +150,6 @@
                       (contact-grid (make-widget 'post-contact-grid
                                                  :name "post-contact-grid"
                                                  :columns columns
-                                                 :edit-inline nil
                                                  :title "Contacts"
                                                  :row-object-class 'contact)))
 

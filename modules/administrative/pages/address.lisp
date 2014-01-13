@@ -27,7 +27,6 @@
 
          (grid (make-widget 'address-grid :name "bio-addresses-gridx"
                             :columns columns
-                            :edit-inline nil
                             :title "Addresses"
                             :row-object-class 'address)))
 

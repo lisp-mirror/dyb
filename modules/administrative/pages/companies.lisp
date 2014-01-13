@@ -18,7 +18,6 @@
             ))
          (grid (make-widget 'companies-grid :name "companies-gridxxx"
                                        :columns columns
-                                       :edit-inline nil
                                        :title "Companies"
                                        :row-object-class 'company)))
     (render (make-widget 'page :name "companies-page")

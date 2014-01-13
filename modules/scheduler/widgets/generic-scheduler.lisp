@@ -4,8 +4,7 @@
   ((current-doc :initarg nil)
    (date :initarg :date
                :initform nil
-               :accessor date))
-  (:default-initargs :edit-inline nil))
+               :accessor date)))
 
 (defmethod list-grid-filters ((grid generic-actions-grid))
   '(24-hours
@@ -84,8 +83,7 @@
                           :search (search-term grid))))
 
 (defclass generic-action-logs-grid (grid)
-  ((current-doc :initarg nil))
-  (:default-initargs :edit-inline nil))
+  ((current-doc :initarg nil)))
 
 (defun get-generic-action-logs-data (grid &key filter search)
   (declare (ignore filter search))
@@ -122,7 +120,7 @@
         (form-section (make-widget 'form-section
                                    :name "form-section"))
         (current-doc (get-val grid 'current-doc))
-        (channel-users (make-widget 'channel-user-select 
+        (channel-users (make-widget 'channel-user-select
                                     :name "channel-user-select-dropown"))
         (tabs (make-instance 'html-framework-tab-box
                               :name "actions-edit-tabs"
@@ -155,7 +153,7 @@
 
                          (destructuring-bind (service channel-user)
                              (selects channel-users)
-                           (render channel-users)
+                           ;(render channel-users)
 
                            (setf (value service) (or (parameter "service")
                                                      (get-val row 'post-type)))
@@ -379,7 +377,7 @@ $('#processed-content').text(s)})")))
           (doc
            (image-url doc)))))
 
-(defmethod handle-action ((grid generic-actions-grid) (action (eql 'save)))
+(defmethod handle-action ((grid generic-actions-grid) (action (eql :save)))
   (setf (error-message grid) nil)
   (let* ((doc (editing-row grid))
          (image (handle-image-upload doc)))

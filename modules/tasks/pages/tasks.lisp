@@ -30,14 +30,13 @@
                           )
            ))
          (grid (make-widget 'tasks-grid :name "tasks-grid"
-                            :edit-inline nil
                             :title "Assign Task"
                             :row-object-class 'task)))
 
     (setf (get-val grid 'columns) columns)
     
     (render (make-widget 'page :name "tasks-page")
-            :body (with-html-to-string ()
+            :body (with-html-string
                     
                     (str (render grid))))))
 

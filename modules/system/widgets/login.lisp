@@ -11,14 +11,13 @@
             :initform nil
             :accessor message))
   (:metaclass widget-class)
-  (:action-params submit-login)
   (:include-css "/appcss/login-style.css"))
 
 (defgeneric validate-user (login))
 (defgeneric on-success (login &key))
 (defgeneric on-failure (login &key))
 
-(defmethod handle-action ((widget login) (action (eql 'submit-login)))
+(defmethod action-handler ((widget login))
   (when (and (email widget) (password widget))
     (let ((user (validate-user widget)))
       (if user

@@ -168,13 +168,13 @@
 
   (if (listp params)
     (let ((stream (make-string-output-stream)))
-      (with-html-to-string ()
+      (with-html-string
         (mapcar (lambda (x y)
                   (htm (:input :type "hidden" :name (format nil "param-~A" (string-downcase x))
                                :value y)))
                 params values))
       (get-output-stream-string stream)) ;; FIXME: this can't work
-    (with-html-to-string ()
+    (with-html-string
       (htm
        (:input :type "hidden" :name params
                    :value values)))))
@@ -273,16 +273,16 @@ document.getElementById(\"~A\").submit();"
       (setf (error-message (edit-form grid)) nil))
     (call-next-method)))
 
-(defmethod handle-action ((grid grid) (action (eql 'delete)))
+(defmethod handle-action ((grid grid) (action (eql :delete)))
   (when (editable grid)
     (remove-doc (editing-row grid) (email (current-user))))
   (finish-editing grid)
   (update-table grid))
 
-(defmethod handle-action ((grid grid) (action (eql 'init-new)))
+(defmethod handle-action ((grid grid) (action (eql :init-new)))
   (editing-row grid))
 
-(defmethod handle-action ((grid grid) (action (eql 'new)))
+(defmethod handle-action ((grid grid) (action (eql :new)))
   (when (editable grid) 
     (when (row-object-class grid)
       ;;TODO: Do we need to add to rows??
@@ -334,16 +334,16 @@ document.getElementById(\"~A\").submit();"
                         affected-rows)))))
         finally (return affected-rows)))
 
-(defmethod handle-action ((grid grid) (action (eql 'edit)))
+(defmethod handle-action ((grid grid) (action (eql :edit)))
   (editing-row grid))
 
-(defmethod handle-action ((grid grid) (action (eql 'cancel)))
+(defmethod handle-action ((grid grid) (action (eql :cancel)))
   (when (edit-form grid)
     (setf (object (edit-form grid)) nil)
     (setf (edit-form grid) nil))
   (finish-editing grid))
 
-(defmethod handle-action ((grid grid) (action (eql 'edit-all)))
+(defmethod handle-action ((grid grid) (action (eql :edit-all)))
   (setf (editing-row grid) :all))
 
 (defmethod action-handler ((grid grid))
@@ -470,7 +470,7 @@ document.getElementById(\"~A\").submit();"
       (render form 
               :grid grid
               :content
-              (with-html-to-string ()
+              (with-html-string
                 (loop for column in columns
                    for column-id from 0
                    for name = (slot-val row (name column))
@@ -482,7 +482,7 @@ document.getElementById(\"~A\").submit();"
                    (render form-section
                            :label (string-capitalize (name column))
                             :input
-                            (with-html-to-string ()
+                            (with-html-string
                               (render-edit-field widget-name  
                                                  text
                                                  :type (editor-type column)

@@ -1,8 +1,7 @@
 (in-package :dyb)
 
 (defclass tasks-grid (grid)
-  ()
-  (:default-initargs :edit-inline nil))
+  ())
 
 (defun get-tasks-data (grid &key filter search)
   (declare (ignore grid search))
@@ -34,20 +33,20 @@
     (render comment-form
                     :grid grid
                     :content
-                    (with-html-to-string ()
+                    (with-html-string
                       
                       
                       (render form-section 
                        :label "Entity"
                        :input 
                        (if (get-val row 'entity)
-                           (with-html-to-string ()
+                           (with-html-string
                              (render-edit-field
                               "entityx"  
                               (get-val (get-val row 'entity) 'entity-name)
                               :type :span)
                              (:input :type "hidden" :name "entity" :value (get-val (get-val row 'entity) 'xid)))
-                           (with-html-to-string ()
+                           (with-html-string
                              (render-edit-field
                               "entity" 
                               (get-val (get-val row 'entity) 'xid)
@@ -58,7 +57,7 @@
                       (render form-section 
                               :label "Description"
                               :input 
-                              (with-html-to-string ()
+                              (with-html-string
                                 (render-edit-field
                                  "task-description" 
                                  (or (parameter "task-description") 
@@ -68,7 +67,7 @@
                       (render form-section 
                               :label "Instructions"
                               :input 
-                              (with-html-to-string ()
+                              (with-html-string
                                 (render-edit-field
                                  "task-instructions" 
                                  (or (parameter "task-instructions") 
@@ -79,7 +78,7 @@
                       (render 
                        form-section
                        :label "Status"
-                       :input (with-html-to-string ()
+                       :input (with-html-string
                              (render-edit-field
                               "task-status" 
                               (get-val row 'task-status)
@@ -93,7 +92,7 @@
                       (render 
                        form-section
                        :label "Assigner"
-                       :input (with-html-to-string ()
+                       :input (with-html-string
                                 (render-edit-field 
                                  "assigning-user"
                                  (or (parameter "assigning-user")
@@ -108,7 +107,7 @@
                       (render 
                        form-section
                        :label "Assignee"
-                       :input (with-html-to-string ()
+                       :input (with-html-string
                                 (render-edit-field 
                                  "assigned-user"
                                  (or (parameter "assigned-user")
@@ -122,7 +121,7 @@
                       (render 
                        form-section
                        :label "Assigned Date"
-                       :input (with-html-to-string ()
+                       :input (with-html-string
                                 (render-edit-field 
                                  "assigned-date"
                                  (or (parameter "assigned-date")
@@ -136,7 +135,7 @@
                       (render 
                        form-section
                        :label "Scheduled Date"
-                       :input (with-html-to-string ()
+                       :input (with-html-string
                                 (render-edit-field 
                                  "scheduled-date"
                                  (or (parameter "scheduled-date")
@@ -150,7 +149,7 @@
                       (render 
                        form-section
                        :label "Completed Date"
-                       :input (with-html-to-string ()
+                       :input (with-html-string
                                 (render-edit-field 
                                  "completed-date"
                                  (or (parameter "completed-date")
@@ -166,7 +165,7 @@
 
 
 
-(defmethod handle-action ((grid tasks-grid) (action (eql 'save)))
+(defmethod handle-action ((grid tasks-grid) (action (eql :save)))
   (setf (error-message grid) nil)
 
   (when (and (string-equal (parameter "form-id") "task-form"))

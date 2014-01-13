@@ -34,7 +34,6 @@
                           :header "Status")))
          (grid (make-widget 'generic-actions-grid :name "generic-actions-gridx"
                             ;;:columns columns
-                            :edit-inline nil
                             :title "Schedule Messages"
                             :row-object-class 'generic-action))
          (date-selector (make-widget 'date-selector
@@ -47,7 +46,7 @@
     (setf (toolbar-widget grid) date-selector)
 
     (render (make-widget 'page :name "generic-scheduler-page")
-            :body (with-html-to-string ()
+            :body (with-html-string
                     
                     (str (render grid))))))
 

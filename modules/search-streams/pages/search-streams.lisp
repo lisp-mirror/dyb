@@ -28,7 +28,6 @@
          (grid (make-widget 'search-streams-grid 
                             :name "search-stream-grid"
                             ;; :columns columns
-                            :edit-inline nil
                             :title "Search Streams"
                             :row-object-class 'search-stream)))
     (setf (get-val grid 'columns) columns)
@@ -37,7 +36,7 @@
             
     
     (render (make-widget 'page :name "search-stream-page")
-            :body (with-html-to-string ()
+            :body (with-html-string
                                      
                     (str (render grid))))
     ))
