@@ -7,6 +7,8 @@
    (selects :initform ()
             :accessor selects)))
 
+(defmethod render ((widget chained-select) &key))
+
 (defclass chained-select-sub-select (select ajax-widget)
   ((chained-select :initarg :chained-select
                    :initform nil
