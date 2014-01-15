@@ -121,7 +121,9 @@
               (when (and (string-equal (post-type doc) "Facebook")
                          (string-equal (channel-user-name (channel-user doc)) (channel-user-name channel-user))
                          (>= (created-date doc) (- last-date (* 7 +24h-secs+))))
-                (remove-doc doc (email (current-user)))))
+                (if (current-user)
+                    (remove-doc doc (email (current-user)))
+                    "system")))
             (generic-post-collection)))
 
 (defun facebook-refresh-feeds ()
