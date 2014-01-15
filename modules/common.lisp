@@ -25,53 +25,38 @@
 
 (defun drakma-request (uri &rest args
                        &key method
-                       parameters
-                       url-encoder
-                       content
-                       content-type
-                       content-length
-                       additional-headers
-                       want-stream
-                       preserve-uri
-                       connection-timeout
-                       body-to-string-p
-                       parse-json-p)
-  (declare (ignore method
-                   parameters
-                   url-encoder
-                   content
-                   content-type
-                   content-length
-                   additional-headers
-                   ;want-stream
-                   preserve-uri
+                            parameters
+                            url-encoder
+                            content content-type content-length
+                            additional-headers
+                            want-stream
+                            preserve-uri
+                            connection-timeout
+                            body-to-string-p
+                            parse-json-p)
+  (declare (ignore method parameters url-encoder content content-type
+                   content-length additional-headers preserve-uri
                    connection-timeout))
-  
-  (multiple-value-bind (body-or-stream
-                        status-code
-                        headers
-                        uri
-                        stream
-                        must-close
-                        reason-phrase) 
-      
-      (apply #'drakma:http-request uri (if (> (length args) 11)
-                                           (subseq args 0 10)
-                                           args))
+  (multiple-value-bind (body-or-stream status-code headers
+                        uri stream must-close reason-phrase)
+      (apply #'drakma:http-request uri :allow-other-keys t args)
     (make-instance 'drakma-request-result
-                   :body-or-stream (if (and (not want-stream) body-to-string-p)
-                                       (if parse-json-p
-                                           (json::decode-json-from-string
-                                            (ensure-string-reply body-or-stream))
-                                           (ensure-string-reply body-or-stream))
-                                       body-or-stream) 
+                   :body-or-stream
+                   (cond ((or want-stream
+                              (not body-to-string-p)
+                              (null body-or-stream))
+                          body-or-stream)
+                         (parse-json-p
+                          (json:decode-json-from-string
+                           (ensure-string-reply body-or-stream)))
+                         (t
+                          (ensure-string-reply body-or-stream)))
                    :status-code status-code
                    :headers headers
                    :uri uri
                    :stream stream
                    :must-close must-close
                    :reason-phrase reason-phrase)))
-
 
 (defun request-with-auth1 (app-id app-secret 
                            access-token access-secret 
