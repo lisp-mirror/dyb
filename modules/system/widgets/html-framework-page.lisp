@@ -162,12 +162,14 @@
                                                                       (js-pair "action" "cancel")))
                                                    "Cancel")))))))))))
 
-(defclass form-section (widget)
+(defclass dyb-form-section (widget)
   ((section-size :initarg :section-size
                  :initform 100
                  :accessor section-size)))
 
-(defmethod render ((widget form-section) &key label input label-for)
+(register-widget *dyb-theme* 'form-section 'dyb-form-section)
+
+(defmethod render ((widget dyb-form-section) &key label input label-for)
   (with-html
     (:div :class "control-group"
           (:label :class "control-label" :for label-for
