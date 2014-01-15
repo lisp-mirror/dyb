@@ -7,7 +7,7 @@
              :accessor preference))
   (:metaclass storable-versioned-class))
 
-(defclass permissions (doc)
+(defclass permission-template (doc)
   ((name :initarg :name
          :initform nil
          :accessor name) 
@@ -47,8 +47,8 @@
 (defun users-collection ()
   (get-collection (system-db) "users"))
 
-(defun permissions-collection ()
-  (get-collection (system-db) "permissions"))
+(defun permission-templates-collection ()
+  (get-collection (system-db) "permission-templates"))
 
 (defun users ()
   (docs (users-collection)))
@@ -85,8 +85,8 @@
 (defmethod doc-collection ((doc user))
   (users-collection))
 
-(defmethod doc-collection ((doc permissions))
-  (permissions-collection))
+(defmethod doc-collection ((doc permission-template))
+  (permission-templates-collection))
 
 (defmethod match-entities ((doc user) entities)
   (intersection (get-val doc 'accessible-entities) entities))
@@ -101,7 +101,7 @@
 (add-collection (system-db) "users" 
                 :collection-class 'dyb-collection)
 
-(add-collection (system-db) "permissions" 
+(add-collection (system-db) "permission-templates" 
                 :collection-class 'dyb-collection)
 
 

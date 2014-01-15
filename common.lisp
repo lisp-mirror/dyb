@@ -308,16 +308,6 @@
        (declare (ignore a b c))
        (values year month day)))))
 
-(defun make-icon (name &key (size 16)
-                            (title ""))
-  (let ((size (or size 16)))
-    (with-html
-      (:img :src (format nil "/img/icons/packs/fugue/~ax~a/~a.png"
-                         size size name)
-            :alt title
-            :title title
-            :width size :height size))))
-
 (defun box-header (text &key icon (icon-size 16)
                              (class "header")
                              collapsible

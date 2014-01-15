@@ -10,7 +10,10 @@
    :text
    :define-easy-handler
    :data
-   :next-sequence)
+   :next-sequence
+   :decode-date-string
+   :decode-date
+   :url-encode)
   (:shadowing-import-from :xdb2 id)
   (:export
    :with-html-to-string

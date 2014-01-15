@@ -152,7 +152,7 @@
             :accessor cb-list)))
 
 (defmethod render ((widget user-permission-editor) &key editor)
-  (let ((all-permissions (docs (permissions-collection)))
+  (let ((all-permissions (docs (permission-templates-collection)))
         (select (make-widget 'select :blank-allowed nil
                                      :name "permission-selector"))
         (cb-list (make-widget 'checkbox-list
