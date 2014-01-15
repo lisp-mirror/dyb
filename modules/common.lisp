@@ -3,7 +3,9 @@
 
 (defun ensure-string-reply (reply)
   (etypecase reply
-    (string reply)
+    (string (if (string-equal reply "")
+                nil
+                reply))
     ((vector (unsigned-byte 8)) (babel:octets-to-string reply))
     (null nil)))
 
@@ -64,7 +66,7 @@
                                            (if (ensure-string-reply body-or-stream)
                                                (json::decode-json-from-string
                                                 (ensure-string-reply body-or-stream))
-                                               "")
+                                               nil)
                                            (ensure-string-reply body-or-stream))
                                        body-or-stream) 
                    :status-code status-code
@@ -188,7 +190,7 @@
                (setf result (if (ensure-string-reply (body-or-stream request-result))
                                 (json:decode-json-from-string
                                  (ensure-string-reply (body-or-stream request-result)))
-                                "")))
+                                nil)))
            (unless (equal (status-code request-result) 200)
              ;;TODO: Add a parameter to say which api is handling gave the request 
              ;;instead of error path so that the error can be handled better.
@@ -213,7 +215,7 @@
                (setf result (if (ensure-string-reply request-result)
                                 (json:decode-json-from-string
                                  (ensure-string-reply request-result))
-                                "")))
+                                nil)))
            (when (and (consp result)
                       (or (assoc-path result error-path) 
                           (assoc-path result :error) 
@@ -241,7 +243,7 @@
                  (setf result (if (ensure-string-reply body)
                                   (json:decode-json-from-string
                                    (ensure-string-reply body))
-                                  ""))
+                                  nil))
                  (when (or (assoc-path result error-path) 
                            (assoc-path result :error) 
                            (assoc-path result :errors))
