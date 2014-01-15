@@ -5,7 +5,7 @@
   (etypecase reply
     (string reply)
     ((vector (unsigned-byte 8)) (babel:octets-to-string reply))
-    (null "")))
+    (null nil)))
 
 (defclass drakma-request-result ()
   ((body-or-stream :initarg :body-or-stream
@@ -185,8 +185,10 @@
           ((typep request-result 'drakma-request-result)
            (if (listp (body-or-stream request-result))
                (setf result (body-or-stream request-result))
-               (setf result (json:decode-json-from-string
-                             (ensure-string-reply (body-or-stream request-result)))))
+               (setf result (if (ensure-string-reply (body-or-stream request-result))
+                                (json:decode-json-from-string
+                                 (ensure-string-reply (body-or-stream request-result)))
+                                "")))
            (unless (equal (status-code request-result) 200)
              ;;TODO: Add a parameter to say which api is handling gave the request 
              ;;instead of error path so that the error can be handled better.
@@ -208,8 +210,10 @@
           (t
            (if (listp request-result)
                (setf result request-result)
-               (setf result (json:decode-json-from-string
-                             (ensure-string-reply request-result))))
+               (setf result (if (ensure-string-reply request-result)
+                                (json:decode-json-from-string
+                                 (ensure-string-reply request-result))
+                                "")))
            (when (and (consp result)
                       (or (assoc-path result error-path) 
                           (assoc-path result :error) 
@@ -234,8 +238,10 @@
             (funcall request-function)
           (declare (ignore header uri stream must-close))
           (cond (body
-                 (setf result (json:decode-json-from-string
-                               (ensure-string-reply body)))
+                 (setf result (if (ensure-string-reply body)
+                                  (json:decode-json-from-string
+                                   (ensure-string-reply body))
+                                  ""))
                  (when (or (assoc-path result error-path) 
                            (assoc-path result :error) 
                            (assoc-path result :errors))
