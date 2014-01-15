@@ -43,15 +43,14 @@
       (apply #'drakma:http-request uri :allow-other-keys t args)
     (make-instance 'drakma-request-result
                    :body-or-stream
-                   (cond ((or want-stream
-                              (not body-to-string-p)
-                              (null body-or-stream))
-                          body-or-stream)
-                         (parse-json-p
-                          (json:decode-json-from-string
-                           (ensure-string-reply body-or-stream)))
-                         (t
-                          (ensure-string-reply body-or-stream)))
+                   (if (or want-stream
+                           (not body-to-string-p)
+                           (null body-or-stream))
+                       body-or-stream
+                       (let ((string (ensure-string-reply body-or-stream)))
+                         (if (and string parse-json-p)
+                             (json:decode-json-from-string string)
+                             string)))
                    :status-code status-code
                    :headers headers
                    :uri uri
