@@ -5,7 +5,7 @@
   (etypecase reply
     (string reply)
     ((vector (unsigned-byte 8)) (babel:octets-to-string reply))
-    (null nil)))
+    (null "")))
 
 (defclass drakma-request-result ()
   ((body-or-stream :initarg :body-or-stream
@@ -61,8 +61,10 @@
     (make-instance 'drakma-request-result
                    :body-or-stream (if (and (not want-stream) body-to-string-p)
                                        (if parse-json-p
-                                           (json::decode-json-from-string
-                                            (ensure-string-reply body-or-stream))
+                                           (if (ensure-string-reply body-or-stream)
+                                               (json::decode-json-from-string
+                                                (ensure-string-reply body-or-stream))
+                                               "")
                                            (ensure-string-reply body-or-stream))
                                        body-or-stream) 
                    :status-code status-code
