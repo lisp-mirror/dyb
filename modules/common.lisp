@@ -1,9 +1,10 @@
 (in-package :dyb)
 
-
 (defun ensure-string-reply (reply)
   (etypecase reply
-    (string reply)
+    (string (if (string-equal reply "")
+                nil
+                reply))
     ((vector (unsigned-byte 8)) (babel:octets-to-string reply))
     (null nil)))
 
