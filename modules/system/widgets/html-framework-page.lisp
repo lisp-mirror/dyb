@@ -25,7 +25,7 @@
                      (format nil "widget-block span-~A" (grid-size box))
                      "widget-block")
           (:div :class "widget-head"
-                (:h3 (esc (header box)))
+                (:h5 (esc (header box)))
                 (when (header-content box)
                   (str (header-content box))))
           (:div :class "widget-content"
