@@ -1,8 +1,7 @@
 (in-package :dyb)
 
 (defclass user-grid (grid)
-  ()
-  (:default-initargs :edit-inline nil))
+  ())
 
 (defclass user-editor (widget)
   ((grid :initarg :grid
@@ -29,10 +28,10 @@
                            (get-val (current-user)
                                     'accessible-entities)))))))
 
-(defmethod handle-action ((grid user-grid) (action (eql 'new)))
+(defmethod handle-action ((grid user-grid) (action (eql :new)))
   (setf (editing-row grid) t))
 
-(defmethod handle-action ((grid user-grid) (action (eql 'save)))
+(defmethod handle-action ((grid user-grid) (action (eql :save)))
   (let* ((editor (edit-form grid))
          (user (user editor))
          (permission-editor (permission-editor editor)))
@@ -81,18 +80,18 @@
                (str (error-message editor)))))
       (render form-section
               :label "E-mail"
-              :input (with-html-to-string ()
+              :input (with-html-string
                        (render-edit-field "email" (or (parameter "email")
                                                       (and user (email user)))
                                           :required t)))
       (render form-section
               :label "Password"
-              :input (with-html-to-string ()
+              :input (with-html-string
                        (render-edit-field "password" (parameter "password")
                                           :type :password)))
       (render form-section
               :label "Repeat password"
-              :input (with-html-to-string ()
+              :input (with-html-string
                        (render-edit-field "repeat" (parameter "repeat")
                                           :type :password))))))
 
@@ -153,7 +152,7 @@
             :accessor cb-list)))
 
 (defmethod render ((widget user-permission-editor) &key editor)
-  (let ((all-permissions (docs (permissions-collection)))
+  (let ((all-permissions (docs (permission-templates-collection)))
         (select (make-widget 'select :blank-allowed nil
                                      :name "permission-selector"))
         (cb-list (make-widget 'checkbox-list

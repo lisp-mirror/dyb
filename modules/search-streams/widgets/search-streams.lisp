@@ -3,8 +3,7 @@
 
 (defclass search-streams-grid (grid)
   ((parent-grid :initarg :parent-grid)
-   (current-doc :initarg nil))
-  (:default-initargs :edit-inline nil))
+   (current-doc :initarg nil)))
 
 
 (defun get-search-streams-data (grid &key filter search)
@@ -36,19 +35,19 @@
     (render form
              :grid grid
              :content
-             (with-html-to-string ()   
+             (with-html-string   
                (render form-section 
                        :label "Entity"
                        :input 
                        (if (get-val row 'entity)
-                           (with-html-to-string ()
+                           (with-html-string
                              (render-edit-field
                               "entity-name"  
                               (get-val (get-val row 'entity) 'entity-name)
                               :type :span)
                              (:input :type "hidden" :name "entity-xid" 
                                      :value (get-val (get-val row 'entity) 'xid)))
-                           (with-html-to-string ()
+                           (with-html-string
                              (render-edit-field
                               "entity" 
                               (get-val (get-val row 'entity) 'xid)
@@ -58,7 +57,7 @@
                               :type :select))))
                (render form-section 
                        :label "Description"
-                       :input (with-html-to-string ()
+                       :input (with-html-string
                                 (render-edit-field 
                                  "description" 
                                  (get-val row 'description)
@@ -66,7 +65,7 @@
 
                (render form-section 
                        :label "Type"
-                       :input (with-html-to-string ()
+                       :input (with-html-string
                                 (render-edit-field 
                                  "search-stream-type" 
                                  (get-val row 'search-stream-type)
@@ -77,7 +76,7 @@
                                  :type :select)))
                (render form-section 
                        :label "Search"
-                       :input (with-html-to-string ()
+                       :input (with-html-string
                                 (render-edit-field 
                                  "search-stream" 
                                  (get-val row 'search-stream)
@@ -85,7 +84,7 @@
 
                (render form-section 
                        :label "Status"
-                       :input (with-html-to-string ()
+                       :input (with-html-string
                                 (render-edit-field 
                                  "search-stream-status" 
                                  (get-val row 'search-stream-status)
@@ -97,7 +96,7 @@
                
 ))))
 
-(defmethod handle-action ((grid search-streams-grid) (action (eql 'save)))
+(defmethod handle-action ((grid search-streams-grid) (action (eql :save)))
   (when (string-equal (parameter "entity") "")
     (setf (error-message grid) "Select an Entity."))
 

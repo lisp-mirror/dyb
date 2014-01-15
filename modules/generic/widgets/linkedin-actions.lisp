@@ -26,7 +26,7 @@
       (when (parameter "action")
           (render like-form
                   :content
-                  (with-html-to-string ()
+                  (with-html-string
                     (:div 
                      (:input :type "hidden" :name "linkedin-update-id" 
                              :value linkedin-update-id)
@@ -34,7 +34,7 @@
                      (render form-section 
                              :label "As User"
                              :input 
-                             (with-html-to-string ()
+                             (with-html-string
                                (render-edit-field
                                 "user-id" 
                                 (parameter "user-id")
@@ -43,7 +43,7 @@
                                 :type :select))))))
           (str (get-val widget 'message))))))
 
-(defmethod handle-action ((grid generic-grid) (action (eql 'like-linkedin-form)))
+(defmethod handle-action ((grid generic-grid) (action (eql :like-linkedin-form)))
   (setf (action-widget grid)
         (make-widget 'linkedin-like-form 
                      :grid grid 
@@ -99,7 +99,7 @@
       (when (parameter "action")
         (render like-form
                 :content
-                (with-html-to-string ()
+                (with-html-string
                   (:div 
                    (:input :type "hidden" :name "linkedin-update-id" 
                            :value linkedin-update-id)
@@ -107,7 +107,7 @@
                    (render form-section 
                            :label "As User"
                            :input 
-                           (with-html-to-string ()
+                           (with-html-string
                              (render-edit-field
                               "user-id" 
                               (parameter "user-id")
@@ -117,7 +117,7 @@
                    (render form-section 
                            :label "Comment"
                            :input 
-                           (with-html-to-string ()
+                           (with-html-string
                              (render-edit-field
                               "message" 
                               (parameter "message")
@@ -125,7 +125,7 @@
                               :type :textarea))))))
         (str (get-val widget 'message))))))
 
-(defmethod handle-action ((grid generic-grid) (action (eql 'comment-linkedin-form)))
+(defmethod handle-action ((grid generic-grid) (action (eql :comment-linkedin-form)))
   (setf (action-widget grid)
         (make-widget 'linkedin-comment-form 
                      :grid grid 

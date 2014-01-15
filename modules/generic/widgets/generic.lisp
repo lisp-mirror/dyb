@@ -4,8 +4,7 @@
   ()
   (:metaclass widget-class)
   (:include-css "/appcss/posts.css")
-  (:default-initargs :edit-inline nil
-                     :not-sorting-columns '(1)))
+  (:default-initargs :not-sorting-columns '(1)))
 
 (defmethod list-grid-filters ((grid generic-grid))
   '(facebook
@@ -35,7 +34,7 @@
   (with-html
     "Grid Action"))
 
-(defmethod handle-action ((grid generic-grid) (action (eql 'block-user)))
+(defmethod handle-action ((grid generic-grid) (action (eql :block-user)))
   (setf (action-widget grid)
         (make-widget 'grid-action :grid grid :name "XXX")))
 
@@ -79,7 +78,7 @@
             :accessor message))
   (:metaclass widget-class))
 
-(defmethod handle-action ((grid generic-grid) (action (eql 'new)))
+(defmethod handle-action ((grid generic-grid) (action (eql :new)))
   (setf (action-widget grid)
         (make-widget 'post-form
                      :grid grid

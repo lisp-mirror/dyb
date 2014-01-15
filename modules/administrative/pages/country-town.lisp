@@ -25,7 +25,6 @@
                           :printer #'gps-cord-formatter)))
          (grid (make-widget 'country-town-grid :name "country-town-gridxx"
                             :columns columns
-                            :edit-inline nil
                             :title "Country/Town"
                             :row-object-class 'country-town)))
     (setf (sort-key-function grid)

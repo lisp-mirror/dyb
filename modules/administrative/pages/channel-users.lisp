@@ -27,7 +27,6 @@
                                               token))))))
          (grid (make-widget 'channel-user-grid :name "channel-user-grid"
                                        :columns columns
-                                       :edit-inline nil
                                        :title "Channel User"
                                        :row-object-class 'channel-user)))
     (setf (get-val grid 'grid-links) 

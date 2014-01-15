@@ -5,11 +5,17 @@
 (defclass dyb-acceptor (site-acceptor)
   ())
 
+(defclass dyb-theme (widget-theme)
+  ())
+
+(defvar *dyb-theme* (make-instance 'dyb-theme))
+
 (defvar *dx-acceptor*
   (make-dx-site 'dyb-acceptor
                 :port 8090
                 :site-url "/dyb/"
-                :debug-errors-p t))
+                :debug-errors-p t
+                :theme *dyb-theme*))
 
 (defmacro define-easy-handler (description lambda-list &body body)
   `(define-dx-handler *dx-acceptor* ,description ,lambda-list
@@ -23,7 +29,7 @@
   (let ((title (frmt "Error - ~a" (script-name*))))
     (render (make-widget 'page :name "error" :title title)
             :body
-            (with-html-to-string ()
+            (with-html-string
               (:div :class "error-description"
                     (:strong :style "color: red;"
                              "Error: ")
@@ -34,7 +40,7 @@
     (render (make-widget 'page :name "permission-error"
                                :title title)
             :body
-            (with-html-to-string ()
+            (with-html-string
               (:div :class "permission-error"
                     (esc title))))))
 

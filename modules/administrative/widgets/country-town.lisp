@@ -2,8 +2,7 @@
 
 (defclass municipalities-grid (grid)
   ((parent-grid :initarg :parent-grid)
-   (country-town-doc :initarg nil))
-  (:default-initargs :edit-inline nil))
+   (country-town-doc :initarg nil)))
 
 
 (defmethod get-rows ((grid municipalities-grid))  
@@ -25,24 +24,24 @@
     (render form
             :grid grid
             :content
-            (with-html-to-string ()                            
+            (with-html-string                            
               (render form-section 
                       :label "District Municipality"
                       :input 
-                      (with-html-to-string ()
+                      (with-html-string
                         (render-edit-field "district-municipality" 
                                            (get-val row 'district-municipality)
                                            :required t)))
               (render form-section 
                       :label "Local Municipality"
                       :input 
-                      (with-html-to-string ()
+                      (with-html-string
                         (render-edit-field "local-municipality" 
                                            (get-val row 'local-municipality)
                                            :required t)))))))
 
 
-(defmethod handle-action ((grid municipalities-grid) (action (eql 'save))) 
+(defmethod handle-action ((grid municipalities-grid) (action (eql :save))) 
   (when (string-equal (parameter "form-id") "municipalities-edit-form")
     (let ((old-country-town (copy (get-val grid 'country-town-doc)))
           (new-country-town (get-val grid 'country-town-doc))
@@ -64,8 +63,7 @@
     (finish-editing grid)))
 
 (defclass country-town-grid (grid)
-  ()
-  (:default-initargs :edit-inline nil))
+  ())
 
 (defmethod list-grid-filters ((grid country-town-grid))
   '(with-audit-data))
@@ -113,22 +111,22 @@
           (list
            (list 
             "Country/Town"
-            (with-html-to-string ()
+            (with-html-string
               (:div :class "section _100" 
                     (render form
                             :grid grid
                             :content
-                            (with-html-to-string ()
+                            (with-html-string
                               (render form-section 
                                       :label "Country"
-                                      :input (with-html-to-string ()
+                                      :input (with-html-string
                                                (render-edit-field 
                                                 "country" 
                                                 (get-val row 'country))))
                               
                               (render form-section 
                                       :label "Province"
-                                      :input (with-html-to-string ()
+                                      :input (with-html-string
                                                (render-edit-field 
                                                 "province" 
                                                 (get-val row 'province))))
@@ -136,14 +134,14 @@
 
                               (render form-section 
                                       :label "Town"
-                                      :input (with-html-to-string ()
+                                      :input (with-html-string
                                                (render-edit-field 
                                                 "town" 
                                                 (get-val row 'town))))
 
                               (render form-section 
                                       :label "Longitude"
-                                      :input (with-html-to-string ()
+                                      :input (with-html-string
                                                (render-edit-field 
                                                 "longitude" 
                                                 (gps-cord-formatter (get-val row 'longitude))
@@ -152,7 +150,7 @@
 
                               (render form-section 
                                       :label "Latitude"
-                                      :input (with-html-to-string ()
+                                      :input (with-html-string
                                                (render-edit-field 
                                                 "latitude" 
                                                 (gps-cord-formatter (get-val row 'latitude))
@@ -161,7 +159,7 @@
 
                               (render form-section 
                                       :label "Guess"
-                                      :input (with-html-to-string ()
+                                      :input (with-html-string
                                                (render-edit-field 
                                                 "Guess" 
                                                 (get-val row 'guess-p)
@@ -171,7 +169,7 @@
                                                 :type :select))))))))
            (list 
             "Municipalities"
-            (with-html-to-string ()
+            (with-html-string
               (:div :class "section _100" 
                     (let* ((columns
                             (list
@@ -184,7 +182,6 @@
                            (municipalities-grid (make-widget 'municipalities-grid 
                                                              :name "mine-municipalities-gridxxx"
                                                              :columns columns
-                                                             :edit-inline nil
                                                              :title "Municipalities"
                                                              :row-object-class 'municipality )))
 
@@ -196,7 +193,7 @@
                       (render municipalities-grid)))))))
     (render tab-box)))
 
-(defmethod handle-action ((grid country-town-grid) (action (eql 'save)))
+(defmethod handle-action ((grid country-town-grid) (action (eql :save)))
   (when (string-equal (parameter "form-id") "country-town-form")  
     (let ((old-doc (copy (editing-row grid)))
           (new-doc (editing-row grid)))

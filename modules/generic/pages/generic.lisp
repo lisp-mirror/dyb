@@ -3,7 +3,7 @@
 
 (defun social-mention-display (grid row col-val row-id)
  ; (break "~A" col-val)
-  (with-html-to-string ()
+  (with-html-string
     (:div :class "nonboxy-widget"
           ;; (:div :class "widget-head")
           (:div :class "widget-content" :style "background:white;"
@@ -40,7 +40,7 @@
 (defun twitter-post-display (grid row col-val row-id)
 ;;  (if (search "t.co" (gpv col-val :text)  )
 ;;      (break "~A" col-val))
- (with-html-to-string ()
+ (with-html-string
     (:div 
      :class "nonboxy-widget"
      (:div 
@@ -103,7 +103,7 @@
 (defun facebook-post-display (grid row col-val row-id)
   (declare (ignore row))
 ;;(break "~A" col-val)
-  (with-html-to-string ()
+  (with-html-string
     (:div 
      :class "nonboxy-widget"
      (:div 
@@ -192,7 +192,7 @@
 
 (defun linkedin-post-display (grid row col-val row-id)
 ;;(break "~A~%~A" col-val (gpv col-val :timestamp))
-  (with-html-to-string ()
+  (with-html-string
     (:div 
      :class "nonboxy-widget"
      (:div 
@@ -243,14 +243,14 @@
 
 (defun display-image (payload)
   (cond ((string-equal "t" "") 
-         (with-html-to-string ()
+         (with-html-string
            (:div :class "post-image-thumb"
                  (:a :href "#" :title "Click to view the full size image"
                      ;;(:img :src "")
                      ))
            ))
         ((gpv payload :favicon)
-         (with-html-to-string ()
+         (with-html-string
            (if (gpv payload :image)
                (htm
                 (:div :class "post-image-thumb"
@@ -260,7 +260,7 @@
                           ))))
            ))
         ((gpv payload :update-type)
-         (with-html-to-string ()
+         (with-html-string
            (let ((image (or
                          (gpv payload :update-content :person :current-share :content :thumbnail-url)
                          (gpv payload :update-content :company-status-update :share :content :thumbnail-url))))
@@ -274,7 +274,7 @@
            )
          )
         (t
-         (with-html-to-string ()
+         (with-html-string
            (if (gpv payload :picture)
                (htm
                 (:div :class "post-image-thumb"
@@ -289,7 +289,7 @@
 
 (defun get-profile-pic (grid row payload row-id)
   (cond ((string-equal (get-val row 'post-type) "Twitter")
-             (with-html-to-string ()
+             (with-html-string
                        (:span :class "post-source" 
                               (:a
                                :class "post-title"        
@@ -304,7 +304,7 @@
            ; ((string-equal (get-val row 'post-type) "Social Mention")
            ;  (social-mention-display grid row payload row-id))
             ((string-equal (get-val row 'post-type) "LinkedIn")
-             (with-html-to-string ()
+             (with-html-string
                        (:span :class "user-thumb" 
                               (:a
                                :class "post-title"
@@ -326,7 +326,7 @@
                                               "/appimg/user-thumb.png"))))
                        ))
             ((string-equal (get-val row 'post-type) "Facebook")
-             (with-html-to-string ()
+             (with-html-string
                        (:span :class "post-source" 
                               (:a
                                :class "post-title"
@@ -341,7 +341,7 @@
                                          "/appimg/user-thumb.png"))))
                        ))
             ((string-equal (get-val row 'post-type) "Social-Mention")
-             (with-html-to-string ()
+             (with-html-string
                        (:span :class "user-thumb" 
                               (:a
                                :class "post-title"
@@ -353,7 +353,7 @@
                        ))
             (t
              (break "~A" row)
-                     (with-html-to-string ()
+                     (with-html-string
                        (:span :class "post-source" 
                               (:img :src "/appimg/user-thumb.png"))
                        ))))
@@ -372,22 +372,22 @@
             :printer 
             (lambda (source)
               (cond ((equal source 'twitter)
-                     (with-html-to-string ()
+                     (with-html-string
                        (:span :class "post-source" 
                               (:img :src "/appimg/twitter-bird-white-on-blue.png"))
                        ))
                     ((equal source 'facebook)
-                     (with-html-to-string ()
+                     (with-html-string
                        (:span :class "post-source" 
                               (:img :src "/appimg/Facebook_Light_Logo.png"))
                        ))
                     ((equal source 'social-mention)
-                     (with-html-to-string ()
+                     (with-html-string
                        (:span :class "post-source" 
                               (:img :src "/appimg/social-mention.png"))
                        ))
                     ((equal source 'linkedin)
-                     (with-html-to-string ()
+                     (with-html-string
                        (:span :class "post-source" 
                               (:img :src "/appimg/linkedin-icon.png"))
                        ))))
@@ -417,7 +417,6 @@
            
            (grid (make-widget 'generic-grid :name "generic-post-gridxx"
                               ;;:columns columns
-                              :edit-inline nil
                               :title "Inbox"
                               :row-object-class 'generic-post)))
     (setf (get-val grid 'columns) columns)
@@ -452,7 +451,7 @@
     (setf (initial-sort-column grid) '(3 :descending))
     
     (render (make-widget 'page :name "generic-page")
-            :body (with-html-to-string ()
+            :body (with-html-string
                    
                     (str (render grid))))))
 
@@ -474,7 +473,6 @@
                            (action-grid (make-widget 'generic-actions-grid 
                                                       :name "generic-actions-grid"
                                                       :columns columns
-                                                      :edit-inline nil
                                                       :title "Actions"
                                                       :row-object-class 'generic-action)))
 
@@ -482,7 +480,7 @@
             
             
                      (render (make-widget 'page :name "scheduled-page")
-                             :body (with-html-to-string ()
+                             :body (with-html-string
                                      
                                      (str (render action-grid))))
                      ))

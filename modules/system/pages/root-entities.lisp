@@ -9,7 +9,6 @@
             ))
          (grid (make-widget 'root-entities-grid :name "root-entities-gridxx"
                                        :columns columns
-                                       :edit-inline nil
                                        :title "Root-Entities"
                                        :row-object-class 'entity)))
     

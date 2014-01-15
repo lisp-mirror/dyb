@@ -4,7 +4,6 @@
   :depends-on (wfx
                hunchentoot
                cl-who
-               dx-base-site
                dx-utils
                postmodern
                simple-date
@@ -64,7 +63,7 @@
                     :components
                             ((:file "ajax")
                              (:file "allsorts")
-                             (:file "grid")
+                             (:file "grid2")
                              (:file "tree")
                              (:file "entity-tree")
                              (:file "entity-selection-tree")

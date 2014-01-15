@@ -1,8 +1,7 @@
 (in-package :dyb)
 
 (defclass address-grid (grid)
-  ()
-  (:default-initargs :edit-inline nil))
+  ())
 
 (defmethod get-rows ((grid address-grid))
 ; (break "~A" "Pong")
@@ -40,5 +39,5 @@
 (defmethod render-row-editor ((grid address-grid) row)
   (finish-editing grid))
 
-(defmethod handle-action ((grid address-grid) (action (eql 'save)))
+(defmethod handle-action ((grid address-grid) (action (eql :save)))
   (finish-editing grid))

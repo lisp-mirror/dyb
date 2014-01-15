@@ -9,7 +9,6 @@
             ))
          (grid (make-widget 'clients-grid :name "clients-gridxx"
                                        :columns columns
-                                       :edit-inline nil
                                        :title "Clients"
                                        :row-object-class 'entity)))
     

@@ -27,7 +27,7 @@
       (when (parameter "action")
         (render comment-form
                 :content
-                (with-html-to-string ()
+                (with-html-string
                   (:div 
                    (:input :type "hidden" :name "post-id" 
                            :value post-id)
@@ -35,7 +35,7 @@
                    (render form-section 
                            :label "As User"
                            :input 
-                           (with-html-to-string ()
+                           (with-html-string
                              (render-edit-field
                               "user-id" 
                               (parameter "user-id")
@@ -46,7 +46,7 @@
                    (render form-section 
                            :label "Comment"
                            :input 
-                           (with-html-to-string ()
+                           (with-html-string
                              (render-edit-field
                               "comment" 
                               (parameter "comment")
@@ -81,7 +81,7 @@
          result
          error-message)))))
 
-(defmethod handle-action ((grid generic-grid) (action (eql 'facebook-comment)))
+(defmethod handle-action ((grid generic-grid) (action (eql :facebook-comment)))
 
   (setf (action-widget grid)
         (make-widget 'fb-post-comment-form 
@@ -116,7 +116,7 @@
       (when (parameter "action")
         (render like-form
                 :content
-                (with-html-to-string ()
+                (with-html-string
                   (:div 
                    (:input :type "hidden" :name "post-id" 
                            :value post-id)
@@ -124,7 +124,7 @@
                    (render form-section 
                            :label "As User"
                            :input 
-                           (with-html-to-string ()
+                           (with-html-string
                              (render-edit-field
                               "user-id" 
                               (parameter "user-id")
@@ -133,7 +133,7 @@
                               :type :select))))))
         (str (get-val widget 'message))))))
 
-(defmethod handle-action ((grid generic-grid) (action (eql 'post-facebook-like)))
+(defmethod handle-action ((grid generic-grid) (action (eql :post-facebook-like)))
   (setf (action-widget grid)
         (make-widget 'fb-like-post-form 
                      :grid grid 

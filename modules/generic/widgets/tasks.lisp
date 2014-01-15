@@ -111,7 +111,7 @@
                          :type :date
                          :required t)))))))
 
-(defmethod handle-action ((grid generic-grid) (action (eql 'assign-task-form)))
+(defmethod handle-action ((grid generic-grid) (action (eql :assign-task-form)))
   (setf (action-widget grid)
         (make-widget 'assign-task-action :name "assign-task-action-form"
                                          :grid grid)))

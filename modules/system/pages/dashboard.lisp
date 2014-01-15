@@ -732,7 +732,7 @@
               -100))))
 
 (defun interval-selection ()
-  (with-html-to-string ()
+  (with-html-string
     (:div :class "row-fluid"
           (:div :class "nonboxy-widget"
                 (:div :class "widget-head"
@@ -827,7 +827,7 @@
                       )))))
 
 (defun dashboard-overview ()
-  (with-html-to-string ()
+  (with-html-string
     ))
 
 
@@ -1681,7 +1681,7 @@
 
 
 (defun reach-small-graph ()
-  (with-html-to-string ()
+  (with-html-string
    (let* ((prev (+  
                  (or-zero (reverse (gv '(gv 'fb-fans-interval-prev-list))))
                  (gv 'fb-page-impressions-prev-count)
@@ -1713,7 +1713,7 @@
            :tooltip "FB-Fans + FB-Page-Impressions + TW-Followers + (TW-Followers * Scheduled-Tweets) + Retweets + TW-Mentions")))))
 
 (defun activity-small-graph ()
-  (with-html-to-string ()
+  (with-html-string
     (str (dash-small-stat-graph 
           "Activity"
           "unique-visits"
@@ -1727,7 +1727,7 @@
           :tooltip "Posts Scheduled"))))
 
 (defun engagement-small-graph ()
-  (with-html-to-string ()
+  (with-html-string
     (str (let ((prev (+ (gv 'fb-post-likes-prev-count)                                                    
                         (gv 'fb-comments-made-prev-count)
                         (gv 'twitter-retweets-prev)
@@ -1749,7 +1749,7 @@
             :tooltip "FB-Post-Likes + FB-Comments + Retweets + TW-Mentions + Clicks")))))
 
 (defun engagement-pie-graph ()
-  (with-html-to-string ()
+  (with-html-string
     (str (%engagement-graph `((("Post Likes" ,(gv 'fb-post-likes-count))
                               ("Shortner Clicks" ,(gv 'short-url-clicks-count))
                               ("Comments" ,(gv 'fb-comments-made-count))
@@ -1768,7 +1768,7 @@
                                    (gv 'twitter-at-mentions-count))))))
 
 (defun current-community-size ()
-  (with-html-to-string ()
+  (with-html-string
       (:div :class "summary"
             (:h4 "CURRENT COMMUNITY SIZE")
             (:br)
@@ -1883,7 +1883,7 @@
 
   (defun fb-new-page-likes-graph ()
     
-    (with-html-to-string ()
+    (with-html-string
       (str (board-stats  
             (create-bar-range-string 
              (gv 'fb-fans-adds-interval-list) 7) 
@@ -1909,7 +1909,7 @@
    :span "span12"))
 
 (defun fb-page-impressions-graph ()
-  (with-html-to-string ()
+  (with-html-string
     (str (board-stats 
           (create-bar-range-string 
            (gv 'fb-impressions-interval-list) 7)
@@ -1933,7 +1933,7 @@
    :span "span12"))
 
 (defun fb-total-fans-graph ()
-  (with-html-to-string ()
+  (with-html-string
     (str (board-stats 
           (create-bar-range-string 
            (gv 'fb-fans-interval-list) 7)
@@ -1958,7 +1958,7 @@
    :span "span12"))
 
 (defun fb-page-unlikes-graph ()
-  (with-html-to-string ()
+  (with-html-string
     (str (board-stats  
           (create-bar-range-string 
            (gv 'fb-fans-removes-interval-list) 7) 
@@ -1982,7 +1982,7 @@
    :span "span12"))
 
 (defun tw-new-followers-graph ()
-  (with-html-to-string ()
+  (with-html-string
     (str 
      (let ((new-followers (strip-dates-from-range 
                            (reverse (gv 'twitter-followers-interval-list)) 8)))
@@ -2053,7 +2053,7 @@
 
 
 (defun tw-impressions-graph ()
-  (with-html-to-string ()
+  (with-html-string
     (str 
      (let* ((tweets-followers 
              (multiply-ranges (list (gv 'tweets-scheduled-list)
@@ -2099,7 +2099,7 @@
    :span "span12"))
 
 (defun tw-total-fans-graph ()
-  (with-html-to-string ()
+  (with-html-string
     (str
      (board-stats (create-bar-range-string 
                    (gv 'twitter-followers-interval-list) 7)
@@ -2124,7 +2124,7 @@
    :span "span12"))
 
 (defun tw-un-followed-graph ()
-  (with-html-to-string ()
+  (with-html-string
     (str 
      (let ((new-followers (strip-dates-from-range 
                            (reverse (gv 'twitter-followers-interval-list)) 8)))
@@ -2173,7 +2173,7 @@
                         )))
 
 (defun user-stats-html (user-stats)
-  (with-html-to-string ()
+  (with-html-string
     (:div :class "span8"
           (:div :class "nonboxy-widget"
                 (:div :class "table_content"
@@ -2249,7 +2249,7 @@
                                           (incf count))))))))))
 
 (defun content-stats-html (content-stats)
-  (with-html-to-string ()
+  (with-html-string
     (:div :class "span12"
           (:div :class "nonboxy-widget"
                 (:div :class "table_content"
@@ -2352,7 +2352,7 @@
 
 
 (defun mentioner-stats-html (mentioner-stats)
-  (with-html-to-string ()
+  (with-html-string
     (:div :class "span8"
           (:div :class "nonboxy-widget"
                 (:div :class "table_content"
@@ -2405,7 +2405,7 @@
       (with-html
         (render page
                 :body 
-                (with-html-to-string ()
+                (with-html-string
                   (:div :class "container-fluid"
                         (str (interval-selection))
                         (:div :class "row-fluid"

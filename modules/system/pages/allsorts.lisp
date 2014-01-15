@@ -27,7 +27,6 @@
 
          (grid (make-widget 'all-sorts-grid :name "all-sorts-grid"
                                        :columns columns
-                                       :edit-inline nil
                                        :title "All-Sorts"
                                        :row-object-class 'allsort)))
     (setf (sort-key-function grid)

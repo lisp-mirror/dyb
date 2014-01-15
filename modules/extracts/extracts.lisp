@@ -222,7 +222,7 @@
 
 
 (defun make-path-dir (file-name)  
-  (with-html-to-string ()    
+  (with-html-string    
     
     (register-extract-file file-name)
     (htm (str "Download the extracted file:  ") 
@@ -261,7 +261,7 @@
   (render (make-widget 'page :name "extracts-page"
                        :title "Extracts")
           :body
-          (with-html-to-string ()
+          (with-html-string
             (htm   
              (:form :action "" :method "post" 
                     (render (make-widget 'select :name "xextract-select" 

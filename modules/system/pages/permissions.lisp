@@ -2,8 +2,7 @@
 
 (defclass permission-grid (grid)
   ()
-  (:default-initargs :edit-inline nil
-                     :row-object-class 'permissions))
+  (:default-initargs :row-object-class 'permission-template))
 
 (defclass permission-editor (grid-edit-form ajax-widget)
   ((grid :initarg :grid
@@ -17,9 +16,9 @@
                 :accessor permissions)))
 
 (defmethod get-rows ((grid permission-grid))
-  (setf (rows grid) (docs (permissions-collection))))
+  (setf (rows grid) (docs (permission-templates-collection))))
 
-(defmethod handle-action ((grid permission-grid) (action (eql 'save)))
+(defmethod handle-action ((grid permission-grid) (action (eql :save)))
   (setf (permission-list (editing-row grid))
         (mapcar #'list (value (cb-list (edit-form grid)))))
   (persist (editing-row grid))

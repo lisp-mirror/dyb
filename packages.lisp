@@ -2,24 +2,25 @@
   (:use :cl
         :sb-mop
         :wfx
-        :cl-who
-        :dx-base-site
         :dx-utils
+        :cl-who
         :hunchentoot
         :xdb2)
   (:shadow
    :text
    :define-easy-handler
    :data
-   :next-sequence)
-  
+   :next-sequence
+   :decode-date-string
+   :decode-date
+   :url-encode)
+  (:shadowing-import-from :xdb2 id)
   (:export
    :with-html-to-string
    :with-html
    :with-html-string
    :*public-dir*
    :page
-   :input-widget
    :value
    :checkbox-list
    :checkboxes

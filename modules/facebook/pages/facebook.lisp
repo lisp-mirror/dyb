@@ -72,7 +72,6 @@
  ))
          (grid (make-widget 'post-grid :name "facebook"
                                        :columns columns
-                                       :edit-inline nil
                                        :title "Facebook Inbox"
                                        :row-object-class 'post)))
     

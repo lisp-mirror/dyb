@@ -1,8 +1,7 @@
 (in-package :dyb)
 
 (defclass period-grid (grid)
-  ()
-  (:default-initargs :edit-inline nil))
+  ())
 
 (defmethod list-grid-filters ((grid period-grid))
   '(status with-audit-data))
@@ -57,21 +56,21 @@
     (render form
              :grid grid
              :content
-             (with-html-to-string ()   
+             (with-html-string   
                
                
                (render form-section 
                        :label "Entity"
                        :input 
                        (if (get-val row 'entity)
-                           (with-html-to-string ()
+                           (with-html-string
                              (render-edit-field
                               "mine-entity-name"  
                               (get-val (get-val row 'entity) 'entity-name)
                               :type :span)
                              (:input :type "hidden" :name "mine-entity-xid" 
                                      :value (get-val (get-val row 'entity) 'xid)))
-                           (with-html-to-string ()
+                           (with-html-string
                              (render-edit-field
                               "mine-entity" 
                               (get-val (get-val row 'entity) 'xid)
@@ -81,7 +80,7 @@
 
                (render form-section 
                        :label "Period Name"
-                       :input (with-html-to-string ()
+                       :input (with-html-string
                                 (render-edit-field 
                                  "period-name" 
                                  (get-val row 'period-name)
@@ -89,7 +88,7 @@
 
                (render form-section 
                        :label "Period Type"
-                       :input (with-html-to-string ()
+                       :input (with-html-string
                                 (render-edit-field 
                                  "period-type" 
                                  (get-val row 'period-type)
@@ -97,14 +96,14 @@
 
                (render form-section 
                        :label "Description"
-                       :input (with-html-to-string ()
+                       :input (with-html-string
                                 (render-edit-field
                                  "description" 
                                  (get-val row 'description))))
 
                (render form-section 
                        :label "Start Date"
-                       :input (with-html-to-string ()
+                       :input (with-html-string
                                 (render-edit-field 
                                  "start-date"
                                  (format-universal-date 
@@ -114,7 +113,7 @@
 
                (render form-section 
                        :label "End Date"
-                       :input (with-html-to-string ()
+                       :input (with-html-string
                                 (render-edit-field 
                                  "end-date"
                                  (format-universal-date 
@@ -124,7 +123,7 @@
 
                (render form-section 
                        :label "Status"
-                       :input (with-html-to-string ()
+                       :input (with-html-string
                                 (render-edit-field 
                                  "status" 
                                  (get-val row 'status)
@@ -143,7 +142,7 @@
                (string-equal (get-val doc 'period-name) period-name)))))
 
 
-(defmethod handle-action ((grid period-grid) (action (eql 'save)))  
+(defmethod handle-action ((grid period-grid) (action (eql :save)))  
   (when (string-equal (parameter "form-id") "reporting-period-form")
     (if (and
          (not (get-val (editing-row grid) 'xid))
@@ -214,6 +213,6 @@
                           (format-universal-date (get-val doc 'end-date))
                           (get-val doc 'status)))))))
 
-(defmethod handle-action ((grid period-grid) (action (eql 'cancel)))
+(defmethod handle-action ((grid period-grid) (action (eql :cancel)))
   (finish-editing grid))
 

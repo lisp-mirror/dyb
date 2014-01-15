@@ -1,11 +1,13 @@
 (in-package :dyb)
 
-(defclass chained-select (input-widget)
+(defclass chained-select (input)
   ((select-names :initarg :select-names
 		 :initform ()
 		 :accessor select-names)
    (selects :initform ()
             :accessor selects)))
+
+(defmethod render ((widget chained-select) &key))
 
 (defclass chained-select-sub-select (select ajax-widget)
   ((chained-select :initarg :chained-select
@@ -122,8 +124,6 @@
   ()
   (:metaclass widget-class)
   (:default-initargs :select-names '(service channel-user)))
-
-
 
 (defun get-channel-users (service)
   (loop for doc across (docs (channel-users-collection))

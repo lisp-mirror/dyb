@@ -12,36 +12,22 @@
           (:span :class "hide" "x")
           (:span (esc alert)))))
 
-(defclass html-framework-box (widget)
+(defclass html-framework-box (box)
   ((grid-size :initarg :grid-size
               :initform nil
-              :accessor grid-size)
-   (header :initarg :header
-           :initform nil
-           :accessor header)
-   (header-content :initarg :header-content
-                   :initform nil
-                   :accessor header-content)
-   (icon :initarg :icon
-         :initform nil
-         :accessor icon)
-   (icon-size :initarg :icon-size
-              :initform 16
-              :accessor icon-size)
-   (content :initarg :content
-            :initform nil
-            :accessor content)
-   (collapsible :initarg :collapsible
-                :initform t
-                :accessor collapsible)))
+              :accessor grid-size)))
+
+(register-widget *dyb-theme* 'box 'html-framework-box)
 
 (defmethod render ((box html-framework-box) &key)
   (with-html
-    (:div :class (if (get-val box 'grid-size)
-                     (format nil "widget-block span-~A" (get-val box 'grid-size))
+    (:div :class (if (grid-size box)
+                     (format nil "widget-block span-~A" (grid-size box))
                      "widget-block")
           (:div :class "widget-head"
-                (:h3 (esc (header box))))
+                (:h3 (esc (header box)))
+                (when (header-content box)
+                  (str (header-content box))))
           (:div :class "widget-content"
                 (:div :class "widget-box"
                       (str (content box)))))))
@@ -748,10 +734,10 @@ if (okToRefresh)
     (setf (slot-value page 'body-class) "special_page")
     (render page
             :styling
-            (with-html-to-string ()
+            (with-html-string
               (:link :rel "stylesheet" :href "/css/special-page.css"))
             :body
-            (with-html-to-string ()
+            (with-html-string
               (:div :class "top"
                     (:div :class "gradient")
                     (:div :class "white")
@@ -763,7 +749,24 @@ if (okToRefresh)
                           (str body)
                           (:div :class "shadow"))))
             :bottom-java-script
-            (with-html-to-string ()
+            (with-html-string
               "<script defer src=\"/js/mylibs/jquery.validate.js\"></script>
                 <script defer src=\"/js/mylibs/jquery.jgrowl.js\"></script>
                 <script defer src=\"/js/mylibs/jquery.checkbox.js\"></script>"))))
+;;;
+
+(defclass dyb-icon (icon)
+  ())
+
+(register-widget *dyb-theme* 'icon 'dyb-icon)
+
+(defmethod render ((icon dyb-icon) &key)
+  ;; (with-slots (icon-name alt title width height) icon
+  ;;   (with-html
+  ;;     (:img :src (frmt "/img/icons/packs/fugue/~ax~a/~a.png"
+  ;;                      width height icon-name)
+  ;;           :alt alt
+  ;;           :title title
+  ;;           :width width
+  ;;           :height height)))
+  )

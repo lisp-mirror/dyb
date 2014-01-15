@@ -1,8 +1,7 @@
 (in-package :dyb)
 
 (defclass channel-user-grid (grid)
-  ()
-  (:default-initargs :edit-inline nil))
+  ())
 
 (defmethod list-grid-filters ((grid channel-user-grid))
   '(status with-audit-data))
@@ -52,7 +51,7 @@
      form
      :grid grid
      :content
-     (with-html-to-string ()
+     (with-html-string
        (render form-section
                :label "Entity"
                :input
@@ -69,7 +68,7 @@
 
        (render form-section
                :label "Social Channel"
-               :input (with-html-to-string ()
+               :input (with-html-string
                         (render-edit-field
                          "channel-user-type"
                          (get-val row 'channel-user-type)
@@ -80,7 +79,7 @@
 
        (render form-section
                :label "Profile Type"
-               :input (with-html-to-string ()
+               :input (with-html-string
                         (render-edit-field
                          "profile-type"
                          (get-val row 'profile-type)
@@ -92,7 +91,7 @@
 
        (render form-section
                :label "User Name"
-               :input (with-html-to-string ()
+               :input (with-html-string
                         (render-edit-field
                          "channel-user-name"
                          (or (parameter "channel-user-name")
@@ -103,7 +102,7 @@
                
        (render form-section
                :label "User Id"
-               :input (with-html-to-string ()
+               :input (with-html-string
                         (render-edit-field
                          "user-id"
                          (get-val row 'user-id)
@@ -113,7 +112,7 @@
 
        (render form-section
                :label "Access Token"
-               :input (with-html-to-string ()
+               :input (with-html-string
                         (render-edit-field
                          "last-access-token"
                          (get-val row 'last-access-token)
@@ -121,7 +120,7 @@
 
        (render form-section
                :label "Access Token Expiry Date"
-               :input (with-html-to-string ()
+               :input (with-html-string
                         (render-edit-field
                          "access-token-expiry-date"
                          (format-universal-date-time 
@@ -132,7 +131,7 @@
            (if (string-equal (get-val row 'channel-user-type) "Facebook")
                (render form-section
                        :label "Pull in pages connected to user."
-                       :input (with-html-to-string ()
+                       :input (with-html-string
                                 (:button
                                  :class "btn btn-info"
                                  :onclick
@@ -148,7 +147,7 @@
            (render form-section
                    :label "Get Id and Oauth"
                    :input
-                   (with-html-to-string ()
+                   (with-html-string
                      (let* ((channel (get-social-channel
                                       (or (parameter "channel-user-type")
                                           (get-val row 'channel-user-type))))
@@ -187,7 +186,7 @@
     (when url
       (http-call url :get :return-type (get-val end-point 'return-type)))))
 
-(defmethod handle-action ((grid channel-user-grid) (action (eql 'pull-pages)))
+(defmethod handle-action ((grid channel-user-grid) (action (eql :pull-pages)))
   (cond ((string-equal (parameter "channel-user-type") "Facebook")
          (multiple-value-bind (accounts)
              (facebook-accounts (editing-row grid))
@@ -232,7 +231,7 @@
 
          )))
 
-(defmethod handle-action ((grid channel-user-grid) (action (eql 'save)))
+(defmethod handle-action ((grid channel-user-grid) (action (eql :save)))
   (when (string-equal (parameter "entity") "")
     (setf (error-message grid) "Select an Entity."))
 
@@ -282,10 +281,10 @@
                           (format-universal-date (get-val doc 'end-date))
                           (get-val doc 'status)))))))
 
-(defmethod handle-action ((grid channel-user-grid) (action (eql 'cancel)))
+(defmethod handle-action ((grid channel-user-grid) (action (eql :cancel)))
   (finish-editing grid))
 
-(defmethod handle-action ((grid channel-user-grid) (action (eql 'refresh-profile)))
+(defmethod handle-action ((grid channel-user-grid) (action (eql :refresh-profile)))
   (let ((user (editing-row grid)))
     (when user
       (when (string-equal (get-val user 'channel-user-type)
