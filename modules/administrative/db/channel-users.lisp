@@ -10,6 +10,7 @@
                       :key t)
    (channel-user-type :initarg :channel-user-type
                       :initform nil
+                      :accessor channel-user-type
                       :documentation "Twitter, Facebook, LinkedIn."
                       :key t)
    (profile-type :initarg :profile-type

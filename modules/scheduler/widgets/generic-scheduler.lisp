@@ -126,7 +126,18 @@
                               :name "actions-edit-tabs"
                               :header "Action"
                               :icon "card--pencil"))
-        (image (determine-current-image row)))
+        (image (determine-current-image row))
+        (message )
+        (shortified-message
+          (let ((*site-url* "http://dxw.co.za/"))
+            (shortify-string
+             (or 
+              (parameter "action-content") 
+              (if (not (empty-p (get-val row 'post-url)))
+                  (format nil "~A ~A" 
+                          (get-val row 'action-content)
+                          (get-val row 'post-url))
+                  (get-val row 'action-content)))))))
     (setf (tabs tabs)
           `(("Action" ,
              (with-html-string
@@ -181,25 +192,16 @@
                                     "action-content" 
                                     (or (parameter "action-content") 
                                         (if (not (empty-p (get-val row 'post-url)))
-                                                      
-                                                      (format nil "~A ~A" 
-                                                              (get-val row 'action-content)
-                                                              (get-val row 'post-url))
-                                                      (get-val row 'action-content)))
+                                            (format nil "~A ~A" 
+                                                    (get-val row 'action-content)
+                                                    (get-val row 'post-url))
+                                            (get-val row 'action-content)))
                                     :required t
                                     :type :textarea)
                                    (:div "Characters:"
                                          (:span :id "message-length"
                                                 (fmt "~a~@[ (including the image)~]"
-                                                     (+ (length 
-                                                         (or 
-                                                          (parameter "action-content") 
-                                                          (if (not (empty-p (get-val row 'post-url)))
-                                                      
-                                                              (format nil "~A ~A" 
-                                                                      (get-val row 'action-content)
-                                                                      (get-val row 'post-url))
-                                                              (get-val row 'action-content))))
+                                                     (+ (length shortified-message)
                                                         (if image
                                                             23
                                                             0))
@@ -223,16 +225,7 @@ $('#processed-content').text(s)})")))
                                     :disabled t
                                     :id "processed-content"
                                     :cols 85 :rows 5
-                                    (esc 
-                                     (shortify-string 
-                                      (if (empty-p (get-val row 'post-url))
-                                          (or  (parameter "action-content") 
-                                               (get-val row 'action-content))
-                                          (format nil "~A ~A" 
-                                                  (or (parameter "action-content") 
-                                                      (get-val row 'action-content))
-                                                  (format-short-url (short-url row)))))))))
-
+                                    (esc shortified-message))))
                          (render 
                           form-section
                           :label "Add Image"
@@ -281,8 +274,7 @@ $('#processed-content').text(s)})")))
                                         (if (get-val row 'scheduled-date)
                                             (format-universal-time 
                                              (get-val row 'scheduled-date)))
-                                        "00:00"
-                                        )
+                                        "00:00")
                                     :type :time
                                     :required t)
                                    

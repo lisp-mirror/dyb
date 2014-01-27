@@ -95,7 +95,9 @@
          (form-section (make-widget 'form-section
                                     :name "form-section"))
          (channel-users (make-widget 'channel-user-select
-                                    :name "channel-user-select-dropown")))
+                                    :name "channel-user-select-dropown"))
+         (shorified-message (let ((*site-url* "http://dxw.co.za/"))
+                              (shortify-string (parameter "post-status")))))
     (setf (ajax-render-widget comment-form) (editor (grid widget)))
     (render comment-form
             :content
@@ -107,18 +109,12 @@
 
                  (setf (value service) (parameter "service"))
                  (setf (value channel-user) (parameter "channel-user"))
-
                  (render form-section
                          :label "Post To Channel"
-                         :input
-                         (with-html-string
-                           (render service)))
+                         :input (render-to-string service))
                  (render form-section
                          :label "Channel User"
-                         :input
-                         (with-html-string
-                           (render channel-user)))
-
+                         :input (render-to-string channel-user))
                  (render form-section
                          :label "Post"
                          :input
@@ -127,15 +123,36 @@
                             "post-status"
                             (parameter "post-status")
                             :required t
-                            :type :textarea))))
-               (if (get-val widget 'message)
-                   (htm (:span :style "color:red;"
-                               (get-val widget 'message)))))))))
+                            :type :textarea)
+                           (:div "Characters:"
+                                 (:span :id "message-length"
+                                        (str (length shorified-message))))))
+                 (render form-section 
+                         :label "Processed"
+                         :input 
+                         (with-html-string
+                           (:textarea
+                            :style (format nil "width:~A;" "300px")
+                            :class nil
+                            :disabled t
+                            :id "processed-content"
+                            :cols 85 :rows 5
+                            (esc shorified-message))))
+                 (defer-js
+                     "$('[name=\"post-status\"]').bind('change input propertychange',
+function() {
+var s = shortifyString($('[name=\"post-status\"]').val());
+var length = s.length;
+$('#message-length').text(length);
+$('#processed-content').text(s)})")
+                 (if (get-val widget 'message)
+                     (htm (:span :style "color:red;" ;
+                                 (get-val widget 'message))))))))))
 
 (defun add-generic-post-action (channel channel-user
-                                   action-type post)
+                                action-type post)
   (add-generic-action channel-user
-                      nil 
+                      nil
                       channel
                       (get-val channel-user 'user-id)
                       nil
@@ -168,61 +185,63 @@
          (finish-editing (grid widget)))))
 
 (defmethod action-handler ((widget post-form))
-  (when (string-equal (parameter "action") "post-to-channel")
-    (let ((grid (grid widget))
-          (channel-user (get-channel-user-by-user-id 
-                         (parameter "channel-user")
-                         (parameter "service"))))
-      (cond ((string-equal (parameter "service") "facebook")
-             (break "?")
-             (let ((action (add-generic-post-action (parameter "service")
-                                                    channel-user
-                                                    "Post"
-                                                    (parameter "post-status"))))
-               (multiple-value-bind (result error-message)
-                   (cond ((get-val action 'image-url)
-                          (post-facebook-image (parameter "channel-user")
-                                               (parameter "post-status")
-                                               (get-val action 'image-url)
-                                               ))
-                         ((or (get-val action 'short-url) 
-                              (get-val action 'post-url))
-                          (post-facebook-url (parameter "channel-user")
-                                             (parameter "post-status")
-                                             (or (get-val action 'short-url) 
-                                                 (get-val action 'post-url))
-                                             ))
-                         (t
-                          (post-facebook (get-val action 'from-user-id) 
-                                         (parameter "post-status")))
-                         )
-                 (handle-generic-post-action grid widget action 
-                                             result error-message))))
-            ((string-equal (parameter "service") "twitter")
-             (let ((action (add-generic-post-action (parameter "service")
-                                                    channel-user
-                                                    "Tweet"
-                                                    (parameter "post-status"))))
-               
-               (multiple-value-bind (result error-message)
-                   (post-twitter 
-                           channel-user
-                           (parameter "post-status")
-                           :image-path (get-val action 'image-url))
-                 (handle-generic-post-action grid widget action 
-                                             result error-message))))
-            ((string-equal (parameter "service") "LinkedIn")
-             (let ((action (add-generic-post-action (parameter "service")
-                                                    channel-user
-                                                    "Post Status"
-                                                    (parameter "post-status"))))
-               (multiple-value-bind (result error-message)
-                   (post-linkedin
-                    (parameter "channel-user")
-                    (parameter "post-status"))
-                 (handle-generic-post-action grid widget action 
-                                             result error-message))))
+  (with-parameters (action channel-user service post-status)
+    (let ((grid (grid widget)))
+      (cond ((not (equal action "post-to-channel")))
+            ((empty-p service)
+             (setf (error-message grid) "No channel selected"))
+            ((empty-p channel-user)
+             (setf (error-message grid) "No account selected."))
             (t
-             (setf (error-message grid) "No Channel selected")))
-      )))
+             (let ((channel-user (get-channel-user-by-user-id 
+                                  channel-user service)))
+               (cond ((not channel-user)
+                      (setf (error-message grid) "No account found."))
+                     ((string-equal service "Facebook")
+                      (break "?")
+                      (let ((action (add-generic-post-action service
+                                                             channel-user
+                                                             "Post"
+                                                             post-status)))
+                        (multiple-value-bind (result error-message)
+                            (cond ((get-val action 'image-url)
+                                   (post-facebook-image channel-user
+                                                        post-status
+                                                        (get-val action 'image-url)
+                                                        ))
+                                  ((or (get-val action 'short-url) 
+                                       (get-val action 'post-url))
+                                   (post-facebook-url channel-user
+                                                      post-status
+                                                      (or (get-val action 'short-url) 
+                                                          (get-val action 'post-url))))
+                                  (t
+                                   (post-facebook (get-val action 'from-user-id) 
+                                                  post-status)))
+                          (handle-generic-post-action grid widget action 
+                                                      result error-message))))
+                     ((string-equal service "twitter")
+                      (let ((post-status (shortify-string post-status)))
+                        (if (> (length post-status) 140)
+                            (setf (error-message grid)
+                                  (frmt "Message too long - ~a." (length post-status)))
+                            (multiple-value-bind (result error-message)
+                                (post-twitter
+                                 channel-user
+                                 post-status
+                                 :image-path (get-val action 'image-url))
+                              (handle-generic-post-action
+                               grid widget
+                               (add-generic-post-action service
+                                                        channel-user "Tweet" post-status)
+                               result error-message)))))
+                     ((string-equal service "LinkedIn")
+                      (let ((action (add-generic-post-action service
+                                                             channel-user
+                                                             "Post Status"
+                                                             post-status)))
+                        (multiple-value-bind (result error-message)
+                            (post-linkedin channel-user post-status)
+                          (handle-generic-post-action grid widget action 
+                                                      result error-message)))))))))))
 

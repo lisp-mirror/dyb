@@ -8,51 +8,70 @@
 (defmethod render ((widget direct-message-action) &key)
   (let ((row (editing-row (grid widget)))
         (direct-message-form (make-widget 'html-simple-framework-form
-                                  :name "direct-message-form"
-                                  :grid-size 12
-                                  :form-id "direct-message-form"
-                                  :action "direct-message"
-                                  :action-title "Assign Task"))
+                                          :name "direct-message-form"
+                                          :grid-size 12
+                                          :form-id "direct-message-form"
+                                          :action "direct-message"
+                                          :action-title "Assign Task"))
         (form-section (make-widget 'form-section
-                                   :name "form-section")))
-;;(break "~A" row)
-
+                                   :name "form-section"))
+        (shorified-message (let ((*site-url* "http://dxw.co.za/"))
+                             (shortify-string (parameter "message")))))
     (setf (ajax-render-widget direct-message-form) (editor (grid widget)))
     (render direct-message-form
             :content
             (with-html-string
-                    (:div 
-                     (:input :type "hidden" :name "post-id" 
-                             :value (cond ((string-equal (get-val row 'post-type) 
-                                                         "Facebook")
-                                           (raw-post-id row 'facebook))
-                                          ((string-equal (get-val row 'post-type) 
-                                                         "Twitter")
-                                           (raw-post-id row 'twitter))
-                                          ((string-equal (get-val row 'post-type) 
-                                                         "LinkedIn")
-                                           (raw-post-id row 'linkedin))))
-
-                     (render form-section 
-                             :label "As User"
-                             :input 
-                             (with-html-string
-                               (render-edit-field
-                                "user-id" 
-                                (parameter "user-id")
-                                :data (get-channel-users-list (get-val row 'post-type) nil)
-                                :required t
-                                :type :select)))
-
-                     (render form-section 
-                             :label "Message"
-                             :input 
-                             (with-html-string
-                               (render-edit-field
-                                "message" 
-                                (parameter "message")
-                                :required t
-                                :type :textarea))))))))
+              (:div 
+               (:input :type "hidden" :name "post-id" 
+                       :value (cond ((string-equal (get-val row 'post-type) 
+                                                   "Facebook")
+                                     (raw-post-id row 'facebook))
+                                    ((string-equal (get-val row 'post-type) 
+                                                   "Twitter")
+                                     (raw-post-id row 'twitter))
+                                    ((string-equal (get-val row 'post-type) 
+                                                   "LinkedIn")
+                                     (raw-post-id row 'linkedin))))
+               (render form-section 
+                       :label "As User"
+                       :input 
+                       (with-html-string
+                         (render-edit-field
+                          "user-id" 
+                          (parameter "user-id")
+                          :data (get-channel-users-list (get-val row 'post-type) nil)
+                          :required t
+                          :type :select)))
+               (render form-section
+                         :label "Message"
+                         :input
+                         (with-html-string
+                           (render-edit-field
+                            "message"
+                            (parameter "message")
+                            :required t
+                            :type :textarea)
+                           (:div "Characters:"
+                                 (:span :id "message-length"
+                                        (str (length shorified-message))))))
+                 (render form-section 
+                         :label "Processed"
+                         :input 
+                         (with-html-string
+                           (:textarea
+                            :style (format nil "width:~A;" "300px")
+                            :class nil
+                            :disabled t
+                            :id "processed-content"
+                            :cols 85 :rows 5
+                            (esc shorified-message))))
+                 (defer-js
+                     "$('[name=\"message\"]').bind('change input propertychange',
+function() {
+var s = shortifyString($('[name=\"message\"]').val());
+var length = s.length;
+$('#message-length').text(length);
+$('#processed-content').text(s)})"))))))
 
 (defmethod handle-action ((grid generic-grid) (action (eql :direct-message-form)))
   
@@ -75,7 +94,6 @@
                     (parameter "message")
                     "Immediate"
                     (get-universal-time))))
-;;(break "~A" current-post)
       (multiple-value-bind (result error-message)
           (cond ((string-equal (get-val current-post 'post-type) "Facebook")
                  (let ((to-user (post-facebook-user-profile-no-auth 
@@ -94,11 +112,11 @@
                                                              "d@t@xw@r3")))))
                 ((string-equal (get-val current-post 'post-type) "Twitter")
                  (tweet-reply user
-                         (parameter "message")
-                         (gpv current-post :user :screen--name)))
-                 ((string-equal (get-val current-post 'post-type) "LinkedIn")
-                  ;;TODO: Implement for personal
-                  ))
+                              (parameter "message")
+                              (gpv current-post :user :screen--name)))
+                ((string-equal (get-val current-post 'post-type) "LinkedIn")
+                 ;;TODO: Implement for personal
+                 ))
         (handle-generic-action 
          widget
          action
