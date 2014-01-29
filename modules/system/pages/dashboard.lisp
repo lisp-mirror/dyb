@@ -16,15 +16,9 @@
     (declare (ignore sec min hour))
     (encode-universal-time 0 0 0 day month year (time-zone))))
 
-(defun or-zero (values)
-  :documetation "Selects the first not 0 value."
-  (let ((value 0))
-    (dolist (val values)
-      (when (= value 0)
-        (unless (= (second val) 0)
-          (setf value (second val)))))
-    value))
-
+(defun non-zero (values)
+  "Selects the first not 0 value."
+  (or (find 0 values :test #'/=) 0))
 
 (defun short-url-clicks (start-date end-date)
   (let ((count 0))
@@ -711,8 +705,6 @@
                                  :show-data-labels "true")
                                 ))
                         (render engagement)))))))
-
-
 
 (defun calc-prev-cur-percentage (prev cur)
   (if (and (= prev 0) (= cur 0))
@@ -1679,27 +1671,26 @@
 (defun gv (key)
   (gethash key *calc-values*))
 
-
 (defun reach-small-graph ()
   (with-html-string
    (let* ((prev (+  
-                 (or-zero (reverse (gv '(gv 'fb-fans-interval-prev-list))))
-                 (gv 'fb-page-impressions-prev-count)
-                 (gv 'twitter-followers-prev-count)
-                 (* (gv 'twitter-followers-prev-count)
-                    (gv 'tweets-scheduled-prev-count))      
-                 (gv 'twitter-retweets-prev)
-                 (gv 'twitter-at-mentions-prev-count)
+                 (non-zero (reverse (gv '(gv 'fb-fans-interval-prev-list))))
+                 (or (gv 'fb-page-impressions-prev-count) 0)
+                 (or (gv 'twitter-followers-prev-count) 0)
+                 (* (or (gv 'twitter-followers-prev-count) 0)
+                    (or (gv 'tweets-scheduled-prev-count) 0))      
+                 (or (gv 'twitter-retweets-prev) 0)
+                 (or (gv 'twitter-at-mentions-prev-count) 0)
                  ;;linkedin-connections-count
                  ))
           (cur (+  
-                (or-zero (reverse (gv 'fb-fans-interval-list)))
-                (gv 'fb-page-impressions-count)
-                (gv 'twitter-followers-count)
-                (* (gv 'twitter-followers-count)
-                   (gv 'tweets-scheduled-count))
-                (gv 'twitter-retweets)
-                (gv 'twitter-at-mentions-count)
+                (non-zero (reverse (gv 'fb-fans-interval-list)))
+                (or (gv 'fb-page-impressions-count) 0)
+                (or (gv 'twitter-followers-count) 0)
+                (* (or (gv 'twitter-followers-count) 0)
+                   (or (gv 'tweets-scheduled-count) 0))
+                (or (gv 'twitter-retweets) 0)
+                (or (gv 'twitter-at-mentions-count) 0)
                ;; linkedin-connections-count
                 )))
      (str (dash-small-stat-graph  
@@ -1777,7 +1768,7 @@
               (str (community-summary-item  
                     "All Accounts"
                     (+ 
-                     (or-zero (reverse (gv 'fb-fans-interval-list)) )
+                     (non-zero (reverse (gv 'fb-fans-interval-list)) )
                      (or (gv 'twitter-followers-count) 0)
                      (or (gv 'linkedin-connections-count) 0))
                     "/appimg/user-accounts.png"
@@ -1786,7 +1777,7 @@
              (:li
               (str (community-summary-item  
                     " Facebook"
-                    (or-zero (reverse (gv 'fb-fans-interval-list)) )
+                    (non-zero (reverse (gv 'fb-fans-interval-list)) )
                     "/appimg/Facebook_Light_Logo.png"
                     "Facebook Friends"
                     t)))
@@ -2396,7 +2387,7 @@
            (previous-interval-end-date 
             (- now (* +24h-secs+ interval)))
            
-           (*calc-values* (set-calc-vals 
+           (*calc-values* (set-calc-vals
                            interval-start-date 
                            interval-end-date
                            previous-interval-start-date 
