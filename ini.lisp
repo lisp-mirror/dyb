@@ -63,3 +63,4 @@
         (shorten-url)
         (call-next-method))))
 
+(defparameter *log-deleted-objects* nil)
