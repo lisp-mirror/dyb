@@ -103,11 +103,8 @@
     count))
 
 (defun mentions-of-me-in-tweets-mentioner-followers-range (start-date end-date)
-  (let ((range)
-        (sorted-range)
-        (final-range)
+  (let (range
         (data-hash (make-hash-table :test 'equal)))
-
     (find-docs 'list
                (lambda (doc)
                  (typecase (get-val doc 'channel-user) 
@@ -116,54 +113,32 @@
                       (when (and
                              (match-context-entities (get-val doc 'channel-user))
                              (gpv (get-val doc 'payload) :entities :user--mentions)
-                             
                              (and (>= (get-val doc 'created-date) start-date)
                                   (<= (get-val doc 'created-date) end-date)))
                         (dolist (mention (gpv (get-val doc 'payload) :entities :user--mentions))
-                         (when (string-equal
-                                (get-val (get-val doc 'channel-user) 'channel-user-name)
-                                (gpv mention :screen--name))
-                           (let ((current-val (gethash (universal-date-strip-time
-                                                        (get-val doc 'created-date))
-                                                       data-hash))
-                                 (val 0))
-                             (if current-val
-                                 (setf val current-val))
-                             (setf val (incf val (gpv (get-val doc 'payload) :user :followers--count)))
-                             (setf (gethash (universal-date-strip-time
-                                             (get-val doc 'created-date))
-                                            data-hash)
-                                   val))
-                           ))
-                        )))))
+                          (when (string-equal
+                                 (get-val (get-val doc 'channel-user) 'channel-user-name)
+                                 (gpv mention :screen--name))
+                            (let ((current-val (gethash (universal-date-strip-time
+                                                         (get-val doc 'created-date))
+                                                        data-hash))
+                                  (val 0))
+                              (if current-val
+                                  (setf val current-val))
+                              (setf val (incf val (gpv (get-val doc 'payload) :user :followers--count)))
+                              (setf (gethash (universal-date-strip-time
+                                              (get-val doc 'created-date))
+                                             data-hash)
+                                    val)))))))))
                (generic-post-collection))
     (maphash  
      (lambda (key val)
-       (setf range
-             (append range 
-                     (list (list key val)))))
+       (push (list key val) range))
      data-hash)
-    (setf sorted-range (sort range #'> :key #'car))
-    (dolist (post sorted-range)
-      (setf final-range 
-            (append final-range 
-                    (list 
-                     (list (format-universal-date-dash (first post))
-                           (second post))))))
-    final-range))
-
-
-#|
-(find-docs 'list
-                (lambda (doc)
-                  (typecase (get-val doc 'channel-user) 
-                    (channel-user 
-                     (when (and
-                            (search "#Algorith" (gpv (get-val doc 'payload) :text))
-                            )
-                       doc))))
-                (generic-post-collection))
-|#
+    (setf range (sort range #'> :key #'car))
+    (loop for post in range
+          do (setf (car post) (format-universal-date-dash (car post))))
+    range))
 
 (defun mentions-of-me-in-tweets-mentioner-count-range (start-date end-date)
   (let ((range)
@@ -301,42 +276,30 @@
 
 
 (defun insight-range (channel insight-name start-date end-date)
-  (let ((range))
-    (dolist (user (coerce (channel-users) 'list ))
-      (when (valid-channel-user user channel)  
-        (let ((insights
-               (get-generic-insight-values 
-                     user 
-                     insight-name
-                     start-date 
-                     end-date)))
-               (when insights
-                 (dolist (insight insights)
-                   (when (get-val insight 'value)
-                     (setf range 
-                           (append range 
-                                   (list 
-                                    (list 
-                                     (format-universal-date-dash (get-val insight 'end-time)) 
-                                     (get-val insight 'value)))))))))))
-    range))
-
-
+  (let (range)
+    (loop for user across (channel-users)
+          when (valid-channel-user user channel)
+          do
+          (map-generic-insight-values
+           (lambda (insight)
+             (when (value insight)
+               (push (list 
+                      (format-universal-date-dash (end-time insight)) 
+                      (value insight))
+                     range)))
+           user insight-name start-date end-date))
+    (nreverse range)))
 
 (defun insight-range-count (channel insight-name start-date end-date)
   (let ((count 0))
-    (dolist (user (coerce (channel-users) 'list ))
-      (when (valid-channel-user user channel)  
-        (let ((fans
-               (get-generic-insight-values 
-                user 
-                insight-name
-                start-date 
-                end-date)))
-          (when fans
-            (dolist (fan fans)
-              (when (get-val fan 'value)
-                (incf count (get-val fan 'value))))))))
+    (loop for user across (channel-users)
+          when (valid-channel-user user channel)  
+          do
+          (map-generic-insight-values
+           (lambda (insight)
+             (when (value insight)
+               (incf count (value insight))))
+           user insight-name start-date end-date))
     count))
 
 
@@ -614,14 +577,11 @@
                             ))))))
 
 (defun %line-graph (name title min-date max-date data interval 
-                            &key series span)
+                    &key series span)
   (with-html
-    (:div :class (if span
-                     span
-                     "span9")
-            (:div :class "graph-wrap"
-               (:div :class "chart-block"
-                     
+    (:div :class (or span "span9")
+          (:div :class "graph-wrap"
+                (:div :class "chart-block"
                       (let ((network-size 
                               (make-widget
                                'line-graph :name name)))
@@ -630,11 +590,11 @@
                         (setf (x network-size)
                               `(:type :date
                                 :tick-interval ,(if (<= interval 7)
-                                                   "1 days"
-                                                   (if (and (> interval 7) 
-                                                            (< interval 100))
-                                                       "14 days"
-                                                       "60 days"))
+                                                    "1 days"
+                                                    (if (and (> interval 7) 
+                                                             (< interval 100))
+                                                        "14 days"
+                                                        "60 days"))
                                 :min ,min-date
                                 :max ,max-date
                                 :tick-options (:format-string "%b&nbsp;%#d")))
@@ -655,17 +615,14 @@
                               '(:show nil :placement :outside))
                         
                         (setf (series network-size)
-                             series)
+                              series)
                         (setf (series-defaults network-size) 
                               '(:show "true"
                                 :xaxis "xaxis"
                                 :yaxis "yaxis"
                                 :line-width 3
                                 :shadow "false"))
-                        (render network-size))
-
-                      )
-))))
+                        (render network-size)))))))
 
 (defun %engagement-graph (data data-lables)
   (with-html-string
@@ -1353,7 +1310,6 @@
           (posts-scheduled-range-count 
            istd 
            iend))
-      
 
       (sv 'posts-scheduled-prev-count 
           (posts-scheduled-range-count 
@@ -1588,9 +1544,9 @@
            prev-iend))
 
       (sv 'twitter-at-mentions-followers-range
-          (mentions-of-me-in-tweets-mentioner-followers-range
-           prev-istd 
-           prev-iend))
+          (time(mentions-of-me-in-tweets-mentioner-followers-range
+            prev-istd 
+            prev-iend)))
 
       
 
@@ -1654,43 +1610,40 @@
           (audiance-stats (gethash 'users-posts calc-values))))
     calc-values))
 
-
 (defparameter *calc-values* nil)
 
 (defun gv (key)
   (gethash key *calc-values*))
 
 (defun reach-small-graph ()
-  (with-html-string
-   (let* ((prev (+
-                 (or (cadar (last (gv 'fb-fans-interval-prev-list))) 0)
-                 (or (gv 'fb-page-impressions-prev-count) 0)
-                 (or (gv 'twitter-followers-prev-count) 0)
-                 (* (or (gv 'twitter-followers-prev-count) 0)
-                    (or (gv 'tweets-scheduled-prev-count) 0))      
-                 (or (gv 'twitter-retweets-prev) 0)
-                 (or (gv 'twitter-at-mentions-prev-count) 0)
-                 ;;linkedin-connections-count
-                 ))
-          (cur (+
-                (or (cadar (last (gv 'fb-fans-interval-list))) 0)
-                (or (gv 'fb-page-impressions-count) 0)
-                (or (gv 'twitter-followers-count) 0)
-                (* (or (gv 'twitter-followers-count) 0)
-                   (or (gv 'tweets-scheduled-count) 0))
-                (or (gv 'twitter-retweets) 0)
-                (or (gv 'twitter-at-mentions-count) 0)
-               ;; linkedin-connections-count
-                )))
-     (str (dash-small-stat-graph  
-           "Reach"
-           "new-visits"
-           (format nil "~A,~A" 
-                   prev
-                   cur)  
-           cur
-           (calc-prev-cur-percentage prev cur) 
-           :tooltip "FB-Fans + FB-Page-Impressions + TW-Followers + (TW-Followers * Scheduled-Tweets) + Retweets + TW-Mentions")))))
+  (with-html
+    (let* ((prev (+
+                  (or (cadar (last (gv 'fb-fans-interval-prev-list))) 0)
+                  (or (gv 'fb-page-impressions-prev-count) 0)
+                  (or (gv 'twitter-followers-prev-count) 0)
+                  (* (or (gv 'twitter-followers-prev-count) 0)
+                     (or (gv 'tweets-scheduled-prev-count) 0))      
+                  (or (gv 'twitter-retweets-prev) 0)
+                  (or (gv 'twitter-at-mentions-prev-count) 0)
+                  ;;linkedin-connections-count
+                  ))
+           (cur (+
+                 (or (cadar (last (gv 'fb-fans-interval-list))) 0)
+                 (or (gv 'fb-page-impressions-count) 0)
+                 (or (gv 'twitter-followers-count) 0)
+                 (* (or (gv 'twitter-followers-count) 0)
+                    (or (gv 'tweets-scheduled-count) 0))
+                 (or (gv 'twitter-retweets) 0)
+                 (or (gv 'twitter-at-mentions-count) 0)
+                 ;; linkedin-connections-count
+                 )))
+      (str (dash-small-stat-graph
+            "Reach"
+            "new-visits"
+            (format nil "~A,~A" prev cur)  
+            cur
+            (calc-prev-cur-percentage prev cur) 
+            :tooltip "FB-Fans + FB-Page-Impressions + TW-Followers + (TW-Followers * Scheduled-Tweets) + Retweets + TW-Mentions")))))
 
 (defun activity-small-graph ()
   (with-html-string
@@ -1729,23 +1682,22 @@
             :tooltip "FB-Post-Likes + FB-Comments + Retweets + TW-Mentions + Clicks")))))
 
 (defun engagement-pie-graph ()
-  (with-html-string
-    (str (%engagement-graph `((("Post Likes" ,(gv 'fb-post-likes-count))
-                              ("Shortner Clicks" ,(gv 'short-url-clicks-count))
-                              ("Comments" ,(gv 'fb-comments-made-count))
-                              ("Retweets" ,(gv 'twitter-retweets))
+  (%engagement-graph `((("Post Likes" ,(gv 'fb-post-likes-count))
+                        ("Shortner Clicks" ,(gv 'short-url-clicks-count))
+                        ("Comments" ,(gv 'fb-comments-made-count))
+                        ("Retweets" ,(gv 'twitter-retweets))
                                                    
-                              ;;("FB Shares" ,(gv 'fb-story-adds-count))
-                              ("Mentions" ,(gv 'twitter-at-mentions-count)
-                                          )
-                              ;;("Direct Messages" 0)
-                              ))
-                           (format nil "[~A,~A,~A,~A,~A]" 
-                                   (gv 'fb-post-likes-count) 
-                                   (gv 'short-url-clicks-count)
-                                   (gv 'fb-comments-made-count) 
-                                   (gv 'twitter-retweets)
-                                   (gv 'twitter-at-mentions-count))))))
+                        ;;("FB Shares" ,(gv 'fb-story-adds-count))
+                        ("Mentions" ,(gv 'twitter-at-mentions-count)
+                                    )
+                        ;;("Direct Messages" 0)
+                        ))
+                     (format nil "[~A,~A,~A,~A,~A]" 
+                             (gv 'fb-post-likes-count) 
+                             (gv 'short-url-clicks-count)
+                             (gv 'fb-comments-made-count) 
+                             (gv 'twitter-retweets)
+                             (gv 'twitter-at-mentions-count))))
 
 (defun current-community-size ()
   (with-html-string
@@ -1833,33 +1785,33 @@
     filled-range))
 
 (defun network-size-graph (min-date max-date interval)
-
   (%line-graph
    "networksizegraph"
    "Change in Network"
    (format-universal-date-dash min-date)
    (format-universal-date-dash max-date)
-   (if (and (gv 'twitter-followers-interval-list) (gv 'fb-fans-interval-list))
-                    `((,@(fill-blanks (gv 'twitter-followers-interval-list)
-                                      min-date max-date :smooth-range t))
-                      (,@(fill-blanks (gv 'fb-fans-interval-list)
-                                      min-date max-date :smooth-range t)))
-                    (if (gv 'twitter-followers-interval-list)
-                        `((,@(fill-blanks (gv 'twitter-followers-interval-list)
-                                          min-date max-date :smooth-range t)))
-                        (if (gv 'fb-fans-interval-list)
-                            `((,@(fill-blanks (gv 'fb-fans-interval-list)
-                                              min-date max-date :smooth-range t))) )))
+   (if (and (gv 'twitter-followers-interval-list)
+            (gv 'fb-fans-interval-list))
+       `((,@(fill-blanks (gv 'twitter-followers-interval-list)
+                         min-date max-date :smooth-range t))
+         (,@(fill-blanks (gv 'fb-fans-interval-list)
+                         min-date max-date :smooth-range t)))
+       (if (gv 'twitter-followers-interval-list)
+           `((,@(fill-blanks (gv 'twitter-followers-interval-list)
+                             min-date max-date :smooth-range t)))
+           (if (gv 'fb-fans-interval-list)
+               `((,@(fill-blanks (gv 'fb-fans-interval-list)
+                                 min-date max-date :smooth-range t))) )))
    interval
    :series  '((:show-marker nil
-                                 :color "#00ACED"
-                                 :label "TW")
-                                (:show-marker nil
-                                 :color "#3B5999"
-                                 :label "FB")
-                                (:show-marker nil
-                                 :color "#04B45F"
-                                 :label "LNK"))))
+               :color "#00ACED"
+               :label "TW")
+              (:show-marker nil
+               :color "#3B5999"
+               :label "FB")
+              (:show-marker nil
+               :color "#04B45F"
+               :label "LNK"))))
 
   (defun fb-new-page-likes-graph ()
     
@@ -1999,37 +1951,25 @@
     final-list))
 
 (defun calc-daily-change-reverse (date-val-list)
-  (let ((final-list)
-        (previous nil))
-    (dolist (follower date-val-list)
-      
-      (when (and previous (second previous))
-        (when (> (second previous) 0)
-          (setf final-list
-                (append final-list 
-                        (list (list (first follower) 
-                                    (-
-                                     (fix-nan (second follower))
-                                     (fix-nan (second previous))
-                                     
-                                     )))))))
-        
-      (setf previous follower))
-    final-list))
+  (cons (list (caar date-val-list) 0)
+        (loop for previous = 0 then (or count 0)
+              for (date %count) in (cdr date-val-list)
+              for count = (or %count 0)
+              unless (eql count previous)
+              collect (list date (- count previous)))))
 
 (defun tw-new-followers-graph-html (min-date max-date interval)
   (%line-graph
-     "twnewfollowers"
-     "New Followers"
-     (format-universal-date-dash min-date)
-     (format-universal-date-dash max-date)
-     `(( ,@(calc-daily-change-reverse (fill-blanks (gv 'twitter-followers-interval-list)
-                                                   min-date max-date)) ))
-     interval
-     :series  '((:show-marker nil
-                 :color "#00ACED"
-                 :label "TW"))
-     :span "span12"))
+   "twnewfollowers"
+   "New Followers"
+   (format-universal-date-dash min-date)
+   (format-universal-date-dash max-date)
+   (list (calc-daily-change-reverse (gv 'twitter-followers-interval-list)))
+   interval
+   :series  '((:show-marker nil
+               :color "#00ACED"
+               :label "TW"))
+   :span "span12"))
 
 
 (defun tw-impressions-graph ()
@@ -2372,213 +2312,208 @@
     (let* ((page (make-widget 'page :name "dashboard-page"))
            (now (universal-today))
            (previous-interval-start-date 
-            (- now (* +24h-secs+ (* interval 2))))
+             (- now (* +24h-secs+ (* interval 2))))
            (previous-interval-end-date 
-            (- now (* +24h-secs+ interval)))
-           
-           (*calc-values* (set-calc-vals
-                           interval-start-date 
-                           interval-end-date
-                           previous-interval-start-date 
-                           previous-interval-end-date)))
-      ;;(break "~A" (users-stats))
-      (with-html
-        (render page
-                :body 
-                (with-html-string
-                  (:div :class "container-fluid"
-                        (str (interval-selection))
-                        (:div :class "row-fluid"
-                              (:div :class "nonboxy-widget"
-                                    (:div :class "widget-head"
-                                          (:h5 
-                                           (str "Overview")))
-                                    (:div :class "widget-content"
-                                          (:div :class "widget-box"
-                                                (:div :class "row-fluid"
-                                                      (str (reach-small-graph))
-                                                      (str (activity-small-graph))
-                                                      (str (engagement-small-graph)))))))
+             (- now (* +24h-secs+ interval)))
+           (*calc-values* (time(set-calc-vals
+                            interval-start-date
+                            interval-end-date
+                            previous-interval-start-date 
+                            previous-interval-end-date))))
+      (render page
+              :body 
+              (with-html-string
+                (:div :class "container-fluid"
+                      (str (interval-selection))
+                      (:div :class "row-fluid"
+                            (:div :class "nonboxy-widget"
+                                  (:div :class "widget-head"
+                                        (:h5 
+                                         (str "Overview")))
+                                  (:div :class "widget-content"
+                                        (:div :class "widget-box"
+                                              (:div :class "row-fluid"
+                                                    (reach-small-graph)
+                                                    (str (activity-small-graph))
+                                                    (str (engagement-small-graph)))))))
 
-                        (:div :class "row-fluid"
-                              (:div :class "nonboxy-widget"
-                                    (:div :class "widget-head"
-                                          (:h5 
-                                           (str "Network")))
+                      (:div :class "row-fluid"
+                            (:div :class "nonboxy-widget"
+                                  (:div :class "widget-head"
+                                        (:h5 
+                                         (str "Network")))
                                   
-                                    (:div :class "widget-content"
-                                          (:div :class "widget-box"
-                                                (:div :class "row-fluid"
+                                  (:div :class "widget-content"
+                                        (:div :class "widget-box"
+                                              (:div :class "row-fluid"
                                                         
-                                                      (network-size-graph
-                                                       interval-start-date
-                                                       interval-end-date
-                                                       interval)
+                                                    (network-size-graph
+                                                     interval-start-date
+                                                     interval-end-date
+                                                     interval)
                                                        
-                                                      (:div :class "span2"
-                                                            (:div :class "summary"
-                                                                  (:h5 "Legend")
-                                                                  (:br)
-                                                                  (:ul
+                                                    (:div :class "span2"
+                                                          (:div :class "summary"
+                                                                (:h5 "Legend")
+                                                                (:br)
+                                                                (:ul
                                                                
-                                                                   (:li
-                                                                    (:span
-                                                                     :style "width: 36px;height: 36px;float: left;margin-right: 10px;padding: 6px;"
-                                                                     (:img :src "/appimg/Facebook_Light_Logo.png"
-                                                                           :width "36" :height "36" :alt "")
-                                                                     )
-                                                                    )
-                                                                   (:li
-                                                                    (:span
-                                                                     :style "width: 36px;height: 36px;float: left;margin-right: 10px;padding: 6px;"
-                                                                     (:img :src "/appimg/twitter-bird-white-on-blue.png"
-                                                                           :width "36" :height "36" :alt "")
-                                                                     )
-                                                                    )
-                                                                   ))))))))
+                                                                 (:li
+                                                                  (:span
+                                                                   :style "width: 36px;height: 36px;float: left;margin-right: 10px;padding: 6px;"
+                                                                   (:img :src "/appimg/Facebook_Light_Logo.png"
+                                                                         :width "36" :height "36" :alt "")
+                                                                   )
+                                                                  )
+                                                                 (:li
+                                                                  (:span
+                                                                   :style "width: 36px;height: 36px;float: left;margin-right: 10px;padding: 6px;"
+                                                                   (:img :src "/appimg/twitter-bird-white-on-blue.png"
+                                                                         :width "36" :height "36" :alt "")
+                                                                   )
+                                                                  )
+                                                                 ))))))))
 
                        
-                        (:div :class "row-fluid"
-                              (:div :class "nonboxy-widget"
-                                    (:div :class "widget-head"
-                                          (:h5 
-                                           (str "Engagement & Community")))
+                      (:div :class "row-fluid"
+                            (:div :class "nonboxy-widget"
+                                  (:div :class "widget-head"
+                                        (:h5 
+                                         (str "Engagement & Community")))
 
-                                    (:div :class "widget-content"
-                                          (:div :class "widget-box"
-                                                (:div :class "row-fluid"
-                                                      (str (engagement-pie-graph))
-                                                      (:div :class "span2"
-                                                            (str (current-community-size ))))))))
+                                  (:div :class "widget-content"
+                                        (:div :class "widget-box"
+                                              (:div :class "row-fluid"
+                                                    (str (engagement-pie-graph))
+                                                    (:div :class "span2"
+                                                          (str (current-community-size ))))))))
                       
-                        (:div :class "row-fluid"
-                              (:div :class "nonboxy-widget"
-                                    (:div :class "widget-head"
-                                          (:h5
-                                               "Posts with Links"))
+                      (:div :class "row-fluid"
+                            (:div :class "nonboxy-widget"
+                                  (:div :class "widget-head"
+                                        (:h5
+                                         "Posts with Links"))
 
-                                    (:div :class "widget-content"
-                                          (:div :class "row-fluid"
-                                                
-                                                (str (posts-links-html))
-                                                )))) 
+                                  (:div :class "widget-content"
+                                        (:div :class "row-fluid"
+                                              (str (posts-links-html)))))) 
   
-                        (:div :class "row-fluid"
-                              (:div :class "nonboxy-widget"
-                                    (:div :class "widget-head"
-                                          (:h5 (:i :class "black-icons facebook")
-                                               "FACEBOOK"))
+                      (:div :class "row-fluid"
+                            (:div :class "nonboxy-widget"
+                                  (:div :class "widget-head"
+                                        (:h5 (:i :class "black-icons facebook")
+                                             "FACEBOOK"))
 
-                                    (:div :class "widget-content"
-                                          (:div :class "row-fluid"
-                                                (fb-new-page-likes-graph-html
-                                                 interval-start-date
-                                                 interval-end-date
-                                                 interval))
-                                          (:div :class "row-fluid"
-                                                (fb-page-impressions-graph-html
-                                                 interval-start-date
-                                                 interval-end-date
-                                                 interval))
-                                          (:div :class "row-fluid"
-                                                (fb-total-fans-graph-html
-                                                 interval-start-date
-                                                 interval-end-date
-                                                 interval))
-                                          (:div :class "row-fluid"
-                                                (fb-page-unlikes-graph-html
-                                                 interval-start-date
-                                                 interval-end-date
-                                                 interval)) 
+                                  (:div :class "widget-content"
+                                        (:div :class "row-fluid"
+                                              (fb-new-page-likes-graph-html
+                                               interval-start-date
+                                               interval-end-date
+                                               interval))
+                                        (:div :class "row-fluid"
+                                              (fb-page-impressions-graph-html
+                                               interval-start-date
+                                               interval-end-date
+                                               interval))
+                                        (:div :class "row-fluid"
+                                              (fb-total-fans-graph-html
+                                               interval-start-date
+                                               interval-end-date
+                                               interval))
+                                        (:div :class "row-fluid"
+                                              (fb-page-unlikes-graph-html
+                                               interval-start-date
+                                               interval-end-date
+                                               interval)) 
 
-)))
+                                        )))
                         
-                        (:div :class "row-fluid"
-                              (:div :class "nonboxy-widget"
-                                    (:div :class "widget-head"
-                                          (:h5 (:i :class "black-icons twitter")
-                                               "TWITTER"))
+                      (:div :class "row-fluid"
+                            (:div :class "nonboxy-widget"
+                                  (:div :class "widget-head"
+                                        (:h5 (:i :class "black-icons twitter")
+                                             "TWITTER"))
 
-                                    (:div :class "widget-content"
-                                          (:div :class "row-fluid"
+                                  (:div :class "widget-content"
+                                        (:div :class "row-fluid"
                                                 
-                                                (tw-new-followers-graph-html
-                                                 interval-start-date
-                                                 interval-end-date
-                                                 interval))
-                                          (:div :class "row-fluid"
-                                                (tw-impressions-graph-html
-                                                 interval-start-date
-                                                 interval-end-date
-                                                 interval))
-                                          (:div :class "row-fluid"
-                                                (tw-total-fans-graph-html
-                                                 interval-start-date
-                                                 interval-end-date
-                                                 interval))
-                                          (:div :class "row-fluid"
-                                                (tw-un-followed-graph-html
-                                                 interval-start-date
-                                                 interval-end-date
-                                                 interval))
-                                          )
-                                         ))
+                                              (tw-new-followers-graph-html
+                                               interval-start-date
+                                               interval-end-date
+                                               interval))
+                                        (:div :class "row-fluid"
+                                              (tw-impressions-graph-html
+                                               interval-start-date
+                                               interval-end-date
+                                               interval))
+                                        (:div :class "row-fluid"
+                                              (tw-total-fans-graph-html
+                                               interval-start-date
+                                               interval-end-date
+                                               interval))
+                                        (:div :class "row-fluid"
+                                              (tw-un-followed-graph-html
+                                               interval-start-date
+                                               interval-end-date
+                                               interval))
+                                        )
+                                  ))
 
                          
-                        (:div :class "row-fluid"
-                              (:div :class "nonboxy-widget"
-                                    (:div :class "widget-head"
-                                          (:h5 
-                                           "User stats"))
+                      (:div :class "row-fluid"
+                            (:div :class "nonboxy-widget"
+                                  (:div :class "widget-head"
+                                        (:h5 
+                                         "User stats"))
 
-                                    (:div :class "widget-content"
-                                          (:div :class "widget-box"
-                                                (:div :class "row-fluid"
-                                                      (str (user-stats-html (gv 'users-stats))))))))
-                        (:div :class "row-fluid"
-                              (:div :class "nonboxy-widget"
-                                    (:div :class "widget-head"
-                                          (:h5 
-                                           "Content Stats"))
+                                  (:div :class "widget-content"
+                                        (:div :class "widget-box"
+                                              (:div :class "row-fluid"
+                                                    (str (user-stats-html (gv 'users-stats))))))))
+                      (:div :class "row-fluid"
+                            (:div :class "nonboxy-widget"
+                                  (:div :class "widget-head"
+                                        (:h5 
+                                         "Content Stats"))
 
-                                    (:div :class "widget-content"
-                                          (:div :class "widget-box"
-                                                (:div :class "row-fluid"
-                                                      (str (content-stats-html
-                                                            (gv 'content-stats))))))))
+                                  (:div :class "widget-content"
+                                        (:div :class "widget-box"
+                                              (:div :class "row-fluid"
+                                                    (str (content-stats-html
+                                                          (gv 'content-stats))))))))
 
-                        (:div :class "row-fluid"
-                              (:div :class "nonboxy-widget"
-                                    (:div :class "widget-head"
-                                          (:h5 
-                                           "Mentioner Stats"))
+                      (:div :class "row-fluid"
+                            (:div :class "nonboxy-widget"
+                                  (:div :class "widget-head"
+                                        (:h5 
+                                         "Mentioner Stats"))
 
-                                    (:div :class "widget-content"
-                                          (:div :class "widget-box"
-                                                (:div :class "row-fluid"
-                                                      (str (mentioner-stats-html 
-                                                            (if (> (length (gv 'mentions-of-me-in-tweets-mentioner-count-range)) 10)
-                                                                (subseq (gv 'mentions-of-me-in-tweets-mentioner-count-range)
-                                                                        0 9)
-                                                                (gv 'mentions-of-me-in-tweets-mentioner-count-range)))))))))
+                                  (:div :class "widget-content"
+                                        (:div :class "widget-box"
+                                              (:div :class "row-fluid"
+                                                    (str (mentioner-stats-html 
+                                                          (if (> (length (gv 'mentions-of-me-in-tweets-mentioner-count-range)) 10)
+                                                              (subseq (gv 'mentions-of-me-in-tweets-mentioner-count-range)
+                                                                      0 9)
+                                                              (gv 'mentions-of-me-in-tweets-mentioner-count-range)))))))))
                         
                         
-                        #|
-                        (:div :class "row-fluid"
-                              (:div :class "nonboxy-widget"
-                                    (:div :class "widget-head"
-                                          (:h5 (:i :class "black-icons twitter")
-                                               "Twitter"))
+                      #|
+                      (:div :class "row-fluid"
+                      (:div :class "nonboxy-widget"
+                      (:div :class "widget-head"
+                      (:h5 (:i :class "black-icons twitter")
+                      "Twitter"))
 
-                                    (:div :class "widget-content"
-                                          (:div :class "widget-box"
-                                                (:div :class "row-fluid"
-                                                      (str (tw-new-followers-graph))
-                                                      (str (tw-impressions-graph))
-                                                      (str (tw-total-fans-graph))
-                                                      (str (tw-un-followed-graph)))))))
+                      (:div :class "widget-content"
+                      (:div :class "widget-box"
+                      (:div :class "row-fluid"
+                      (str (tw-new-followers-graph))
+                      (str (tw-impressions-graph))
+                      (str (tw-total-fans-graph))
+                      (str (tw-un-followed-graph)))))))
                           
-                        |#
+                      |#
                           
                         (:div :class "row-fluid"
                               (:div :class "nonboxy-widget"
@@ -2594,5 +2529,5 @@
                                                          (:td :style "border: 1px solid black; width: 250px;" (str key))
                                                          (:td :style "border: 1px solid black;" (str val)))))
                                                  *calc-values*)))))) )
-                  ))))))
+                  )))))
 

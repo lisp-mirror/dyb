@@ -17,6 +17,7 @@
     :documentation "This can be a compound value")
    (end-time :initarg :end-time
              :documentation "The time stamp for when the insight was valid."
+             :accessor end-time
              :key t))
   (:metaclass storable-versioned-class))
 
@@ -41,17 +42,26 @@
              (equal (universal-date-strip-time end-time) 
                     (universal-date-strip-time (get-val doc 'end-time)) )))))
 
+(defun map-generic-insight-values (function channel-user insight start-time end-time)
+  (map-docs
+   nil
+   (lambda (doc)
+     (when (and
+            (eq channel-user (channel-user doc))
+            (string-equal (insight doc) insight)
+            (<= start-time (end-time doc) end-time))
+       (funcall function doc)))
+   (generic-insight-value-collection)))
+
 (defun get-generic-insight-values (channel-user insight start-time end-time)
   (find-docs  
    'list
    (lambda (doc)
-           (when (and
-                  (equal (id channel-user) (id (get-val doc 'channel-user)))
-                  (string-equal (get-val doc 'insight) 
-                           insight)
-                  (<= start-time (get-val doc 'end-time))
-                  (>= end-time (get-val doc 'end-time)))
-             doc))
+     (when (and
+            (eq channel-user (channel-user doc))
+            (string-equal (insight doc) insight)
+            (<= start-time (end-time doc) end-time))
+       doc))
    (generic-insight-value-collection)))
 
 (defmethod doc-collection ((doc generic-insight-value))

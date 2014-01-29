@@ -76,9 +76,7 @@
   (if (listp (payload post))
       (apply #'assoc-path (payload post) (flatten keys))))
 
-(defgeneric gpv (post &rest keys))
-
-(defmethod gpv (post &rest keys)
+(defun gpv (post &rest keys)
   (cdr (gpkv post keys)))
 
 (defgeneric post-id (generic-post))
