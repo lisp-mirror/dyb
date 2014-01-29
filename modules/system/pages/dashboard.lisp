@@ -16,10 +16,6 @@
     (declare (ignore sec min hour))
     (encode-universal-time 0 0 0 day month year (time-zone))))
 
-(defun non-zero (values)
-  "Selects the first not 0 value."
-  (or (find 0 values :test #'/=) 0))
-
 (defun short-url-clicks (start-date end-date)
   (let ((count 0))
     (find-docs 'list
@@ -1346,10 +1342,6 @@
      (generic-actions-collection))
     count))
 
-
-
-
-
 (defun set-calc-vals (istd iend
                       prev-istd 
                       prev-iend)
@@ -1659,10 +1651,7 @@
       (sv 'content-stats
           (content-stats (gethash 'users-posts calc-values)))
       (sv 'audiance-stats
-          (audiance-stats (gethash 'users-posts calc-values)))
-      
-      
-      )
+          (audiance-stats (gethash 'users-posts calc-values))))
     calc-values))
 
 
@@ -1673,8 +1662,8 @@
 
 (defun reach-small-graph ()
   (with-html-string
-   (let* ((prev (+  
-                 (non-zero (reverse (gv '(gv 'fb-fans-interval-prev-list))))
+   (let* ((prev (+
+                 (or (cadar (last (gv 'fb-fans-interval-prev-list))) 0)
                  (or (gv 'fb-page-impressions-prev-count) 0)
                  (or (gv 'twitter-followers-prev-count) 0)
                  (* (or (gv 'twitter-followers-prev-count) 0)
@@ -1683,8 +1672,8 @@
                  (or (gv 'twitter-at-mentions-prev-count) 0)
                  ;;linkedin-connections-count
                  ))
-          (cur (+  
-                (non-zero (reverse (gv 'fb-fans-interval-list)))
+          (cur (+
+                (or (cadar (last (gv 'fb-fans-interval-list))) 0)
                 (or (gv 'fb-page-impressions-count) 0)
                 (or (gv 'twitter-followers-count) 0)
                 (* (or (gv 'twitter-followers-count) 0)
@@ -1768,7 +1757,7 @@
               (str (community-summary-item  
                     "All Accounts"
                     (+ 
-                     (non-zero (reverse (gv 'fb-fans-interval-list)) )
+                     (or (cadar (last (gv 'fb-fans-interval-list))) 0)
                      (or (gv 'twitter-followers-count) 0)
                      (or (gv 'linkedin-connections-count) 0))
                     "/appimg/user-accounts.png"
@@ -1777,7 +1766,7 @@
              (:li
               (str (community-summary-item  
                     " Facebook"
-                    (non-zero (reverse (gv 'fb-fans-interval-list)) )
+                    (or (cadar (last (gv 'fb-fans-interval-list))) 0)
                     "/appimg/Facebook_Light_Logo.png"
                     "Facebook Friends"
                     t)))
