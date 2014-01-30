@@ -1103,10 +1103,6 @@
          :key #'car))
     posts))
 
-
-
-
-
 (defun users-stats (users-posts)
   (let ((stats))
 
@@ -1327,7 +1323,7 @@
            :post-type "Facebook"))
 
       (sv 'fb-scheduled-prev-count
-          (posts-scheduled-range-count 
+          (posts-scheduled-range-count
            prev-istd 
            prev-iend
            :post-type "Facebook"))
@@ -1544,11 +1540,9 @@
            prev-iend))
 
       (sv 'twitter-at-mentions-followers-range
-          (time(mentions-of-me-in-tweets-mentioner-followers-range
-            prev-istd 
-            prev-iend)))
-
-      
+          (mentions-of-me-in-tweets-mentioner-followers-range
+           prev-istd 
+           prev-iend))
 
       (sv 'tweets-scheduled-count
           (posts-scheduled-range-count 
@@ -1780,9 +1774,45 @@
                                          0))))
         
         (when (or (> max-date u-date) (= max-date 0))
-          (setf filled-range (append filled-range (list range-val)))))
-      )
+          (setf filled-range (append filled-range (list range-val))))))
     filled-range))
+
+(defun normalize-gaps (data)
+  (loop for previous-time = nil then time
+        for previous-value = nil then value
+        for entry in data
+        for (date value) = entry
+        for time = (string-to-date date :date-spacer #\- :reverse-date-sequence-p t)
+        when (and previous-value
+                  previous-time
+                  value
+                  (not (eql previous-value value))
+                  (> (- time previous-time) +24h-secs+))
+        collect (list (format-universal-date-dash (- time +24h-secs+))
+                      previous-value)
+        collect entry))
+
+(defun normalize-data (data start-date end-date)
+  (when data
+    (let* ((data (normalize-gaps data))
+           (first (first data))
+           (last (car (last data)))
+           (start-date (format-universal-date-dash start-date))
+           (end-date (format-universal-date-dash end-date))
+           (start-equal (equal start-date (first first)))
+           (end-equal (equal end-date (first last))))
+      (cond ((and start-equal end-equal)
+             data)
+            (end-equal
+             (cons (list start-date (second first))
+                   data))
+            (start-equal
+             (cons (list end-date (second last))
+                   data))
+            (t
+             (list* (list start-date (second first))
+                    (list end-date (second last))
+                    data))))))
 
 (defun network-size-graph (min-date max-date interval)
   (%line-graph
@@ -1790,18 +1820,14 @@
    "Change in Network"
    (format-universal-date-dash min-date)
    (format-universal-date-dash max-date)
-   (if (and (gv 'twitter-followers-interval-list)
-            (gv 'fb-fans-interval-list))
-       `((,@(fill-blanks (gv 'twitter-followers-interval-list)
-                         min-date max-date :smooth-range t))
-         (,@(fill-blanks (gv 'fb-fans-interval-list)
-                         min-date max-date :smooth-range t)))
-       (if (gv 'twitter-followers-interval-list)
-           `((,@(fill-blanks (gv 'twitter-followers-interval-list)
-                             min-date max-date :smooth-range t)))
-           (if (gv 'fb-fans-interval-list)
-               `((,@(fill-blanks (gv 'fb-fans-interval-list)
-                                 min-date max-date :smooth-range t))) )))
+   (let ((twitter (normalize-data (gv 'twitter-followers-interval-list) min-date max-date))
+         (facebook (normalize-data (gv 'fb-fans-interval-list) min-date max-date)))
+     (cond ((and twitter facebook)
+            (list twitter facebook))
+           (twitter
+            (list twitter))
+           (facebook
+            (list facebook))))
    interval
    :series  '((:show-marker nil
                :color "#00ACED"
@@ -2315,11 +2341,11 @@
              (- now (* +24h-secs+ (* interval 2))))
            (previous-interval-end-date 
              (- now (* +24h-secs+ interval)))
-           (*calc-values* (time(set-calc-vals
-                            interval-start-date
-                            interval-end-date
-                            previous-interval-start-date 
-                            previous-interval-end-date))))
+           (*calc-values* (set-calc-vals
+                           interval-start-date
+                           interval-end-date
+                           previous-interval-start-date 
+                           previous-interval-end-date)))
       (render page
               :body 
               (with-html-string
