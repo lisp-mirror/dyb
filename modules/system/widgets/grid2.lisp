@@ -63,56 +63,10 @@
 
 (defclass dyb-grid-filter-selector (grid-filter-selector)
   ()
-  (:default-initargs :css-class "grid-filter"))
+  (:default-initargs :css-class "widget-control grid-filter"
+                     :label "Filter by:"))
 
 (register-widget *dyb-theme* 'grid-filter-selector 'dyb-grid-filter-selector)
-
-(defmethod render ((widget dyb-grid-filter-selector) &key)
-  (let* ((grid (grid widget))
-         (param (get-parameter "filter"))
-         (custom-filter (and param
-                             (find-symbol (string-upcase param)
-                                          :keyword)))
-         (defined-filters (list-grid-filters (grid widget)))
-         (filters (if custom-filter
-                      (cons custom-filter defined-filters)
-                      defined-filters)))
-    (when (and (not *in-ajax-request*)
-               (not custom-filter)
-               (filter-parameters grid))
-      (setf (grid-filter grid) nil
-            (filter-parameters grid) nil))
-    (with-html
-      (:div :class "widget-control grid-filter"
-            (when filters
-              (htm
-               (:label "Filter by:")
-               (let ((select (make-widget 'select
-                                          :name (sub-name widget "filter-select")
-                                          :first-item "Select All")))
-                 (setf (on-change select)
-                       (js-render grid (js-value select)))
-                 (when custom-filter
-                   (setf (grid-filter grid) custom-filter
-                         (filter-parameters grid) (get-parameters*))
-                   ;; a hack so that subsequent grids don't get confused
-                   (setf (slot-value *request* 'get-parameters)
-                         (remove "filter" (get-parameters*)
-                                 :test #'equal
-                                 :key #'car)))
-                 (cond ((parameter (name select))
-                        (setf (grid-filter grid)
-                              (find (value select) filters
-                                    :test #'string-equal)))
-                       (t
-                        (setf (value select) (if custom-filter
-                                                 (string-upcase custom-filter)
-                                                 "Select All")
-                              (items select)
-                              (mapcar #'string-capitalize filters))))
-                 (js-render widget (js-value select))
-                 (render select))))
-            (add-actions-menu grid)))))
 
 ;;;
 
