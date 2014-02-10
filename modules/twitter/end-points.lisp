@@ -9,8 +9,8 @@
 
 (defun twitter-callback-uri ()
   (if (string-equal *installation* "Live Serve")
-                      "http://app.digyourbrand.co.za/dyb/twitter-oauth-callback"
-                      "http://local.dataxware.co.za/dyb/twitter-oauth-callback"))
+                      "https://app.digyourbrand.co.za/dyb/twitter-oauth-callback"
+                      "https://local.dataxware.co.za/dyb/twitter-oauth-callback"))
 
 (defun twitter-request-token ()
   (let* ((end-point "https://api.twitter.com/oauth/request_token")
@@ -77,7 +77,7 @@
 
 ;;TODO: Implement this correctly;
 (defun twitter-search (user &key since-id)
-  (let* ((end-point (format nil "http://api.twitter.com/1.1/statuses/home_timeline.json?user_id=~A&count=800&since_id=~A&include_rts=true&contributor_details=true" 
+  (let* ((end-point (format nil "https://api.twitter.com/1.1/statuses/home_timeline.json?user_id=~A&count=800&since_id=~A&include_rts=true&contributor_details=true" 
                             (get-val user 'user-id)
                              (at-least-1 since-id))))
     (twitter-request
@@ -93,7 +93,7 @@
      :handle-response-p nil)))
 
 (defun twitter-mention-timeline (user &key since-id)
-  (let* ((end-point (format nil "http://api.twitter.com/1.1/statuses/mentions_timeline.json?user_id=~A&count=800&since_id=~A&include_rts=true&include_entities=true&contributor_details=true" 
+  (let* ((end-point (format nil "https://api.twitter.com/1.1/statuses/mentions_timeline.json?user_id=~A&count=800&since_id=~A&include_rts=true&include_entities=true&contributor_details=true" 
                             (get-val user 'user-id)
                             (if since-id
                                 since-id
