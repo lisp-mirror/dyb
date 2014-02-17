@@ -101,7 +101,7 @@
       ))))
 
 (defun facebook-post-display (grid row col-val row-id)
-  (declare (ignore row))
+  ;;(declare (ignore row))
 ;;(break "~A" col-val)
   (with-html-string
     (:div 
@@ -133,16 +133,37 @@
                                   ;;(:img :src "/appimg/fb-like.png")
                                   (str "Like")
                                   ))
-                       (:span :class "action-icon" (str (if (gpv col-val :likes :count)
-                                                            (gpv col-val :likes :count)
-                                                            0)))
+                       (:span :class "action-icon" 
+                              (str 
+                               (if (gpv 
+                                    (gethash :post-likes 
+                                             (get-val row 'post-data)) 
+                                    :summary :total--count)
+                                   (gpv 
+                                    (gethash :post-likes 
+                                             (get-val row 'post-data)) 
+                                    :summary :total--count)
+                                   0
+                                   )))
                        (:span :class "action-icon" :title "Comment"
                               (:a :href "#" 
                                   :onclick (format nil "$(\"#comments-~A\").toggle(); return false;"
                                                    (gpv col-val :id))
                                   ;;(:img :src "/appimg/fb-comment.png")
-                                  (str "comment")))
-                       (:span :class "action-icon" (str (gpv col-val :comments :count)))
+                                  (str "Comments")))
+                       (:span :class "action-icon" (str 
+                                                    (if (gpv 
+                                                         (gethash 
+                                                          :post-comments 
+                                                          (get-val row 'post-data))
+                                                         :summary :total--count)
+                                                        (gpv 
+                                                         (gethash 
+                                                          :post-comments 
+                                                          (get-val row 'post-data)) 
+                                                         :summary :total--count)
+                                                        0
+                                                        )))
                        ;;(:span :class "action-icon" :title "Share"
                        ;;       (:a :href "#" (:img :src "/appimg/fb-share.png")))
                        )))
@@ -155,8 +176,8 @@
              
              
              (:br)
-             
-             (dolist (comment (gpv col-val :comments :data))
+             ;;(when (> (hash-table-count (get-val row 'post-data) ) 0) (break "~A" row))
+             (dolist (comment (gpv (gethash :post-comments (get-val row 'post-data)) :data))
                (htm 
 
                 (:table :style "border:none,border-collapse: collapse;"

@@ -115,6 +115,22 @@
     date))
 
 
+(defun fb-update-last-4-weeks (channel-user last-date)
+  (map-docs nil
+            (lambda (doc)
+              (when (and (string-equal (post-type doc) "Facebook")
+                         (string-equal (channel-user-name (channel-user doc)) (channel-user-name channel-user))
+                         (>= (created-date doc) (- last-date (* 6 7 +24h-secs+))))
+                
+                (setf (gethash :post-comments (get-val doc 'post-data)) 
+                      (facebook-comments (channel-user doc) (raw-post-id doc'facebook)))
+                (setf (gethash :post-likes (get-val doc 'post-data)) 
+                      (facebook-likes (channel-user doc) (raw-post-id doc 'facebook)))
+                (persist doc)
+                ;;(break "~A" doc)
+                ))
+            (generic-post-collection)))
+
 (defun fb-clear-last-week (channel-user last-date)
   (map-docs nil
             (lambda (doc)
@@ -137,4 +153,7 @@
                                         (- last-date (* 14 +24h-secs+))))
              ;; (break "~A" posts)
               (unless error
-                (parse-facebook-posts channel-user posts 'facebook-feed)))))))
+                (parse-facebook-posts channel-user posts 'facebook-feed))
+                (fb-update-last-4-weeks channel-user (if (> last-date 0)
+                                        (- last-date (* 14 +24h-secs+))))
+              )))))

@@ -34,6 +34,22 @@
                (universal-time-to-unix-time (parse-date "01 Jan 2011"))))
             (get-val user 'last-access-token)))))
 
+(defun facebook-comments (user post-id)
+  (handle-endpoint
+   user
+   (drakma:http-request 
+    (format nil "https://graph.facebook.com/~A/comments?summary=1&filter=stream&access_token=~A" 
+            post-id
+            (get-val user 'last-access-token)))))
+
+(defun facebook-likes (user post-id)
+  (handle-endpoint
+   user
+   (drakma:http-request 
+    (format nil "https://graph.facebook.com/~A/likes?summary=1&filter=streamaccess_token=~A" 
+            post-id
+            (get-val user 'last-access-token)))))
+
 (defun post-facebook (user-id message)
   (let ((user (get-channel-user-by-user-id user-id "Facebook")))
     (handle-endpoint 

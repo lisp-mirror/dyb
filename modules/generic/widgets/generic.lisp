@@ -198,7 +198,7 @@ $('#processed-content').text(s)})")
                (cond ((not channel-user)
                       (setf (error-message grid) "No account found."))
                      ((string-equal service "Facebook")
-                      (break "?")
+                     ;; (break "?")
                       (let ((action (add-generic-post-action service
                                                              channel-user
                                                              "Post"

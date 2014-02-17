@@ -459,20 +459,32 @@
        when (string-equal (get-val post 'post-type) 
                           "Facebook")
        when (get-val post 'payload)
-       when (gpv (get-val post 'payload) :likes :count)
+       when (gpv 
+             (gethash :post-likes 
+                      (get-val post 'post-data)) 
+             :summary :total--count)
        when  (and (<= start-date 
                       (parse-facebook-created-at 
                        (gpv (get-val post 'payload) :created--time))) 
                   (>= end-date 
                       (parse-facebook-created-at 
                        (gpv (get-val post 'payload) :created--time))))
-       do (incf count (gpv (get-val post 'payload) :likes :count)))
+       do (incf count (if (gpv 
+                           (gethash :post-likes 
+                                    (get-val post 'post-data)) 
+                           :summary :total--count)
+                          (gpv 
+                           (gethash :post-likes 
+                                    (get-val post 'post-data)) 
+                           :summary :total--count)
+                          0
+                          )))
     count))
 
 
-(defun fb-comment-dates-count (payload start-date end-date)
+(defun fb-comment-dates-count (post start-date end-date)
   (let ((count 0))   
-    (dolist (comment  (gpv payload :comments :data))
+    (dolist (comment  (gpv (gethash :post-comments (get-val post 'post-data)) :data))
       (when (and (<= start-date 
                      (parse-facebook-created-at 
                       (gpv comment :created--time))) 
@@ -490,7 +502,7 @@
                           "Facebook")
        do (incf count (fb-comment-dates-count 
                         
-                       (get-val post 'payload)
+                       post
                        start-date
                        end-date)))
     count))
@@ -1053,9 +1065,15 @@
        when (string-equal (get-val post 'post-type) 
                           "Facebook")
        when (get-val post 'payload)
-       when (gpv (get-val post 'payload) :likes :count)
+       when (gpv 
+             (gethash :post-likes 
+                      (get-val post 'post-data)) 
+             :summary :total--count)
 
-       do (incf count (gpv (get-val post 'payload) :likes :count)))
+       do (incf count (gpv 
+                       (gethash :post-likes 
+                                (get-val post 'post-data)) 
+                       :summary :total--count)))
     count))
 
 
@@ -1065,9 +1083,17 @@
        when (string-equal (get-val post 'post-type) 
                           "Facebook")
        when (get-val post 'payload)
-       when (gpv (get-val post 'payload) :comments :data)
+       when (gpv 
+             (gethash 
+              :post-comments 
+              (get-val post 'post-data))
+             :summary :total--count)
 
-       do (incf count (length (gpv (get-val post 'payload) :comments :data))))
+       do (incf count (gpv 
+                       (gethash 
+                        :post-comments 
+                        (get-val post 'post-data))
+                       :summary :total--count)))
     count))
 
 
@@ -2106,7 +2132,7 @@
    :span "span12"))
 
 (defun posts-links-html ()
-  (%bar-graph "test" "test"   
+  (%bar-graph "_" " "   
               `((,(or (gv 'posts-scheduled-count) 0))
                 (,(or (gv 'posts-with-links-count) 0)))
               '("Posts")
