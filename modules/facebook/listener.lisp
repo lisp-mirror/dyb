@@ -147,7 +147,7 @@
     (when (facebook-valid-user channel-user)
           (let ((last-date (get-last-post-date channel-user)))
             ;;TODO: Remove this again later when realtime is introduced
-            (fb-clear-last-week channel-user last-date)
+            ;;(fb-clear-last-week channel-user last-date)
             (multiple-value-bind (posts error)
                 (facebook-feed channel-user (if (> last-date 0)
                                         (- last-date (* 14 +24h-secs+))))
