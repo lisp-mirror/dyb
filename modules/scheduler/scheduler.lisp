@@ -34,7 +34,7 @@
              (sb-debug::map-backtrace
               (lambda (x)
                 (print (sb-di:debug-fun-name (sb-di:frame-debug-fun x))
-                       string)))) ))
+                       string))))))
     (if (>= (length string) 65535)
         (subseq string 0 65535)
         string)))
@@ -68,22 +68,27 @@
       (log-error (frmt "Failed to send email for error in ~s" task-name)
                  c))))
 
-(defun start-task-thread (task-name function)
+(defun start-task-thread (task-name function &key (retries-on-network-error 5))
   (bordeaux-threads:make-thread
    (lambda ()
-     (block nil
-       (tagbody
-        :retry
-          (handler-bind ((usocket:timeout-error
-                           (lambda (c)
-                             (declare (ignore c))
-                             (go :retry)))
-                         (serious-condition
-                           (lambda (condition)
-                             (send-error-email condition task-name)
-                             (log-error task-name condition)
-                             (return))))
-            (funcall function)))))
+     (prog ((retries 0))
+      :retry
+        (handler-bind (((or usocket:socket-condition
+                            drakma:drakma-error)
+                         (lambda (condition)
+                           (when (<= (incf retries) retries-on-network-error)
+                             (sleep (* retries 4))
+                             (go :retry))
+                           (send-error-email condition task-name)
+                           (log-error task-name condition)
+                           (return)))
+                       (serious-condition
+                         (lambda (condition)
+                           (send-error-email condition task-name)
+                           (log-error task-name condition)
+                           (return))))
+          (funcall function)
+          (setf retries 0))))
    :name task-name))
 
 (defun post-scheduled-action (action)
