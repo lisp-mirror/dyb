@@ -63,7 +63,7 @@
 
 (defclass dyb-grid-filter-selector (grid-filter-selector)
   ()
-  (:default-initargs :css-class "widget-control grid-filter"
+  (:default-initargs :css-class "grid-filter"
                      :label "Filter by:"))
 
 (register-widget *dyb-theme* 'grid-filter-selector 'dyb-grid-filter-selector)
@@ -183,6 +183,9 @@
                       (js-pair "grid-name" (name grid))
                       (js-pair "action" "new"))))))
 
-(defun add-actions-menu (grid)
-  (drop-down-menu (list-grid-actions grid)))
-
+(defmethod render-header-buttons ((grid dyb-grid))
+  (with-html
+    (:div :class "widget-control"
+          (call-next-method)
+          (:div :style "display:inline-block"
+                (drop-down-menu (list-grid-actions grid))))))

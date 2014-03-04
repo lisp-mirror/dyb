@@ -7,10 +7,7 @@
 (defclass tree (ajax-widget)
   ((action :initarg :action :initform nil :accessor action)
    (selected-nodes :initarg :seleted-nodes :initform nil
-                   :accessor selected-nodes)
-   (css-class :initarg :css-class
-              :initform nil
-              :accessor css-class)))
+                   :accessor selected-nodes)))
 
 (defclass tree-node (widget)
   ((caption :initarg :caption :initform nil)

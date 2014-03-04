@@ -145,7 +145,6 @@
    :status
    :employment-equity-strategies
    :defer-js
-   :apply-grid-filter
    :list-grid-filters
    :filter-parameters
    :get-entity-by-id

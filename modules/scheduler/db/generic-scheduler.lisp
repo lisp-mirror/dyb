@@ -127,7 +127,6 @@
                                       :short-url short-url)))))
 
 (defun post-action-abandoned-email (action)
-  
   (send-system-mail  
    (frmt "[DYB]: ~a ~a abondened retires"
          (post-type action) (action-type action))
