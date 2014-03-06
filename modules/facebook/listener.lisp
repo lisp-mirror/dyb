@@ -115,12 +115,16 @@
     date))
 
 
-(defun fb-update-last-4-weeks (channel-user last-date)
+(defun fb-update-last-4-weeks (channel-user last-date weeks)
+  (unless weeks
+    (set weeks 4)
+    )
   (map-docs nil
             (lambda (doc)
               (when (and (string-equal (post-type doc) "Facebook")
                          (string-equal (channel-user-name (channel-user doc)) (channel-user-name channel-user))
-                         (>= (created-date doc) (- last-date (* 6 7 +24h-secs+))))
+                         (and (created-date doc) last-date)
+                         (>= (created-date doc) (- last-date (* weeks 7 +24h-secs+))))
                 
                 (setf (gethash :post-comments (get-val doc 'post-data)) 
                       (facebook-comments (channel-user doc) (raw-post-id doc'facebook)))
@@ -154,6 +158,31 @@
              ;; (break "~A" posts)
               (unless error
                 (parse-facebook-posts channel-user posts 'facebook-feed))
-                (fb-update-last-4-weeks channel-user (if (> last-date 0)
-                                        (- last-date (* 14 +24h-secs+))))
+                (fb-update-last-4-weeks channel-user 
+                                        (if (> last-date 0)
+                                        (- last-date (* 14 +24h-secs+))
+                                        
+                                        )
+                                        6
+                                        )
               )))))
+
+
+(defun facebook-refresh-context-feeds ()
+  (dolist (channel-user (coerce (channel-users) 'list ))
+    (when (match-context-entities channel-user )
+        (when (facebook-valid-user channel-user)
+          (let ((last-date (get-last-post-date channel-user)))
+            ;;TODO: Remove this again later when realtime is introduced
+            ;;(fb-clear-last-week channel-user last-date)
+            (multiple-value-bind (posts error)
+                (facebook-feed channel-user (if (> last-date 0)
+                                                (- last-date (* 14 +24h-secs+))))
+              ;; (break "~A" posts)
+              (unless error
+                (parse-facebook-posts channel-user posts 'facebook-feed))
+              (fb-update-last-4-weeks channel-user (if (> last-date 0)
+                                                       (- last-date (* 14 +24h-secs+)))
+                                      2
+                                      )
+              ))))))

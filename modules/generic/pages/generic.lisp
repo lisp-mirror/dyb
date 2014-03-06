@@ -193,6 +193,15 @@
                                                  "https://graph.facebook.com/~A/picture" 
                                                  (gpv comment :from :id))
                                          "/appimg/user-thumb.png"))
+                        (:a :href
+                            (js-link 
+                             (js-render (editor grid)
+                                        (js-pair "grid-name" (name grid))
+                                        (js-pair "comment-id" (gpv comment :id))
+                                        (js-pair "action" "facebook-comment-reply")
+                                        (js-pair "row_id" row-id)))
+                        
+                            (str "Reply"))
                         ))
                         
                   (:td (str  (gpv comment :message)))))

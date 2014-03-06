@@ -4,6 +4,9 @@
   ((grid :initarg :grid
          :initform nil
          :accessor grid)
+   (reply-id :initarg :reply-id
+         :initform nil
+         :accessor reply-id)
    (message :initarg :message
             :accessor message))
   (:metaclass widget-class))
@@ -21,8 +24,10 @@
                                     :name "form-section"))
          
          (current-post (set-current-row (get-val widget 'grid)))
-         (post-id (gpv current-post :id)))
+         
+         (post-id (or (reply-id widget) (gpv current-post :id))))
 
+   ;; (break "~A" (reply-id widget))
     (with-html 
       (when (parameter "action")
         (render comment-form
@@ -79,7 +84,9 @@
          widget
          action
          result
-         error-message)))))
+         error-message))
+      (facebook-refresh-context-feeds)
+      )))
 
 (defmethod handle-action ((grid generic-grid) (action (eql :facebook-comment)))
 
@@ -87,6 +94,17 @@
         (make-widget 'fb-post-comment-form 
                      :grid grid 
                      :name "facebook-comment-action-form")))
+
+(defmethod handle-action ((grid generic-grid) (action (eql :facebook-comment-reply)))
+  (let ((form (make-widget 'fb-post-comment-form 
+                           :grid grid 
+                           :name "facebook-comment-action-form"
+                           :reply-id (parameter "comment-id")
+                           )))
+    ;;(break "~a" form)
+    (setf (reply-id form) (parameter "comment-id"))
+    (setf (action-widget grid) form
+          )))
 
 (defclass fb-like-post-form (ajax-widget)
   ((grid :initarg :grid

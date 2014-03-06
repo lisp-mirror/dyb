@@ -63,6 +63,12 @@
     
     (render page :body
             (with-html-string
+              (:br)
+              (:br)
+              (:br)
+              (:br)
+              (:br)
+              (:br)
               (:form :name "fetch-data"
                      :method :post
                      (:input :type "submit" :name "get-facebook-data" 
