@@ -110,6 +110,9 @@
   ((grid :initarg :grid
          :initform nil
          :accessor grid)
+   (like-id :initarg :like-id 
+         :initform nil
+         :accessor like-id)
    (message :initarg :message
             :accessor message))
   (:metaclass widget-class))
@@ -127,7 +130,7 @@
                                     :name "form-section"))
          
          (current-post (set-current-row (get-val widget 'grid)))
-         (post-id (gpv current-post :id)))
+         (post-id (or (like-id widget) (gpv current-post :id))))
     (setf (get-val like-form 'grid-size) 2)
 
     (with-html 
@@ -152,10 +155,18 @@
         (str (get-val widget 'message))))))
 
 (defmethod handle-action ((grid generic-grid) (action (eql :post-facebook-like)))
-  (setf (action-widget grid)
-        (make-widget 'fb-like-post-form 
+  (setf (action-widget grid) (make-widget 'fb-like-post-form 
                      :grid grid 
                      :name "facebook-like-action-form")))
+
+
+(defmethod handle-action ((grid generic-grid) (action (eql :post-facebook-comment-like)))
+  (let ((form (make-widget 'fb-like-post-form 
+                     :grid grid 
+                     :name "facebook-like-action-form")))
+    (setf (like-id form) (parameter "comment-id"))
+    (setf (action-widget grid) form)))
+
 
 (defmethod action-handler ((widget fb-like-post-form))
   (when (string-equal (parameter "action") "do-post-facebook-like")

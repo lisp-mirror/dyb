@@ -193,6 +193,7 @@
                                                  "https://graph.facebook.com/~A/picture" 
                                                  (gpv comment :from :id))
                                          "/appimg/user-thumb.png"))
+                        (:br)
                         (:a :href
                             (js-link 
                              (js-render (editor grid)
@@ -202,7 +203,27 @@
                                         (js-pair "row_id" row-id)))
                         
                             (str "Reply"))
-                        ))
+                        (:a :href (js-link 
+                                   (js-render (editor grid)
+                                              (js-pair "grid-name" (name grid))
+                                              (js-pair "comment-id" (gpv comment :id))
+                                              (js-pair "action" "post-facebook-comment-like")
+                                              (js-pair "row_id" row-id))) 
+                            ;;(:img :src "/appimg/fb-like.png")
+                            (str "Like")
+                            )
+                        (:span :class "action-icon" 
+                              (str 
+                               (if (gpv comment :like-count)
+                                   (gpv comment :like-count)
+                                   0
+                                   ))
+                              
+                              )
+                        
+                        )
+                       
+                       )
                         
                   (:td (str  (gpv comment :message)))))
                 
