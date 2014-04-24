@@ -33,8 +33,11 @@
                                     'social-mention
                                     mention
                                     stream-type
-                                    (unix-time-to-universal 
-                                     (gpv mention :timestamp))
+                                    (if (gpv mention :timestamp)
+                                        (unix-time-to-universal 
+                                         (gpv mention :timestamp))
+                                        (get-universal-time)
+                                        )
                                     ;;TODO: last-change-date
                                     ))
         ))))
