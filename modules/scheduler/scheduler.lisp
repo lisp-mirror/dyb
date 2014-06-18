@@ -194,29 +194,34 @@
   (loop for action across (generic-actions)
         when (equal (action-status action) "Pending")
         do
-        (let ((now (get-universal-time)))
+        (let* ((now (get-universal-time))
+               (yesterday (- now +24h-secs+)))
           (typecase action
             (generic-action
-             (when (< (scheduled-date action) now)
-               (block nil
-                 (handler-bind
-                     ((serious-condition
-                        (lambda (condition)
-                          (cond ((>= (length (action-log action)) 5)
-                                 (setf (action-status action) "Abandoned Retries")
-                                 (persist action)
-                                 (log-error (frmt "post-scheduled-actions ~a ~a"
-                                                  (post-type action)
-                                                  (action-type action))
-                                            condition)
-                                 (post-action-abandoned-email action))
-                                (t
-                                 (add-generic-action-log action
-                                                         "Error"
-                                                         (princ-to-string condition)
-                                                         "Pending")))
-                          (return))))
-                   (post-scheduled-action action)))))))))
+             (cond ((< (scheduled-date action) yesterday)
+                    ;; Too late, abandon it.
+                    (setf (action-status action) "Abandoned Retries")
+                    (persist action))
+                   ((< (scheduled-date action) now)
+                    (block nil
+                      (handler-bind
+                          ((serious-condition
+                             (lambda (condition)
+                               (cond ((>= (length (action-log action)) 5)
+                                      (setf (action-status action) "Abandoned Retries")
+                                      (persist action)
+                                      (log-error (frmt "post-scheduled-actions ~a ~a"
+                                                       (post-type action)
+                                                       (action-type action))
+                                                 condition)
+                                      (post-action-abandoned-email action))
+                                     (t
+                                      (add-generic-action-log action
+                                                              "Error"
+                                                              (princ-to-string condition)
+                                                              "Pending")))
+                               (return))))
+                        (post-scheduled-action action))))))))))
 
 (defun start-actions-scheduler ()
   (start-task-thread
