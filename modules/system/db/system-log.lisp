@@ -17,9 +17,11 @@
 (defun system-logs ()
   (docs (system-logs-collection)))
 
+(defmethod doc-collection ((doc system-log))
+  (system-logs-collection))
+
 (defun log-entry (source status message)
-  (store-doc (system-logs-collection)
-             (make-instance 'system-log 
+  (persist (make-instance 'system-log 
                             :source source
                             :user (if (current-user)
                                       (email (current-user))
@@ -29,12 +31,10 @@
                             :remote-address (remote-addr*)
                             :entities (context)
                             :message message
-                            :stamp nil)
-             :duplicate-doc-p-func nil))
+                            :stamp nil)))
 
 (defun log-login (source email status message)
-  (store-doc (system-logs-collection)
-             (make-instance 'system-log 
+  (persist (make-instance 'system-log 
                             :source source
                             :user email
                             :status status
@@ -42,8 +42,7 @@
                             :remote-address (remote-addr*)
                             :entities nil
                             :message message
-                            :stamp nil)
-             :duplicate-doc-p-func nil))
+                            :stamp nil)))
 
 (add-collection (system-db) "system-log" 
                 :collection-class 'collection)

@@ -266,7 +266,10 @@
                                 " Support "
                                         ;(:b :class "caret")
                                 ))
-                      
+                      (when (read-only-p (system-db))
+                        (htm
+                         (:span :class "branding alert alert-danger"
+                                (:b "The DB is read-only. All changes will be lost."))))
                       (:ul :class "nav pull-right"
 
                            (:li :class "dropdown"
