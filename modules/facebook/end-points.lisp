@@ -24,7 +24,7 @@
   (handle-endpoint
    user
    (drakma:http-request 
-    (format nil "https://graph.facebook.com/~A/feed?limit=2000&since=~A&access_token=~A" 
+    (format nil "https://graph.facebook.com/~A/feed?limit=250&since=~A&access_token=~A" 
             (url-encode (get-val user 'user-id))
             (etypecase since
               (string since)
