@@ -311,7 +311,7 @@
                                     :test 'string-equal) 
                             (search crap (gpv (payload doc) :description) 
                                     :test 'string-equal))
-                    (remove-doc doc (email (current-user)))))))
+                    (remove-doc doc "REMOVE-CRAP-FOR-CAMAF")))))
             (generic-post-collection)))
 
 (defun start-social-mention-slow-listener ()
