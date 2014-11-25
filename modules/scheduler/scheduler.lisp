@@ -68,6 +68,8 @@
       (log-error (frmt "Failed to send email for error in ~s" task-name)
                  c))))
 
+;;; On network errors it retries RETRIES-ON-NETWORK-ERROR times, and when it doesn't succeed
+;;; it sends an email but doesn't stop the task.
 (defun start-task-thread (task-name function &key (retries-on-network-error 5))
   (bordeaux-threads:make-thread
    (lambda ()
@@ -82,7 +84,8 @@
                              (go :retry))
                            (send-error-email condition task-name)
                            (log-error task-name condition)
-                           (return)))
+                           (setf retries 0)
+                           (go :retry)))
                        (serious-condition
                          (lambda (condition)
                            (send-error-email condition task-name)
